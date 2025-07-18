@@ -1,0 +1,490 @@
+/* Star Trek Viewing Guide Styles */
+:root {
+    --primary-blue: #1e3a8a;
+    --secondary-blue: #3b82f6;
+    --accent-gold: #fbbf24;
+    --dark-bg: #0f172a;
+    --medium-bg: #1e293b;
+    --light-bg: #334155;
+    --text-primary: #f8fafc;
+    --text-secondary: #cbd5e1;
+    --border-color: #475569;
+    --success-color: #10b981;
+    --warning-color: #f59e0b;
+    --error-color: #ef4444;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, var(--dark-bg) 0%, var(--medium-bg) 100%);
+    color: var(--text-primary);
+    line-height: 1.6;
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Header Styles */
+header {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding: 2rem 0;
+    background: linear-gradient(45deg, var(--primary-blue), var(--secondary-blue));
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.subtitle {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+}
+
+.overall-progress {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.progress-bar {
+    width: 200px;
+    height: 8px;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent-gold), var(--success-color));
+    border-radius: 4px;
+    transition: width 0.3s ease;
+    width: 0;
+}
+
+.progress-text {
+    font-weight: 600;
+    color: var(--accent-gold);
+}
+
+/* Controls Styles */
+.controls {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    align-items: center;
+}
+
+.search-filter {
+    display: flex;
+    gap: 1rem;
+}
+
+.search-filter input,
+.search-filter select {
+    padding: 0.75rem;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    background-color: var(--medium-bg);
+    color: var(--text-primary);
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.search-filter input:focus,
+.search-filter select:focus {
+    outline: none;
+    border-color: var(--secondary-blue);
+}
+
+.search-filter input {
+    flex: 1;
+    min-width: 250px;
+}
+
+.control-buttons {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.control-buttons button {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 6px;
+    background-color: var(--secondary-blue);
+    color: var(--text-primary);
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.control-buttons button:hover {
+    background-color: var(--primary-blue);
+    transform: translateY(-1px);
+}
+
+#resetProgress {
+    background-color: var(--error-color);
+}
+
+#resetProgress:hover {
+    background-color: #dc2626;
+}
+
+/* Era Styles */
+.era {
+    margin-bottom: 1.5rem;
+    background-color: var(--medium-bg);
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    transition: transform 0.3s ease;
+}
+
+.era:hover {
+    transform: translateY(-2px);
+}
+
+.era-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    background: linear-gradient(45deg, var(--light-bg), var(--medium-bg));
+    cursor: pointer;
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color 0.3s ease;
+}
+
+.era-header:hover {
+    background: linear-gradient(45deg, var(--border-color), var(--light-bg));
+}
+
+.era-title h2 {
+    font-size: 1.5rem;
+    margin-bottom: 0.25rem;
+    color: var(--accent-gold);
+}
+
+.era-details {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.era-progress {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.era-progress .progress-bar {
+    width: 120px;
+    height: 6px;
+}
+
+.era-progress .progress-text {
+    font-size: 0.9rem;
+    min-width: 50px;
+}
+
+.expand-icon {
+    font-size: 1.2rem;
+    transition: transform 0.3s ease;
+    color: var(--accent-gold);
+}
+
+.era.expanded .expand-icon {
+    transform: rotate(180deg);
+}
+
+.era-description {
+    padding: 0 1.5rem 1rem;
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+.era-content {
+    display: none;
+    padding: 0 1.5rem 1.5rem;
+}
+
+.era.expanded .era-content {
+    display: block;
+}
+
+/* Viewing Item Styles */
+.viewing-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    background-color: var(--dark-bg);
+    border-radius: 8px;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.viewing-item:hover {
+    border-color: var(--secondary-blue);
+    background-color: rgba(59, 130, 246, 0.1);
+}
+
+.viewing-item.watched {
+    background-color: rgba(16, 185, 129, 0.1);
+    border-color: var(--success-color);
+}
+
+.item-checkbox {
+    margin-top: 0.25rem;
+}
+
+.item-checkbox input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: var(--success-color);
+}
+
+.item-content {
+    flex: 1;
+}
+
+.item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.5rem;
+}
+
+.item-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.item-type {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.item-type.series {
+    background-color: var(--secondary-blue);
+    color: white;
+}
+
+.item-type.movie {
+    background-color: var(--accent-gold);
+    color: var(--dark-bg);
+}
+
+.item-type.animated {
+    background-color: var(--warning-color);
+    color: var(--dark-bg);
+}
+
+.item-details {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.item-details span {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+}
+
+.item-year {
+    color: var(--accent-gold) !important;
+    font-weight: 600;
+}
+
+.item-stardate {
+    color: var(--secondary-blue) !important;
+}
+
+.item-episodes {
+    color: var(--success-color) !important;
+}
+
+.item-notes {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+/* Footer Styles */
+footer {
+    text-align: center;
+    margin-top: 3rem;
+    padding: 2rem 0;
+    border-top: 1px solid var(--border-color);
+    color: var(--text-secondary);
+}
+
+footer p {
+    margin-bottom: 0.5rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+
+    header h1 {
+        font-size: 2rem;
+    }
+
+    .controls {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .search-filter {
+        flex-direction: column;
+    }
+
+    .search-filter input {
+        min-width: auto;
+    }
+
+    .control-buttons {
+        justify-content: center;
+    }
+
+    .era-header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+
+    .era-progress {
+        justify-content: center;
+    }
+
+    .item-header {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .item-details {
+        gap: 0.5rem;
+    }
+
+    .overall-progress {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .progress-bar {
+        width: 150px;
+    }
+}
+
+@media (max-width: 480px) {
+    .viewing-item {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .item-checkbox {
+        align-self: flex-start;
+    }
+
+    .control-buttons {
+        flex-direction: column;
+    }
+
+    .control-buttons button {
+        width: 100%;
+    }
+}
+
+/* Animation for progress bars */
+@keyframes progressFill {
+    from {
+        width: 0;
+    }
+    to {
+        width: var(--target-width);
+    }
+}
+
+/* Loading states */
+.loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 3rem;
+    color: var(--text-secondary);
+}
+
+/* Filter highlight */
+.search-highlight {
+    background-color: var(--accent-gold);
+    color: var(--dark-bg);
+    padding: 0 2px;
+    border-radius: 2px;
+}
+
+/* Smooth scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Focus styles for accessibility */
+button:focus,
+input:focus,
+select:focus {
+    outline: 2px solid var(--accent-gold);
+    outline-offset: 2px;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--dark-bg);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--secondary-blue);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-blue);
+}
