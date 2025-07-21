@@ -1,0 +1,12 @@
+onlyBuiltDependencies:
+  - esbuild
+  - unrs-resolver
+
+overrides:
+  jiti: <2.2.0
+
+shamefullyHoist: true
+autoInstallPeers: false
+dedupePeerDependents: true
+shellEmulator: true
+strictPeerDependencies: true

@@ -1,13 +1,15 @@
 {
-	"servers": {
-		"sequential-thinking": {
-			"command": "npx",
-			"args": [
-				"-y",
-				"@modelcontextprotocol/server-sequential-thinking"
-			],
-			"type": "stdio"
-		}
-	},
-	"inputs": []
+    "servers": {
+        "sequential-thinking": {
+            "command": "npx",
+            "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"],
+            "type": "stdio"
+        },
+        "time": {
+            "command": "uvx",
+            "args": ["mcp-server-time", "--local-timezone=America/New_York"],
+            "type": "stdio"
+        }
+    },
+    "inputs": []
 }
