@@ -8,6 +8,7 @@ on:
 
 jobs:
   test:
+    name: Test
     runs-on: ubuntu-latest
 
     steps:
@@ -55,8 +56,9 @@ jobs:
           name: codecov-umbrella
 
   build:
-    runs-on: ubuntu-latest
+    name: Build
     needs: test
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code

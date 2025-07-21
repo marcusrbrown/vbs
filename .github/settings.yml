@@ -1,0 +1,25 @@
+# Extend default settings for all of my personal repositories defined in .github/settings.yml
+_extends: .github:common-settings.yaml
+
+repository:
+  name: vbs
+  description: Interactive Star Trek Viewing Guide
+  homepage: https://marcusrbrown.github.io/vbs/
+
+  topics: >-
+    star-trek,
+    viewing-guide,
+    chronological,
+    progress-tracker,
+    local-first
+
+branches:
+  - name: main
+    protection:
+      required_status_checks:
+        strict: false
+        contexts: [Build, Build (for GitHub Pages), Deploy, Renovate / Renovate, Test]
+      enforce_admins: true
+      required_pull_request_reviews: null
+      restrictions: null
+      required_linear_history: true
