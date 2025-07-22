@@ -18,7 +18,7 @@ branches:
     protection:
       required_status_checks:
         strict: false
-        contexts: [Build, Build (for GitHub Pages), Deploy, Renovate / Renovate, Test]
+        contexts: [Build, Test]
       enforce_admins: true
       required_pull_request_reviews: null
       restrictions: null
