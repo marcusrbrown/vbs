@@ -8,7 +8,7 @@ on:
   pull_request:
     types: [edited]
   push:
-    branches-ignore: [main, renovate/configure]
+    branches-ignore: [main]
   workflow_dispatch:
     inputs:
       log-level:
@@ -24,7 +24,7 @@ on:
   workflow_run:
     branches: [main]
     types: [completed]
-    workflows: [Main]
+    workflows: [CI]
 
 permissions:
   contents: read
