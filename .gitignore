@@ -56,3 +56,7 @@ pids/
 # Temporary folders
 tmp/
 temp/
+
+# Cursor files (used as input to custom prompts)
+.cursor/
+.cursorrules
