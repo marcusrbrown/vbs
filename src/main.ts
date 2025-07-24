@@ -10,11 +10,9 @@ import {
 import {TimelineRenderer} from './modules/timeline.js'
 import './style.css'
 
-class StarTrekViewingGuide {
-  private progressTracker: ProgressTracker
-  private searchFilter: SearchFilter
-  private timelineRenderer: TimelineRenderer | null
-  private elements: {
+// Factory function to create DOM elements manager
+const createElementsManager = () => {
+  let elements: {
     container: HTMLElement | null
     searchInput: HTMLInputElement | null
     filterSelect: HTMLSelectElement | null
@@ -24,147 +22,67 @@ class StarTrekViewingGuide {
     exportProgressBtn: HTMLButtonElement | null
     importButton: HTMLButtonElement | null
     importProgressInput: HTMLInputElement | null
+  } = {
+    container: null,
+    searchInput: null,
+    filterSelect: null,
+    expandAllBtn: null,
+    collapseAllBtn: null,
+    resetProgressBtn: null,
+    exportProgressBtn: null,
+    importButton: null,
+    importProgressInput: null,
   }
 
-  constructor() {
-    this.progressTracker = new ProgressTracker()
-    this.searchFilter = new SearchFilter()
-    this.timelineRenderer = null
-    this.elements = {
-      container: null,
-      searchInput: null,
-      filterSelect: null,
-      expandAllBtn: null,
-      collapseAllBtn: null,
-      resetProgressBtn: null,
-      exportProgressBtn: null,
-      importButton: null,
-      importProgressInput: null,
-    }
+  return {
+    initialize: () => {
+      elements = {
+        container: document.querySelector('#timelineContainer'),
+        searchInput: document.querySelector('#searchInput'),
+        filterSelect: document.querySelector('#filterSelect'),
+        expandAllBtn: document.querySelector('#expandAll'),
+        collapseAllBtn: document.querySelector('#collapseAll'),
+        resetProgressBtn: document.querySelector('#resetProgress'),
+        exportProgressBtn: document.querySelector('#exportProgress'),
+        importProgressInput: document.querySelector('#importProgress'),
+        importButton: document.querySelector('#importButton'),
+      }
 
-    this.init()
+      if (!elements.container) {
+        throw new Error('Timeline container not found')
+      }
+    },
+    get: () => elements,
+    getContainer: () => elements.container,
   }
+}
 
-  init() {
-    // Wait for DOM to be ready
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', () => this.setupApp())
-    } else {
-      this.setupApp()
-    }
-  }
-
-  setupApp() {
-    this.initializeElements()
-    this.setupEventListeners()
-    this.loadInitialData()
-    this.render()
-  }
-
-  initializeElements(): void {
-    this.elements = {
-      container: document.querySelector('#timelineContainer'),
-      searchInput: document.querySelector('#searchInput'),
-      filterSelect: document.querySelector('#filterSelect'),
-      expandAllBtn: document.querySelector('#expandAll'),
-      collapseAllBtn: document.querySelector('#collapseAll'),
-      resetProgressBtn: document.querySelector('#resetProgress'),
-      exportProgressBtn: document.querySelector('#exportProgress'),
-      importProgressInput: document.querySelector('#importProgress'),
-      importButton: document.querySelector('#importButton'),
-    }
-
-    if (!this.elements.container) {
-      throw new Error('Timeline container not found')
-    }
-
-    this.timelineRenderer = new TimelineRenderer(this.elements.container, this.progressTracker)
-  }
-
-  setupEventListeners(): void {
-    // Search and filter
-    this.elements.searchInput?.addEventListener('input', e => {
-      const target = e.target as HTMLInputElement
-      this.searchFilter.setSearch(target.value)
-    })
-
-    this.elements.filterSelect?.addEventListener('change', e => {
-      const target = e.target as HTMLSelectElement
-      this.searchFilter.setFilter(target.value)
-    })
-
-    // Control buttons
-    this.elements.expandAllBtn?.addEventListener('click', () => {
-      this.timelineRenderer?.expandAll()
-    })
-
-    this.elements.collapseAllBtn?.addEventListener('click', () => {
-      this.timelineRenderer?.collapseAll()
-    })
-
-    this.elements.resetProgressBtn?.addEventListener('click', () => {
-      this.handleResetProgress()
-    })
-
-    this.elements.exportProgressBtn?.addEventListener('click', () => {
-      exportProgress(this.progressTracker.getWatchedItems())
-    })
-
-    this.elements.importButton?.addEventListener('click', () => {
-      this.elements.importProgressInput?.click()
-    })
-
-    this.elements.importProgressInput?.addEventListener('change', e => {
-      this.handleImportProgress(e).catch(console.error)
-    })
-
-    // Progress tracker callbacks
-    this.progressTracker.onItemToggle((_itemId, _isWatched) => {
-      saveProgress(this.progressTracker.getWatchedItems())
-      this.timelineRenderer?.updateItemStates()
-    })
-
-    this.progressTracker.onProgressUpdate((progressData: OverallProgress) => {
-      this.timelineRenderer?.updateProgress(progressData)
-    })
-
-    // Search filter callbacks
-    this.searchFilter.onFilterChange((filteredData: StarTrekEra[]) => {
-      this.timelineRenderer?.render(filteredData)
-      this.timelineRenderer?.updateItemStates()
-    })
-  }
-
-  loadInitialData(): void {
-    const savedProgress = loadProgress()
-    this.progressTracker.setWatchedItems(savedProgress)
-  }
-
-  render(): void {
-    const filteredData = this.searchFilter.getFilteredData()
-    this.timelineRenderer?.render(filteredData)
-    this.timelineRenderer?.updateItemStates()
-  }
-
-  handleResetProgress(): void {
+// Factory function to create event handlers
+const createEventHandlers = (
+  progressTracker: ProgressTracker,
+  searchFilter: SearchFilter,
+  timelineRenderer: TimelineRenderer | null,
+  elementsManager: ReturnType<typeof createElementsManager>,
+) => {
+  const handleResetProgress = (): void => {
     // eslint-disable-next-line no-alert
     if (confirm('Are you sure you want to reset all progress? This cannot be undone.')) {
-      this.progressTracker.resetProgress()
+      progressTracker.resetProgress()
       saveProgress([])
-      this.timelineRenderer?.updateItemStates()
+      timelineRenderer?.updateItemStates()
     }
   }
 
-  async handleImportProgress(event: Event): Promise<void> {
+  const handleImportProgress = async (event: Event): Promise<void> => {
     const target = event.target as HTMLInputElement
     const file = target.files?.[0]
     if (!file) return
 
     try {
       const progress = await importProgressFromFile(file)
-      this.progressTracker.setWatchedItems(progress)
+      progressTracker.setWatchedItems(progress)
       saveProgress(progress)
-      this.timelineRenderer?.updateItemStates()
+      timelineRenderer?.updateItemStates()
       // eslint-disable-next-line no-alert
       alert('Progress imported successfully!')
     } catch (error) {
@@ -176,8 +94,129 @@ class StarTrekViewingGuide {
     // Reset file input
     target.value = ''
   }
+
+  const setupEventListeners = (): void => {
+    const elements = elementsManager.get()
+
+    // Search and filter
+    elements.searchInput?.addEventListener('input', e => {
+      const target = e.target as HTMLInputElement
+      searchFilter.setSearch(target.value)
+    })
+
+    elements.filterSelect?.addEventListener('change', e => {
+      const target = e.target as HTMLSelectElement
+      searchFilter.setFilter(target.value)
+    })
+
+    // Control buttons
+    elements.expandAllBtn?.addEventListener('click', () => {
+      timelineRenderer?.expandAll()
+    })
+
+    elements.collapseAllBtn?.addEventListener('click', () => {
+      timelineRenderer?.collapseAll()
+    })
+
+    elements.resetProgressBtn?.addEventListener('click', () => {
+      handleResetProgress()
+    })
+
+    elements.exportProgressBtn?.addEventListener('click', () => {
+      exportProgress(progressTracker.getWatchedItems())
+    })
+
+    elements.importButton?.addEventListener('click', () => {
+      elements.importProgressInput?.click()
+    })
+
+    elements.importProgressInput?.addEventListener('change', e => {
+      handleImportProgress(e).catch(console.error)
+    })
+
+    // Progress tracker callbacks
+    progressTracker.onItemToggle((_itemId, _isWatched) => {
+      saveProgress(progressTracker.getWatchedItems())
+      timelineRenderer?.updateItemStates()
+    })
+
+    progressTracker.onProgressUpdate((progressData: OverallProgress) => {
+      timelineRenderer?.updateProgress(progressData)
+    })
+
+    // Search filter callbacks
+    searchFilter.onFilterChange((filteredData: StarTrekEra[]) => {
+      timelineRenderer?.render(filteredData)
+      timelineRenderer?.updateItemStates()
+    })
+  }
+
+  return {
+    setupEventListeners,
+    handleResetProgress,
+    handleImportProgress,
+  }
+}
+
+// Factory function to create the main application
+const createStarTrekViewingGuide = () => {
+  // Create module instances
+  const progressTracker = new ProgressTracker()
+  const searchFilter = new SearchFilter()
+  let timelineRenderer: TimelineRenderer | null = null
+
+  // Create managers
+  const elementsManager = createElementsManager()
+
+  const loadInitialData = (): void => {
+    const savedProgress = loadProgress()
+    progressTracker.setWatchedItems(savedProgress)
+  }
+
+  const render = (): void => {
+    const filteredData = searchFilter.getFilteredData()
+    timelineRenderer?.render(filteredData)
+    timelineRenderer?.updateItemStates()
+  }
+
+  const setupApp = (): void => {
+    elementsManager.initialize()
+
+    const container = elementsManager.getContainer()
+    if (container) {
+      timelineRenderer = new TimelineRenderer(container, progressTracker)
+    }
+
+    const eventHandlers = createEventHandlers(
+      progressTracker,
+      searchFilter,
+      timelineRenderer,
+      elementsManager,
+    )
+    eventHandlers.setupEventListeners()
+
+    loadInitialData()
+    render()
+  }
+
+  const init = (): void => {
+    // Wait for DOM to be ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => setupApp())
+    } else {
+      setupApp()
+    }
+  }
+
+  return {
+    init,
+    progressTracker,
+    searchFilter,
+    timelineRenderer: () => timelineRenderer,
+    elementsManager,
+  }
 }
 
 // Initialize the application
-// eslint-disable-next-line no-new
-new StarTrekViewingGuide()
+const app = createStarTrekViewingGuide()
+app.init()
