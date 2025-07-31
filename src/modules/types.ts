@@ -82,3 +82,11 @@ export interface TimelineRendererInstance {
   updateItemStates(): void
   calculateEraProgress(era: StarTrekEra): EraProgress
 }
+
+// Factory function signature type aliases
+export type CreateProgressTracker = () => ProgressTrackerInstance
+export type CreateSearchFilter = () => SearchFilterInstance
+export type CreateTimelineRenderer = (
+  container: HTMLElement,
+  progressTracker: ProgressTrackerInstance,
+) => TimelineRendererInstance
