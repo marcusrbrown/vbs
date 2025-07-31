@@ -1,12 +1,17 @@
-import type {ProgressTracker} from './progress.js'
-import type {EraProgress, OverallProgress, StarTrekEra, StarTrekItem} from './types.js'
+import type {
+  EraProgress,
+  OverallProgress,
+  ProgressTrackerInstance,
+  StarTrekEra,
+  StarTrekItem,
+} from './types.js'
 
 export class TimelineRenderer {
   private container: HTMLElement
-  private progressTracker: ProgressTracker
+  private progressTracker: ProgressTrackerInstance
   private expandedEras: Set<string>
 
-  constructor(container: HTMLElement, progressTracker: ProgressTracker) {
+  constructor(container: HTMLElement, progressTracker: ProgressTrackerInstance) {
     this.container = container
     this.progressTracker = progressTracker
     this.expandedEras = new Set()

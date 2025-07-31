@@ -1,11 +1,12 @@
+import type {ProgressTrackerInstance} from '../src/modules/types.js'
 import {beforeEach, describe, expect, it} from 'vitest'
-import {ProgressTracker} from '../src/modules/progress.js'
+import {createProgressTracker} from '../src/modules/progress.js'
 
 describe('ProgressTracker', () => {
-  let progressTracker: ProgressTracker
+  let progressTracker: ProgressTrackerInstance
 
   beforeEach(() => {
-    progressTracker = new ProgressTracker()
+    progressTracker = createProgressTracker()
   })
 
   it('should initialize with empty watched items', () => {
