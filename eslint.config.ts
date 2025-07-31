@@ -5,6 +5,7 @@ export default defineConfig({
   name,
   ignores: [
     '.ai/',
+    '.github/chatmodes/**',
     '.github/instructions/**',
     '.github/copilot-instructions.md',
     'viewing-guide.md',
