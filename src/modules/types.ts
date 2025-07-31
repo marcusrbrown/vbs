@@ -46,3 +46,39 @@ export interface ProgressExportData {
 export type ItemToggleCallback = (itemId: string, isWatched: boolean) => void
 export type ProgressUpdateCallback = (progressData: OverallProgress) => void
 export type FilterChangeCallback = (filteredData: StarTrekEra[]) => void
+
+// Factory function return type definitions
+export interface ProgressTrackerInstance {
+  setWatchedItems(items: string[]): void
+  toggleItem(itemId: string): void
+  isWatched(itemId: string): boolean
+  resetProgress(): void
+  getWatchedItems(): string[]
+  updateProgress(): void
+  calculateOverallProgress(): ProgressData
+  calculateEraProgress(): EraProgress[]
+  onItemToggle(callback: ItemToggleCallback): void
+  onProgressUpdate(callback: ProgressUpdateCallback): void
+}
+
+export interface SearchFilterInstance {
+  setSearch(searchTerm: string): void
+  setFilter(filterType: string): void
+  getFilteredData(): StarTrekEra[]
+  matchesFilters(item: StarTrekItem): boolean
+  notifyFilterChange(): void
+  onFilterChange(callback: FilterChangeCallback): void
+  getCurrentFilters(): FilterState
+}
+
+export interface TimelineRendererInstance {
+  render(data: StarTrekEra[]): void
+  createEraElement(era: StarTrekEra): HTMLDivElement
+  createItemElement(item: StarTrekItem): string
+  toggleEra(eraId: string): void
+  expandAll(): void
+  collapseAll(): void
+  updateProgress(progressData: OverallProgress): void
+  updateItemStates(): void
+  calculateEraProgress(era: StarTrekEra): EraProgress
+}
