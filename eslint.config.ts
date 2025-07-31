@@ -3,7 +3,12 @@ import {name} from './package.json'
 
 export default defineConfig({
   name,
-  ignores: ['.github/instructions/**', '.github/copilot-instructions.md', 'viewing-guide.md'],
+  ignores: [
+    '.ai/',
+    '.github/instructions/**',
+    '.github/copilot-instructions.md',
+    'viewing-guide.md',
+  ],
   typescript: {
     tsconfigPath: './tsconfig.json',
   },
