@@ -60,3 +60,6 @@ temp/
 # Cursor files (used as input to custom prompts)
 .cursor/
 .cursorrules
+
+# AI notes and prompts
+.ai/notes/
