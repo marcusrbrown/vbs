@@ -1,11 +1,12 @@
+import type {SearchFilterInstance} from '../src/modules/types.js'
 import {beforeEach, describe, expect, it} from 'vitest'
-import {SearchFilter} from '../src/modules/search.js'
+import {createSearchFilter} from '../src/modules/search.js'
 
 describe('SearchFilter', () => {
-  let searchFilter: SearchFilter
+  let searchFilter: SearchFilterInstance
 
   beforeEach(() => {
-    searchFilter = new SearchFilter()
+    searchFilter = createSearchFilter()
   })
 
   it('should initialize with empty filters', () => {

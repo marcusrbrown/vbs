@@ -1,65 +1,75 @@
-import type {FilterChangeCallback, FilterState, StarTrekEra, StarTrekItem} from './types.js'
+import type {
+  FilterChangeCallback,
+  FilterState,
+  SearchFilterInstance,
+  StarTrekEra,
+  StarTrekItem,
+} from './types.js'
 import {starTrekData} from '../data/star-trek-data.js'
 
-export class SearchFilter {
-  private currentSearch: string
-  private currentFilter: string
-  private callbacks: {
-    onFilterChange: FilterChangeCallback[]
+export const createSearchFilter = (): SearchFilterInstance => {
+  // Closure variables for private state
+  let currentSearch = ''
+  let currentFilter = ''
+  const callbacks = {
+    onFilterChange: [] as FilterChangeCallback[],
   }
 
-  constructor() {
-    this.currentSearch = ''
-    this.currentFilter = ''
-    this.callbacks = {
-      onFilterChange: [],
-    }
-  }
-
-  setSearch(searchTerm: string): void {
-    this.currentSearch = searchTerm.toLowerCase()
-    this.notifyFilterChange()
-  }
-
-  setFilter(filterType: string): void {
-    this.currentFilter = filterType
-    this.notifyFilterChange()
-  }
-
-  getFilteredData(): StarTrekEra[] {
-    return starTrekData
-      .map(era => ({
-        ...era,
-        items: era.items.filter(item => this.matchesFilters(item)),
-      }))
-      .filter(era => era.items.length > 0)
-  }
-
-  matchesFilters(item: StarTrekItem): boolean {
+  const matchesFilters = (item: StarTrekItem): boolean => {
     const matchesSearch =
-      !this.currentSearch ||
-      item.title.toLowerCase().includes(this.currentSearch) ||
-      item.notes.toLowerCase().includes(this.currentSearch) ||
-      item.year.toLowerCase().includes(this.currentSearch)
+      !currentSearch ||
+      item.title.toLowerCase().includes(currentSearch) ||
+      item.notes.toLowerCase().includes(currentSearch) ||
+      item.year.toLowerCase().includes(currentSearch)
 
-    const matchesFilter = !this.currentFilter || item.type === this.currentFilter
+    const matchesFilter = !currentFilter || item.type === currentFilter
 
     return matchesSearch && matchesFilter
   }
 
-  notifyFilterChange(): void {
-    const filteredData = this.getFilteredData()
-    this.callbacks.onFilterChange.forEach(callback => callback(filteredData))
+  const getFilteredData = (): StarTrekEra[] => {
+    return starTrekData
+      .map(era => ({
+        ...era,
+        items: era.items.filter(item => matchesFilters(item)),
+      }))
+      .filter(era => era.items.length > 0)
   }
 
-  onFilterChange(callback: FilterChangeCallback): void {
-    this.callbacks.onFilterChange.push(callback)
+  const notifyFilterChange = (): void => {
+    const filteredData = getFilteredData()
+    callbacks.onFilterChange.forEach(callback => callback(filteredData))
   }
 
-  getCurrentFilters(): FilterState {
+  const setSearch = (searchTerm: string): void => {
+    currentSearch = searchTerm.toLowerCase()
+    notifyFilterChange()
+  }
+
+  const setFilter = (filterType: string): void => {
+    currentFilter = filterType
+    notifyFilterChange()
+  }
+
+  const onFilterChange = (callback: FilterChangeCallback): void => {
+    callbacks.onFilterChange.push(callback)
+  }
+
+  const getCurrentFilters = (): FilterState => {
     return {
-      search: this.currentSearch,
-      filter: this.currentFilter,
+      search: currentSearch,
+      filter: currentFilter,
     }
+  }
+
+  // Return public API
+  return {
+    setSearch,
+    setFilter,
+    getFilteredData,
+    matchesFilters,
+    notifyFilterChange,
+    onFilterChange,
+    getCurrentFilters,
   }
 }

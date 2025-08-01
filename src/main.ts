@@ -1,6 +1,11 @@
-import type {OverallProgress, ProgressTrackerInstance, StarTrekEra} from './modules/types.js'
+import type {
+  OverallProgress,
+  ProgressTrackerInstance,
+  SearchFilterInstance,
+  StarTrekEra,
+} from './modules/types.js'
 import {createProgressTracker} from './modules/progress.js'
-import {SearchFilter} from './modules/search.js'
+import {createSearchFilter} from './modules/search.js'
 import {
   exportProgress,
   importProgressFromFile,
@@ -60,7 +65,7 @@ const createElementsManager = () => {
 // Factory function to create event handlers
 const createEventHandlers = (
   progressTracker: ProgressTrackerInstance,
-  searchFilter: SearchFilter,
+  searchFilter: SearchFilterInstance,
   timelineRenderer: TimelineRenderer | null,
   elementsManager: ReturnType<typeof createElementsManager>,
 ) => {
@@ -162,7 +167,7 @@ const createEventHandlers = (
 const createStarTrekViewingGuide = () => {
   // Create module instances
   const progressTracker = createProgressTracker()
-  const searchFilter = new SearchFilter()
+  const searchFilter = createSearchFilter()
   let timelineRenderer: TimelineRenderer | null = null
 
   // Create managers
