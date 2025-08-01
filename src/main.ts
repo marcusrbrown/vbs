@@ -3,6 +3,7 @@ import type {
   ProgressTrackerInstance,
   SearchFilterInstance,
   StarTrekEra,
+  TimelineRendererInstance,
 } from './modules/types.js'
 import {createProgressTracker} from './modules/progress.js'
 import {createSearchFilter} from './modules/search.js'
@@ -12,7 +13,7 @@ import {
   loadProgress,
   saveProgress,
 } from './modules/storage.js'
-import {TimelineRenderer} from './modules/timeline.js'
+import {createTimelineRenderer} from './modules/timeline.js'
 import './style.css'
 
 // Factory function to create DOM elements manager
@@ -66,7 +67,7 @@ const createElementsManager = () => {
 const createEventHandlers = (
   progressTracker: ProgressTrackerInstance,
   searchFilter: SearchFilterInstance,
-  timelineRenderer: TimelineRenderer | null,
+  timelineRenderer: TimelineRendererInstance | null,
   elementsManager: ReturnType<typeof createElementsManager>,
 ) => {
   const handleResetProgress = (): void => {
@@ -168,7 +169,7 @@ const createStarTrekViewingGuide = () => {
   // Create module instances
   const progressTracker = createProgressTracker()
   const searchFilter = createSearchFilter()
-  let timelineRenderer: TimelineRenderer | null = null
+  let timelineRenderer: TimelineRendererInstance | null = null
 
   // Create managers
   const elementsManager = createElementsManager()
@@ -189,7 +190,7 @@ const createStarTrekViewingGuide = () => {
 
     const container = elementsManager.getContainer()
     if (container) {
-      timelineRenderer = new TimelineRenderer(container, progressTracker)
+      timelineRenderer = createTimelineRenderer(container, progressTracker)
     }
 
     const eventHandlers = createEventHandlers(
