@@ -91,6 +91,26 @@ pnpm lint         # ESLint with @bfra.me/eslint-config
 
 **Build target**: `/vbs/` base path for GitHub Pages deployment.
 
+## Git Workflow & Pre-commit Hooks
+
+VBS uses automated Git pre-commit hooks to enforce code quality and formatting before every commit. This is managed by [simple-git-hooks](https://github.com/toplenboren/simple-git-hooks) and [lint-staged](https://github.com/lint-staged/lint-staged).
+
+- **Pre-commit hook runs automatically** on all staged files matching supported extensions (.ts, .js, .json, .md, .css, .yaml, .yml) before every commit.
+- **ESLint with Prettier**: The hook runs `eslint --fix` (using the project's ESLint and Prettier config) to auto-fix and check code style issues.
+- **Commit blocking**: If any linting errors cannot be auto-fixed, the commit is blocked and errors are shown in the terminal. Fix issues and re-stage files before retrying.
+- **Performance**: Only staged files are processed for speed.
+- **No interference**: The hook does not run tests or affect the Vitest runner.
+
+### Bypassing Hooks (Emergency Only)
+
+If you must bypass the pre-commit hook (e.g., for an emergency hotfix), use:
+
+```bash
+git commit --no-verify
+```
+
+> **Warning:** Only bypass hooks for emergencies. All code must pass linting and formatting before merging to `main`.
+
 ## Testing Patterns
 
 Use Vitest with `describe` suites grouping related functionality:
