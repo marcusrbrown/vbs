@@ -1,8 +1,7 @@
 {
   "name": "@marcusrbrown/vbs",
-  "private": true,
   "version": "0.0.0",
-  "type": "module",
+  "private": true,
   "description": "A chronological Star Trek viewing guide with progress tracking",
   "keywords": [
     "star-trek",
@@ -11,22 +10,34 @@
     "progress-tracker",
     "local-first"
   ],
-  "author": "Marcus R. Brown <vbs@mrbro.dev>",
   "license": "MIT",
+  "author": "Marcus R. Brown <vbs@mrbro.dev>",
+  "type": "module",
   "scripts": {
-    "dev": "vite",
     "build": "tsc && vite build",
+    "dev": "vite",
+    "fix": "eslint . --fix",
+    "lint": "eslint .",
+    "lint-staged": "lint-staged",
+    "prepare": "simple-git-hooks",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",
-    "lint": "eslint .",
-    "fix": "eslint . --fix",
-    "type-check": "tsc --noEmit",
-    "prepare": "simple-git-hooks",
-    "lint-staged": "lint-staged"
+    "test:ui": "vitest --ui",
+    "type-check": "tsc --noEmit"
   },
-  "packageManager": "pnpm@10.13.1",
+  "simple-git-hooks": {
+    "pre-commit": "pnpm exec lint-staged"
+  },
+  "lint-staged": {
+    "*.{ts,js,jsx,tsx,css,md,json,yaml,yml}": [
+      "eslint --fix"
+    ],
+    "package.json": [
+      "pnpx sort-package-json"
+    ]
+  },
+  "prettier": "@bfra.me/prettier-config",
   "devDependencies": {
     "@bfra.me/eslint-config": "^0.25.0",
     "@bfra.me/prettier-config": "^0.16.0",
@@ -48,13 +59,5 @@
     "vite": "^7.0.0",
     "vitest": "^3.2.4"
   },
-  "prettier": "@bfra.me/prettier-config",
-  "simple-git-hooks": {
-    "pre-commit": "pnpm exec lint-staged"
-  },
-  "lint-staged": {
-    "*.{ts,js,jsx,tsx,css,md,json,yaml,yml}": [
-      "eslint --fix"
-    ]
-  }
+  "packageManager": "pnpm@10.13.1"
 }
