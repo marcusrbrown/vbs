@@ -2,61 +2,60 @@
 
 ## Project Overview
 
-VBS (View By Stardate) is a local-first Star Trek chronological viewing guide built with TypeScript, Vite, and vanilla DOM APIs. The app tracks viewing progress across 7 chronological eras spanning 22nd-32nd centuries using browser LocalStorage.
+VBS (View By Stardate) is a local-first Star Trek chronological viewing guide built with TypeScript, Vite, and vanilla DOM APIs. The app tracks viewing progress across 7 chronological eras spanning 22nd-32nd centuries using browser LocalStorage, with planned migration to IndexedDB for enhanced capabilities.
 
 ## Architecture Pattern
 
-The project uses **functional factory patterns** with closures for state management and clear separation of concerns:
+The project uses **functional factory patterns** with closures for state management and clear separation of concerns. This architecture was recently refactored from class-based patterns (July 2025) to eliminate `this` binding issues and enable better functional composition.
 
-### Current: Functional Factory Architecture
+### Functional Factory Architecture
 
-- `StarTrekViewingGuide` (main.ts): Central coordinator managing DOM elements and module interactions
-- `createProgressTracker`: Factory function managing watched items state and progress calculations
-- `createSearchFilter`: Factory function handling real-time search and content filtering
-- `createTimelineRenderer`: Factory function rendering era-based timeline with collapsible sections
-- `storage.ts`: Handles import/export of progress data as JSON
+- `createStarTrekViewingGuide` (main.ts): Main application factory coordinating all modules and DOM interactions
+- `createProgressTracker`: Factory managing watched items state and hierarchical progress calculations
+- `createSearchFilter`: Factory handling real-time search and content filtering with callbacks
+- `createTimelineRenderer`: Factory rendering era-based timeline with collapsible sections and progress integration
+- `createElementsManager`: Factory for DOM element caching and management
+- `storage.ts`: Handles import/export of progress data as JSON (planned upgrade to IndexedDB)
 
 ### Factory Function Pattern
 
-**Factory functions with closures** for state management:
+**Factory functions with closures** for private state management:
 
 ```typescript
-// Factory function approach
-export const createProgressTracker = () => {
+// Factory function with closure-based state
+export const createProgressTracker = (): ProgressTrackerInstance => {
+  // Private state in closure
   let watchedItems: string[] = []
+  const callbacks: {
+    onItemToggle: ItemToggleCallback[]
+    onProgressUpdate: ProgressUpdateCallback[]
+  } = { onItemToggle: [], onProgressUpdate: [] }
 
+  // Private helper functions
+  const calculateOverallProgress = (): ProgressData => { /* ... */ }
+  const updateProgress = (): void => { /* notify callbacks */ }
+
+  // Return public API object
   return {
-    toggleItem: (itemId: string) => { /* closure-based state */ },
+    toggleItem: (itemId: string) => { /* mutate closure state */ },
     isWatched: (itemId: string) => watchedItems.includes(itemId),
     getWatchedItems: () => [...watchedItems], // immutable copy
-    calculateProgress: () => calculateOverallProgress(watchedItems)
+    onItemToggle: (callback: ItemToggleCallback) => callbacks.onItemToggle.push(callback)
   }
 }
 
-// Pure function utilities
-export const calculateEraProgress = (watchedIds: string[], items: StarTrekItem[]) => ({
-  total: items.length,
-  completed: items.filter(item => watchedIds.includes(item.id)).length,
-  percentage: Math.round((completed / items.length) * 100)
-})
-
-// Composition over inheritance
-const createApp = () => {
-  const progress = createProgressTracker()
-  const search = createSearchFilter()
-  const timeline = createTimelineRenderer()
-
-  // Connect via function composition
-  const updateProgress = (itemId: string) => {
-    progress.toggleItem(itemId)
-    timeline.updateProgress(progress.getWatchedItems())
-  }
-
-  return { progress, search, timeline, updateProgress }
+// Dependency injection between factories
+const createTimelineRenderer = (
+  container: HTMLElement,
+  progressTracker: ProgressTrackerInstance
+): TimelineRendererInstance => {
+  // Use injected dependency in closure
+  const isWatched = (itemId: string) => progressTracker.isWatched(itemId)
+  // ... rest of implementation
 }
 ```
 
-**Key principles**: Immutable state with controlled mutations, composable pure functions, no `this` binding issues.
+**Key principles**: Immutable state copies, controlled mutations via closures, dependency injection, no `this` binding issues.
 
 ## Data Structure
 
@@ -85,8 +84,10 @@ interface StarTrekItem {
 pnpm dev          # Vite dev server (port 3000)
 pnpm test         # Vitest unit tests
 pnpm test:ui      # Visual test runner
+pnpm test:coverage # Coverage reports
 pnpm build        # TypeScript + Vite production build
 pnpm lint         # ESLint with @bfra.me/eslint-config
+pnpm fix          # Auto-fix linting issues
 ```
 
 **Build target**: `/vbs/` base path for GitHub Pages deployment.
@@ -113,18 +114,24 @@ git commit --no-verify
 
 ## Testing Patterns
 
-Use Vitest with `describe` suites grouping related functionality:
+Use Vitest with factory function instantiation in `beforeEach`:
 
 ```typescript
 describe('ProgressTracker', () => {
-  let progressTracker: ReturnType<typeof createProgressTracker>
+  let progressTracker: ProgressTrackerInstance
 
   beforeEach(() => {
-    progressTracker = createProgressTracker()
+    progressTracker = createProgressTracker() // Factory function
   })
+
+  it('should toggle items correctly', () => {
+    progressTracker.toggleItem('ent_s1')
+    expect(progressTracker.isWatched('ent_s1')).toBe(true)
+  })
+})
 ```
 
-**Mock LocalStorage** for storage-related tests. Import modules using `.js` extensions (TypeScript ES modules).
+**Mock LocalStorage** for storage tests. Import modules using `.js` extensions (TypeScript ES modules). Test factory functions, not classes.
 
 ## Code Style Specifics
 
@@ -164,3 +171,28 @@ When adding features, consider these integration points:
 - **New progress metrics**: Extend `ProgressData` interface and update calculation methods
 - **New export formats**: Add handlers in `storage.ts` alongside existing JSON export
 - **Timeline visualization**: The factory functions are designed for extension with chart libraries
+
+## Planned Major Features
+
+VBS has comprehensive implementation plans for major feature expansions:
+
+### Episode-Level Tracking (Planned)
+- Individual episode progress vs current season-level tracking
+- Episode metadata: title, air date, synopsis, plot points, guest stars, connections
+- Hierarchical progress: episode → season → series → era
+- New interfaces: `Episode`, `EpisodeProgress`, `SeasonProgress`
+- Migration system from current season-based progress
+
+### Advanced Features (Planned)
+- **Interactive Timeline**: D3.js chronological visualization with zoom/pan
+- **User Preferences**: Dark/light themes, compact view, accessibility settings
+- **Streaming Integration**: Paramount+/Netflix availability via APIs
+- **Local-First Architecture**: Service Workers + IndexedDB replacing LocalStorage
+- **PWA Capabilities**: Offline support, app installation, background sync
+
+### Integration Guidelines for New Features
+- Extend existing factory functions rather than creating new architectures
+- Use IndexedDB for complex data, LocalStorage for simple preferences
+- Follow closure-based state management patterns
+- Implement proper TypeScript interfaces in `types.ts`
+- Add comprehensive Vitest tests for all new functionality
