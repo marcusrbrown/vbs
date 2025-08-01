@@ -6,17 +6,17 @@ VBS (View By Stardate) is a local-first Star Trek chronological viewing guide bu
 
 ## Architecture Pattern
 
-The project supports both **class-based** and **functional** modular architectures with clear separation of concerns:
+The project uses **functional factory patterns** with closures for state management and clear separation of concerns:
 
-### Current: Class-Based Architecture
+### Current: Functional Factory Architecture
 
 - `StarTrekViewingGuide` (main.ts): Central coordinator managing DOM elements and module interactions
-- `ProgressTracker`: Manages watched items state and progress calculations
-- `SearchFilter`: Handles real-time search and content filtering
-- `TimelineRenderer`: Renders era-based timeline with collapsible sections
+- `createProgressTracker`: Factory function managing watched items state and progress calculations
+- `createSearchFilter`: Factory function handling real-time search and content filtering
+- `createTimelineRenderer`: Factory function rendering era-based timeline with collapsible sections
 - `storage.ts`: Handles import/export of progress data as JSON
 
-### Alternative: Functional Architecture
+### Factory Function Pattern
 
 **Factory functions with closures** for state management:
 
@@ -97,10 +97,10 @@ Use Vitest with `describe` suites grouping related functionality:
 
 ```typescript
 describe('ProgressTracker', () => {
-  let progressTracker: ProgressTracker
+  let progressTracker: ReturnType<typeof createProgressTracker>
 
   beforeEach(() => {
-    progressTracker = new ProgressTracker()
+    progressTracker = createProgressTracker()
   })
 ```
 
@@ -130,7 +130,7 @@ interface ProgressExportData {
 
 ## Common Patterns
 
-**DOM element caching**: All frequently accessed elements are cached in `this.elements` object on initialization.
+**DOM element caching**: All frequently accessed elements are cached in the main application's `elements` object on initialization.
 
 **Event delegation**: Use event listeners on containers rather than individual items for performance.
 
@@ -143,4 +143,4 @@ When adding features, consider these integration points:
 - **New content types**: Extend the `type` field in `StarTrekItem` and update filtering logic
 - **New progress metrics**: Extend `ProgressData` interface and update calculation methods
 - **New export formats**: Add handlers in `storage.ts` alongside existing JSON export
-- **Timeline visualization**: The `TimelineRenderer` class is designed for extension with chart libraries
+- **Timeline visualization**: The factory functions are designed for extension with chart libraries
