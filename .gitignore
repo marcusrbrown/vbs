@@ -23,7 +23,6 @@ coverage/
 *.lcov
 
 # Editor directories and files
-.vscode/settings.json
 .idea/
 *.swp
 *.swo
