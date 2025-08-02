@@ -1,51 +1,78 @@
 # 🖖 VBS: View By Stardate
 
-> An Interactive Star Trek Chronological Viewing Guide
+> A Modern Star Trek Chronological Viewing Guide
 
-VBS (View By Stardate) is a comprehensive, interactive web application that helps Star Trek fans watch all series and movies in chronological order by in-universe stardate, rather than production order. Track your progress through the entire Star Trek universe while exploring centuries of future history.
+[![Build Status](https://img.shields.io/github/actions/workflow/status/marcusrbrown/vbs/ci.yaml?branch=main&style=flat-square)](https://github.com/marcusrbrown/vbs/actions) [![Node.js](https://img.shields.io/badge/Node.js-22.x-3c873a?style=flat-square&logo=node.js)](https://nodejs.org) [![TypeScript](https://img.shields.io/badge/TypeScript-blue?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org) [![License](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)](LICENSE)
 
-## ✨ Features
+[Features](#features) • [Quick Start](#quick-start) • [Development](#development) • [Architecture](#architecture) • [Contributing](#contributing)
 
-### 📊 **Progress Tracking**
+VBS (View By Stardate) is a modern, local-first web application that helps Star Trek fans watch all series and movies in chronological order by in-universe stardate. Built with TypeScript and Vite, it features a functional factory architecture for robust state management and comprehensive progress tracking across the entire Star Trek universe.
 
-- ✅ Mark individual seasons/movies as watched with persistent local storage
-- 📈 Overall progress bar showing completion percentage across all content
-- 🎯 Era-specific progress indicators for each century/time period
-- 💾 Export/import functionality to backup and restore your viewing progress
+> [!NOTE] **Local-First Design**: All your viewing progress is stored locally in your browser with export/import capabilities for data portability.
 
-### 🔍 **Search & Discovery**
+## Features
 
-- 🔎 Real-time search across series titles, episodes, and notes
-- 🎭 Filter content by type (TV Series, Movies, Animated)
-- 📅 Content organized by chronological eras from 22nd to 32nd century
-- 🌟 Detailed stardate ranges and viewing notes for each entry
+### Progress Tracking
 
-### 🎨 **Modern Interface**
+- **Persistent Storage**: Local progress tracking with browser storage
+- **Progress Visualization**: Overall and era-specific progress indicators
+- **Data Portability**: Export/import functionality for backup and sync
+- **Hierarchical Progress**: Season-level tracking with planned episode-level support
 
-- 📱 Responsive design optimized for desktop and mobile devices
-- 🎛️ Collapsible era sections with expand/collapse controls
-- 🚀 Star Trek-inspired color scheme and smooth animations
-- ♿ Accessible design with proper focus states and keyboard navigation
+### Content Organization
 
-### 📚 **Comprehensive Coverage**
+- **Chronological Order**: 7 eras spanning 22nd-32nd centuries (1,000+ years)
+- **Comprehensive Coverage**: All series, movies, and animated content
+- **Detailed Metadata**: Stardate ranges, episode counts, and contextual notes
+- **Smart Filtering**: Real-time search and content type filtering
 
-- **7 chronological eras** spanning 1,000+ years of Star Trek history
-- **All series**: Enterprise, Discovery, Strange New Worlds, TOS, TNG, DS9, Voyager, Lower Decks, Prodigy, Picard
-- **All movies**: From The Motion Picture through the latest releases
-- **Detailed metadata**: Episode counts, stardates, years, and contextual notes
+### Modern Architecture
 
-## 🚀 Quick Start
+- **TypeScript**: Full type safety with modern ES modules
+- **Functional Factories**: Closure-based state management without `this` binding
+- **Responsive Design**: Mobile-first approach with modern CSS
+- **Performance**: Vite build system with optimized chunking
 
-1. **Clone or download** this repository to your local machine
-2. **Open `index.html`** in any modern web browser (Chrome, Firefox, Safari, Edge)
-3. **Start tracking** your Star Trek viewing journey!
+### Developer Experience
 
-```bash
-git clone https://github.com/marcusrbrown/vbs.git
-cd vbs
-open index.html  # macOS
-# or double-click index.html in your file explorer
-```
+- **Testing**: Comprehensive test suite with Vitest and coverage reporting
+- **Code Quality**: ESLint + Prettier with automated pre-commit hooks
+- **CI/CD**: Automated testing and deployment to GitHub Pages
+- **Modern Tooling**: pnpm package management and TypeScript strict mode
+
+## Quick Start
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org) 22.x or later
+- [pnpm](https://pnpm.io) (recommended) or npm
+
+### Local Development
+
+1. **Clone the repository**
+
+   ```bash
+   git clone https://github.com/marcusrbrown/vbs.git
+   cd vbs
+   ```
+
+2. **Install dependencies**
+
+   ```bash
+   pnpm install
+   ```
+
+3. **Start development server**
+
+   ```bash
+   pnpm dev
+   ```
+
+4. **Open in browser**
+
+   ```text
+   http://localhost:3000
+   ```
 
 ## 📖 Usage Guide
 
@@ -71,27 +98,98 @@ open index.html  # macOS
 - **Search**: Find content across all eras instantly
 - **Filter**: Show only specific types of content
 
-## 📁 Project Structure
+## Development
+
+### Development Workflow
+
+```bash
+pnpm dev          # Start development server (port 3000)
+pnpm test         # Run test suite with Vitest
+pnpm test:ui      # Launch interactive test runner
+pnpm test:coverage # Generate coverage reports
+pnpm build        # TypeScript compilation + Vite build
+pnpm lint         # Run ESLint checks
+pnpm fix          # Auto-fix linting issues
+pnpm type-check   # TypeScript type checking
+```
+
+### Project Structure
 
 ```text
 vbs/
-├── index.html          # Main application interface
-├── script.js           # Interactive functionality and Star Trek data
-├── style.css           # Modern, responsive styling
-├── viewing-guide.md    # Comprehensive markdown viewing guide
-├── .vscode/            # VS Code configuration
-│   └── mcp.json       # Model Context Protocol configuration
-└── README.md          # This file
+├── src/
+│   ├── main.ts              # Main application factory
+│   ├── style.css            # Global styles and Star Trek theme
+│   ├── data/
+│   │   └── star-trek-data.ts # Comprehensive Star Trek dataset (570 lines)
+│   └── modules/
+│       ├── progress.ts      # Progress tracking factory
+│       ├── search.ts        # Search and filtering factory
+│       ├── timeline.ts      # Timeline rendering factory
+│       ├── storage.ts       # Import/export functionality
+│       └── types.ts         # TypeScript interfaces
+├── test/                    # Vitest test suite
+├── index.html              # Application entry point
+├── vite.config.ts          # Vite configuration
+└── package.json            # Dependencies and scripts
 ```
 
-### File Descriptions
+### Code Quality
 
-- **`index.html`**: The main web application with header, controls, and timeline container
-- **`script.js`**: Contains the complete Star Trek data structure and all interactive functionality (progress tracking, search, filtering, data persistence)
-- **`style.css`**: Modern CSS with CSS Grid/Flexbox layouts, Star Trek-inspired color scheme, and responsive design
-- **`viewing-guide.md`**: Detailed markdown reference with comprehensive stardate information and viewing notes
+The project uses automated code quality tools:
 
-## 🗓️ Chronological Order
+- **Pre-commit hooks**: Lint and format all staged files before commits
+- **ESLint**: Comprehensive linting with TypeScript support
+- **Prettier**: Consistent code formatting
+- **TypeScript**: Strict type checking for reliability
+
+## Architecture
+
+VBS uses a **functional factory pattern** with closures for state management:
+
+### Functional Factory Pattern
+
+```typescript
+// Factory function with closure-based state
+export const createProgressTracker = (): ProgressTrackerInstance => {
+  // Private state in closure
+  const watchedItems: string[] = []
+
+  // Return public API object
+  return {
+    toggleItem: (itemId: string) => { /* mutate closure state */ },
+    isWatched: (itemId: string) => watchedItems.includes(itemId),
+    getWatchedItems: () => [...watchedItems] // immutable copy
+  }
+}
+```
+
+### Key Architectural Benefits
+
+- **No `this` binding issues**: Closures eliminate context problems
+- **Immutable state copies**: Controlled mutations prevent bugs
+- **Dependency injection**: Clean separation of concerns
+- **Functional composition**: Easy testing and extensibility
+
+### Data Structure
+
+Star Trek content is organized hierarchically:
+
+```typescript
+interface StarTrekEra {
+  id: string        // e.g., 'enterprise', 'discovery'
+  title: string     // "22nd Century – Enterprise Era"
+  items: StarTrekItem[]
+}
+
+interface StarTrekItem {
+  id: string        // e.g., 'ent_s1', 'tos_tmp'
+  type: string      // 'series', 'movie', 'animated'
+  stardate: string  // "~1.1-1.26" or "Stardate 7410.2"
+}
+```
+
+## 🗓️ Chronological Coverage
 
 The viewing guide follows this chronological progression by in-universe stardate:
 
@@ -103,87 +201,58 @@ The viewing guide follows this chronological progression by in-universe stardate
 6. **25th Century** - Picard Era (2399-2401)
 7. **32nd Century** - Far Future Discovery Era (3188-3191)
 
-## 🛠️ Technical Details
+## Deployment
 
-### Technologies Used
+The application is automatically deployed to GitHub Pages via GitHub Actions:
 
-- **Frontend**: Pure HTML5, CSS3, and vanilla JavaScript (ES6+)
-- **Storage**: Browser LocalStorage API for progress persistence
-- **Styling**: CSS Grid, Flexbox, CSS Custom Properties (Variables)
-- **Responsive Design**: Mobile-first approach with media queries
+- **Production**: [https://marcusrbrown.github.io/vbs/](https://marcusrbrown.github.io/vbs/)
+- **Build target**: `/vbs/` base path for GitHub Pages
+- **Deployment**: Triggered on pushes to `main` branch
 
-### Browser Compatibility
+## Browser Compatibility
 
-- ✅ Chrome 60+
-- ✅ Firefox 55+
-- ✅ Safari 12+
-- ✅ Edge 79+
+- ✅ Chrome 90+
+- ✅ Firefox 90+
+- ✅ Safari 14+
+- ✅ Edge 90+
 
-### Data Structure
+Modern browsers with ES2020+ support are required.
 
-The Star Trek data is organized as a JavaScript array of era objects, each containing:
+## Contributing
 
-- Era metadata (title, years, stardate ranges, description)
-- Array of content items (series/movies) with detailed information
-- Unique IDs for progress tracking
-
-## 📚 Data Sources & Accuracy
-
-This guide is based on comprehensive research from:
-
-- **Memory Alpha** - The Star Trek Wiki (primary source for stardate information)
-- **Official Star Trek** production materials and episode guides
-- **Timeline analysis** from Star Trek reference works
-
-### Known Issues
-
-- Some citation links in `viewing-guide.md` may not be functional (legacy oai_citation references)
-- Stardate systems vary between series; we follow the most consistent chronological interpretation
-- New content releases may require manual updates to the data structure
-
-## 🤝 Contributing
-
-We welcome contributions from fellow Star Trek fans and developers!
+Contributions are welcome! Here's how to get involved:
 
 ### Ways to Contribute
 
-- 📝 **Content updates**: Add new series, correct stardate information, improve viewing notes
-- 🐛 **Bug fixes**: Report and fix issues with the interface or functionality
-- ✨ **Feature enhancements**: Implement new features like episode-level tracking or timeline visualization
-- 🎨 **Design improvements**: Enhance the UI/UX or add accessibility features
+- **Content Updates**: Add new series, correct stardate information, improve viewing notes
+- **Bug Fixes**: Report and fix issues with the interface or functionality
+- **Feature Enhancements**: Implement new features like episode-level tracking
+- **Documentation**: Improve README, add code comments, write guides
 
-### How to Contribute
+### Development Setup
 
 1. Fork this repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
 3. Make your changes and test thoroughly
-4. Commit your changes (`git commit -m 'Add amazing feature'`)
-5. Push to the branch (`git push origin feature/amazing-feature`)
-6. Open a Pull Request
+4. Ensure all tests pass (`pnpm test`)
+5. Commit your changes (`git commit -m 'Add amazing feature'`)
+6. Push to the branch (`git push origin feature/amazing-feature`)
+7. Open a Pull Request
 
-## 📄 License
+### Planned Features
 
-This project is open source and available under the MIT License.
+- **Episode-Level Tracking**: Individual episode progress vs current season-level
+- **Interactive Timeline**: D3.js chronological visualization with zoom/pan
+- **Streaming Integration**: Paramount+/Netflix availability via APIs
+- **PWA Capabilities**: Offline support and app installation
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - **Gene Roddenberry** and all Star Trek creators for the incredible universe
 - **Memory Alpha contributors** for maintaining comprehensive Star Trek databases
 - **Star Trek fans worldwide** who keep the spirit of exploration alive
 - **Open source community** for tools and inspiration
 
-## 🔮 Future Roadmap
-
-Interested in what's coming next? Here are some planned enhancements:
-
-- Individual episode tracking with detailed synopses
-- Interactive timeline visualization
-- Character-focused viewing paths
-- Integration with streaming services
-- Mobile app version
-
 ---
 
 **Live long and prosper!** 🖖
-
-<!-- Last updated: July 17, 2025 -->
