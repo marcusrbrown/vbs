@@ -8,7 +8,7 @@
 
 VBS (View By Stardate) is a modern, local-first web application that helps Star Trek fans watch all series and movies in chronological order by in-universe stardate. Built with TypeScript and Vite, it features a functional factory architecture for robust state management and comprehensive progress tracking across the entire Star Trek universe.
 
-> [!NOTE] **Local-First Design**: All your viewing progress is stored locally in your browser with export/import capabilities for data portability.
+> **💡 Local-First Design**: All your viewing progress is stored locally in your browser with export/import capabilities for data portability.
 
 ## Features
 
