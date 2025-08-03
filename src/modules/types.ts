@@ -247,12 +247,20 @@ export type FilterChangeCallback = (filteredData: StarTrekEra[]) => void
  * Public API interface for ProgressTracker factory instances.
  * Manages viewing progress state and provides progress calculation functionality.
  * Uses closure-based state management for watched items and callback collections.
+ * Includes both legacy callback methods and new EventEmitter methods for enhanced type safety.
  *
  * @example
  * ```typescript
  * const progressTracker = createProgressTracker()
  * progressTracker.toggleItem('tos_s1')
+ *
+ * // Legacy callback approach
  * progressTracker.onItemToggle((itemId, isWatched) => {
+ *   console.log(`${itemId}: ${isWatched}`)
+ * })
+ *
+ * // New EventEmitter approach (type-safe)
+ * progressTracker.on('item-toggle', ({ itemId, isWatched }) => {
  *   console.log(`${itemId}: ${isWatched}`)
  * })
  * ```
@@ -274,23 +282,55 @@ export interface ProgressTrackerInstance {
   calculateOverallProgress(): ProgressData
   /** Calculate progress statistics for each individual era */
   calculateEraProgress(): EraProgress[]
+
+  // Legacy callback methods (maintained for backward compatibility)
   /** Register callback for item toggle events */
   onItemToggle(callback: ItemToggleCallback): void
   /** Register callback for progress update events */
   onProgressUpdate(callback: ProgressUpdateCallback): void
+
+  // Generic EventEmitter methods for enhanced type safety
+  /** Subscribe to an event with a type-safe listener */
+  on<TEventName extends keyof ProgressTrackerEvents>(
+    eventName: TEventName,
+    listener: EventListener<ProgressTrackerEvents[TEventName]>,
+  ): void
+  /** Unsubscribe from an event */
+  off<TEventName extends keyof ProgressTrackerEvents>(
+    eventName: TEventName,
+    listener: EventListener<ProgressTrackerEvents[TEventName]>,
+  ): void
+  /** Subscribe to an event once (auto-unsubscribe after first emission) */
+  once<TEventName extends keyof ProgressTrackerEvents>(
+    eventName: TEventName,
+    listener: EventListener<ProgressTrackerEvents[TEventName]>,
+  ): void
+  /** Remove all listeners for a specific event or all events */
+  removeAllListeners<TEventName extends keyof ProgressTrackerEvents>(eventName?: TEventName): void
 }
 
 /**
  * Public API interface for SearchFilter factory instances.
  * Manages search and filter state with real-time content filtering functionality.
  * Uses closure-based state management for current filters and callback collections.
+ * Includes both legacy callback methods and new EventEmitter methods for enhanced type safety.
  *
  * @example
  * ```typescript
  * const searchFilter = createSearchFilter()
  * searchFilter.setSearch('enterprise')
  * searchFilter.setFilter('series')
- * const filtered = searchFilter.getFilteredData()
+ *
+ * // Legacy callback approach
+ * searchFilter.onFilterChange((filteredData) => {
+ *   renderTimeline(filteredData)
+ * })
+ *
+ * // New EventEmitter approach (type-safe)
+ * searchFilter.on('filter-change', ({ filteredData, filterState }) => {
+ *   renderTimeline(filteredData)
+ *   updateSearchUI(filterState)
+ * })
  * ```
  */
 export interface SearchFilterInstance {
@@ -304,10 +344,31 @@ export interface SearchFilterInstance {
   matchesFilters(item: StarTrekItem): boolean
   /** Trigger filter change notifications to subscribers */
   notifyFilterChange(): void
-  /** Register callback for filter change events */
-  onFilterChange(callback: FilterChangeCallback): void
   /** Get current search and filter state */
   getCurrentFilters(): FilterState
+
+  // Legacy callback methods (maintained for backward compatibility)
+  /** Register callback for filter change events */
+  onFilterChange(callback: FilterChangeCallback): void
+
+  // Generic EventEmitter methods for enhanced type safety
+  /** Subscribe to an event with a type-safe listener */
+  on<TEventName extends keyof SearchFilterEvents>(
+    eventName: TEventName,
+    listener: EventListener<SearchFilterEvents[TEventName]>,
+  ): void
+  /** Unsubscribe from an event */
+  off<TEventName extends keyof SearchFilterEvents>(
+    eventName: TEventName,
+    listener: EventListener<SearchFilterEvents[TEventName]>,
+  ): void
+  /** Subscribe to an event once (auto-unsubscribe after first emission) */
+  once<TEventName extends keyof SearchFilterEvents>(
+    eventName: TEventName,
+    listener: EventListener<SearchFilterEvents[TEventName]>,
+  ): void
+  /** Remove all listeners for a specific event or all events */
+  removeAllListeners<TEventName extends keyof SearchFilterEvents>(eventName?: TEventName): void
 }
 
 /**
@@ -356,6 +417,7 @@ export interface TimelineRendererInstance {
 /**
  * Factory function signature for creating ProgressTracker instances.
  * Returns a ProgressTracker instance with closure-based state management.
+ * Uses generic constraints to ensure type safety and proper EventEmitter integration.
  *
  * @returns ProgressTrackerInstance with methods for progress tracking
  *
@@ -363,6 +425,11 @@ export interface TimelineRendererInstance {
  * ```typescript
  * const createTracker: CreateProgressTracker = () => createProgressTracker()
  * const tracker = createTracker()
+ *
+ * // Type-safe event handling
+ * tracker.on('item-toggle', ({ itemId, isWatched }) => {
+ *   console.log(`${itemId} is now ${isWatched ? 'watched' : 'unwatched'}`)
+ * })
  * ```
  */
 export type CreateProgressTracker = () => ProgressTrackerInstance
@@ -370,6 +437,7 @@ export type CreateProgressTracker = () => ProgressTrackerInstance
 /**
  * Factory function signature for creating SearchFilter instances.
  * Returns a SearchFilter instance with closure-based filter state management.
+ * Uses generic constraints to ensure type safety and proper EventEmitter integration.
  *
  * @returns SearchFilterInstance with methods for search and filtering
  *
@@ -377,6 +445,12 @@ export type CreateProgressTracker = () => ProgressTrackerInstance
  * ```typescript
  * const createFilter: CreateSearchFilter = () => createSearchFilter()
  * const filter = createFilter()
+ *
+ * // Type-safe event handling
+ * filter.on('filter-change', ({ filteredData, filterState }) => {
+ *   renderTimeline(filteredData)
+ *   updateSearchUI(filterState)
+ * })
  * ```
  */
 export type CreateSearchFilter = () => SearchFilterInstance
@@ -384,6 +458,7 @@ export type CreateSearchFilter = () => SearchFilterInstance
 /**
  * Factory function signature for creating TimelineRenderer instances.
  * Requires dependency injection of container element and progress tracker.
+ * Uses generic constraints to ensure proper typing of dependencies.
  *
  * @param container - DOM container element for timeline rendering
  * @param progressTracker - ProgressTracker instance for progress integration
@@ -393,12 +468,162 @@ export type CreateSearchFilter = () => SearchFilterInstance
  * ```typescript
  * const createRenderer: CreateTimelineRenderer = (container, tracker) =>
  *   createTimelineRenderer(container, tracker)
+ *
+ * const renderer = createRenderer(document.getElementById('timeline')!, progressTracker)
  * ```
  */
-export type CreateTimelineRenderer = (
-  container: HTMLElement,
-  progressTracker: ProgressTrackerInstance,
+export type CreateTimelineRenderer = <
+  TContainer extends HTMLElement = HTMLElement,
+  TProgressTracker extends ProgressTrackerInstance = ProgressTrackerInstance,
+>(
+  container: TContainer,
+  progressTracker: TProgressTracker,
 ) => TimelineRendererInstance
+
+/**
+ * Factory function signature for creating generic storage instances.
+ * Uses generic constraints to ensure type-safe storage operations.
+ *
+ * @template TData - Type of data to be stored and retrieved
+ * @param adapter - Storage adapter implementation for the specific storage backend
+ * @param defaultKey - Optional default key for storage operations
+ * @returns Storage instance with type-safe methods
+ *
+ * @example
+ * ```typescript
+ * interface UserPreferences {
+ *   theme: 'light' | 'dark'
+ *   notifications: boolean
+ * }
+ *
+ * const createUserStorage: CreateStorage<UserPreferences> = (adapter, key) =>
+ *   createStorage(adapter, key)
+ * ```
+ */
+export type CreateStorage = <TData = unknown>(
+  adapter: import('./storage.js').StorageAdapter<TData>,
+  defaultKey?: string,
+) => {
+  save: (keyOrData: string | TData, data?: TData) => Promise<void> | void
+  load: (key?: string) => Promise<TData | null> | TData | null
+  remove: (key?: string) => Promise<void> | void
+  clear: () => Promise<void> | void
+  exists: (key?: string) => Promise<boolean> | boolean
+}
+
+// ============================================================================
+// ENHANCED FACTORY UTILITY TYPES
+// ============================================================================
+
+/**
+ * Extract configuration options for factory functions using utility types.
+ * Combines PickOptional and PickRequired for flexible factory configuration.
+ *
+ * @example
+ * ```typescript
+ * interface RendererConfig {
+ *   container: HTMLElement
+ *   theme?: 'light' | 'dark'
+ *   animations?: boolean
+ *   progressTracker: ProgressTrackerInstance
+ * }
+ *
+ * type RendererOptions = FactoryConfig<RendererConfig, 'container' | 'progressTracker'>
+ * // Result: { container: HTMLElement; progressTracker: ProgressTrackerInstance; theme?: 'light' | 'dark'; animations?: boolean }
+ * ```
+ */
+export type FactoryConfig<TConfig, TRequired extends keyof TConfig> = PickRequired<
+  TConfig,
+  TRequired
+> &
+  Partial<Omit<TConfig, TRequired>>
+
+/**
+ * Create a factory instance type that includes EventEmitter capabilities.
+ * Combines base instance type with generic EventEmitter methods.
+ *
+ * @example
+ * ```typescript
+ * interface BaseModule {
+ *   getData(): string[]
+ *   setData(data: string[]): void
+ * }
+ *
+ * interface ModuleEvents {
+ *   'data-changed': { newData: string[] }
+ * }
+ *
+ * type ModuleInstance = EventCapableFactory<BaseModule, ModuleEvents>
+ * ```
+ */
+export type EventCapableFactory<TBase, TEvents extends EventMap> = TBase & {
+  on<TEventName extends keyof TEvents>(
+    eventName: TEventName,
+    listener: EventListener<TEvents[TEventName]>,
+  ): void
+  off<TEventName extends keyof TEvents>(
+    eventName: TEventName,
+    listener: EventListener<TEvents[TEventName]>,
+  ): void
+  once<TEventName extends keyof TEvents>(
+    eventName: TEventName,
+    listener: EventListener<TEvents[TEventName]>,
+  ): void
+  removeAllListeners<TEventName extends keyof TEvents>(eventName?: TEventName): void
+}
+
+/**
+ * Create a type-safe factory dependency map for dependency injection.
+ * Uses utility types to ensure proper dependency relationships.
+ *
+ * @example
+ * ```typescript
+ * type AppDependencies = FactoryDependencyMap<{
+ *   progressTracker: ProgressTrackerInstance
+ *   searchFilter: SearchFilterInstance
+ *   storage: StorageAdapter<string[]>
+ * }>
+ * ```
+ */
+export type FactoryDependencyMap<TDeps extends Record<string, unknown>> = DeepReadonly<
+  Required<TDeps>
+>
+
+/**
+ * Extract the state properties from a factory instance (non-function properties).
+ * Useful for state synchronization and persistence in factory functions.
+ *
+ * @example
+ * ```typescript
+ * interface ModuleInstance {
+ *   count: number
+ *   items: string[]
+ *   increment(): void
+ *   reset(): void
+ * }
+ *
+ * type ModuleState = FactoryState<ModuleInstance>  // { count: number; items: string[] }
+ * ```
+ */
+export type FactoryState<TInstance> = NonFunctionProperties<TInstance>
+
+/**
+ * Extract the methods from a factory instance (function properties only).
+ * Useful for creating method proxies and API surfaces.
+ *
+ * @example
+ * ```typescript
+ * interface ModuleInstance {
+ *   count: number
+ *   items: string[]
+ *   increment(): void
+ *   reset(): void
+ * }
+ *
+ * type ModuleMethods = FactoryMethods<ModuleInstance>  // { increment(): void; reset(): void }
+ * ```
+ */
+export type FactoryMethods<TInstance> = FunctionProperties<TInstance>
 
 // ============================================================================
 // GENERIC UTILITY TYPES LIBRARY
@@ -674,3 +899,99 @@ export type AtLeastOne<T> = {
 export type ExactlyOne<T> = {
   [K in keyof T]-?: Required<Pick<T, K>> & Partial<Record<Exclude<keyof T, K>, never>>
 }[keyof T]
+
+// ============================================================================
+// GENERIC EVENT SYSTEM TYPES
+// ============================================================================
+
+/**
+ * Generic event map interface for type-safe event emission and subscription.
+ * All VBS event maps should extend this base interface to ensure consistency.
+ */
+export interface EventMap {
+  [eventName: string]: unknown
+}
+
+/**
+ * Generic event listener type for type-safe callback functions.
+ * Used by the EventEmitter system for proper type inference.
+ */
+export type EventListener<TPayload = unknown> = (payload: TPayload) => void
+
+/**
+ * Event map for ProgressTracker factory instances.
+ * Defines type-safe events for progress tracking and item toggle operations.
+ *
+ * @example
+ * ```typescript
+ * const progressEmitter = createEventEmitter<ProgressTrackerEvents>()
+ * progressEmitter.on('item-toggle', ({ itemId, isWatched }) => {
+ *   console.log(`Item ${itemId} is now ${isWatched ? 'watched' : 'unwatched'}`)
+ * })
+ * ```
+ */
+export interface ProgressTrackerEvents extends EventMap {
+  /** Fired when an item's watched status is toggled */
+  'item-toggle': {
+    itemId: string
+    isWatched: boolean
+  }
+  /** Fired when progress data is updated (after calculations) */
+  'progress-update': {
+    overall: ProgressData
+    eraProgress: EraProgress[]
+  }
+}
+
+/**
+ * Event map for SearchFilter factory instances.
+ * Defines type-safe events for search and filter state changes.
+ *
+ * @example
+ * ```typescript
+ * const searchEmitter = createEventEmitter<SearchFilterEvents>()
+ * searchEmitter.on('filter-change', ({ filteredData, filterState }) => {
+ *   renderTimeline(filteredData)
+ * })
+ * ```
+ */
+export interface SearchFilterEvents extends EventMap {
+  /** Fired when search or filter criteria change, providing filtered results */
+  'filter-change': {
+    filteredData: StarTrekEra[]
+    filterState: FilterState
+  }
+}
+
+/**
+ * Event map for storage operations.
+ * Defines type-safe events for import/export and storage state changes.
+ *
+ * @example
+ * ```typescript
+ * const storageEmitter = createEventEmitter<StorageEvents>()
+ * storageEmitter.on('data-imported', ({ importedItems, timestamp }) => {
+ *   showNotification(`Imported ${importedItems.length} items`)
+ * })
+ * ```
+ */
+export interface StorageEvents extends EventMap {
+  /** Fired when progress data is successfully imported */
+  'data-imported': {
+    importedItems: string[]
+    timestamp: string
+    version: string
+  }
+  /** Fired when progress data is successfully exported */
+  'data-exported': {
+    exportedItems: string[]
+    timestamp: string
+    format: string
+  }
+  /** Fired when storage operation encounters an error */
+  'storage-error': {
+    operation: 'import' | 'export' | 'save' | 'load'
+    error: Error
+    context?: Record<string, unknown>
+  }
+}

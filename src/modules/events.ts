@@ -1,6 +1,4 @@
-export type EventListener<TPayload = unknown> = (payload: TPayload) => void
-
-export type EventMap = Record<string, unknown>
+import type {EventListener, EventMap} from './types'
 
 /**
  * Generic EventEmitter implementation for type-safe event emission and subscription.
