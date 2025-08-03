@@ -1,16 +1,23 @@
 import type {
   FilterChangeCallback,
   FilterState,
+  SearchFilterEvents,
   SearchFilterInstance,
   StarTrekEra,
   StarTrekItem,
 } from './types.js'
 import {starTrekData} from '../data/star-trek-data.js'
+import {createEventEmitter} from './events.js'
 
 export const createSearchFilter = (): SearchFilterInstance => {
   // Closure variables for private state
   let currentSearch = ''
   let currentFilter = ''
+
+  // Generic EventEmitter for type-safe event handling
+  const eventEmitter = createEventEmitter<SearchFilterEvents>()
+
+  // Legacy callback array for backward compatibility
   const callbacks = {
     onFilterChange: [] as FilterChangeCallback[],
   }
@@ -36,8 +43,21 @@ export const createSearchFilter = (): SearchFilterInstance => {
       .filter(era => era.items.length > 0)
   }
 
+  const getCurrentFilters = (): FilterState => {
+    return {
+      search: currentSearch,
+      filter: currentFilter,
+    }
+  }
+
   const notifyFilterChange = (): void => {
     const filteredData = getFilteredData()
+    const filterState = getCurrentFilters()
+
+    // Emit event via generic EventEmitter
+    eventEmitter.emit('filter-change', {filteredData, filterState})
+
+    // Maintain backward compatibility with legacy callbacks
     callbacks.onFilterChange.forEach(callback => callback(filteredData))
   }
 
@@ -55,13 +75,6 @@ export const createSearchFilter = (): SearchFilterInstance => {
     callbacks.onFilterChange.push(callback)
   }
 
-  const getCurrentFilters = (): FilterState => {
-    return {
-      search: currentSearch,
-      filter: currentFilter,
-    }
-  }
-
   // Return public API
   return {
     setSearch,
@@ -69,7 +82,15 @@ export const createSearchFilter = (): SearchFilterInstance => {
     getFilteredData,
     matchesFilters,
     notifyFilterChange,
-    onFilterChange,
     getCurrentFilters,
+
+    // Legacy callback methods (maintained for backward compatibility)
+    onFilterChange,
+
+    // Generic EventEmitter methods for enhanced type safety
+    on: eventEmitter.on.bind(eventEmitter),
+    off: eventEmitter.off.bind(eventEmitter),
+    once: eventEmitter.once.bind(eventEmitter),
+    removeAllListeners: eventEmitter.removeAllListeners.bind(eventEmitter),
   }
 }

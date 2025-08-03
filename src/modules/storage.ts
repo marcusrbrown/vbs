@@ -1,6 +1,13 @@
-import type {ProgressExportData} from './types.js'
+import type {ProgressExportData, StorageEvents} from './types.js'
+import {createEventEmitter} from './events.js'
 
 const STORAGE_KEY = 'starTrekProgress'
+
+// Storage event emitter for type-safe event handling
+const storageEventEmitter = createEventEmitter<StorageEvents>()
+
+// Export the event emitter for external usage
+export {storageEventEmitter}
 
 // Generic Storage Utilities
 
@@ -144,32 +151,80 @@ const progressStorage = createStorage(
 )
 
 export const saveProgress = (watchedItems: string[]): void => {
-  progressStorage.save(watchedItems)
+  try {
+    progressStorage.save(watchedItems)
+    // Emit success event - treating save as a form of export
+    storageEventEmitter.emit('data-exported', {
+      exportedItems: [...watchedItems],
+      timestamp: new Date().toISOString(),
+      format: 'localStorage',
+    })
+  } catch (error) {
+    storageEventEmitter.emit('storage-error', {
+      operation: 'save',
+      error: error instanceof Error ? error : new Error(String(error)),
+      context: {itemCount: watchedItems.length},
+    })
+    throw error
+  }
 }
 
 export const loadProgress = (): string[] => {
-  const result = progressStorage.load()
-  // LocalStorageAdapter returns synchronously, so result won't be a Promise
-  return (result as string[]) || []
+  try {
+    const result = progressStorage.load()
+    // LocalStorageAdapter returns synchronously, so result won't be a Promise
+    const loadedItems = (result as string[]) || []
+
+    // Emit success event - treating load as a form of import
+    storageEventEmitter.emit('data-imported', {
+      importedItems: [...loadedItems],
+      timestamp: new Date().toISOString(),
+      version: '1.0',
+    })
+
+    return loadedItems
+  } catch (error) {
+    storageEventEmitter.emit('storage-error', {
+      operation: 'load',
+      error: error instanceof Error ? error : new Error(String(error)),
+    })
+    return []
+  }
 }
 
 export const exportProgress = (watchedItems: string[]): void => {
-  const data: ProgressExportData = {
-    version: '1.0',
-    timestamp: new Date().toISOString(),
-    progress: watchedItems,
+  try {
+    const data: ProgressExportData = {
+      version: '1.0',
+      timestamp: new Date().toISOString(),
+      progress: watchedItems,
+    }
+
+    const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'})
+    const url = URL.createObjectURL(blob)
+
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `star-trek-progress-${new Date().toISOString().split('T')[0]}.json`
+    document.body.append(a)
+    a.click()
+    a.remove()
+    URL.revokeObjectURL(url)
+
+    // Emit success event
+    storageEventEmitter.emit('data-exported', {
+      exportedItems: [...watchedItems],
+      timestamp: data.timestamp,
+      format: 'json',
+    })
+  } catch (error) {
+    storageEventEmitter.emit('storage-error', {
+      operation: 'export',
+      error: error instanceof Error ? error : new Error(String(error)),
+      context: {itemCount: watchedItems.length},
+    })
+    throw error
   }
-
-  const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'})
-  const url = URL.createObjectURL(blob)
-
-  const a = document.createElement('a')
-  a.href = url
-  a.download = `star-trek-progress-${new Date().toISOString().split('T')[0]}.json`
-  document.body.append(a)
-  a.click()
-  a.remove()
-  URL.revokeObjectURL(url)
 }
 
 export const importProgressFromFile = async (file: File): Promise<string[]> => {
@@ -177,11 +232,30 @@ export const importProgressFromFile = async (file: File): Promise<string[]> => {
     const text = await file.text()
     const data = JSON.parse(text)
     if (data.progress && Array.isArray(data.progress)) {
+      // Emit success event
+      storageEventEmitter.emit('data-imported', {
+        importedItems: [...data.progress],
+        timestamp: data.timestamp || new Date().toISOString(),
+        version: data.version || '1.0',
+      })
+
       return data.progress
     } else {
-      throw new Error('Invalid progress file format')
+      const error = new Error('Invalid progress file format')
+      storageEventEmitter.emit('storage-error', {
+        operation: 'import',
+        error,
+        context: {fileName: file.name, fileSize: file.size},
+      })
+      throw error
     }
-  } catch {
-    throw new Error('Error reading progress file')
+  } catch (error) {
+    const errorObj = error instanceof Error ? error : new Error('Error reading progress file')
+    storageEventEmitter.emit('storage-error', {
+      operation: 'import',
+      error: errorObj,
+      context: {fileName: file.name, fileSize: file.size},
+    })
+    throw errorObj
   }
 }

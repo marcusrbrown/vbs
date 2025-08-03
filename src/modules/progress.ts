@@ -2,14 +2,21 @@ import type {
   EraProgress,
   ItemToggleCallback,
   ProgressData,
+  ProgressTrackerEvents,
   ProgressTrackerInstance,
   ProgressUpdateCallback,
 } from './types.js'
 import {starTrekData} from '../data/star-trek-data.js'
+import {createEventEmitter} from './events.js'
 
 export const createProgressTracker = (): ProgressTrackerInstance => {
   // Private state managed via closure variables
   let watchedItems: string[] = []
+
+  // Generic EventEmitter for type-safe event handling
+  const eventEmitter = createEventEmitter<ProgressTrackerEvents>()
+
+  // Legacy callback arrays for backward compatibility
   const callbacks: {
     onItemToggle: ItemToggleCallback[]
     onProgressUpdate: ProgressUpdateCallback[]
@@ -50,8 +57,13 @@ export const createProgressTracker = (): ProgressTrackerInstance => {
   const updateProgress = (): void => {
     const overall = calculateOverallProgress()
     const eraProgress = calculateEraProgress()
+    const progressData = {overall, eraProgress}
 
-    callbacks.onProgressUpdate.forEach(callback => callback({overall, eraProgress}))
+    // Emit event via generic EventEmitter
+    eventEmitter.emit('progress-update', progressData)
+
+    // Maintain backward compatibility with legacy callbacks
+    callbacks.onProgressUpdate.forEach(callback => callback(progressData))
   }
 
   // Return public API object
@@ -63,6 +75,7 @@ export const createProgressTracker = (): ProgressTrackerInstance => {
 
     toggleItem: (itemId: string): void => {
       const isWatched = watchedItems.includes(itemId)
+      const newWatchedState = !isWatched
 
       if (isWatched) {
         watchedItems = watchedItems.filter(id => id !== itemId)
@@ -70,7 +83,12 @@ export const createProgressTracker = (): ProgressTrackerInstance => {
         watchedItems.push(itemId)
       }
 
-      callbacks.onItemToggle.forEach(callback => callback(itemId, !isWatched))
+      // Emit event via generic EventEmitter
+      eventEmitter.emit('item-toggle', {itemId, isWatched: newWatchedState})
+
+      // Maintain backward compatibility with legacy callbacks
+      callbacks.onItemToggle.forEach(callback => callback(itemId, newWatchedState))
+
       updateProgress()
     },
 
@@ -106,5 +124,11 @@ export const createProgressTracker = (): ProgressTrackerInstance => {
     onProgressUpdate: (callback: ProgressUpdateCallback): void => {
       callbacks.onProgressUpdate.push(callback)
     },
+
+    // New EventEmitter-based methods for enhanced type safety
+    on: eventEmitter.on.bind(eventEmitter),
+    off: eventEmitter.off.bind(eventEmitter),
+    once: eventEmitter.once.bind(eventEmitter),
+    removeAllListeners: eventEmitter.removeAllListeners.bind(eventEmitter),
   }
 }
