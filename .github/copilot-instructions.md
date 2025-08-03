@@ -61,6 +61,33 @@ const createTimelineRenderer = <TContainer extends HTMLElement>(
 
 **Key principles**: Closure-based state, generic EventEmitters for type safety, dependency injection, no `this` binding issues.
 
+## Generic Type System
+
+VBS implements a comprehensive generic type system (August 2025 refactoring) that enhances the functional factory architecture with type-safe event handling, storage utilities, and advanced TypeScript patterns.
+
+### Core Generic Patterns
+
+- **Generic EventEmitter**: `createEventEmitter<TEventMap>()` for type-safe events
+- **Generic Storage**: `StorageAdapter<T>` with validation and fallback options
+- **Utility Types**: 25+ types for factory functions, deep transformations, and constraints
+- **Event Maps**: All modules use `EventMap` interface (`ProgressTrackerEvents`, `SearchFilterEvents`, `StorageEvents`)
+
+### Key Implementation Details
+
+```typescript
+// Generic EventEmitter with type safety
+const eventEmitter = createEventEmitter<ProgressTrackerEvents>()
+eventEmitter.emit('item-toggle', { itemId: 'tos_s1', isWatched: true })
+
+// Generic storage with validation
+const storage = createStorage(new LocalStorageAdapter<string[]>({ validate: isStringArray }))
+
+// Generic constraints in factory functions
+const createRenderer = <TContainer extends HTMLElement>(container: TContainer) => { ... }
+```
+
+**For comprehensive examples and usage patterns, see `docs/generic-types-examples.md`.**
+
 ## Data Structure
 
 The core data lives in `src/data/star-trek-data.ts` - a 570-line structured dataset:
