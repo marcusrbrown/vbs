@@ -178,62 +178,6 @@ export interface ProgressExportData {
 }
 
 // ============================================================================
-// CALLBACK TYPE DEFINITIONS
-// ============================================================================
-
-/**
- * Callback function types used throughout the VBS functional factory architecture.
- * These types ensure type safety for event handling and progress notifications.
- */
-
-/**
- * Callback function triggered when an item's watched status is toggled.
- * Used by ProgressTracker factory for notifying subscribers of state changes.
- *
- * @param itemId - Unique identifier of the toggled item
- * @param isWatched - New watched state of the item
- *
- * @example
- * ```typescript
- * const onToggle: ItemToggleCallback = (itemId, isWatched) => {
- *   console.log(`Item ${itemId} is now ${isWatched ? 'watched' : 'unwatched'}`)
- * }
- * ```
- */
-export type ItemToggleCallback = (itemId: string, isWatched: boolean) => void
-
-/**
- * Callback function triggered when progress data is updated.
- * Used by ProgressTracker factory for notifying UI components of progress changes.
- *
- * @param progressData - Complete progress data including overall and per-era statistics
- *
- * @example
- * ```typescript
- * const onProgressUpdate: ProgressUpdateCallback = (progressData) => {
- *   const { overall, eraProgress } = progressData
- *   updateProgressBar(overall.percentage)
- * }
- * ```
- */
-export type ProgressUpdateCallback = (progressData: OverallProgress) => void
-
-/**
- * Callback function triggered when filtered data changes.
- * Used by SearchFilter factory for notifying timeline renderer of filter updates.
- *
- * @param filteredData - Array of eras matching current search and filter criteria
- *
- * @example
- * ```typescript
- * const onFilterChange: FilterChangeCallback = (filteredData) => {
- *   timelineRenderer.render(filteredData)
- * }
- * ```
- */
-export type FilterChangeCallback = (filteredData: StarTrekEra[]) => void
-
-// ============================================================================
 // FACTORY INSTANCE INTERFACES
 // ============================================================================
 
@@ -247,19 +191,12 @@ export type FilterChangeCallback = (filteredData: StarTrekEra[]) => void
  * Public API interface for ProgressTracker factory instances.
  * Manages viewing progress state and provides progress calculation functionality.
  * Uses closure-based state management for watched items and callback collections.
- * Includes both legacy callback methods and new EventEmitter methods for enhanced type safety.
  *
  * @example
  * ```typescript
  * const progressTracker = createProgressTracker()
  * progressTracker.toggleItem('tos_s1')
  *
- * // Legacy callback approach
- * progressTracker.onItemToggle((itemId, isWatched) => {
- *   console.log(`${itemId}: ${isWatched}`)
- * })
- *
- * // New EventEmitter approach (type-safe)
  * progressTracker.on('item-toggle', ({ itemId, isWatched }) => {
  *   console.log(`${itemId}: ${isWatched}`)
  * })
@@ -282,12 +219,6 @@ export interface ProgressTrackerInstance {
   calculateOverallProgress(): ProgressData
   /** Calculate progress statistics for each individual era */
   calculateEraProgress(): EraProgress[]
-
-  // Legacy callback methods (maintained for backward compatibility)
-  /** Register callback for item toggle events */
-  onItemToggle(callback: ItemToggleCallback): void
-  /** Register callback for progress update events */
-  onProgressUpdate(callback: ProgressUpdateCallback): void
 
   // Generic EventEmitter methods for enhanced type safety
   /** Subscribe to an event with a type-safe listener */
@@ -313,7 +244,6 @@ export interface ProgressTrackerInstance {
  * Public API interface for SearchFilter factory instances.
  * Manages search and filter state with real-time content filtering functionality.
  * Uses closure-based state management for current filters and callback collections.
- * Includes both legacy callback methods and new EventEmitter methods for enhanced type safety.
  *
  * @example
  * ```typescript
@@ -321,12 +251,6 @@ export interface ProgressTrackerInstance {
  * searchFilter.setSearch('enterprise')
  * searchFilter.setFilter('series')
  *
- * // Legacy callback approach
- * searchFilter.onFilterChange((filteredData) => {
- *   renderTimeline(filteredData)
- * })
- *
- * // New EventEmitter approach (type-safe)
  * searchFilter.on('filter-change', ({ filteredData, filterState }) => {
  *   renderTimeline(filteredData)
  *   updateSearchUI(filterState)
@@ -347,11 +271,6 @@ export interface SearchFilterInstance {
   /** Get current search and filter state */
   getCurrentFilters(): FilterState
 
-  // Legacy callback methods (maintained for backward compatibility)
-  /** Register callback for filter change events */
-  onFilterChange(callback: FilterChangeCallback): void
-
-  // Generic EventEmitter methods for enhanced type safety
   /** Subscribe to an event with a type-safe listener */
   on<TEventName extends keyof SearchFilterEvents>(
     eventName: TEventName,

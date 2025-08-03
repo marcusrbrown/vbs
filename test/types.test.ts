@@ -388,20 +388,6 @@ describe('Generic Utility Types Library', () => {
       }>()
     })
 
-    it('should work with callback systems', () => {
-      type VBSCallbacks = CallbackCollection<{
-        onItemToggle: (itemId: string, isWatched: boolean) => void
-        onProgressUpdate: (progress: {total: number; completed: number}) => void
-        onFilterChange: (query: string) => void
-      }>
-
-      expectTypeOf<VBSCallbacks>().toMatchTypeOf<{
-        onItemToggle: ((itemId: string, isWatched: boolean) => void)[]
-        onProgressUpdate: ((progress: {total: number; completed: number}) => void)[]
-        onFilterChange: ((query: string) => void)[]
-      }>()
-    })
-
     it('should support deep operations on VBS data structures', () => {
       interface VBSConfig {
         storage: {

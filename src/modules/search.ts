@@ -1,5 +1,4 @@
 import type {
-  FilterChangeCallback,
   FilterState,
   SearchFilterEvents,
   SearchFilterInstance,
@@ -16,11 +15,6 @@ export const createSearchFilter = (): SearchFilterInstance => {
 
   // Generic EventEmitter for type-safe event handling
   const eventEmitter = createEventEmitter<SearchFilterEvents>()
-
-  // Legacy callback array for backward compatibility
-  const callbacks = {
-    onFilterChange: [] as FilterChangeCallback[],
-  }
 
   const matchesFilters = (item: StarTrekItem): boolean => {
     const matchesSearch =
@@ -54,11 +48,7 @@ export const createSearchFilter = (): SearchFilterInstance => {
     const filteredData = getFilteredData()
     const filterState = getCurrentFilters()
 
-    // Emit event via generic EventEmitter
     eventEmitter.emit('filter-change', {filteredData, filterState})
-
-    // Maintain backward compatibility with legacy callbacks
-    callbacks.onFilterChange.forEach(callback => callback(filteredData))
   }
 
   const setSearch = (searchTerm: string): void => {
@@ -71,10 +61,6 @@ export const createSearchFilter = (): SearchFilterInstance => {
     notifyFilterChange()
   }
 
-  const onFilterChange = (callback: FilterChangeCallback): void => {
-    callbacks.onFilterChange.push(callback)
-  }
-
   // Return public API
   return {
     setSearch,
@@ -84,10 +70,6 @@ export const createSearchFilter = (): SearchFilterInstance => {
     notifyFilterChange,
     getCurrentFilters,
 
-    // Legacy callback methods (maintained for backward compatibility)
-    onFilterChange,
-
-    // Generic EventEmitter methods for enhanced type safety
     on: eventEmitter.on.bind(eventEmitter),
     off: eventEmitter.off.bind(eventEmitter),
     once: eventEmitter.once.bind(eventEmitter),
