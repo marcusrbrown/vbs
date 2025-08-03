@@ -75,6 +75,134 @@ export class LocalStorageAdapter<T> implements StorageAdapter<T> {
   }
 }
 
+// IndexedDB adapter for async storage operations
+export class IndexedDBAdapter<T> implements StorageAdapter<T> {
+  private readonly dbName: string
+  private readonly storeName: string
+  private readonly version: number
+  private readonly options: StorageValidationOptions<T>
+
+  constructor(
+    dbName = 'StarTrekVBS',
+    storeName = 'progress',
+    version = 1,
+    options: StorageValidationOptions<T> = {},
+  ) {
+    this.dbName = dbName
+    this.storeName = storeName
+    this.version = version
+    this.options = options
+  }
+
+  private async openDB(): Promise<IDBDatabase> {
+    return new Promise((resolve, reject) => {
+      const request = indexedDB.open(this.dbName, this.version)
+
+      request.addEventListener('error', () => reject(new Error('Failed to open IndexedDB')))
+      request.addEventListener('success', () => resolve(request.result))
+
+      request.addEventListener('upgradeneeded', event => {
+        const db = (event.target as IDBOpenDBRequest).result
+        if (!db.objectStoreNames.contains(this.storeName)) {
+          db.createObjectStore(this.storeName)
+        }
+      })
+    })
+  }
+
+  async save(key: string, data: T): Promise<void> {
+    try {
+      const sanitizedData = this.options.sanitize ? this.options.sanitize(data) : data
+      const db = await this.openDB()
+      const transaction = db.transaction([this.storeName], 'readwrite')
+      const store = transaction.objectStore(this.storeName)
+
+      return new Promise((resolve, reject) => {
+        const request = store.put(sanitizedData, key)
+        request.addEventListener('error', () =>
+          reject(new Error('Failed to save data to IndexedDB')),
+        )
+        request.addEventListener('success', () => resolve())
+      })
+    } catch (error) {
+      throw new Error(`Failed to save data to IndexedDB: ${error}`)
+    }
+  }
+
+  async load(key: string): Promise<T | null> {
+    try {
+      const db = await this.openDB()
+      const transaction = db.transaction([this.storeName], 'readonly')
+      const store = transaction.objectStore(this.storeName)
+
+      return new Promise(resolve => {
+        const request = store.get(key)
+        request.addEventListener('error', () => {
+          console.error('Error loading data from IndexedDB')
+          resolve(this.options.fallback ?? null)
+        })
+        request.addEventListener('success', () => {
+          const result = request.result
+
+          if (result === undefined) {
+            return resolve(this.options.fallback ?? null)
+          }
+
+          if (this.options.validate && !this.options.validate(result)) {
+            console.warn(`Invalid data format for key "${key}", using fallback`)
+            return resolve(this.options.fallback ?? null)
+          }
+
+          resolve(result as T)
+        })
+      })
+    } catch (error) {
+      console.error(`Error loading data from IndexedDB: ${error}`)
+      return this.options.fallback ?? null
+    }
+  }
+
+  async remove(key: string): Promise<void> {
+    const db = await this.openDB()
+    const transaction = db.transaction([this.storeName], 'readwrite')
+    const store = transaction.objectStore(this.storeName)
+
+    return new Promise((resolve, reject) => {
+      const request = store.delete(key)
+      request.addEventListener('error', () =>
+        reject(new Error('Failed to remove data from IndexedDB')),
+      )
+      request.addEventListener('success', () => resolve())
+    })
+  }
+
+  async clear(): Promise<void> {
+    const db = await this.openDB()
+    const transaction = db.transaction([this.storeName], 'readwrite')
+    const store = transaction.objectStore(this.storeName)
+
+    return new Promise((resolve, reject) => {
+      const request = store.clear()
+      request.addEventListener('error', () => reject(new Error('Failed to clear IndexedDB')))
+      request.addEventListener('success', () => resolve())
+    })
+  }
+
+  async exists(key: string): Promise<boolean> {
+    const db = await this.openDB()
+    const transaction = db.transaction([this.storeName], 'readonly')
+    const store = transaction.objectStore(this.storeName)
+
+    return new Promise((resolve, reject) => {
+      const request = store.count(key)
+      request.addEventListener('error', () =>
+        reject(new Error('Failed to check existence in IndexedDB')),
+      )
+      request.addEventListener('success', () => resolve(request.result > 0))
+    })
+  }
+}
+
 // Generic storage utility functions
 export const createStorage = <T>(
   adapter: StorageAdapter<T>,
