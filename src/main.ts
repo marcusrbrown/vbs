@@ -141,17 +141,17 @@ const createEventHandlers = (
     })
 
     // Progress tracker callbacks
-    progressTracker.onItemToggle((_itemId, _isWatched) => {
+    progressTracker.on('item-toggle', () => {
       saveProgress(progressTracker.getWatchedItems())
       timelineRenderer?.updateItemStates()
     })
 
-    progressTracker.onProgressUpdate((progressData: OverallProgress) => {
+    progressTracker.on('progress-update', (progressData: OverallProgress) => {
       timelineRenderer?.updateProgress(progressData)
     })
 
     // Search filter callbacks
-    searchFilter.onFilterChange((filteredData: StarTrekEra[]) => {
+    searchFilter.on('filter-change', ({filteredData}: {filteredData: StarTrekEra[]}) => {
       timelineRenderer?.render(filteredData)
       timelineRenderer?.updateItemStates()
     })

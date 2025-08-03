@@ -6,56 +6,60 @@ VBS (View By Stardate) is a local-first Star Trek chronological viewing guide bu
 
 ## Architecture Pattern
 
-The project uses **functional factory patterns** with closures for state management and clear separation of concerns. This architecture was recently refactored from class-based patterns (July 2025) to eliminate `this` binding issues and enable better functional composition.
+The project uses **functional factory patterns** with closures for state management and clear separation of concerns. This architecture was recently refactored from class-based patterns (July 2025) to eliminate `this` binding issues and enable better functional composition. A major generic types refactoring (August 2025) introduced type-safe EventEmitter systems and advanced TypeScript generics.
 
-### Functional Factory Architecture
+### Functional Factory Architecture with Generic EventEmitters
 
 - `createStarTrekViewingGuide` (main.ts): Main application factory coordinating all modules and DOM interactions
-- `createProgressTracker`: Factory managing watched items state and hierarchical progress calculations
-- `createSearchFilter`: Factory handling real-time search and content filtering with callbacks
-- `createTimelineRenderer`: Factory rendering era-based timeline with collapsible sections and progress integration
+- `createProgressTracker`: Factory managing watched items state with generic EventEmitter (`ProgressTrackerEvents`)
+- `createSearchFilter`: Factory handling real-time search with generic EventEmitter (`SearchFilterEvents`)
+- `createTimelineRenderer`: Factory rendering era-based timeline with dependency injection
 - `createElementsManager`: Factory for DOM element caching and management
-- `storage.ts`: Handles import/export of progress data as JSON (planned upgrade to IndexedDB)
+- `createEventEmitter<T>`: Generic EventEmitter factory with type-safe event handling
+- `storage.ts`: Generic storage utilities with EventEmitter notifications (`StorageEvents`)
 
 ### Factory Function Pattern
 
 **Factory functions with closures** for private state management:
 
 ```typescript
-// Factory function with closure-based state
+// Factory function with closure-based state and generic EventEmitter integration
 export const createProgressTracker = (): ProgressTrackerInstance => {
   // Private state in closure
   let watchedItems: string[] = []
-  const callbacks: {
-    onItemToggle: ItemToggleCallback[]
-    onProgressUpdate: ProgressUpdateCallback[]
-  } = { onItemToggle: [], onProgressUpdate: [] }
 
-  // Private helper functions
-  const calculateOverallProgress = (): ProgressData => { /* ... */ }
-  const updateProgress = (): void => { /* notify callbacks */ }
+  // Generic EventEmitter for type-safe events
+  const eventEmitter = createEventEmitter<ProgressTrackerEvents>()
 
-  // Return public API object
+  // Return public API with modern event handling
   return {
-    toggleItem: (itemId: string) => { /* mutate closure state */ },
-    isWatched: (itemId: string) => watchedItems.includes(itemId),
-    getWatchedItems: () => [...watchedItems], // immutable copy
-    onItemToggle: (callback: ItemToggleCallback) => callbacks.onItemToggle.push(callback)
+    toggleItem: (itemId: string) => {
+      // Mutate closure state
+      const newState = !watchedItems.includes(itemId)
+
+      // Emit via generic EventEmitter (type-safe)
+      eventEmitter.emit('item-toggle', { itemId, isWatched: newState })
+    },
+
+    // Generic EventEmitter methods (type-safe)
+    on: eventEmitter.on.bind(eventEmitter),
+    off: eventEmitter.off.bind(eventEmitter),
+    once: eventEmitter.once.bind(eventEmitter)
   }
 }
 
-// Dependency injection between factories
-const createTimelineRenderer = (
-  container: HTMLElement,
+// Dependency injection with generic constraints
+const createTimelineRenderer = <TContainer extends HTMLElement>(
+  container: TContainer,
   progressTracker: ProgressTrackerInstance
 ): TimelineRendererInstance => {
-  // Use injected dependency in closure
+  // Use injected dependency in closure with type safety
   const isWatched = (itemId: string) => progressTracker.isWatched(itemId)
   // ... rest of implementation
 }
 ```
 
-**Key principles**: Immutable state copies, controlled mutations via closures, dependency injection, no `this` binding issues.
+**Key principles**: Closure-based state, generic EventEmitters for type safety, dependency injection, no `this` binding issues.
 
 ## Data Structure
 
@@ -128,6 +132,18 @@ describe('ProgressTracker', () => {
     progressTracker.toggleItem('ent_s1')
     expect(progressTracker.isWatched('ent_s1')).toBe(true)
   })
+
+  it('should emit type-safe events', () => {
+    const mockListener = vi.fn()
+    progressTracker.on('item-toggle', mockListener)
+
+    progressTracker.toggleItem('tos_s1')
+
+    expect(mockListener).toHaveBeenCalledWith({
+      itemId: 'tos_s1',
+      isWatched: true
+    })
+  })
 })
 ```
 
@@ -139,7 +155,10 @@ describe('ProgressTracker', () => {
 - **Optional chaining** (`?.`) and nullish coalescing (`??`) everywhere
 - **Explicit return types** on public methods
 - **Avoid `any`** - use `unknown` with type guards instead
+- **Generic constraints**: Use `<T extends SomeType>` for type-safe factory functions
+- **EventEmitter pattern**: Provide modern EventEmitter methods for enhanced type safety
 - **Error handling**: Always handle async operations with meaningful error messages
+- **Type-safe events**: Use generic EventEmitter with defined event maps (`ProgressTrackerEvents`, `SearchFilterEvents`, etc.)
 
 ## LocalStorage Schema
 
@@ -162,6 +181,10 @@ interface ProgressExportData {
 **Event delegation**: Use event listeners on containers rather than individual items for performance.
 
 **Progress calculation**: Total progress is calculated by counting watched items across all eras, not just within individual eras.
+
+**Event handling**: Factories provide modern EventEmitter methods (`on`, `off`, `once`) for enhanced type safety.
+
+**Generic storage operations**: Use `createStorage<T>()` with `StorageAdapter<T>` for type-safe storage with validation and EventEmitter notifications.
 
 ## Extension Points
 
@@ -196,3 +219,5 @@ VBS has comprehensive implementation plans for major feature expansions:
 - Follow closure-based state management patterns
 - Implement proper TypeScript interfaces in `types.ts`
 - Add comprehensive Vitest tests for all new functionality
+- Use generic EventEmitter for type-safe event handling
+- Leverage generic storage utilities for data persistence with validation
