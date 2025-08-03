@@ -28,8 +28,9 @@ VBS (View By Stardate) is a modern, local-first web application that helps Star 
 
 ### Modern Architecture
 
-- **TypeScript**: Full type safety with modern ES modules
-- **Functional Factories**: Closure-based state management without `this` binding
+- **TypeScript**: Full type safety with modern ES modules and advanced generics
+- **Functional Factories**: Closure-based state management with generic EventEmitter integration
+- **Generic Utilities**: Type-safe storage adapters and comprehensive utility type library
 - **Responsive Design**: Mobile-first approach with modern CSS
 - **Performance**: Vite build system with optimized chunking
 
@@ -145,31 +146,83 @@ The project uses automated code quality tools:
 
 ## Architecture
 
-VBS uses a **functional factory pattern** with closures for state management:
+VBS uses a **functional factory pattern** with closures for state management and **generic TypeScript utilities** for enhanced type safety:
 
-### Functional Factory Pattern
+### Functional Factory Pattern with Generic EventEmitters
 
 ```typescript
-// Factory function with closure-based state
+// Factory function with closure-based state and generic EventEmitter integration
 export const createProgressTracker = (): ProgressTrackerInstance => {
   // Private state in closure
   const watchedItems: string[] = []
 
-  // Return public API object
+  // Generic EventEmitter for type-safe events
+  const eventEmitter = createEventEmitter<ProgressTrackerEvents>()
+
+  // Return public API with modern event handling
   return {
-    toggleItem: (itemId: string) => { /* mutate closure state */ },
-    isWatched: (itemId: string) => watchedItems.includes(itemId),
-    getWatchedItems: () => [...watchedItems] // immutable copy
+    toggleItem: (itemId: string) => {
+      // Mutate closure state
+      const newState = !watchedItems.includes(itemId)
+
+      // Emit via generic EventEmitter (type-safe)
+      eventEmitter.emit('item-toggle', { itemId, isWatched: newState })
+    },
+
+    // Generic EventEmitter methods (type-safe)
+    on: eventEmitter.on.bind(eventEmitter),
+    off: eventEmitter.off.bind(eventEmitter),
+    once: eventEmitter.once.bind(eventEmitter)
   }
 }
+
+// Dependency injection with generic constraints
+const createTimelineRenderer = <TContainer extends HTMLElement>(
+  container: TContainer,
+  progressTracker: ProgressTrackerInstance
+): TimelineRendererInstance => {
+  // Use injected dependency in closure with type safety
+  const isWatched = (itemId: string) => progressTracker.isWatched(itemId)
+  // ... rest of implementation
+}
+```
+
+### Generic Storage Utilities
+
+VBS includes a comprehensive generic storage system for type-safe data persistence:
+
+```typescript
+// Generic storage adapter pattern
+interface StorageAdapter<T> {
+  save(key: string, data: T): Promise<void> | void
+  load(key: string): Promise<T | null> | T | null
+  remove(key: string): Promise<void> | void
+  clear(): Promise<void> | void
+  exists(key: string): Promise<boolean> | boolean
+}
+
+// Type-safe LocalStorage implementation
+const progressStorage = createStorage(
+  new LocalStorageAdapter<string[]>({
+    validate: isStringArray,
+    fallback: []
+  }),
+  'starTrekProgress'
+)
+
+// Usage with automatic type inference
+progressStorage.save(['tos_s1', 'tng_s1']) // Type: string[]
+const progress = progressStorage.load()    // Type: string[] | null
 ```
 
 ### Key Architectural Benefits
 
 - **No `this` binding issues**: Closures eliminate context problems
-- **Immutable state copies**: Controlled mutations prevent bugs
-- **Dependency injection**: Clean separation of concerns
+- **Type-safe event handling**: Generic EventEmitter with compile-time type checking
+- **Generic storage adapters**: Reusable storage patterns with data validation
+- **Comprehensive utility types**: Advanced TypeScript patterns for maintainability
 - **Functional composition**: Easy testing and extensibility
+- **Future-ready foundation**: Prepared for IndexedDB migration and episode-level tracking
 
 ### Data Structure
 
