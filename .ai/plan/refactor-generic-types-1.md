@@ -39,9 +39,9 @@ This implementation plan outlines the systematic refactoring of the VBS codebase
 
 | Task | Description | Completed | Date |
 |------|-------------|-----------|------|
-| TASK-001 | Create generic EventEmitter<T> class in `src/modules/events.ts` with type-safe event emission and subscription | |  |
-| TASK-002 | Implement generic storage utilities in `src/modules/storage-generic.ts` with StorageAdapter<T> interface | |  |
-| TASK-003 | Create utility types library in `src/modules/utility-types.ts` with Partial, Required, Pick helpers | |  |
+| TASK-001 | Create generic EventEmitter<T> class in `src/modules/events.ts` with type-safe event emission and subscription | ✅ | 2025-08-02 |
+| TASK-002 | Implement generic storage utilities in `src/modules/storage.ts` with StorageAdapter<T> interface | |  |
+| TASK-003 | Create utility types library in `src/modules/types.ts` with Partial, Required, Pick helpers | |  |
 | TASK-004 | Add comprehensive unit tests for new generic utilities in `test/` directory | |  |
 | TASK-005 | Update TypeScript configuration to ensure strict generic type checking | |  |
 
@@ -98,16 +98,16 @@ This implementation plan outlines the systematic refactoring of the VBS codebase
 ## 5. Files
 
 - **FILE-001**: `src/modules/events.ts` - New generic EventEmitter implementation
-- **FILE-002**: `src/modules/storage-generic.ts` - New generic storage utilities
-- **FILE-003**: `src/modules/utility-types.ts` - New utility types library
+- **FILE-002**: `src/modules/storage.ts` - Extended with new generic storage utilities
+- **FILE-003**: `src/modules/types.ts` - Extended with new utility types library
 - **FILE-004**: `src/modules/types.ts` - Extended with generic interfaces and event maps
 - **FILE-005**: `src/modules/progress.ts` - Refactored to use generic EventEmitter
 - **FILE-006**: `src/modules/search.ts` - Refactored to use generic EventEmitter
 - **FILE-007**: `src/modules/storage.ts` - Updated to use generic utilities
 - **FILE-008**: `src/main.ts` - Updated to leverage new generic APIs
 - **FILE-009**: `test/events.test.ts` - New tests for generic EventEmitter
-- **FILE-010**: `test/storage-generic.test.ts` - New tests for generic storage
-- **FILE-011**: `test/utility-types.test.ts` - New tests for utility types
+- **FILE-010**: `test/storage.test.ts` - Updated with tests for generic storage
+- **FILE-011**: `test/types.test.ts` - New tests for utility types
 - **FILE-012**: Updated existing test files to work with generic refactoring
 
 ## 6. Testing
