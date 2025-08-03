@@ -20,7 +20,15 @@
     "noUnusedParameters": true,
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+    "noUncheckedSideEffectImports": true,
+
+    /* Strict Generic Type Checking */
+    "noStrictGenericChecks": false,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitReturns": true,
+    "noPropertyAccessFromIndexSignature": true
   },
   "include": ["**/*"]
 }
