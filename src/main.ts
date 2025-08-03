@@ -1,8 +1,8 @@
 import type {
-  OverallProgress,
+  ProgressTrackerEvents,
   ProgressTrackerInstance,
+  SearchFilterEvents,
   SearchFilterInstance,
-  StarTrekEra,
   TimelineRendererInstance,
 } from './modules/types.js'
 import {createProgressTracker} from './modules/progress.js'
@@ -140,19 +140,22 @@ const createEventHandlers = (
       handleImportProgress(e).catch(console.error)
     })
 
-    // Progress tracker callbacks
-    progressTracker.on('item-toggle', () => {
+    // Progress tracker callbacks with improved type safety
+    progressTracker.on('item-toggle', (_data: ProgressTrackerEvents['item-toggle']) => {
       saveProgress(progressTracker.getWatchedItems())
       timelineRenderer?.updateItemStates()
     })
 
-    progressTracker.on('progress-update', (progressData: OverallProgress) => {
-      timelineRenderer?.updateProgress(progressData)
-    })
+    progressTracker.on(
+      'progress-update',
+      (progressData: ProgressTrackerEvents['progress-update']) => {
+        timelineRenderer?.updateProgress(progressData)
+      },
+    )
 
-    // Search filter callbacks
-    searchFilter.on('filter-change', ({filteredData}: {filteredData: StarTrekEra[]}) => {
-      timelineRenderer?.render(filteredData)
+    // Search filter callbacks with improved type safety
+    searchFilter.on('filter-change', (data: SearchFilterEvents['filter-change']) => {
+      timelineRenderer?.render(data.filteredData)
       timelineRenderer?.updateItemStates()
     })
   }
