@@ -27,6 +27,8 @@ The architecture emphasizes type safety through advanced TypeScript generics, ge
 - [Storage Utilities](src/modules/storage.ts): Generic storage adapters with validation and export/import functionality
 - [Type Definitions](src/modules/types.ts): Comprehensive TypeScript interfaces and utility types
 - [Event System](src/modules/events.ts): Generic EventEmitter factory for type-safe inter-module communication
+- [Error Handler](src/modules/error-handler.ts): Centralized error management, logging, and user-friendly error reporting
+- [Composition Utilities](src/utils/composition.ts): Functional composition utilities with pipe(), compose(), curry(), and tap() functions
 
 ## Configuration & Development
 
@@ -34,6 +36,12 @@ The architecture emphasizes type safety through advanced TypeScript generics, ge
 - [Vite Configuration](vite.config.ts): Build system configuration with GitHub Pages deployment settings
 - [TypeScript Configuration](tsconfig.json): Strict TypeScript compiler settings with modern ES modules
 - [ESLint Configuration](eslint.config.ts): Code quality and formatting rules with automated pre-commit hooks
+
+## Planning & Development
+
+- [Episode Tracking Feature Plan](.ai/plan/feature-episode-tracking-1.md): Detailed specification for individual episode progress tracking
+- [Advanced Visualization Plan](.ai/plan/feature-advanced-visualization-1.md): Technical roadmap for D3.js timeline visualization features
+- [Functional Composition Plan](.ai/plan/feature-functional-composition-1.md): Architecture specification for functional programming utilities
 
 ## Optional
 

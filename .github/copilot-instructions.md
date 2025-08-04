@@ -61,6 +61,104 @@ const createTimelineRenderer = <TContainer extends HTMLElement>(
 
 **Key principles**: Closure-based state, generic EventEmitters for type safety, dependency injection, no `this` binding issues.
 
+## Functional Composition Utilities
+
+VBS includes a comprehensive functional composition utilities module (`src/utils/composition.ts`) with 3000+ lines of utilities for elegant data transformation pipelines. These utilities are actively integrated throughout the codebase.
+
+### Core Composition Functions
+
+- **`pipe()`**: Left-to-right function composition for intuitive data flow
+- **`compose()`**: Right-to-left mathematical composition
+- **`curry()`**: Partial application with automatic arity detection
+- **`tap()`**: Side effects in pipelines without breaking type flow
+- **`asyncPipe()` & `asyncCompose()`**: Async composition with Promise handling
+
+### VBS-Specific Pipeline Builders
+
+```typescript
+// Specialized pipelines for Star Trek data processing
+const searchPipeline = createSearchPipeline(starTrekData, {
+  onFilterComplete: (filteredData, filterState) => updateUI(filteredData)
+})
+
+const progressPipeline = createProgressPipeline(allEras, {
+  onProgressUpdate: (progress) => saveProgress(progress)
+})
+
+// Star Trek predicates and transformations
+const activeShows = pipe(
+  starTrekData,
+  starTrekPredicates.byType('series'),
+  starTrekTransformations.extractTitles,
+  tap(titles => console.log('Active shows:', titles))
+)
+```
+
+### Integrated Usage in Modules
+
+Composition utilities are used throughout existing modules:
+
+```typescript
+// In progress.ts - Progress calculations
+const calculateOverallProgress = (): ProgressData => {
+  return pipe(
+    starTrekData,
+    eras => eras.reduce((sum, era) => sum + era.items.length, 0),
+    totalItems => ({
+      total: totalItems,
+      completed: watchedItems.length,
+      percentage: Math.round((watchedItems.length / totalItems) * 100)
+    })
+  )
+}
+
+// In search.ts - Filter matching
+const matchesFilters = (item: StarTrekItem): boolean => {
+  return pipe(
+    item,
+    item => {
+      const matchesSearch = currentSearch ? starTrekPredicates.byText(currentSearch)(item) : true
+      const matchesFilter = currentFilter ? starTrekPredicates.byType(currentFilter)(item) : true
+      return matchesSearch && matchesFilter
+    }
+  )
+}
+
+// In timeline.ts - Curried event handlers
+const updateEraExpansion = curry((isExpanded: boolean, eraId: string) => {
+  // Toggle era display with functional composition
+})
+```
+
+### Debugging and Development Tools
+
+```typescript
+// Debug pipe with performance tracking
+const debugPipe = createDebugPipe({
+  enableLogging: true,
+  enableTiming: true,
+  label: 'Star Trek Data Processing'
+})
+
+const [result, debugInfo] = debugPipe(
+  starTrekData,
+  starTrekTransformations.extractByEra('tos'),
+  starTrekPredicates.byType('series'),
+  tap(data => console.log('Intermediate result:', data))
+)
+
+// Specialized debug taps
+const result = pipe(
+  starTrekData,
+  debugTap('After data load'),
+  perfTap('Processing time'),
+  conditionalTap(
+    data => data.length > 100,
+    data => console.warn('Large dataset detected')
+  )
+)
+```
+
 ## Generic Type System
 
 VBS implements a comprehensive generic type system that enhances the functional factory architecture with type-safe event handling, storage utilities, and advanced TypeScript patterns.
@@ -166,7 +264,7 @@ describe('ProgressTracker', () => {
   })
 
   it('should toggle items correctly', () => {
-    progressTraker.toggleItem('ent_s1') 
+    progressTraker.toggleItem('ent_s1')
     expect(progressTracker.isWatched('ent_s1')).toBe(true)
   })
 
@@ -183,18 +281,80 @@ describe('ProgressTracker', () => {
   })
 
   it('should handle one-time listeners', () => {
-    const mockListener = vi.fn() 
+    const mockListener = vi.fn()
     progressTracker.once('progress-update', mockListener)
-    
+
     progressTracker.toggleItem('item1')
     progressTracker.toggleItem('item2')
-    
+
     expect(mockListener).toHaveBeenCalledTimes(1)
   })
 })
 ```
 
 **Mock LocalStorage** for storage tests. Import modules using `.js` extensions (TypeScript ES modules). Test factory functions, not classes. Always test both successful operations and event emissions. Use `vi.fn()` for mocking event listeners and async operations.
+
+### Composition Utilities Testing
+
+Test functional composition utilities with comprehensive type safety and integration testing:
+
+```typescript
+describe('Functional Composition', () => {
+  it('should pipe data through transformation chain', () => {
+    const result = pipe(
+      [1, 2, 3, 4, 5],
+      (arr: number[]) => arr.filter(n => n > 2),
+      (arr: number[]) => arr.map(n => n * 2),
+      (arr: number[]) => arr.reduce((sum, n) => sum + n, 0)
+    )
+    expect(result).toBe(24) // [3, 4, 5] -> [6, 8, 10] -> 24
+  })
+
+  it('should handle curried functions', () => {
+    const add = curry((a: number, b: number, c: number) => a + b + c)
+    const add10 = add(10)
+    const add10and5 = add10(5)
+    expect(add10and5(3)).toBe(18)
+  })
+
+  it('should use tap for side effects', () => {
+    const sideEffect = vi.fn()
+    const result = pipe(
+      'test',
+      tap(sideEffect),
+      (s: string) => s.toUpperCase()
+    )
+    expect(sideEffect).toHaveBeenCalledWith('test')
+    expect(result).toBe('TEST')
+  })
+
+  it('should integrate with Star Trek data pipelines', () => {
+    const mockData = [{ id: 'tos', title: 'Original Series', items: [] }]
+    const pipeline = createProgressPipeline(mockData, {
+      onProgressUpdate: vi.fn()
+    })
+    expect(typeof pipeline).toBe('function')
+  })
+})
+```
+
+### Error Handling Testing
+
+```typescript
+// Test composition error boundaries
+it('should handle errors in composition chains', () => {
+  const safeOperation = compositionErrorBoundary(
+    [
+      (x: number) => x * 2,
+      () => { throw new Error('Test error') },
+      (x: number) => x + 1
+    ],
+    { fallbackValue: -1, enableLogging: false }
+  )
+
+  expect(safeOperation(5)).toBe(-1)
+})
+```
 
 ## Code Style Specifics
 
@@ -206,6 +366,10 @@ describe('ProgressTracker', () => {
 - **EventEmitter pattern**: Provide modern EventEmitter methods for enhanced type safety
 - **Error handling**: Always handle async operations with meaningful error messages
 - **Type-safe events**: Use generic EventEmitter with defined event maps (`ProgressTrackerEvents`, `SearchFilterEvents`, etc.)
+- **Functional composition**: Use `pipe()` for left-to-right data flow, `compose()` for mathematical composition
+- **Reusable predicates**: Create curried functions with `curry()` for partial application patterns
+- **Side effects**: Use `tap()` for logging/debugging without breaking composition chains
+- **Error boundaries**: Wrap risky operations with `compositionErrorBoundary()` or `tryCatch()`
 
 ## LocalStorage Schema
 
@@ -233,6 +397,8 @@ interface ProgressExportData {
 
 **Generic storage operations**: Use `createStorage<T>()` with `StorageAdapter<T>` for type-safe storage with validation and EventEmitter notifications.
 
+**Functional composition patterns**: Use `pipe()` for intuitive left-to-right data flow, `curry()` for reusable predicates, and VBS-specific pipeline builders (`createSearchPipeline`, `createProgressPipeline`) for complex transformations.
+
 ## Extension Points
 
 When adding features, consider these integration points:
@@ -241,6 +407,8 @@ When adding features, consider these integration points:
 - **New progress metrics**: Extend `ProgressData` interface and update calculation methods
 - **New export formats**: Add handlers in `storage.ts` alongside existing JSON export
 - **Timeline visualization**: The factory functions are designed for extension with chart libraries
+- **Composition pipelines**: Create new pipeline builders using `createPipeline()` for domain-specific transformations
+- **Debug utilities**: Use `debugTap()`, `perfTap()`, and `createDebugPipe()` for development and troubleshooting
 
 ## Planned Major Features
 
@@ -268,3 +436,5 @@ VBS has comprehensive implementation plans for major feature expansions:
 - Add comprehensive Vitest tests for all new functionality
 - Use generic EventEmitter for type-safe event handling
 - Leverage generic storage utilities for data persistence with validation
+- Integrate functional composition utilities for elegant data transformation pipelines
+- Use debugging utilities (`debugTap`, `createDebugPipe`) for development and troubleshooting
