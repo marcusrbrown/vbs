@@ -2,7 +2,7 @@
 goal: Individual Episode Tracking with Detailed Episode Information
 version: 1.0
 date_created: 2025-08-01
-last_updated: 2025-08-01
+last_updated: 2025-08-03
 owner: Marcus R. Brown
 status: 'Planned'
 tags: ['feature', 'ui', 'data', 'tracking']
@@ -23,12 +23,14 @@ This plan expands the VBS viewing guide from season-level tracking to individual
 - **REQ-005**: Maintain performance with large episode datasets (700+ episodes across all series)
 - **REQ-006**: Support both episode-level and bulk season-level marking
 - **REQ-007**: Implement spoiler-free content display with progressive disclosure
+- **REQ-008**: Create dedicated createEpisodeTracker factory function with closure-based state management separate from existing progress tracker
+- **REQ-009**: Integrate generic EventEmitter support for type-safe episode tracking events (EpisodeTrackerEvents interface)
 - **SEC-001**: Validate all episode data structures at runtime to prevent data corruption
 - **CON-001**: Must work with existing LocalStorage-based progress system
 - **CON-002**: UI must remain responsive on mobile devices with episode lists
 - **GUD-001**: Follow self-explanatory code commenting guidelines
 - **GUD-002**: Maintain TypeScript strict typing throughout
-- **PAT-001**: Use immutable state patterns with controlled mutations via factory functions
+- **PAT-001**: Use immutable state patterns with controlled mutations via factory functions and generic EventEmitter integration
 
 ## 2. Implementation Steps
 
@@ -57,6 +59,8 @@ This plan expands the VBS viewing guide from season-level tracking to individual
 | TASK-010 | Update storage format in `src/modules/storage.ts` to support episode-level progress with version migration | |  |
 | TASK-011 | Implement bulk operations: markSeasonWatched, markSeasonUnwatched functions | |  |
 | TASK-012 | Add progress data validation and error recovery for corrupted episode progress | |  |
+| TASK-013 | Create `createEpisodeTracker` factory function in new `src/modules/episodeTracker.ts` with closure-based state management | |  |
+| TASK-014 | Integrate generic EventEmitter support with EpisodeTrackerEvents interface for type-safe event handling | |  |
 
 ### Implementation Phase 3: UI Components & Episode Management
 
@@ -64,14 +68,14 @@ This plan expands the VBS viewing guide from season-level tracking to individual
 
 | Task | Description | Completed | Date |
 |------|-------------|-----------|------|
-| TASK-013 | Create `src/modules/episodes.ts` factory function for episode list management and filtering | |  |
-| TASK-014 | Update `createTimelineRenderer` in `src/modules/timeline.ts` to render collapsible episode lists within seasons | |  |
-| TASK-015 | Add detailed progress bars showing episode completion within seasons (e.g., "8/26 episodes watched") | |  |
-| TASK-016 | Create episode detail modal/expansion with synopsis, plot points, guest stars, and connections | |  |
-| TASK-017 | Add episode search and filtering capabilities (by title, guest stars, plot keywords) | |  |
-| TASK-018 | Implement lazy loading for episode lists to maintain performance with large datasets | |  |
-| TASK-019 | Update CSS in `src/style.css` for episode list styling, progress bars, and responsive design | |  |
-| TASK-020 | Add keyboard navigation support for episode lists (arrow keys, enter to toggle) | |  |
+| TASK-015 | Create `src/modules/episodes.ts` factory function for episode list management and filtering | |  |
+| TASK-016 | Update `createTimelineRenderer` in `src/modules/timeline.ts` to render collapsible episode lists within seasons | |  |
+| TASK-017 | Add detailed progress bars showing episode completion within seasons (e.g., "8/26 episodes watched") | |  |
+| TASK-018 | Create episode detail modal/expansion with synopsis, plot points, guest stars, and connections | |  |
+| TASK-019 | Add episode search and filtering capabilities (by title, guest stars, plot keywords) | |  |
+| TASK-020 | Implement lazy loading for episode lists to maintain performance with large datasets | |  |
+| TASK-021 | Update CSS in `src/style.css` for episode list styling, progress bars, and responsive design | |  |
+| TASK-022 | Add keyboard navigation support for episode lists (arrow keys, enter to toggle) | |  |
 
 ## 3. Alternatives
 
@@ -101,6 +105,7 @@ This plan expands the VBS viewing guide from season-level tracking to individual
 - **FILE-010**: `test/episodes.test.ts` - Comprehensive episode functionality tests
 - **FILE-011**: `test/migration.test.ts` - Data migration and compatibility tests
 - **FILE-012**: `test/progress-hierarchical.test.ts` - Hierarchical progress calculation tests
+- **FILE-013**: `src/modules/episodeTracker.ts` - New createEpisodeTracker factory function with generic EventEmitter support
 
 ## 6. Testing
 
@@ -112,6 +117,8 @@ This plan expands the VBS viewing guide from season-level tracking to individual
 - **TEST-006**: Storage compatibility tests ensuring backward/forward compatibility
 - **TEST-007**: Search and filtering tests for episode discovery functionality
 - **TEST-008**: Responsive design tests for episode lists on mobile devices
+- **TEST-009**: Event emission validation tests for createEpisodeTracker factory with generic EventEmitter integration
+- **TEST-010**: createEpisodeTracker factory function tests with closure-based state management and type-safe event handling
 
 ## 7. Risks & Assumptions
 
