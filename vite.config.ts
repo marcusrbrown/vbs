@@ -26,5 +26,9 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
+    typecheck: {
+      enabled: true,
+      include: ['**/*.test-d.ts'],
+    },
   },
 })
