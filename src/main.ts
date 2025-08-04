@@ -5,6 +5,11 @@ import type {
   SearchFilterInstance,
   TimelineRendererInstance,
 } from './modules/types.js'
+import {
+  initializeGlobalErrorHandling,
+  withErrorHandling,
+  withSyncErrorHandling,
+} from './modules/error-handler.js'
 import {createProgressTracker} from './modules/progress.js'
 import {createSearchFilter} from './modules/search.js'
 import {
@@ -17,7 +22,7 @@ import {createTimelineRenderer} from './modules/timeline.js'
 import './style.css'
 
 // Factory function to create DOM elements manager
-const createElementsManager = () => {
+export const createElementsManager = () => {
   let elements: {
     container: HTMLElement | null
     searchInput: HTMLInputElement | null
@@ -64,42 +69,36 @@ const createElementsManager = () => {
 }
 
 // Factory function to create event handlers
-const createEventHandlers = (
+export const createEventHandlers = (
   progressTracker: ProgressTrackerInstance,
   searchFilter: SearchFilterInstance,
   timelineRenderer: TimelineRendererInstance | null,
   elementsManager: ReturnType<typeof createElementsManager>,
 ) => {
-  const handleResetProgress = (): void => {
+  const handleResetProgress = withSyncErrorHandling((): void => {
     // eslint-disable-next-line no-alert
     if (confirm('Are you sure you want to reset all progress? This cannot be undone.')) {
       progressTracker.resetProgress()
       saveProgress([])
       timelineRenderer?.updateItemStates()
     }
-  }
+  }, 'Reset Progress')
 
-  const handleImportProgress = async (event: Event): Promise<void> => {
+  const handleImportProgress = withErrorHandling(async (event: Event): Promise<void> => {
     const target = event.target as HTMLInputElement
     const file = target.files?.[0]
     if (!file) return
 
-    try {
-      const progress = await importProgressFromFile(file)
-      progressTracker.setWatchedItems(progress)
-      saveProgress(progress)
-      timelineRenderer?.updateItemStates()
-      // eslint-disable-next-line no-alert
-      alert('Progress imported successfully!')
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unknown error occurred'
-      // eslint-disable-next-line no-alert
-      alert(message)
-    }
+    const progress = await importProgressFromFile(file)
+    progressTracker.setWatchedItems(progress)
+    saveProgress(progress)
+    timelineRenderer?.updateItemStates()
+    // eslint-disable-next-line no-alert
+    alert('Progress imported successfully!')
 
     // Reset file input
     target.value = ''
-  }
+  }, 'Import Progress')
 
   const setupEventListeners = (): void => {
     const elements = elementsManager.get()
@@ -168,7 +167,7 @@ const createEventHandlers = (
 }
 
 // Factory function to create the main application
-const createStarTrekViewingGuide = () => {
+export const createStarTrekViewingGuide = () => {
   // Create module instances
   const progressTracker = createProgressTracker()
   const searchFilter = createSearchFilter()
@@ -183,29 +182,48 @@ const createStarTrekViewingGuide = () => {
   }
 
   const render = (): void => {
+    const elements = elementsManager.get()
+    if (!elements.container) return
+
+    // Initialize timeline renderer (takes container and progressTracker only)
+    timelineRenderer = createTimelineRenderer(elements.container, progressTracker)
+
+    // Initial render with search filter
     const filteredData = searchFilter.getFilteredData()
-    timelineRenderer?.render(filteredData)
-    timelineRenderer?.updateItemStates()
+    timelineRenderer.render(filteredData)
+    timelineRenderer.updateItemStates()
   }
 
   const setupApp = (): void => {
-    elementsManager.initialize()
+    try {
+      // Initialize DOM elements manager first
+      elementsManager.initialize()
 
-    const container = elementsManager.getContainer()
-    if (container) {
-      timelineRenderer = createTimelineRenderer(container, progressTracker)
+      loadInitialData()
+      render()
+
+      // Create event handlers after timeline renderer is initialized
+      const eventHandlers = createEventHandlers(
+        progressTracker,
+        searchFilter,
+        timelineRenderer,
+        elementsManager,
+      )
+
+      eventHandlers.setupEventListeners()
+
+      // Initialize global error handling
+      initializeGlobalErrorHandling()
+    } catch (error) {
+      console.error('Failed to setup Star Trek Viewing Guide:', error)
+
+      // Fallback error display for critical initialization failures
+      const container = document.querySelector('#app')
+      if (container) {
+        container.innerHTML =
+          '<div class="error">Failed to load application. Please refresh the page.</div>'
+      }
     }
-
-    const eventHandlers = createEventHandlers(
-      progressTracker,
-      searchFilter,
-      timelineRenderer,
-      elementsManager,
-    )
-    eventHandlers.setupEventListeners()
-
-    loadInitialData()
-    render()
   }
 
   const init = (): void => {
