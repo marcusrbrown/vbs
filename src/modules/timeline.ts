@@ -6,6 +6,7 @@ import type {
   StarTrekItem,
   TimelineRendererInstance,
 } from './types.js'
+import {curry, pipe, tap} from '../utils/composition.js'
 
 export const createTimelineRenderer = (
   container: HTMLElement,
@@ -15,16 +16,29 @@ export const createTimelineRenderer = (
   const expandedEras: Set<string> = new Set()
 
   const calculateEraProgress = (era: StarTrekEra): EraProgress => {
-    const completedItems = era.items.filter(item => progressTracker.isWatched(item.id)).length
-    const totalItems = era.items.length
-    const percentage = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0
+    return pipe(
+      era,
+      // Calculate completion data for the era
+      era => {
+        const completedItems = era.items.filter(item => progressTracker.isWatched(item.id)).length
+        const totalItems = era.items.length
+        const percentage = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0
 
-    return {
-      eraId: era.id,
-      total: totalItems,
-      completed: completedItems,
-      percentage,
-    }
+        return {
+          eraId: era.id,
+          total: totalItems,
+          completed: completedItems,
+          percentage,
+        }
+      },
+      // Debug tap for development tracking
+      tap((progress: EraProgress) => {
+        if (progress.percentage === 100) {
+          // Era completed - could trigger completion callbacks
+        }
+        return undefined
+      }),
+    )
   }
 
   const createItemElement = (item: StarTrekItem): string => {
@@ -152,40 +166,65 @@ export const createTimelineRenderer = (
     })
   }
 
+  // Curried functions for reusable era state management
+  const updateEraExpansion = curry((isExpanded: boolean, eraId: string) => {
+    const eraElement = container.querySelector(`[data-era-id="${eraId}"]`) as HTMLElement
+    if (!eraElement) return
+
+    const content = eraElement.querySelector('.era-content') as HTMLElement
+    const icon = eraElement.querySelector('.expand-icon')
+
+    if (isExpanded) {
+      expandedEras.add(eraId)
+      if (content) content.style.display = 'block'
+      if (icon) icon.textContent = '▲'
+      eraElement.classList.add('expanded')
+    } else {
+      expandedEras.delete(eraId)
+      if (content) content.style.display = 'none'
+      if (icon) icon.textContent = '▼'
+      eraElement.classList.remove('expanded')
+    }
+  })
+
+  // Reusable curried handlers
+  const expandEra = updateEraExpansion(true)
+  const collapseEra = updateEraExpansion(false)
+
   const expandAll = (): void => {
-    const eras = container.querySelectorAll('.era')
-    eras.forEach(era => {
-      const eraElement = era as HTMLElement
-      const eraId = eraElement.dataset['eraId']
-      if (eraId) {
-        expandedEras.add(eraId)
-
-        const content = era.querySelector('.era-content') as HTMLElement
-        const icon = era.querySelector('.expand-icon')
-
-        if (content) content.style.display = 'block'
-        if (icon) icon.textContent = '▲'
-        era.classList.add('expanded')
-      }
-    })
+    pipe(
+      container.querySelectorAll('.era'),
+      // Convert NodeList to Array and process each era
+      eras => Array.from(eras),
+      tap((eras: Element[]) => {
+        eras.forEach(era => {
+          const eraElement = era as HTMLElement
+          const eraId = eraElement.dataset['eraId']
+          if (eraId) {
+            expandEra(eraId)
+          }
+        })
+        return undefined
+      }),
+    )
   }
 
   const collapseAll = (): void => {
-    const eras = container.querySelectorAll('.era')
-    eras.forEach(era => {
-      const eraElement = era as HTMLElement
-      const eraId = eraElement.dataset['eraId']
-      if (eraId) {
-        expandedEras.delete(eraId)
-
-        const content = era.querySelector('.era-content') as HTMLElement
-        const icon = era.querySelector('.expand-icon')
-
-        if (content) content.style.display = 'none'
-        if (icon) icon.textContent = '▼'
-        era.classList.remove('expanded')
-      }
-    })
+    pipe(
+      container.querySelectorAll('.era'),
+      // Convert NodeList to Array and process each era
+      eras => Array.from(eras),
+      tap((eras: Element[]) => {
+        eras.forEach(era => {
+          const eraElement = era as HTMLElement
+          const eraId = eraElement.dataset['eraId']
+          if (eraId) {
+            collapseEra(eraId)
+          }
+        })
+        return undefined
+      }),
+    )
   }
 
   const updateProgress = (progressData: OverallProgress): void => {

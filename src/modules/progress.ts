@@ -5,6 +5,7 @@ import type {
   ProgressTrackerInstance,
 } from './types.js'
 import {starTrekData} from '../data/star-trek-data.js'
+import {createProgressPipeline, pipe, tap} from '../utils/composition.js'
 import {createEventEmitter} from './events.js'
 
 export const createProgressTracker = (): ProgressTrackerInstance => {
@@ -16,39 +17,54 @@ export const createProgressTracker = (): ProgressTrackerInstance => {
 
   // Helper functions for internal calculations
   const calculateOverallProgress = (): ProgressData => {
-    const totalItems = starTrekData.reduce((sum, era) => sum + era.items.length, 0)
-    const completedItems = watchedItems.length
-    const percentage = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0
+    return pipe(
+      starTrekData,
+      // Calculate totals from all eras
+      eras => eras.reduce((sum, era) => sum + era.items.length, 0),
+      // Create progress data with totals and completion
+      totalItems => {
+        const completedItems = watchedItems.length
+        const percentage = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0
 
-    return {
-      total: totalItems,
-      completed: completedItems,
-      percentage,
-    }
+        return {
+          total: totalItems,
+          completed: completedItems,
+          percentage,
+        }
+      },
+    )
   }
 
   const calculateEraProgress = (): EraProgress[] => {
-    return starTrekData.map(era => {
-      const completedItems = era.items.filter(item => watchedItems.includes(item.id)).length
-      const totalItems = era.items.length
-      const percentage = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0
+    return pipe(
+      starTrekData,
+      // Transform each era to progress data
+      eras =>
+        eras.map(era => {
+          const completedItems = era.items.filter(item => watchedItems.includes(item.id)).length
+          const totalItems = era.items.length
+          const percentage = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0
 
-      return {
-        eraId: era.id,
-        total: totalItems,
-        completed: completedItems,
-        percentage,
-      }
-    })
+          return {
+            eraId: era.id,
+            total: totalItems,
+            completed: completedItems,
+            percentage,
+          }
+        }),
+    )
   }
 
-  // Internal helper function for progress updates
+  // Internal helper function for progress updates using composition pipeline
   const updateProgress = (): void => {
-    const overall = calculateOverallProgress()
-    const eraProgress = calculateEraProgress()
-    const progressData = {overall, eraProgress}
+    const progressPipeline = createProgressPipeline(starTrekData, {
+      onProgressUpdate: progressData => {
+        eventEmitter.emit('progress-update', progressData)
+      },
+    })
 
-    eventEmitter.emit('progress-update', progressData)
+    // Execute the pipeline with current watched items
+    progressPipeline(watchedItems)
   }
 
   // Return public API object
@@ -59,18 +75,28 @@ export const createProgressTracker = (): ProgressTrackerInstance => {
     },
 
     toggleItem: (itemId: string): void => {
-      const isWatched = watchedItems.includes(itemId)
-      const newWatchedState = !isWatched
+      pipe(
+        itemId,
+        // Track the toggle action for debugging
+        tap((id: string) => {
+          // Could add debugging/analytics here
+          return id
+        }),
+        // Process the toggle operation
+        id => {
+          const isWatched = watchedItems.includes(id)
+          const newWatchedState = !isWatched
 
-      if (isWatched) {
-        watchedItems = watchedItems.filter(id => id !== itemId)
-      } else {
-        watchedItems.push(itemId)
-      }
+          if (isWatched) {
+            watchedItems = watchedItems.filter(item => item !== id)
+          } else {
+            watchedItems.push(id)
+          }
 
-      eventEmitter.emit('item-toggle', {itemId, isWatched: newWatchedState})
-
-      updateProgress()
+          eventEmitter.emit('item-toggle', {itemId: id, isWatched: newWatchedState})
+          updateProgress()
+        },
+      )
     },
 
     isWatched: (itemId: string): boolean => {
