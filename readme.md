@@ -187,6 +187,65 @@ const createTimelineRenderer = <TContainer extends HTMLElement>(
 }
 ```
 
+### Functional Composition Utilities
+
+VBS includes a comprehensive functional composition utilities module (`src/utils/composition.ts`) with 3000+ lines of utilities for elegant data transformation pipelines:
+
+```typescript
+import { compose, curry, pipe, tap } from './utils/composition.js'
+
+// Left-to-right data flow with pipe()
+const processStarTrekData = pipe(
+  starTrekData,
+  data => data.filter(era => era.items.length > 0),
+  data => data.map(era => ({ ...era, progress: calculateProgress(era) })),
+  tap(data => console.log('Processed data:', data.length, 'eras')),
+  data => data.sort((a, b) => a.title.localeCompare(b.title))
+)
+
+// Curried functions for reusable predicates
+const filterByType = curry((type: string, item: StarTrekItem) => item.type === type)
+const isMovie = filterByType('movie')
+const isSeries = filterByType('series')
+
+// Progress calculation pipeline
+const calculateOverallProgress = (): ProgressData => {
+  return pipe(
+    starTrekData,
+    eras => eras.reduce((sum, era) => sum + era.items.length, 0),
+    totalItems => ({
+      total: totalItems,
+      completed: watchedItems.length,
+      percentage: Math.round((watchedItems.length / totalItems) * 100)
+    })
+  )
+}
+
+// VBS-specific pipeline builders
+const searchPipeline = createSearchPipeline(starTrekData, {
+  onFilterComplete: (filteredData, filterState) => updateUI(filteredData)
+})
+
+const progressPipeline = createProgressPipeline(allEras, {
+  onProgressUpdate: (progress) => saveProgress(progress)
+})
+```
+
+**Core Functions:**
+
+- **`pipe()`**: Left-to-right function composition for intuitive data flow
+- **`compose()`**: Right-to-left mathematical composition
+- **`curry()`**: Partial application with automatic arity detection
+- **`tap()`**: Side effects in pipelines without breaking type flow
+- **`asyncPipe()` & `asyncCompose()`**: Async composition with Promise handling
+
+**VBS-Specific Features:**
+
+- **Pipeline Builders**: `createSearchPipeline()`, `createProgressPipeline()`, `createEventPipeline()`
+- **Star Trek Predicates**: `starTrekPredicates.byType()`, `byText()`, `byEra()`
+- **Star Trek Transformations**: `starTrekTransformations.extractTitles()`, `extractByEra()`
+- **Debug Utilities**: `debugTap()`, `perfTap()`, `createDebugPipe()` for development
+
 ### Generic Storage Utilities
 
 VBS includes a comprehensive generic storage system for type-safe data persistence:
