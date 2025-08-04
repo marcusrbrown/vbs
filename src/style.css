@@ -471,6 +471,45 @@ select:focus {
     outline-offset: 2px;
 }
 
+/* Enhanced focus styles for better visibility */
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+    outline: 3px solid var(--accent-gold);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 5px rgba(255, 215, 0, 0.3);
+}
+
+/* Visually hidden class for screen readers */
+.visually-hidden {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
+/* Skip link for keyboard users */
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 6px;
+    background: var(--dark-bg);
+    color: var(--accent-gold);
+    padding: 8px;
+    text-decoration: none;
+    border-radius: 4px;
+    z-index: 1000;
+}
+
+.skip-link:focus {
+    top: 6px;
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
     width: 8px;
