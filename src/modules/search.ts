@@ -6,6 +6,7 @@ import type {
   StarTrekItem,
 } from './types.js'
 import {starTrekData} from '../data/star-trek-data.js'
+import {createSearchPipeline, pipe, starTrekPredicates, tap} from '../utils/composition.js'
 import {createEventEmitter} from './events.js'
 
 export const createSearchFilter = (): SearchFilterInstance => {
@@ -17,24 +18,27 @@ export const createSearchFilter = (): SearchFilterInstance => {
   const eventEmitter = createEventEmitter<SearchFilterEvents>()
 
   const matchesFilters = (item: StarTrekItem): boolean => {
-    const matchesSearch =
-      !currentSearch ||
-      item.title.toLowerCase().includes(currentSearch) ||
-      item.notes.toLowerCase().includes(currentSearch) ||
-      item.year.toLowerCase().includes(currentSearch)
+    return pipe(
+      item,
+      // Create a predicate that combines search and type filters
+      item => {
+        const matchesSearch = currentSearch ? starTrekPredicates.byText(currentSearch)(item) : true
+        const matchesFilter = currentFilter ? starTrekPredicates.byType(currentFilter)(item) : true
 
-    const matchesFilter = !currentFilter || item.type === currentFilter
-
-    return matchesSearch && matchesFilter
+        return matchesSearch && matchesFilter
+      },
+    )
   }
 
   const getFilteredData = (): StarTrekEra[] => {
-    return starTrekData
-      .map(era => ({
-        ...era,
-        items: era.items.filter(item => matchesFilters(item)),
-      }))
-      .filter(era => era.items.length > 0)
+    const searchPipeline = createSearchPipeline(starTrekData, {
+      onFilterComplete: (filteredData, _filterState) => {
+        // Pipeline handles filtering, just return the result
+        return filteredData
+      },
+    })
+
+    return searchPipeline({search: currentSearch, filter: currentFilter})
   }
 
   const getCurrentFilters = (): FilterState => {
@@ -45,10 +49,19 @@ export const createSearchFilter = (): SearchFilterInstance => {
   }
 
   const notifyFilterChange = (): void => {
-    const filteredData = getFilteredData()
-    const filterState = getCurrentFilters()
-
-    eventEmitter.emit('filter-change', {filteredData, filterState})
+    pipe(
+      getCurrentFilters(),
+      // Debug tap to track filter changes
+      tap((filterState: FilterState) => {
+        // Could add debugging logic here if needed during development
+        return filterState
+      }),
+      // Get filtered data and emit change event
+      filterState => {
+        const filteredData = getFilteredData()
+        eventEmitter.emit('filter-change', {filteredData, filterState})
+      },
+    )
   }
 
   const setSearch = (searchTerm: string): void => {
