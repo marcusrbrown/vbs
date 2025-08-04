@@ -1,0 +1,44 @@
+# VBS (View By Stardate)
+
+> A modern, local-first Star Trek chronological viewing guide that helps fans track their progress through all series and movies in chronological order by in-universe stardate.
+
+VBS is built with TypeScript and Vite using functional factory patterns with closures for state management. The application features a comprehensive dataset spanning 7 chronological eras from the 22nd-32nd centuries (1,000+ years of Star Trek history), with persistent progress tracking using browser LocalStorage and planned migration to IndexedDB.
+
+The architecture emphasizes type safety through advanced TypeScript generics, generic EventEmitter systems for inter-module communication, and modern ES modules. All viewing progress is stored locally with export/import capabilities for data portability.
+
+## Documentation
+
+- [Main README](readme.md): Complete project overview, features, quick start guide, and development workflow
+- [Viewing Guide](viewing-guide.md): Comprehensive Star Trek chronological viewing guide by stardate with detailed continuity notes
+- [Copilot Instructions](.github/copilot-instructions.md): Detailed development guidelines, architecture patterns, and coding conventions for the project
+
+## Architecture & Examples
+
+- [Generic Types Examples](docs/generic-types-examples.md): Comprehensive examples of the generic TypeScript system with EventEmitters and storage utilities
+- [IndexedDB Migration Plan](docs/indexeddb-migration.md): Technical specification for planned migration from LocalStorage to IndexedDB
+
+## Core Implementation
+
+- [Main Application](src/main.ts): Primary application factory coordinating all modules and DOM interactions
+- [Star Trek Data](src/data/star-trek-data.ts): Comprehensive 570-line dataset covering all Star Trek content across 7 chronological eras
+- [Progress Tracker](src/modules/progress.ts): Factory managing watched items state with generic EventEmitter integration
+- [Search Filter](src/modules/search.ts): Real-time search and filtering factory with type-safe events
+- [Timeline Renderer](src/modules/timeline.ts): Era-based timeline rendering with dependency injection
+- [Storage Utilities](src/modules/storage.ts): Generic storage adapters with validation and export/import functionality
+- [Type Definitions](src/modules/types.ts): Comprehensive TypeScript interfaces and utility types
+- [Event System](src/modules/events.ts): Generic EventEmitter factory for type-safe inter-module communication
+
+## Configuration & Development
+
+- [Package Configuration](package.json): Dependencies, scripts, and project metadata with pnpm workspace setup
+- [Vite Configuration](vite.config.ts): Build system configuration with GitHub Pages deployment settings
+- [TypeScript Configuration](tsconfig.json): Strict TypeScript compiler settings with modern ES modules
+- [ESLint Configuration](eslint.config.ts): Code quality and formatting rules with automated pre-commit hooks
+
+## Optional
+
+- [Application Entry Point](index.html): HTML template with Star Trek-themed styling and meta tags
+- [Global Styles](src/style.css): CSS with Star Trek color theme and responsive design patterns
+- [Test Coverage Reports](coverage/): Generated test coverage reports and visualization
+- [GitHub Workflows](.github/workflows/): CI/CD automation for testing and deployment
+- [Development Environment](src/vite-env.d.ts): Vite type definitions for development
