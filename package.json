@@ -22,7 +22,7 @@
     "prepare": "simple-git-hooks",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:coverage": "vitest --coverage",
+    "test:coverage": "vitest run --coverage",
     "test:ui": "vitest --ui",
     "type-check": "tsc --noEmit"
   },

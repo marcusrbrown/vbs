@@ -6,7 +6,7 @@ VBS (View By Stardate) is a local-first Star Trek chronological viewing guide bu
 
 ## Architecture Pattern
 
-The project uses **functional factory patterns** with closures for state management and clear separation of concerns. This architecture was recently refactored from class-based patterns (July 2025) to eliminate `this` binding issues and enable better functional composition. A major generic types refactoring (August 2025) introduced type-safe EventEmitter systems and advanced TypeScript generics.
+The project uses **functional factory patterns** with closures for state management and clear separation of concerns. This architecture was refactored from class-based patterns to eliminate `this` binding issues and enable better functional composition. The generic types system introduces type-safe EventEmitter systems and advanced TypeScript generics for enhanced developer experience.
 
 ### Functional Factory Architecture with Generic EventEmitters
 
@@ -63,24 +63,31 @@ const createTimelineRenderer = <TContainer extends HTMLElement>(
 
 ## Generic Type System
 
-VBS implements a comprehensive generic type system (August 2025 refactoring) that enhances the functional factory architecture with type-safe event handling, storage utilities, and advanced TypeScript patterns.
+VBS implements a comprehensive generic type system that enhances the functional factory architecture with type-safe event handling, storage utilities, and advanced TypeScript patterns.
 
 ### Core Generic Patterns
 
-- **Generic EventEmitter**: `createEventEmitter<TEventMap>()` for type-safe events
+- **Generic EventEmitter**: `createEventEmitter<TEventMap>()` for type-safe events with full listener management
 - **Generic Storage**: `StorageAdapter<T>` with validation and fallback options
 - **Utility Types**: 25+ types for factory functions, deep transformations, and constraints
 - **Event Maps**: All modules use `EventMap` interface (`ProgressTrackerEvents`, `SearchFilterEvents`, `StorageEvents`)
+- **Error Handling**: `withErrorHandling()` and `withSyncErrorHandling()` utilities for consistent error boundaries
 
 ### Key Implementation Details
 
 ```typescript
-// Generic EventEmitter with type safety
+// Generic EventEmitter with type safety and full listener management
 const eventEmitter = createEventEmitter<ProgressTrackerEvents>()
 eventEmitter.emit('item-toggle', { itemId: 'tos_s1', isWatched: true })
+eventEmitter.once('progress-update', (data) => console.log('One-time listener'))
 
 // Generic storage with validation
 const storage = createStorage(new LocalStorageAdapter<string[]>({ validate: isStringArray }))
+
+// Error handling utilities for consistent error boundaries
+const safeAsyncOperation = withErrorHandling(async () => {
+  // risky async operation
+})
 
 // Generic constraints in factory functions
 const createRenderer = <TContainer extends HTMLElement>(container: TContainer) => { ... }
@@ -145,9 +152,12 @@ git commit --no-verify
 
 ## Testing Patterns
 
-Use Vitest with factory function instantiation in `beforeEach`:
+Use Vitest with factory function instantiation in `beforeEach` and comprehensive event testing:
 
 ```typescript
+import type { ProgressTrackerInstance } from '../src/modules/types.js'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+
 describe('ProgressTracker', () => {
   let progressTracker: ProgressTrackerInstance
 
@@ -156,7 +166,7 @@ describe('ProgressTracker', () => {
   })
 
   it('should toggle items correctly', () => {
-    progressTracker.toggleItem('ent_s1')
+    progressTraker.toggleItem('ent_s1') 
     expect(progressTracker.isWatched('ent_s1')).toBe(true)
   })
 
@@ -171,10 +181,20 @@ describe('ProgressTracker', () => {
       isWatched: true
     })
   })
+
+  it('should handle one-time listeners', () => {
+    const mockListener = vi.fn() 
+    progressTracker.once('progress-update', mockListener)
+    
+    progressTracker.toggleItem('item1')
+    progressTracker.toggleItem('item2')
+    
+    expect(mockListener).toHaveBeenCalledTimes(1)
+  })
 })
 ```
 
-**Mock LocalStorage** for storage tests. Import modules using `.js` extensions (TypeScript ES modules). Test factory functions, not classes.
+**Mock LocalStorage** for storage tests. Import modules using `.js` extensions (TypeScript ES modules). Test factory functions, not classes. Always test both successful operations and event emissions. Use `vi.fn()` for mocking event listeners and async operations.
 
 ## Code Style Specifics
 
