@@ -914,3 +914,72 @@ export interface StorageEvents extends EventMap {
     context?: Record<string, unknown>
   }
 }
+
+// ============================================================================
+// FUNCTIONAL COMPOSITION PIPELINE TYPES
+// ============================================================================
+
+/**
+ * Represents a single step in a data transformation pipeline.
+ * Each step transforms input of type TInput to output of type TOutput.
+ */
+export type PipelineStep<TInput, TOutput> = (input: TInput) => TOutput
+
+/**
+ * Configuration object for creating reusable data transformation pipelines.
+ * Supports validation, transformation, side effects, and error handling.
+ */
+export interface PipelineConfig<TInput, TOutput> {
+  /** Optional validation function to check input before processing */
+  validate?: (input: TInput) => boolean
+  /** Array of transformation steps to apply in order */
+  steps: PipelineStep<any, any>[]
+  /** Optional side effect function called with the final output */
+  onComplete?: (output: TOutput) => void
+  /** Optional error handler for pipeline failures */
+  onError?: (error: Error, input: TInput) => void
+}
+
+/**
+ * A reusable pipeline function created by createPipeline factory.
+ * Takes input of type TInput and returns output of type TOutput.
+ */
+export type Pipeline<TInput, TOutput> = (input: TInput) => TOutput
+
+/**
+ * Configuration for search filtering pipeline operations.
+ */
+export interface SearchPipelineConfig {
+  /** Function to normalize search terms (default: lowercase + trim) */
+  normalizeSearch?: (term: string) => string
+  /** Custom predicate for matching items against search terms */
+  itemMatcher?: (item: StarTrekItem, normalizedTerm: string) => boolean
+  /** Function called with filtered results */
+  onFilterComplete?: (filteredData: StarTrekEra[], filterState: FilterState) => void
+}
+
+/**
+ * Configuration for progress calculation pipeline operations.
+ */
+export interface ProgressPipelineConfig {
+  /** Function to validate watched items array */
+  validateWatchedItems?: (items: string[]) => boolean
+  /** Custom progress calculation function */
+  progressCalculator?: (watchedItems: string[], allItems: StarTrekItem[]) => ProgressData
+  /** Function called with calculated progress */
+  onProgressUpdate?: (progress: OverallProgress) => void
+}
+
+/**
+ * Configuration for event handling pipeline operations.
+ */
+export interface EventPipelineConfig<TEvent> {
+  /** Function to validate incoming events */
+  validateEvent?: (event: TEvent) => boolean
+  /** Function to extract relevant data from events */
+  eventExtractor?: (event: TEvent) => any
+  /** Function called after state updates are complete */
+  onStateUpdate?: (newState: any) => void
+  /** Function to handle DOM updates */
+  onDOMUpdate?: (element: HTMLElement, newState: any) => void
+}

@@ -10,6 +10,18 @@
  * and integrate seamlessly with VBS's functional factory architecture.
  */
 
+import type {
+  EventPipelineConfig,
+  FilterState,
+  OverallProgress,
+  Pipeline,
+  PipelineConfig,
+  ProgressPipelineConfig,
+  SearchPipelineConfig,
+  StarTrekEra,
+  StarTrekItem,
+} from '../modules/types.js'
+
 // ============================================================================
 // TYPE DEFINITIONS
 // ============================================================================
@@ -314,3 +326,474 @@ export function tap<T>(fn: (value: T) => void): UnaryFunction<T, T> {
 // ============================================================================
 
 // Types are already exported above, no need to re-export
+
+// ============================================================================
+// VBS-SPECIFIC PIPELINE BUILDERS
+// ============================================================================
+
+// VBS-SPECIFIC PIPELINE BUILDERS
+// ============================================================================
+
+/**
+ * Creates a reusable data transformation pipeline from a configuration object.
+ * Combines validation, transformation steps, side effects, and error handling
+ * into a single composable function.
+ *
+ * @param config - Pipeline configuration with validation, steps, and callbacks
+ * @returns Reusable pipeline function that applies all transformations
+ *
+ * @example
+ * ```typescript
+ * const numberPipeline = createPipeline<string, number>({
+ *   validate: (input) => typeof input === 'string',
+ *   steps: [
+ *     (s: string) => s.trim(),
+ *     (s: string) => parseInt(s, 10),
+ *     (n: number) => n * 2
+ *   ],
+ *   onComplete: (result) => console.log('Result:', result)
+ * })
+ *
+ * const result = numberPipeline('  42  ') // Logs: "Result: 84", Returns: 84
+ * ```
+ */
+export function createPipeline<TInput, TOutput>(
+  config: PipelineConfig<TInput, TOutput>,
+): Pipeline<TInput, TOutput> {
+  return (input: TInput): TOutput => {
+    try {
+      // Validate input if validator provided
+      if (config.validate && !config.validate(input)) {
+        throw new Error('Pipeline input validation failed')
+      }
+
+      // Apply all transformation steps using reduce
+      const result = config.steps.reduce((acc, step) => step(acc), input as unknown) as TOutput
+
+      // Execute completion callback if provided
+      if (config.onComplete) {
+        config.onComplete(result)
+      }
+
+      return result
+    } catch (error) {
+      // Handle errors if error handler provided
+      if (config.onError) {
+        config.onError(error as Error, input)
+      }
+      throw error
+    }
+  }
+}
+
+/**
+ * Creates a specialized pipeline for search term filtering operations.
+ * Handles the complete search flow: normalization → item filtering → era filtering → notifications.
+ *
+ * @param allEras - Array of all Star Trek eras to filter
+ * @param config - Search pipeline configuration options
+ * @returns Pipeline function that processes search terms into filtered results
+ *
+ * @example
+ * ```typescript
+ * const searchPipeline = createSearchPipeline(starTrekData, {
+ *   onFilterComplete: (filteredData, filterState) => {
+ *     console.log(`Found ${filteredData.length} matching eras`)
+ *   }
+ * })
+ *
+ * const results = searchPipeline({ search: 'Enterprise', filter: 'series' })
+ * ```
+ */
+export function createSearchPipeline(
+  allEras: StarTrekEra[],
+  config: SearchPipelineConfig = {},
+): Pipeline<FilterState, StarTrekEra[]> {
+  const {
+    normalizeSearch = (term: string) => term.toLowerCase().trim(),
+    itemMatcher = (item: StarTrekItem, normalizedTerm: string) =>
+      item.title.toLowerCase().includes(normalizedTerm) ||
+      item.notes.toLowerCase().includes(normalizedTerm) ||
+      item.year.toLowerCase().includes(normalizedTerm),
+    onFilterComplete,
+  } = config
+
+  const pipelineConfig: PipelineConfig<FilterState, StarTrekEra[]> = {
+    validate: filterState =>
+      typeof filterState.search === 'string' && typeof filterState.filter === 'string',
+    steps: [
+      // Step 1: Normalize search term
+      (filterState: FilterState) => ({
+        ...filterState,
+        search: normalizeSearch(filterState.search),
+      }),
+      // Step 2: Filter items within each era
+      (filterState: FilterState) =>
+        allEras.map(era => ({
+          ...era,
+          items: era.items.filter(item => {
+            const matchesSearch = !filterState.search || itemMatcher(item, filterState.search)
+            const matchesFilter = !filterState.filter || item.type === filterState.filter
+            return matchesSearch && matchesFilter
+          }),
+        })),
+      // Step 3: Remove eras with no matching items
+      (eras: StarTrekEra[]) => eras.filter(era => era.items.length > 0),
+    ],
+  }
+
+  if (onFilterComplete) {
+    pipelineConfig.onComplete = (filteredData: StarTrekEra[]) => {
+      const filterState = {search: '', filter: ''} // Will be passed from context
+      onFilterComplete(filteredData, filterState)
+    }
+  }
+
+  return createPipeline<FilterState, StarTrekEra[]>(pipelineConfig)
+}
+
+/**
+ * Creates a specialized pipeline for progress calculation operations.
+ * Handles the complete progress flow: validation → era calculations → overall calculation → notifications.
+ *
+ * @param allEras - Array of all Star Trek eras for progress calculation
+ * @param config - Progress pipeline configuration options
+ * @returns Pipeline function that processes watched items into progress data
+ *
+ * @example
+ * ```typescript
+ * const progressPipeline = createProgressPipeline(starTrekData, {
+ *   onProgressUpdate: (progress) => {
+ *     console.log(`Overall progress: ${progress.overall.percentage}%`)
+ *   }
+ * })
+ *
+ * const progress = progressPipeline(['tos_s1', 'ent_s1', 'tng_s1'])
+ * ```
+ */
+export function createProgressPipeline(
+  allEras: StarTrekEra[],
+  config: ProgressPipelineConfig = {},
+): Pipeline<string[], OverallProgress> {
+  const {validateWatchedItems, onProgressUpdate} = config
+
+  const pipelineConfig: PipelineConfig<string[], OverallProgress> = {
+    steps: [
+      // Step 1: Calculate progress for each era
+      (watchedItems: string[]) =>
+        allEras.map(era => {
+          const completedItems = era.items.filter(item => watchedItems.includes(item.id)).length
+          const totalItems = era.items.length
+          const percentage = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0
+
+          return {
+            eraId: era.id,
+            total: totalItems,
+            completed: completedItems,
+            percentage,
+          }
+        }),
+      // Step 2: Calculate overall progress
+      (eraProgress: any[]) => {
+        const totalItems = allEras.reduce((sum, era) => sum + era.items.length, 0)
+        const completedItems = eraProgress.reduce((sum, era) => sum + era.completed, 0)
+        const percentage = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0
+
+        return {
+          overall: {
+            total: totalItems,
+            completed: completedItems,
+            percentage,
+          },
+          eraProgress,
+        }
+      },
+    ],
+  }
+
+  if (validateWatchedItems) {
+    pipelineConfig.validate = validateWatchedItems
+  } else {
+    pipelineConfig.validate = items => Array.isArray(items)
+  }
+
+  if (onProgressUpdate) {
+    pipelineConfig.onComplete = onProgressUpdate
+  }
+
+  return createPipeline<string[], OverallProgress>(pipelineConfig)
+}
+
+/**
+ * Creates a specialized pipeline for event handling operations.
+ * Handles the complete event flow: validation → extraction → state updates → DOM rendering.
+ *
+ * @param config - Event pipeline configuration options
+ * @returns Pipeline function that processes events through state updates to DOM changes
+ *
+ * @example
+ * ```typescript
+ * const eventPipeline = createEventPipeline<MouseEvent>({
+ *   validateEvent: (event) => event.target instanceof HTMLElement,
+ *   eventExtractor: (event) => ({ id: event.target.dataset.itemId }),
+ *   onStateUpdate: (state) => console.log('State updated:', state),
+ *   onDOMUpdate: (element, state) => element.classList.toggle('active')
+ * })
+ *
+ * element.addEventListener('click', eventPipeline)
+ * ```
+ */
+export function createEventPipeline<TEvent>(
+  config: EventPipelineConfig<TEvent>,
+): Pipeline<TEvent, any> {
+  const {validateEvent, eventExtractor, onStateUpdate, onDOMUpdate} = config
+
+  const pipelineConfig: PipelineConfig<TEvent, any> = {
+    steps: [
+      // Step 1: Extract relevant data from event
+      eventExtractor ?? ((event: TEvent) => event),
+      // Step 2: Apply state updates (this would be customized per use case)
+      tap((extractedData: any) => {
+        if (onStateUpdate) {
+          onStateUpdate(extractedData)
+        }
+      }),
+      // Step 3: Handle DOM updates if element and handler provided
+      tap((extractedData: any) => {
+        if (onDOMUpdate && extractedData.element) {
+          onDOMUpdate(extractedData.element, extractedData)
+        }
+      }),
+    ],
+  }
+
+  if (validateEvent) {
+    pipelineConfig.validate = validateEvent
+  }
+
+  return createPipeline<TEvent, any>(pipelineConfig)
+}
+
+// ============================================================================
+// SPECIALIZED PREDICATES AND TRANSFORMATIONS FOR STAR TREK DATA
+// ============================================================================
+
+/**
+ * Predicate functions for filtering Star Trek items based on various criteria.
+ * These curried functions can be composed into complex filtering pipelines.
+ */
+export const starTrekPredicates = {
+  /**
+   * Creates a predicate that matches items by type (series, movie, animated).
+   *
+   * @param type - The content type to match
+   * @returns Predicate function for filtering items
+   *
+   * @example
+   * ```typescript
+   * const isMovie = starTrekPredicates.byType('movie')
+   * const movies = items.filter(isMovie)
+   * ```
+   */
+  byType: curry((type: string, item: StarTrekItem) => item.type === type),
+
+  /**
+   * Creates a predicate that matches items by year or year range.
+   *
+   * @param year - The year to match (can be partial)
+   * @returns Predicate function for filtering items
+   *
+   * @example
+   * ```typescript
+   * const from1990s = starTrekPredicates.byYear('199')
+   * const nineties = items.filter(from1990s)
+   * ```
+   */
+  byYear: curry((year: string, item: StarTrekItem) => item.year.includes(year)),
+
+  /**
+   * Creates a predicate that matches items containing specific text in title or notes.
+   *
+   * @param searchTerm - The text to search for (case-insensitive)
+   * @returns Predicate function for filtering items
+   *
+   * @example
+   * ```typescript
+   * const hasEnterprise = starTrekPredicates.byText('enterprise')
+   * const enterpriseItems = items.filter(hasEnterprise)
+   * ```
+   */
+  byText: curry((searchTerm: string, item: StarTrekItem) => {
+    const term = searchTerm.toLowerCase()
+    return item.title.toLowerCase().includes(term) || item.notes.toLowerCase().includes(term)
+  }),
+
+  /**
+   * Creates a predicate that matches items with episode counts within a range.
+   *
+   * @param minEpisodes - Minimum number of episodes
+   * @param maxEpisodes - Maximum number of episodes (optional)
+   * @returns Predicate function for filtering items
+   *
+   * @example
+   * ```typescript
+   * const longSeries = starTrekPredicates.byEpisodeCount(20, 30)
+   * const longRunning = items.filter(longSeries)
+   * ```
+   */
+  byEpisodeCount: curry(
+    (minEpisodes: number, maxEpisodes: number | undefined, item: StarTrekItem) => {
+      if (!item.episodes) return false
+      if (maxEpisodes) {
+        return item.episodes >= minEpisodes && item.episodes <= maxEpisodes
+      }
+      return item.episodes >= minEpisodes
+    },
+  ),
+
+  /**
+   * Creates a predicate that matches items by their watched status.
+   *
+   * @param watchedItems - Array of watched item IDs
+   * @param isWatched - Whether to match watched (true) or unwatched (false) items
+   * @returns Predicate function for filtering items
+   *
+   * @example
+   * ```typescript
+   * const watchedItems = ['tos_s1', 'ent_s1']
+   * const isWatched = starTrekPredicates.byWatchedStatus(watchedItems, true)
+   * const watched = items.filter(isWatched)
+   * ```
+   */
+  byWatchedStatus: curry((watchedItems: string[], isWatched: boolean, item: StarTrekItem) => {
+    const itemIsWatched = watchedItems.includes(item.id)
+    return isWatched ? itemIsWatched : !itemIsWatched
+  }),
+}
+
+/**
+ * Transformation functions for converting and normalizing Star Trek data.
+ * These functions can be composed into data processing pipelines.
+ */
+export const starTrekTransformations = {
+  /**
+   * Normalizes search terms by trimming and converting to lowercase.
+   *
+   * @param term - Search term to normalize
+   * @returns Normalized search term
+   *
+   * @example
+   * ```typescript
+   * const normalized = starTrekTransformations.normalizeSearchTerm('  Enterprise  ')
+   * // Returns: 'enterprise'
+   * ```
+   */
+  normalizeSearchTerm: (term: string): string => term.trim().toLowerCase(),
+
+  /**
+   * Extracts unique content types from an array of Star Trek items.
+   *
+   * @param items - Array of Star Trek items
+   * @returns Array of unique content types
+   *
+   * @example
+   * ```typescript
+   * const types = starTrekTransformations.extractTypes(starTrekData.flatMap(era => era.items))
+   * // Returns: ['series', 'movie', 'animated']
+   * ```
+   */
+  extractTypes: (items: StarTrekItem[]): string[] => [...new Set(items.map(item => item.type))],
+
+  /**
+   * Calculates total episode count for an array of Star Trek items.
+   *
+   * @param items - Array of Star Trek items
+   * @returns Total number of episodes
+   *
+   * @example
+   * ```typescript
+   * const totalEpisodes = starTrekTransformations.calculateTotalEpisodes(era.items)
+   * ```
+   */
+  calculateTotalEpisodes: (items: StarTrekItem[]): number =>
+    items.reduce((total, item) => total + (item.episodes ?? 0), 0),
+
+  /**
+   * Sorts Star Trek items by their year (chronologically).
+   *
+   * @param items - Array of Star Trek items to sort
+   * @returns Sorted array of items
+   *
+   * @example
+   * ```typescript
+   * const sortedItems = starTrekTransformations.sortByYear(era.items)
+   * ```
+   */
+  sortByYear: (items: StarTrekItem[]): StarTrekItem[] =>
+    [...items].sort((a, b) => {
+      // Extract first year from year string for comparison
+      const yearA = Number.parseInt(a.year.match(/\d{4}/)?.[0] ?? '0', 10)
+      const yearB = Number.parseInt(b.year.match(/\d{4}/)?.[0] ?? '0', 10)
+      return yearA - yearB
+    }),
+
+  /**
+   * Creates a summary object with metadata about Star Trek eras.
+   *
+   * @param eras - Array of Star Trek eras
+   * @returns Summary object with counts and statistics
+   *
+   * @example
+   * ```typescript
+   * const summary = starTrekTransformations.createEraSummary(starTrekData)
+   * ```
+   */
+  createEraSummary: (
+    eras: StarTrekEra[],
+  ): {
+    totalEras: number
+    totalItems: number
+    totalEpisodes: number
+    typeBreakdown: Record<string, number>
+  } => {
+    const allItems = eras.flatMap(era => era.items)
+    const typeBreakdown = allItems.reduce(
+      (acc, item) => {
+        acc[item.type] = (acc[item.type] ?? 0) + 1
+        return acc
+      },
+      {} as Record<string, number>,
+    )
+
+    return {
+      totalEras: eras.length,
+      totalItems: allItems.length,
+      totalEpisodes: starTrekTransformations.calculateTotalEpisodes(allItems),
+      typeBreakdown,
+    }
+  },
+
+  /**
+   * Filters eras to only include those with items matching a predicate.
+   *
+   * @param predicate - Function to test each item
+   * @param eras - Array of Star Trek eras to filter
+   * @returns Filtered eras containing only matching items
+   *
+   * @example
+   * ```typescript
+   * const moviesOnly = starTrekTransformations.filterErasByItems(
+   *   item => item.type === 'movie',
+   *   starTrekData
+   * )
+   * ```
+   */
+  filterErasByItems: curry((predicate: (item: StarTrekItem) => boolean, eras: StarTrekEra[]) =>
+    eras
+      .map(era => ({
+        ...era,
+        items: era.items.filter(predicate),
+      }))
+      .filter(era => era.items.length > 0),
+  ),
+}
