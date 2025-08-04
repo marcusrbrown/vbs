@@ -2667,3 +2667,496 @@ export function withErrorBoundary<TInput, TOutput>(
     return attemptPipeline()
   }
 }
+
+// ============================================================================
+// DEBUGGING AND INTROSPECTION UTILITIES
+// ============================================================================
+
+/**
+ * Configuration for composition debugging utilities.
+ */
+export interface DebugConfig {
+  /** Enable detailed logging of function execution */
+  enableLogging?: boolean
+  /** Enable performance timing for each function */
+  enableTiming?: boolean
+  /** Enable value inspection at each step */
+  enableInspection?: boolean
+  /** Custom logger function (defaults to console.warn) */
+  logger?: (message: string, data?: any) => void
+  /** Label for the composition chain */
+  label?: string
+}
+
+/**
+ * Debug information for a single step in a composition chain.
+ */
+export interface DebugStep {
+  /** Step number in the chain */
+  step: number
+  /** Label for this step */
+  label: string
+  /** Input value to this step */
+  input: unknown
+  /** Output value from this step */
+  output: unknown
+  /** Execution time in milliseconds */
+  duration: number
+  /** Error if the step failed */
+  error?: Error
+}
+
+/**
+ * Complete debug information for a composition chain.
+ */
+export interface DebugInfo {
+  /** Label for the composition chain */
+  label: string
+  /** Total execution time */
+  totalDuration: number
+  /** Number of steps executed */
+  stepCount: number
+  /** Detailed information for each step */
+  steps: DebugStep[]
+  /** Final result of the composition */
+  result: unknown
+  /** Error that terminated the composition (if any) */
+  error?: Error
+}
+
+/**
+ * Creates a debug-enabled pipe function that tracks execution details.
+ * Useful for debugging complex composition chains and performance analysis.
+ *
+ * @param config - Debug configuration options
+ * @returns Function that creates debug-enabled pipelines
+ *
+ * @example
+ * ```typescript
+ * const debugPipe = createDebugPipe({
+ *   enableLogging: true,
+ *   enableTiming: true,
+ *   label: 'String Processing'
+ * })
+ *
+ * const [result, debugInfo] = debugPipe(
+ *   'hello',
+ *   (s: string) => s.toUpperCase(),
+ *   (s: string) => `${s}!`,
+ *   (s: string) => s.length
+ * )
+ *
+ * console.log('Result:', result) // 6
+ * console.log('Debug info:', debugInfo)
+ * ```
+ */
+export function createDebugPipe(config: DebugConfig = {}) {
+  const logger = config.logger ?? console.warn
+  const label = config.label ?? 'Composition'
+
+  return function debugPipe<T>(
+    value: T,
+    ...functions: UnaryFunction<any, any>[]
+  ): [any, DebugInfo] {
+    const startTime = performance.now()
+    const steps: DebugStep[] = []
+    let currentValue = value
+    let stepError: Error | undefined
+
+    if (config.enableLogging) {
+      logger(`🚀 Starting ${label} with input:`, value)
+    }
+
+    for (const [index, fn] of functions.entries()) {
+      if (!fn) continue
+
+      const stepStart = performance.now()
+
+      try {
+        const stepInput = currentValue
+        currentValue = fn(currentValue)
+        const stepEnd = performance.now()
+        const duration = stepEnd - stepStart
+
+        const step: DebugStep = {
+          step: index + 1,
+          label: fn.name || `Step ${index + 1}`,
+          input: stepInput,
+          output: currentValue,
+          duration,
+        }
+
+        steps.push(step)
+
+        if (config.enableLogging) {
+          logger(`  ✓ Step ${index + 1} (${fn.name || 'anonymous'}): ${duration.toFixed(2)}ms`)
+        }
+
+        if (config.enableInspection) {
+          logger(`    Input:`, stepInput)
+          logger(`    Output:`, currentValue)
+        }
+      } catch (error) {
+        const stepEnd = performance.now()
+        const duration = stepEnd - stepStart
+        stepError = error as Error
+
+        const step: DebugStep = {
+          step: index + 1,
+          label: fn.name || `Step ${index + 1}`,
+          input: currentValue,
+          output: undefined,
+          duration,
+          error: stepError,
+        }
+
+        steps.push(step)
+
+        if (config.enableLogging) {
+          logger(`  ❌ Step ${index + 1} failed: ${stepError.message}`)
+        }
+
+        break
+      }
+    }
+
+    const endTime = performance.now()
+    const totalDuration = endTime - startTime
+
+    const debugInfo: DebugInfo = {
+      label,
+      totalDuration,
+      stepCount: steps.length,
+      steps,
+      result: stepError ? undefined : currentValue,
+      ...(stepError && {error: stepError}),
+    }
+
+    if (config.enableLogging) {
+      if (stepError) {
+        logger(
+          `❌ ${label} failed after ${totalDuration.toFixed(2)}ms with error:`,
+          stepError.message,
+        )
+      } else {
+        logger(`✅ ${label} completed in ${totalDuration.toFixed(2)}ms with result:`, currentValue)
+      }
+
+      if (config.enableTiming) {
+        logger(`📊 Performance breakdown:`)
+        for (const step of steps) {
+          const status = step.error ? '❌' : '✓'
+          logger(`    ${status} ${step.label}: ${step.duration.toFixed(2)}ms`)
+        }
+      }
+    }
+
+    if (stepError) {
+      throw stepError
+    }
+
+    return [currentValue, debugInfo]
+  }
+}
+
+/**
+ * Creates a tap function that logs values passing through with detailed formatting.
+ * More sophisticated than basic tap() for debugging complex data structures.
+ *
+ * @param label - Label for the log messages
+ * @param config - Optional debug configuration
+ * @param config.depth - Depth for JSON serialization (defaults to 1)
+ * @param config.logger - Custom logger function (defaults to console.warn)
+ * @returns Tap function with enhanced logging
+ *
+ * @example
+ * ```typescript
+ * const result = pipe(
+ *   starTrekData,
+ *   debugTap('After data load'),
+ *   starTrekTransformations.extractTypes,
+ *   debugTap('After type extraction', { depth: 2 }),
+ *   types => types.length
+ * )
+ * ```
+ */
+export function debugTap<T>(
+  label: string,
+  config: {depth?: number; logger?: (message: string, data?: any) => void} = {},
+): UnaryFunction<T, T> {
+  const logger = config.logger ?? console.warn
+  const depth = config.depth ?? 1
+
+  return (value: T): T => {
+    logger(`🔍 ${label}:`, depth > 1 ? value : JSON.stringify(value, null, 2))
+    return value
+  }
+}
+
+/**
+ * Creates a performance-monitoring tap function that tracks timing.
+ * Useful for identifying performance bottlenecks in composition chains.
+ *
+ * @param label - Label for timing measurements
+ * @param logger - Optional custom logger (defaults to console.warn)
+ * @returns Tap function that measures and logs timing
+ *
+ * @example
+ * ```typescript
+ * const result = pipe(
+ *   largeDataset,
+ *   perfTap('Data processing start'),
+ *   expensiveTransformation,
+ *   perfTap('After expensive operation'),
+ *   finalizeData,
+ *   perfTap('Processing complete')
+ * )
+ * ```
+ */
+export function perfTap<T>(
+  label: string,
+  logger: (message: string) => void = console.warn,
+): UnaryFunction<T, T> {
+  const startTime = performance.now()
+
+  return (value: T): T => {
+    const elapsed = performance.now() - startTime
+    logger(`⏱️ ${label}: ${elapsed.toFixed(2)}ms`)
+    return value
+  }
+}
+
+/**
+ * Creates a conditional tap function that only executes when a predicate is met.
+ * Useful for conditional debugging without affecting the main pipeline flow.
+ *
+ * @param predicate - Function that determines if tap should execute
+ * @param sideEffect - Function to execute when predicate is true
+ * @returns Conditional tap function
+ *
+ * @example
+ * ```typescript
+ * const result = pipe(
+ *   numbers,
+ *   conditionalTap(
+ *     (arr: number[]) => arr.length > 100,
+ *     (arr: number[]) => console.warn('Large array detected:', arr.length)
+ *   ),
+ *   processNumbers
+ * )
+ * ```
+ */
+export function conditionalTap<T>(
+  predicate: (value: T) => boolean,
+  sideEffect: (value: T) => void,
+): UnaryFunction<T, T> {
+  return (value: T): T => {
+    if (predicate(value)) {
+      sideEffect(value)
+    }
+    return value
+  }
+}
+
+/**
+ * Gets the size of a value for debugging purposes.
+ */
+function getValueSize(value: unknown): number {
+  if (value === null || value === undefined) return 0
+  if (Array.isArray(value)) return value.length
+  if (typeof value === 'object') return Object.keys(value).length
+  if (typeof value === 'string') return value.length
+  return 1
+}
+
+/**
+ * Creates a pipeline inspector that captures and analyzes intermediate values.
+ * Provides detailed analysis of data transformations in composition chains.
+ *
+ * @param config - Inspector configuration
+ * @param config.trackTypes - Whether to track type changes through the pipeline
+ * @param config.trackSizes - Whether to track size changes through the pipeline
+ * @param config.saveHistory - Whether to save complete history of transformations
+ * @param config.maxHistorySize - Maximum number of history entries to keep
+ * @returns Pipeline inspector function
+ *
+ * @example
+ * ```typescript
+ * const inspector = createPipelineInspector({
+ *   trackTypes: true,
+ *   trackSizes: true,
+ *   saveHistory: true
+ * })
+ *
+ * const [result, analysis] = inspector.inspect(
+ *   initialData,
+ *   transform1,
+ *   transform2,
+ *   transform3
+ * )
+ *
+ * console.log('Type transformations:', analysis.typeHistory)
+ * console.log('Size changes:', analysis.sizeHistory)
+ * ```
+ */
+export function createPipelineInspector(config: {
+  trackTypes?: boolean
+  trackSizes?: boolean
+  saveHistory?: boolean
+  maxHistorySize?: number
+}) {
+  const history: {
+    step: number
+    value: unknown
+    type: string
+    size?: number
+    timestamp: number
+  }[] = []
+
+  function inspect<T>(value: T, ...functions: UnaryFunction<any, any>[]): [any, any] {
+    let currentValue = value
+    const maxHistory = config.maxHistorySize ?? 50
+
+    // Record initial value
+    if (config.saveHistory) {
+      history.push({
+        step: 0,
+        value: currentValue,
+        type: typeof currentValue,
+        size: getValueSize(currentValue),
+        timestamp: Date.now(),
+      })
+    }
+
+    // Execute pipeline with inspection
+    for (const [index, fn] of functions.entries()) {
+      if (!fn) continue
+
+      currentValue = fn(currentValue)
+
+      if (config.saveHistory) {
+        history.push({
+          step: index + 1,
+          value: currentValue,
+          type: typeof currentValue,
+          size: getValueSize(currentValue),
+          timestamp: Date.now(),
+        })
+
+        // Trim history if it gets too large
+        if (history.length > maxHistory) {
+          history.splice(0, history.length - maxHistory)
+        }
+      }
+    }
+
+    // Generate analysis
+    const analysis = {
+      finalType: typeof currentValue,
+      finalSize: getValueSize(currentValue),
+      stepCount: functions.length,
+      typeHistory: config.trackTypes ? history.map(h => h.type) : undefined,
+      sizeHistory: config.trackSizes ? history.map(h => h.size) : undefined,
+      fullHistory: config.saveHistory ? [...history] : undefined,
+    }
+
+    return [currentValue, analysis]
+  }
+
+  return {
+    inspect,
+    getHistory: () => [...history],
+    clearHistory: () => history.splice(0, history.length),
+  }
+}
+
+/**
+ * Error boundary for composition chains that provides detailed error context.
+ * Captures the exact step where an error occurred and provides recovery options.
+ *
+ * @param functions - Array of functions to execute
+ * @param config - Error handling configuration
+ * @param config.fallbackValue - Value to return if an error occurs
+ * @param config.enableLogging - Whether to enable detailed error logging
+ * @param config.onError - Callback function to handle errors
+ * @returns Safe execution function that won't throw
+ *
+ * @example
+ * ```typescript
+ * const safeResult = compositionErrorBoundary([
+ *   (x: number) => x * 2,
+ *   (x: number) => x / 0, // This will fail
+ *   (x: number) => x + 1
+ * ], {
+ *   fallbackValue: 'Error occurred',
+ *   enableLogging: true
+ * })(10)
+ *
+ * if (safeResult.success) {
+ *   console.log('Result:', safeResult.result)
+ * } else {
+ *   console.log('Error at step:', safeResult.errorStep)
+ *   console.log('Error message:', safeResult.error.message)
+ * }
+ * ```
+ */
+export function compositionErrorBoundary<T, R>(
+  functions: UnaryFunction<any, any>[],
+  config: {
+    fallbackValue?: R
+    enableLogging?: boolean
+    onError?: (error: Error, step: number, input: unknown) => void
+  } = {},
+) {
+  return function safeExecute(
+    input: T,
+  ):
+    | {success: true; result: R; steps: number}
+    | {success: false; error: Error; errorStep: number; partialResult?: unknown} {
+    let currentValue = input
+
+    try {
+      for (const [index, fn] of functions.entries()) {
+        if (!fn) continue
+
+        currentValue = fn(currentValue)
+
+        if (config.enableLogging) {
+          console.warn(`✓ Step ${index + 1} completed successfully`)
+        }
+      }
+
+      return {
+        success: true,
+        result: currentValue as unknown as R,
+        steps: functions.length,
+      }
+    } catch (error) {
+      const err = error as Error
+      const errorStep = Math.max(0, functions.length - 1)
+
+      if (config.enableLogging) {
+        console.error(`❌ Error at step ${errorStep + 1}:`, err.message)
+      }
+
+      if (config.onError) {
+        config.onError(err, errorStep, currentValue)
+      }
+
+      if (config.fallbackValue !== undefined) {
+        return {
+          success: true,
+          result: config.fallbackValue,
+          steps: errorStep,
+        }
+      }
+
+      return {
+        success: false,
+        error: err,
+        errorStep: errorStep + 1,
+        partialResult: currentValue,
+      }
+    }
+  }
+}
