@@ -1,18 +1,20 @@
 ---
 goal: Advanced Features - Timeline Visualization, User Preferences, and Streaming Integration
-version: 1.0
+version: 1.1
 date_created: 2025-08-01
-last_updated: 2025-08-01
+last_updated: 2025-08-04
 owner: Marcus R. Brown
-status: 'Planned'
-tags: ['feature', 'visualization', 'pwa', 'local-first', 'streaming']
+status: 'In progress'
+tags: ['feature', 'visualization', 'pwa', 'local-first', 'streaming', 'migration', 'indexeddb']
 ---
 
 # Advanced VBS Features Implementation Plan
 
-![Status: Planned](https://img.shields.io/badge/status-Planned-blue)
+![Status: In progress](https://img.shields.io/badge/status-In%20progress-yellow)
 
 This plan implements advanced features for the VBS viewing guide including interactive D3.js timeline visualization, user preference settings, streaming service integration, and local-first architecture with service workers. This plan complements and extends [feature-episode-tracking-1.md](./feature-episode-tracking-1.md) with infrastructure and visualization enhancements.
+
+**UPDATE (2025-08-04)**: IndexedDB storage adapters are already implemented in `src/modules/storage.ts`. Focus now shifts to implementing the migration system to safely transfer data from LocalStorage to IndexedDB while preserving all progress data, adding version management for future schema changes, and maintaining backward compatibility.
 
 ## 1. Requirements & Constraints
 
@@ -24,30 +26,43 @@ This plan implements advanced features for the VBS viewing guide including inter
 - **REQ-006**: Maintain performance with large datasets through virtualization and lazy loading
 - **REQ-007**: Support Progressive Web App (PWA) capabilities with offline caching
 - **REQ-008**: Ensure cross-browser compatibility and graceful degradation for older browsers
+- **REQ-009**: Create safe migration system from LocalStorage to IndexedDB preserving all progress data
+- **REQ-010**: Implement version management for schema changes with backward/forward compatibility
+- **REQ-011**: Use existing withErrorHandling utilities for comprehensive error boundaries
+- **REQ-012**: Maintain LocalStorage fallback for browsers without IndexedDB support
 - **SEC-001**: Secure API key management for streaming services with rate limiting protection
 - **SEC-002**: Validate all external API responses and handle malicious data safely
+- **SEC-003**: Secure migration process preventing data loss or corruption during transfer
 - **CON-001**: Must integrate with existing episode tracking data structures without conflicts
 - **CON-002**: Timeline visualization must work on mobile devices with touch interactions
 - **CON-003**: Service Workers must not break existing functionality during deployment
+- **CON-004**: Migration must be reversible and testable in all browser environments
 - **GUD-001**: Follow self-explanatory code commenting guidelines
 - **GUD-002**: Maintain TypeScript strict typing throughout all new modules
+- **GUD-003**: Use generic storage adapter pattern for consistent data access
 - **PAT-001**: Use local-first patterns with background synchronization for streaming data
+- **PAT-002**: Implement migration pattern with atomic operations and rollback capability
 
 ## 2. Implementation Steps
 
-### Implementation Phase 1: Local-First Infrastructure & User Preferences
+### Implementation Phase 1: IndexedDB Migration System & Local-First Infrastructure
 
-- GOAL-001: Establish local-first architecture foundation and user preference system
+- GOAL-001: Establish IndexedDB migration system and local-first architecture foundation
 
 | Task | Description | Completed | Date |
 |------|-------------|-----------|------|
-| TASK-001 | Create Service Worker with caching strategies in `public/sw.js` for app shell and episode data caching | |  |
-| TASK-002 | Implement `src/modules/indexeddb.ts` using Dexie.js for local database operations (episodes, preferences, streaming data) | |  |
-| TASK-003 | Create `src/modules/preferences.ts` factory function for user settings (theme, compact view, accessibility) | |  |
-| TASK-004 | Add PWA manifest in `public/manifest.json` with offline capabilities and app installation support | |  |
-| TASK-005 | Update `src/modules/storage.ts` to support IndexedDB migration from localStorage with data versioning | |  |
-| TASK-006 | Create theme system in `src/modules/themes.ts` with CSS custom properties for dark/light themes | |  |
-| TASK-007 | Add background sync capability in Service Worker for streaming data updates | |  |
+| TASK-001 | Create migration utility in `src/modules/migration.ts` with atomic operations and rollback capability | |  |
+| TASK-002 | Implement version management system in `src/modules/version-manager.ts` for schema evolution | |  |
+| TASK-003 | Add migration detection logic to determine when LocalStorage→IndexedDB migration is needed | |  |
+| TASK-004 | Integrate withErrorHandling utilities for comprehensive migration error boundaries | |  |
+| TASK-005 | Update main storage system to auto-detect and use IndexedDB when available with LocalStorage fallback | |  |
+| TASK-006 | Create migration progress UI component for user feedback during data transfer | |  |
+| TASK-007 | Add comprehensive migration testing with data validation and integrity checks | |  |
+| TASK-008 | Create Service Worker with caching strategies in `public/sw.js` for app shell and episode data caching | |  |
+| TASK-009 | Create `src/modules/preferences.ts` factory function for user settings (theme, compact view, accessibility) | |  |
+| TASK-010 | Add PWA manifest in `public/manifest.json` with offline capabilities and app installation support | |  |
+| TASK-011 | Create theme system in `src/modules/themes.ts` with CSS custom properties for dark/light themes | |  |
+| TASK-012 | Add background sync capability in Service Worker for streaming data updates | |  |
 
 ### Implementation Phase 2: Interactive Timeline Visualization
 
@@ -55,14 +70,14 @@ This plan implements advanced features for the VBS viewing guide including inter
 
 | Task | Description | Completed | Date |
 |------|-------------|-----------|------|
-| TASK-008 | Install and configure D3.js with TypeScript definitions and create timeline data structures | |  |
-| TASK-009 | Create `src/modules/timeline-viz.ts` factory function using PatternFly Timeline as base for Star Trek chronology | |  |
-| TASK-010 | Implement timeline event data in `src/data/timeline-events.ts` with major galactic events, wars, first contacts | |  |
-| TASK-011 | Add progress integration to timeline showing watched/unwatched episodes as visual indicators | |  |
-| TASK-012 | Implement timeline filtering by era, event type, and series with smooth animations | |  |
-| TASK-013 | Add responsive design and touch interactions for mobile timeline navigation | |  |
-| TASK-014 | Create timeline performance optimization with canvas rendering for large datasets | |  |
-| TASK-015 | Add timeline export functionality (PNG/SVG) for sharing viewing progress | |  |
+| TASK-013 | Install and configure D3.js with TypeScript definitions and create timeline data structures | |  |
+| TASK-014 | Create `src/modules/timeline-viz.ts` factory function using PatternFly Timeline as base for Star Trek chronology | |  |
+| TASK-015 | Implement timeline event data in `src/data/timeline-events.ts` with major galactic events, wars, first contacts | |  |
+| TASK-016 | Add progress integration to timeline showing watched/unwatched episodes as visual indicators | |  |
+| TASK-017 | Implement timeline filtering by era, event type, and series with smooth animations | |  |
+| TASK-018 | Add responsive design and touch interactions for mobile timeline navigation | |  |
+| TASK-019 | Create timeline performance optimization with canvas rendering for large datasets | |  |
+| TASK-020 | Add timeline export functionality (PNG/SVG) for sharing viewing progress | |  |
 
 ### Implementation Phase 3: Streaming Service Integration
 
@@ -70,76 +85,92 @@ This plan implements advanced features for the VBS viewing guide including inter
 
 | Task | Description | Completed | Date |
 |------|-------------|-----------|------|
-| TASK-016 | Create `src/modules/streaming-api.ts` with Watchmode API integration and rate limiting | |  |
-| TASK-017 | Implement streaming availability caching in IndexedDB with expiration and background refresh | |  |
-| TASK-018 | Add streaming availability UI indicators to episode lists and timeline visualization | |  |
-| TASK-019 | Create geographic availability handling (US, Canada, UK regions) with user location preferences | |  |
-| TASK-020 | Implement batch API operations for efficient streaming data updates | |  |
-| TASK-021 | Add deep linking to streaming services (Paramount+, Netflix) with affiliate tracking support | |  |
-| TASK-022 | Create streaming availability search and filtering within episode lists | |  |
-| TASK-023 | Add streaming service preference settings (hide unavailable content, preferred services) | |  |
+| TASK-021 | Create `src/modules/streaming-api.ts` with Watchmode API integration and rate limiting | |  |
+| TASK-022 | Implement streaming availability caching in IndexedDB with expiration and background refresh | |  |
+| TASK-023 | Add streaming availability UI indicators to episode lists and timeline visualization | |  |
+| TASK-024 | Create geographic availability handling (US, Canada, UK regions) with user location preferences | |  |
+| TASK-025 | Implement batch API operations for efficient streaming data updates | |  |
+| TASK-026 | Add deep linking to streaming services (Paramount+, Netflix) with affiliate tracking support | |  |
+| TASK-027 | Create streaming availability search and filtering within episode lists | |  |
+| TASK-028 | Add streaming service preference settings (hide unavailable content, preferred services) | |  |
 
 ## 3. Alternatives
 
 - **ALT-001**: Chart.js or Plotly instead of D3.js for timeline - rejected due to less customization flexibility for complex Star Trek chronology
-- **ALT-002**: Local storage instead of IndexedDB - rejected due to size limitations and lack of query capabilities
-- **ALT-003**: Real-time streaming API calls instead of caching - rejected due to rate limits and offline requirements
-- **ALT-004**: Server-side streaming data aggregation - rejected to maintain local-first architecture
-- **ALT-005**: Canvas-only timeline rendering - considered for performance but SVG chosen for accessibility and interaction capabilities
-- **ALT-006**: External CDN for D3.js - rejected to maintain offline-first functionality
+- **ALT-002**: Real-time streaming API calls instead of caching - rejected due to rate limits and offline requirements
+- **ALT-003**: Server-side streaming data aggregation - rejected to maintain local-first architecture
+- **ALT-004**: Canvas-only timeline rendering - considered for performance but SVG chosen for accessibility and interaction capabilities
+- **ALT-005**: External CDN for D3.js - rejected to maintain offline-first functionality
+- **ALT-006**: Dexie.js instead of native IndexedDB - rejected since native IndexedDBAdapter<T> already implemented and working
+- **ALT-007**: Immediate full migration instead of progressive - rejected to maintain user experience and reduce risk
+- **ALT-008**: One-way migration without rollback - rejected to ensure data safety and testing capabilities
 
 ## 4. Dependencies
 
 - **DEP-001**: [feature-episode-tracking-1.md](./feature-episode-tracking-1.md) TASK-001 through TASK-006 must be completed for episode data structure
-- **DEP-002**: Dexie.js library for IndexedDB abstraction and better developer experience
-- **DEP-003**: D3.js v7+ with TypeScript definitions for timeline visualization
-- **DEP-004**: Watchmode API or Streaming Availability API access with rate limiting (500-1000 requests/day)
-- **DEP-005**: PatternFly Timeline library or similar for D3.js timeline base implementation
-- **DEP-006**: Star Trek chronological event data compilation (major galactic events, wars, technological developments)
+- **DEP-002**: D3.js v7+ with TypeScript definitions for timeline visualization
+- **DEP-003**: Watchmode API or Streaming Availability API access with rate limiting (500-1000 requests/day)
+- **DEP-004**: PatternFly Timeline library or similar for D3.js timeline base implementation
+- **DEP-005**: Star Trek chronological event data compilation (major galactic events, wars, technological developments)
+- **DEP-006**: Existing IndexedDBAdapter<T> and LocalStorageAdapter<T> in `src/modules/storage.ts` (already implemented)
+- **DEP-007**: Existing withErrorHandling and withSyncErrorHandling utilities in `src/modules/error-handler.ts`
+- **DEP-008**: Generic storage adapter pattern and createStorage utility (already implemented)
 
 ## 5. Files
 
 - **FILE-001**: `public/sw.js` - Service Worker for caching and background sync
 - **FILE-002**: `public/manifest.json` - PWA manifest for app installation and offline capabilities
-- **FILE-003**: `src/modules/indexeddb.ts` - IndexedDB operations with Dexie.js integration
-- **FILE-004**: `src/modules/preferences.ts` - User preference management factory function
-- **FILE-005**: `src/modules/themes.ts` - Theme system with CSS custom properties
-- **FILE-006**: `src/modules/timeline-viz.ts` - D3.js timeline visualization component
-- **FILE-007**: `src/modules/streaming-api.ts` - Streaming service API integration
-- **FILE-008**: `src/data/timeline-events.ts` - Star Trek chronological events dataset
-- **FILE-009**: `src/components/timeline-controls.ts` - Timeline navigation and filtering controls
-- **FILE-010**: `src/components/streaming-indicators.ts` - UI components for streaming availability
-- **FILE-011**: `test/service-worker.test.ts` - Service Worker functionality tests
-- **FILE-012**: `test/timeline-viz.test.ts` - Timeline visualization component tests
-- **FILE-013**: `test/streaming-api.test.ts` - Streaming API integration tests
-- **FILE-014**: `test/preferences.test.ts` - User preferences system tests
+- **FILE-003**: `src/modules/migration.ts` - IndexedDB migration utility with atomic operations and rollback
+- **FILE-004**: `src/modules/version-manager.ts` - Schema version management system
+- **FILE-005**: `src/modules/preferences.ts` - User preference management factory function
+- **FILE-006**: `src/modules/themes.ts` - Theme system with CSS custom properties
+- **FILE-007**: `src/modules/timeline-viz.ts` - D3.js timeline visualization component
+- **FILE-008**: `src/modules/streaming-api.ts` - Streaming service API integration
+- **FILE-009**: `src/data/timeline-events.ts` - Star Trek chronological events dataset
+- **FILE-010**: `src/components/timeline-controls.ts` - Timeline navigation and filtering controls
+- **FILE-011**: `src/components/streaming-indicators.ts` - UI components for streaming availability
+- **FILE-012**: `src/components/migration-progress.ts` - Migration progress UI component
+- **FILE-013**: `test/migration.test.ts` - Migration utility tests with data validation
+- **FILE-014**: `test/version-manager.test.ts` - Version management system tests
+- **FILE-015**: `test/service-worker.test.ts` - Service Worker functionality tests
+- **FILE-016**: `test/timeline-viz.test.ts` - Timeline visualization component tests
+- **FILE-017**: `test/streaming-api.test.ts` - Streaming API integration tests
+- **FILE-018**: `test/preferences.test.ts` - User preferences system tests
 
 ## 6. Testing
 
-- **TEST-001**: Service Worker registration and caching strategy tests with offline simulation
-- **TEST-002**: IndexedDB operations tests including data migration and versioning
-- **TEST-003**: Timeline visualization performance tests with large datasets (1000+ events)
-- **TEST-004**: Streaming API integration tests with mock responses and rate limiting
-- **TEST-005**: User preference persistence and theme switching tests
-- **TEST-006**: PWA installation and offline functionality tests
-- **TEST-007**: Timeline interaction tests (zoom, pan, filtering) on desktop and mobile
-- **TEST-008**: Cross-browser compatibility tests for Service Worker and IndexedDB features
-- **TEST-009**: Background sync tests for streaming data updates
-- **TEST-010**: Timeline accessibility tests with screen readers and keyboard navigation
+- **TEST-001**: IndexedDB migration system tests with data integrity validation and rollback scenarios
+- **TEST-002**: Version management tests with schema evolution and backward compatibility
+- **TEST-003**: Migration detection and auto-triggering tests across different browser environments
+- **TEST-004**: Error handling tests for migration failures with comprehensive recovery scenarios
+- **TEST-005**: Service Worker registration and caching strategy tests with offline simulation
+- **TEST-006**: Timeline visualization performance tests with large datasets (1000+ events)
+- **TEST-007**: Streaming API integration tests with mock responses and rate limiting
+- **TEST-008**: User preference persistence and theme switching tests
+- **TEST-009**: PWA installation and offline functionality tests
+- **TEST-010**: Timeline interaction tests (zoom, pan, filtering) on desktop and mobile
+- **TEST-011**: Cross-browser compatibility tests for Service Worker and IndexedDB features
+- **TEST-012**: Background sync tests for streaming data updates
+- **TEST-013**: Timeline accessibility tests with screen readers and keyboard navigation
+- **TEST-014**: Migration progress UI tests with user feedback scenarios
 
 ## 7. Risks & Assumptions
 
-- **RISK-001**: D3.js performance with large timeline datasets may require canvas fallback - mitigated by progressive rendering and virtualization
-- **RISK-002**: Streaming API rate limits could impact user experience - mitigated by aggressive caching and batch operations
-- **RISK-003**: Service Worker complexity may introduce deployment issues - mitigated by feature detection and gradual rollout
-- **RISK-004**: IndexedDB browser compatibility on older devices - mitigated by localStorage fallback for essential data
-- **RISK-005**: Timeline UI complexity may overwhelm users - mitigated by progressive disclosure and user preference hiding
-- **RISK-006**: Streaming service API changes could break integration - mitigated by adapter pattern and multiple API support
+- **RISK-001**: Migration data loss during LocalStorage→IndexedDB transfer - mitigated by atomic operations, validation, and rollback capability
+- **RISK-002**: IndexedDB browser compatibility on older devices - mitigated by feature detection and LocalStorage fallback
+- **RISK-003**: D3.js performance with large timeline datasets may require canvas fallback - mitigated by progressive rendering and virtualization
+- **RISK-004**: Streaming API rate limits could impact user experience - mitigated by aggressive caching and batch operations
+- **RISK-005**: Service Worker complexity may introduce deployment issues - mitigated by feature detection and gradual rollout
+- **RISK-006**: Timeline UI complexity may overwhelm users - mitigated by progressive disclosure and user preference hiding
+- **RISK-007**: Streaming service API changes could break integration - mitigated by adapter pattern and multiple API support
+- **RISK-008**: Migration process interruption could corrupt data - mitigated by transactional operations and integrity checks
 - **ASSUMPTION-001**: Users want visual timeline representation vs text-based chronology
 - **ASSUMPTION-002**: Streaming availability is valuable enough to justify API costs and complexity
 - **ASSUMPTION-003**: Local-first approach preferred over real-time server synchronization
 - **ASSUMPTION-004**: D3.js learning curve acceptable for development team
 - **ASSUMPTION-005**: IndexedDB storage quotas sufficient for episode and streaming data (estimated 50-100MB)
+- **ASSUMPTION-006**: Users will accept one-time migration process for improved performance and capabilities
+- **ASSUMPTION-007**: Existing progress data structure is compatible with IndexedDB schema design
 
 ## 8. Related Specifications / Further Reading
 
