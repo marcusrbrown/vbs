@@ -9,8 +9,77 @@
  */
 
 /**
+ * Individual episode data with comprehensive metadata.
+ * Used for episode-level tracking with detailed information including synopsis, guest stars, and connections.
+ *
+ * @example
+ * ```typescript
+ * const episode: Episode = {
+ *   id: 'ent_s1_e01',
+ *   title: 'Broken Bow',
+ *   season: 1,
+ *   episode: 1,
+ *   airDate: '2001-09-26',
+ *   stardate: 'None',
+ *   synopsis: 'Captain Archer and his crew embark on their first mission aboard Enterprise.',
+ *   plotPoints: ['First contact with Klingons', 'Introduction of Temporal Cold War'],
+ *   guestStars: ['John Fleck as Silik'],
+ *   connections: []
+ * }
+ * ```
+ */
+export interface Episode {
+  /** Unique identifier for the episode across all series */
+  id: string
+  /** Episode title */
+  title: string
+  /** Season number */
+  season: number
+  /** Episode number within the season */
+  episode: number
+  /** Air date in YYYY-MM-DD format */
+  airDate: string
+  /** In-universe stardate for the episode */
+  stardate: string
+  /** Episode synopsis/summary */
+  synopsis: string
+  /** Key plot points and story elements */
+  plotPoints: string[]
+  /** Notable guest stars and recurring characters */
+  guestStars: string[]
+  /** Cross-series connections and references */
+  connections: EpisodeConnection[]
+}
+
+/**
+ * Cross-series episode connection for tracking references and continuity.
+ * Links episodes that share characters, events, or storylines across different series.
+ *
+ * @example
+ * ```typescript
+ * const connection: EpisodeConnection = {
+ *   episodeId: 'tos_s2_e15',
+ *   seriesId: 'tos',
+ *   connectionType: 'character',
+ *   description: 'Features Sarek, first introduced in this episode'
+ * }
+ * ```
+ */
+export interface EpisodeConnection {
+  /** ID of the connected episode */
+  episodeId: string
+  /** Series ID of the connected episode */
+  seriesId: string
+  /** Type of connection: 'character', 'event', 'storyline', 'reference' */
+  connectionType: 'character' | 'event' | 'storyline' | 'reference'
+  /** Description of the connection */
+  description: string
+}
+
+/**
  * Represents a single Star Trek content item (series, movie, or animated content).
  * Each item belongs to a chronological era and tracks viewing metadata.
+ * Updated to support optional episode-level data for detailed tracking.
  *
  * @example
  * ```typescript
@@ -21,7 +90,8 @@
  *   year: '1966-1967',
  *   stardate: '1312.4-3619.2',
  *   episodes: 29,
- *   notes: 'The voyages of the original Enterprise crew'
+ *   notes: 'The voyages of the original Enterprise crew',
+ *   episodeData: [] // Optional array of Episode objects
  * }
  * ```
  */
@@ -40,6 +110,8 @@ export interface StarTrekItem {
   episodes?: number
   /** Additional notes or description */
   notes: string
+  /** Optional array of detailed episode data for episode-level tracking */
+  episodeData?: Episode[]
 }
 
 /**
@@ -134,6 +206,66 @@ export interface OverallProgress {
   overall: ProgressData
   /** Progress breakdown by individual era */
   eraProgress: EraProgress[]
+}
+
+/**
+ * Episode-level progress tracking data for individual episode completion.
+ * Used in hierarchical progress calculations and episode-specific UI components.
+ *
+ * @example
+ * ```typescript
+ * const episodeProgress: EpisodeProgress = {
+ *   episodeId: 'ent_s1_e01',
+ *   seriesId: 'ent_s1',
+ *   season: 1,
+ *   episode: 1,
+ *   isWatched: true,
+ *   watchedAt: '2025-08-03T10:30:00.000Z'
+ * }
+ * ```
+ */
+export interface EpisodeProgress {
+  /** Unique identifier for the episode */
+  episodeId: string
+  /** Identifier for the series/season this episode belongs to */
+  seriesId: string
+  /** Season number */
+  season: number
+  /** Episode number within the season */
+  episode: number
+  /** Whether the episode has been watched */
+  isWatched: boolean
+  /** Timestamp when the episode was marked as watched (optional) */
+  watchedAt?: string
+}
+
+/**
+ * Season-level progress tracking data for hierarchical progress calculations.
+ * Aggregates episode progress within a season and provides season completion statistics.
+ *
+ * @example
+ * ```typescript
+ * const seasonProgress: SeasonProgress = {
+ *   seriesId: 'ent_s1',
+ *   season: 1,
+ *   totalEpisodes: 26,
+ *   watchedEpisodes: 15,
+ *   percentage: 57.7,
+ *   episodeProgress: [] // Array of EpisodeProgress objects
+ * }
+ * ```
+ */
+export interface SeasonProgress extends ProgressData {
+  /** Identifier for the series this season belongs to */
+  seriesId: string
+  /** Season number */
+  season: number
+  /** Total number of episodes in the season */
+  totalEpisodes: number
+  /** Number of watched episodes in the season */
+  watchedEpisodes: number
+  /** Array of individual episode progress within this season */
+  episodeProgress: EpisodeProgress[]
 }
 
 /**
@@ -924,6 +1056,167 @@ export interface StorageEvents extends EventMap {
  * Each step transforms input of type TInput to output of type TOutput.
  */
 export type PipelineStep<TInput, TOutput> = (input: TInput) => TOutput
+
+// ============================================================================
+// RUNTIME VALIDATION TYPE GUARDS
+// ============================================================================
+
+/**
+ * Runtime validation utilities for episode data structures.
+ * These type guards prevent data corruption and ensure type safety at runtime.
+ */
+
+/**
+ * Type guard to validate Episode interface structure.
+ * Ensures all required fields are present and have correct types.
+ *
+ * @param value - The value to validate
+ * @returns True if value is a valid Episode object
+ */
+export function isEpisode(value: unknown): value is Episode {
+  if (typeof value !== 'object' || value === null) {
+    return false
+  }
+
+  const episode = value as Record<string, unknown>
+
+  return (
+    typeof episode['id'] === 'string' &&
+    typeof episode['title'] === 'string' &&
+    typeof episode['season'] === 'number' &&
+    typeof episode['episode'] === 'number' &&
+    typeof episode['airDate'] === 'string' &&
+    typeof episode['stardate'] === 'string' &&
+    typeof episode['synopsis'] === 'string' &&
+    Array.isArray(episode['plotPoints']) &&
+    episode['plotPoints'].every(point => typeof point === 'string') &&
+    Array.isArray(episode['guestStars']) &&
+    episode['guestStars'].every(star => typeof star === 'string') &&
+    Array.isArray(episode['connections']) &&
+    episode['connections'].every(conn => isEpisodeConnection(conn))
+  )
+}
+
+/**
+ * Type guard to validate EpisodeConnection interface structure.
+ * Ensures connection data integrity for cross-series references.
+ *
+ * @param value - The value to validate
+ * @returns True if value is a valid EpisodeConnection object
+ */
+export function isEpisodeConnection(value: unknown): value is EpisodeConnection {
+  if (typeof value !== 'object' || value === null) {
+    return false
+  }
+
+  const connection = value as Record<string, unknown>
+  const validConnectionTypes = ['character', 'event', 'storyline', 'reference']
+
+  return (
+    typeof connection['episodeId'] === 'string' &&
+    typeof connection['seriesId'] === 'string' &&
+    typeof connection['connectionType'] === 'string' &&
+    validConnectionTypes.includes(connection['connectionType']) &&
+    typeof connection['description'] === 'string'
+  )
+}
+
+/**
+ * Type guard to validate EpisodeProgress interface structure.
+ * Ensures episode progress data integrity for tracking functionality.
+ *
+ * @param value - The value to validate
+ * @returns True if value is a valid EpisodeProgress object
+ */
+export function isEpisodeProgress(value: unknown): value is EpisodeProgress {
+  if (typeof value !== 'object' || value === null) {
+    return false
+  }
+
+  const progress = value as Record<string, unknown>
+
+  return (
+    typeof progress['episodeId'] === 'string' &&
+    typeof progress['seriesId'] === 'string' &&
+    typeof progress['season'] === 'number' &&
+    typeof progress['episode'] === 'number' &&
+    typeof progress['isWatched'] === 'boolean' &&
+    (progress['watchedAt'] === undefined || typeof progress['watchedAt'] === 'string')
+  )
+}
+
+/**
+ * Type guard to validate SeasonProgress interface structure.
+ * Ensures season progress data integrity with embedded episode progress.
+ *
+ * @param value - The value to validate
+ * @returns True if value is a valid SeasonProgress object
+ */
+export function isSeasonProgress(value: unknown): value is SeasonProgress {
+  if (typeof value !== 'object' || value === null) {
+    return false
+  }
+
+  const progress = value as Record<string, unknown>
+
+  return (
+    typeof progress['seriesId'] === 'string' &&
+    typeof progress['season'] === 'number' &&
+    typeof progress['total'] === 'number' &&
+    typeof progress['completed'] === 'number' &&
+    typeof progress['percentage'] === 'number' &&
+    typeof progress['totalEpisodes'] === 'number' &&
+    typeof progress['watchedEpisodes'] === 'number' &&
+    Array.isArray(progress['episodeProgress']) &&
+    progress['episodeProgress'].every(ep => isEpisodeProgress(ep))
+  )
+}
+
+/**
+ * Type guard to validate extended StarTrekItem with episode data.
+ * Validates items that may contain episodeData arrays.
+ *
+ * @param value - The value to validate
+ * @returns True if value is a valid StarTrekItem object
+ */
+export function isStarTrekItemWithEpisodes(value: unknown): value is StarTrekItem {
+  if (typeof value !== 'object' || value === null) {
+    return false
+  }
+
+  const item = value as Record<string, unknown>
+
+  const baseValidation =
+    typeof item['id'] === 'string' &&
+    typeof item['title'] === 'string' &&
+    typeof item['type'] === 'string' &&
+    typeof item['year'] === 'string' &&
+    typeof item['stardate'] === 'string' &&
+    typeof item['notes'] === 'string' &&
+    (item['episodes'] === undefined || typeof item['episodes'] === 'number')
+
+  if (!baseValidation) {
+    return false
+  }
+
+  // Validate episodeData if present
+  if (item['episodeData'] !== undefined) {
+    return Array.isArray(item['episodeData']) && item['episodeData'].every(ep => isEpisode(ep))
+  }
+
+  return true
+}
+
+/**
+ * Validates an array of episodes for data integrity.
+ * Useful for bulk validation during data import or migration.
+ *
+ * @param episodes - Array of episodes to validate
+ * @returns True if all episodes are valid
+ */
+export function validateEpisodeArray(episodes: unknown[]): episodes is Episode[] {
+  return Array.isArray(episodes) && episodes.every(ep => isEpisode(ep))
+}
 
 /**
  * Configuration object for creating reusable data transformation pipelines.
