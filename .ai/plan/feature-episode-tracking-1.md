@@ -53,14 +53,14 @@ This plan expands the VBS viewing guide from season-level tracking to individual
 
 | Task | Description | Completed | Date |
 |------|-------------|-----------|------|
-| TASK-007 | Create `src/modules/migration.ts` with functions to migrate season-level progress to episode-level | |  |
-| TASK-008 | Update `createProgressTracker` in `src/modules/progress.ts` to handle episode IDs and hierarchical progress | |  |
-| TASK-009 | Add `calculateSeasonProgress` and `calculateEpisodeProgress` utility functions | |  |
-| TASK-010 | Update storage format in `src/modules/storage.ts` to support episode-level progress with version migration | |  |
-| TASK-011 | Implement bulk operations: markSeasonWatched, markSeasonUnwatched functions | |  |
-| TASK-012 | Add progress data validation and error recovery for corrupted episode progress | |  |
-| TASK-013 | Create `createEpisodeTracker` factory function in new `src/modules/episodeTracker.ts` with closure-based state management | |  |
-| TASK-014 | Integrate generic EventEmitter support with EpisodeTrackerEvents interface for type-safe event handling | |  |
+| TASK-007 | Create `src/modules/migration.ts` with functions to migrate season-level progress to episode-level | ✅ | 2025-08-05 |
+| TASK-008 | Update `createProgressTracker` in `src/modules/progress.ts` to handle episode IDs and hierarchical progress | ✅ | 2025-08-05 |
+| TASK-009 | Add `calculateSeasonProgress` and `calculateEpisodeProgress` utility functions | ✅ | 2025-08-05 |
+| TASK-010 | Update storage format in `src/modules/storage.ts` to support episode-level progress with version migration | ✅ | 2025-08-05 |
+| TASK-011 | Implement bulk operations: markSeasonWatched, markSeasonUnwatched functions | ✅ | 2025-08-05 |
+| TASK-012 | Add progress data validation and error recovery for corrupted episode progress | ✅ | 2025-08-05 |
+| TASK-013 | Create `createEpisodeTracker` factory function in new `src/modules/episodeTracker.ts` with closure-based state management | ✅ | 2025-08-05 |
+| TASK-014 | Integrate generic EventEmitter support with EpisodeTrackerEvents interface for type-safe event handling | ✅ | 2025-08-05 |
 
 ### Implementation Phase 3: UI Components & Episode Management
 

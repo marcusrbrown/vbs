@@ -1,8 +1,13 @@
 import type {
+  Episode,
+  EpisodeProgress,
   EraProgress,
   ProgressData,
   ProgressTrackerEvents,
   ProgressTrackerInstance,
+  SeasonProgress,
+  StarTrekEra,
+  StarTrekItem,
 } from './types.js'
 import {starTrekData} from '../data/star-trek-data.js'
 import {createProgressPipeline, pipe, tap} from '../utils/composition.js'
@@ -129,4 +134,142 @@ export const createProgressTracker = (): ProgressTrackerInstance => {
     once: eventEmitter.once.bind(eventEmitter),
     removeAllListeners: eventEmitter.removeAllListeners.bind(eventEmitter),
   }
+}
+
+/**
+ * Calculate season-level progress for a specific series and season.
+ * Determines completion based on episode-level or season-level tracking.
+ *
+ * @param seriesId - The series identifier (e.g., 'ent_s1')
+ * @param season - The season number
+ * @param watchedItems - Array of watched item/episode IDs
+ * @returns SeasonProgress object with episode details, or null if series not found
+ */
+export const calculateSeasonProgress = (
+  seriesId: string,
+  season: number,
+  watchedItems: string[],
+): SeasonProgress | null => {
+  return pipe(
+    starTrekData,
+    // Find the series
+    (eras: StarTrekEra[]) => eras.flatMap(era => era.items),
+    (items: StarTrekItem[]) => items.find(item => item.id === seriesId),
+    (item: StarTrekItem | undefined) => {
+      if (!item || !item.episodeData) {
+        return null
+      }
+
+      // Filter episodes for the specific season
+      const seasonEpisodes = item.episodeData.filter(episode => episode.season === season)
+
+      if (seasonEpisodes.length === 0) {
+        return null
+      }
+
+      // Calculate episode progress
+      const episodeProgress: EpisodeProgress[] = seasonEpisodes.map(episode => ({
+        episodeId: episode.id,
+        seriesId: item.id,
+        season: episode.season,
+        episode: episode.episode,
+        isWatched: watchedItems.includes(episode.id),
+        ...(watchedItems.includes(episode.id) && {
+          watchedAt: new Date().toISOString(),
+        }),
+      }))
+
+      const totalEpisodes = seasonEpisodes.length
+      const watchedEpisodes = episodeProgress.filter(ep => ep.isWatched).length
+      const percentage = totalEpisodes > 0 ? Math.round((watchedEpisodes / totalEpisodes) * 100) : 0
+
+      return {
+        seriesId: item.id,
+        season,
+        totalEpisodes,
+        watchedEpisodes,
+        total: totalEpisodes,
+        completed: watchedEpisodes,
+        percentage,
+        episodeProgress,
+      } as SeasonProgress
+    },
+  )
+}
+
+/**
+ * Calculate episode-level progress across all series with episode data.
+ * Returns array of SeasonProgress objects for all seasons.
+ *
+ * @param watchedItems - Array of watched item/episode IDs
+ * @returns Array of SeasonProgress objects
+ */
+export const calculateEpisodeProgress = (watchedItems: string[]): SeasonProgress[] => {
+  return pipe(
+    starTrekData,
+    (eras: StarTrekEra[]) => eras.flatMap(era => era.items),
+    (items: StarTrekItem[]) =>
+      items.filter(item => item.episodeData && item.episodeData.length > 0),
+    (itemsWithEpisodes: StarTrekItem[]) => {
+      const seasonProgress: SeasonProgress[] = []
+
+      for (const item of itemsWithEpisodes) {
+        const episodes = item.episodeData || []
+
+        // Group episodes by season
+        const seasonGroups = new Map<number, Episode[]>()
+        for (const episode of episodes) {
+          if (!seasonGroups.has(episode.season)) {
+            seasonGroups.set(episode.season, [])
+          }
+          const seasonEpisodes = seasonGroups.get(episode.season)
+          if (seasonEpisodes) {
+            seasonEpisodes.push(episode)
+          }
+        }
+
+        // Create progress for each season
+        for (const [seasonNumber] of seasonGroups.entries()) {
+          const progress = calculateSeasonProgress(item.id, seasonNumber, watchedItems)
+          if (progress) {
+            seasonProgress.push(progress)
+          }
+        }
+      }
+
+      return seasonProgress
+    },
+  )
+}
+
+/**
+ * Check if episode-level tracking is available for a given item.
+ * Returns true if the item has episode data that can be tracked.
+ *
+ * @param itemId - The item identifier to check
+ * @returns True if episode-level tracking is available
+ */
+export const hasEpisodeData = (itemId: string): boolean => {
+  return pipe(
+    starTrekData,
+    (eras: StarTrekEra[]) => eras.flatMap(era => era.items),
+    (items: StarTrekItem[]) => items.find(item => item.id === itemId),
+    (item: StarTrekItem | undefined) => Boolean(item?.episodeData && item.episodeData.length > 0),
+  )
+}
+
+/**
+ * Get all episodes for a specific series item.
+ * Returns empty array if no episode data exists.
+ *
+ * @param itemId - The series item identifier
+ * @returns Array of Episode objects
+ */
+export const getEpisodesForItem = (itemId: string): Episode[] => {
+  return pipe(
+    starTrekData,
+    (eras: StarTrekEra[]) => eras.flatMap(era => era.items),
+    (items: StarTrekItem[]) => items.find(item => item.id === itemId),
+    (item: StarTrekItem | undefined) => item?.episodeData || [],
+  )
 }

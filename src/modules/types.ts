@@ -373,6 +373,64 @@ export interface ProgressTrackerInstance {
 }
 
 /**
+ * Public API interface for EpisodeTracker factory instances.
+ * Manages episode-level progress tracking with hierarchical calculations and bulk operations.
+ * Uses closure-based state management separate from season-level progress tracking.
+ *
+ * @example
+ * ```typescript
+ * const episodeTracker = createEpisodeTracker()
+ * episodeTracker.toggleEpisode('ent_s1_e01')
+ * episodeTracker.markSeasonWatched('ent_s1', 1)
+ *
+ * episodeTracker.on('episode-toggle', ({ episodeId, isWatched }) => {
+ *   console.log(`Episode ${episodeId}: ${isWatched}`)
+ * })
+ * ```
+ */
+export interface EpisodeTrackerInstance {
+  /** Set the complete list of watched episodes (used for import functionality) */
+  setWatchedEpisodes(episodeIds: string[]): void
+  /** Toggle the watched state of a specific episode */
+  toggleEpisode(episodeId: string): void
+  /** Check if a specific episode is marked as watched */
+  isEpisodeWatched(episodeId: string): boolean
+  /** Mark all episodes in a season as watched */
+  markSeasonWatched(seriesId: string, season: number): void
+  /** Mark all episodes in a season as unwatched */
+  markSeasonUnwatched(seriesId: string, season: number): void
+  /** Reset all episode progress data (clear all watched episodes) */
+  resetEpisodeProgress(): void
+  /** Get immutable copy of currently watched episode IDs */
+  getWatchedEpisodes(): string[]
+  /** Update episode progress calculations and notify subscribers */
+  updateEpisodeProgress(): void
+  /** Calculate progress statistics for a specific season */
+  calculateSeasonProgress(seriesId: string, season: number): SeasonProgress | null
+  /** Calculate episode progress statistics across all series */
+  calculateEpisodeProgress(): SeasonProgress[]
+
+  // Generic EventEmitter methods for enhanced type safety
+  /** Subscribe to an event with a type-safe listener */
+  on<TEventName extends keyof EpisodeTrackerEvents>(
+    eventName: TEventName,
+    listener: EventListener<EpisodeTrackerEvents[TEventName]>,
+  ): void
+  /** Unsubscribe from an event */
+  off<TEventName extends keyof EpisodeTrackerEvents>(
+    eventName: TEventName,
+    listener: EventListener<EpisodeTrackerEvents[TEventName]>,
+  ): void
+  /** Subscribe to an event once (auto-unsubscribe after first emission) */
+  once<TEventName extends keyof EpisodeTrackerEvents>(
+    eventName: TEventName,
+    listener: EventListener<EpisodeTrackerEvents[TEventName]>,
+  ): void
+  /** Remove all listeners for a specific event or all events */
+  removeAllListeners<TEventName extends keyof EpisodeTrackerEvents>(eventName?: TEventName): void
+}
+
+/**
  * Public API interface for SearchFilter factory instances.
  * Manages search and filter state with real-time content filtering functionality.
  * Uses closure-based state management for current filters and callback collections.
@@ -1044,6 +1102,48 @@ export interface StorageEvents extends EventMap {
     operation: 'import' | 'export' | 'save' | 'load'
     error: Error
     context?: Record<string, unknown>
+  }
+}
+
+/**
+ * Event map for EpisodeTracker factory instances.
+ * Defines type-safe events for episode-level progress tracking and bulk operations.
+ *
+ * @example
+ * ```typescript
+ * const episodeEmitter = createEventEmitter<EpisodeTrackerEvents>()
+ * episodeEmitter.on('episode-toggle', ({ episodeId, isWatched }) => {
+ *   console.log(`Episode ${episodeId} is now ${isWatched ? 'watched' : 'unwatched'}`)
+ * })
+ * ```
+ */
+export interface EpisodeTrackerEvents extends EventMap {
+  /** Fired when an individual episode's watched status is toggled */
+  'episode-toggle': {
+    episodeId: string
+    isWatched: boolean
+    seriesId: string
+    season: number
+    episode: number
+  }
+  /** Fired when bulk season operations are performed */
+  'season-toggle': {
+    seriesId: string
+    season: number
+    isWatched: boolean
+    episodeIds: string[]
+  }
+  /** Fired when episode progress calculations are updated */
+  'episode-progress-update': {
+    seasonProgress: SeasonProgress[]
+    overallProgress: ProgressData
+  }
+  /** Fired when bulk operations complete successfully */
+  'bulk-operation-complete': {
+    operation: 'mark-season-watched' | 'mark-season-unwatched'
+    seriesId: string
+    season: number
+    affectedEpisodes: number
   }
 }
 
