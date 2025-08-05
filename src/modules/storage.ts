@@ -1,7 +1,39 @@
 import type {ProgressExportData, StorageEvents} from './types.js'
 import {createEventEmitter} from './events.js'
+import {isMigrationNeeded, performMigration} from './migration.js'
 
 const STORAGE_KEY = 'starTrekProgress'
+const EPISODE_STORAGE_KEY = 'starTrekEpisodeProgress'
+const STORAGE_VERSION_KEY = 'starTrekStorageVersion'
+
+/**
+ * Enhanced progress data structure supporting both season and episode level tracking.
+ */
+export interface EnhancedProgressData {
+  version: '2.0'
+  timestamp: string
+  seasonProgress: string[] // Legacy season-level progress
+  episodeProgress: string[] // New episode-level progress
+  migrationInfo?: {
+    migratedFrom: string
+    migrationDate: string
+    originalItemCount: number
+  }
+}
+
+/**
+ * Storage version information for migration tracking.
+ */
+export interface StorageVersionInfo {
+  currentVersion: '1.0' | '2.0'
+  lastUpdated: string
+  migrationHistory: {
+    from: string
+    to: string
+    timestamp: string
+    success: boolean
+  }[]
+}
 
 // Storage event emitter for type-safe event handling
 const storageEventEmitter = createEventEmitter<StorageEvents>()
@@ -267,6 +299,40 @@ export const isProgressExportData = (data: unknown): data is ProgressExportData 
   )
 }
 
+/**
+ * Type guard for enhanced progress data structure.
+ */
+export const isEnhancedProgressData = (data: unknown): data is EnhancedProgressData => {
+  return (
+    typeof data === 'object' &&
+    data !== null &&
+    'version' in data &&
+    'timestamp' in data &&
+    'seasonProgress' in data &&
+    'episodeProgress' in data &&
+    (data as any).version === '2.0' &&
+    typeof (data as any).timestamp === 'string' &&
+    isStringArray((data as any).seasonProgress) &&
+    isStringArray((data as any).episodeProgress)
+  )
+}
+
+/**
+ * Type guard for storage version information.
+ */
+export const isStorageVersionInfo = (data: unknown): data is StorageVersionInfo => {
+  return (
+    typeof data === 'object' &&
+    data !== null &&
+    'currentVersion' in data &&
+    'lastUpdated' in data &&
+    'migrationHistory' in data &&
+    typeof (data as any).currentVersion === 'string' &&
+    typeof (data as any).lastUpdated === 'string' &&
+    Array.isArray((data as any).migrationHistory)
+  )
+}
+
 // Existing functions maintained for backward compatibility
 
 // Pre-configured storage instance for progress data
@@ -318,6 +384,186 @@ export const loadProgress = (): string[] => {
     })
     return []
   }
+}
+
+// Enhanced storage functions for episode-level progress
+
+/**
+ * Get current storage version information.
+ */
+export const getStorageVersion = (): StorageVersionInfo => {
+  try {
+    const stored = localStorage.getItem(STORAGE_VERSION_KEY)
+    if (!stored) {
+      return {
+        currentVersion: '1.0',
+        lastUpdated: new Date().toISOString(),
+        migrationHistory: [],
+      }
+    }
+
+    const parsed = JSON.parse(stored)
+    if (isStorageVersionInfo(parsed)) {
+      return parsed
+    }
+
+    return {
+      currentVersion: '1.0',
+      lastUpdated: new Date().toISOString(),
+      migrationHistory: [],
+    }
+  } catch {
+    return {
+      currentVersion: '1.0',
+      lastUpdated: new Date().toISOString(),
+      migrationHistory: [],
+    }
+  }
+}
+
+/**
+ * Save storage version information.
+ */
+export const saveStorageVersion = (versionInfo: StorageVersionInfo): void => {
+  try {
+    localStorage.setItem(STORAGE_VERSION_KEY, JSON.stringify(versionInfo))
+  } catch (error) {
+    console.error('Failed to save storage version:', error)
+  }
+}
+
+/**
+ * Save enhanced progress data with episode-level support.
+ */
+export const saveEnhancedProgress = (data: EnhancedProgressData): void => {
+  try {
+    localStorage.setItem(EPISODE_STORAGE_KEY, JSON.stringify(data))
+
+    storageEventEmitter.emit('data-exported', {
+      exportedItems: [...data.seasonProgress, ...data.episodeProgress],
+      timestamp: data.timestamp,
+      format: 'enhanced-localStorage',
+    })
+  } catch (error) {
+    storageEventEmitter.emit('storage-error', {
+      operation: 'save',
+      error: error instanceof Error ? error : new Error(String(error)),
+      context: {
+        seasonItemCount: data.seasonProgress.length,
+        episodeItemCount: data.episodeProgress.length,
+      },
+    })
+    throw error
+  }
+}
+
+/**
+ * Load progress with automatic migration support.
+ * Detects current storage format and migrates if necessary.
+ */
+export const loadProgressWithMigration = (): {
+  seasonProgress: string[]
+  episodeProgress: string[]
+  migrationPerformed: boolean
+} => {
+  try {
+    const versionInfo = getStorageVersion()
+
+    // Try to load enhanced progress data first
+    const enhancedData = localStorage.getItem(EPISODE_STORAGE_KEY)
+    if (enhancedData) {
+      try {
+        const parsed = JSON.parse(enhancedData)
+        if (isEnhancedProgressData(parsed)) {
+          return {
+            seasonProgress: parsed.seasonProgress,
+            episodeProgress: parsed.episodeProgress,
+            migrationPerformed: false,
+          }
+        }
+      } catch {
+        // Fall through to legacy handling
+      }
+    }
+
+    // Load legacy progress data
+    const legacyProgress = loadProgress()
+
+    // Check if migration is needed
+    if (isMigrationNeeded(legacyProgress)) {
+      const migrationResult = performMigration(legacyProgress)
+
+      if (migrationResult.success) {
+        // Save migrated data in enhanced format
+        const enhancedData: EnhancedProgressData = {
+          version: '2.0',
+          timestamp: new Date().toISOString(),
+          seasonProgress: migrationResult.backupData,
+          episodeProgress: migrationResult.migratedItems,
+          migrationInfo: {
+            migratedFrom: 'season-level',
+            migrationDate: new Date().toISOString(),
+            originalItemCount: migrationResult.backupData.length,
+          },
+        }
+
+        saveEnhancedProgress(enhancedData)
+
+        // Update version info
+        const newVersionInfo: StorageVersionInfo = {
+          currentVersion: '2.0',
+          lastUpdated: new Date().toISOString(),
+          migrationHistory: [
+            ...versionInfo.migrationHistory,
+            {
+              from: '1.0',
+              to: '2.0',
+              timestamp: new Date().toISOString(),
+              success: true,
+            },
+          ],
+        }
+        saveStorageVersion(newVersionInfo)
+
+        return {
+          seasonProgress: enhancedData.seasonProgress,
+          episodeProgress: enhancedData.episodeProgress,
+          migrationPerformed: true,
+        }
+      }
+    }
+
+    // No migration needed or migration failed, return legacy data
+    return {
+      seasonProgress: legacyProgress,
+      episodeProgress: [],
+      migrationPerformed: false,
+    }
+  } catch (error) {
+    storageEventEmitter.emit('storage-error', {
+      operation: 'load',
+      error: error instanceof Error ? error : new Error(String(error)),
+    })
+    return {
+      seasonProgress: [],
+      episodeProgress: [],
+      migrationPerformed: false,
+    }
+  }
+}
+
+/**
+ * Save episode-level progress with automatic format handling.
+ */
+export const saveEpisodeProgress = (episodeIds: string[], seasonIds: string[] = []): void => {
+  const data: EnhancedProgressData = {
+    version: '2.0',
+    timestamp: new Date().toISOString(),
+    seasonProgress: seasonIds,
+    episodeProgress: episodeIds,
+  }
+
+  saveEnhancedProgress(data)
 }
 
 export const exportProgress = (watchedItems: string[]): void => {
