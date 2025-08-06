@@ -68,8 +68,8 @@ This plan expands the VBS viewing guide from season-level tracking to individual
 
 | Task | Description | Completed | Date |
 |------|-------------|-----------|------|
-| TASK-015 | Create `src/modules/episodes.ts` factory function for episode list management and filtering | |  |
-| TASK-016 | Update `createTimelineRenderer` in `src/modules/timeline.ts` to render collapsible episode lists within seasons | |  |
+| TASK-015 | Create `src/modules/episodes.ts` factory function for episode list management and filtering | ✅ | 2025-08-05 |
+| TASK-016 | Update `createTimelineRenderer` in `src/modules/timeline.ts` to render collapsible episode lists within seasons | ✅ | 2025-08-05 |
 | TASK-017 | Add detailed progress bars showing episode completion within seasons (e.g., "8/26 episodes watched") | |  |
 | TASK-018 | Create episode detail modal/expansion with synopsis, plot points, guest stars, and connections | |  |
 | TASK-019 | Add episode search and filtering capabilities (by title, guest stars, plot keywords) | |  |

@@ -1,4 +1,5 @@
 import type {
+  Episode,
   EraProgress,
   OverallProgress,
   ProgressTrackerInstance,
@@ -14,6 +15,7 @@ export const createTimelineRenderer = (
 ): TimelineRendererInstance => {
   // Closure variables for private state
   const expandedEras: Set<string> = new Set()
+  const expandedEpisodeLists: Set<string> = new Set()
 
   const calculateEraProgress = (era: StarTrekEra): EraProgress => {
     return pipe(
@@ -41,13 +43,79 @@ export const createTimelineRenderer = (
     )
   }
 
+  /**
+   * Create HTML element for an individual episode within a season.
+   * Supports episode-level progress tracking with spoiler-safe content display.
+   */
+  const createEpisodeElement = (episode: Episode, seriesId: string): string => {
+    const isWatched = progressTracker.isWatched(episode.id)
+    const airDate = new Date(episode.airDate).toLocaleDateString()
+
+    return `
+      <div class="episode-item ${isWatched ? 'watched' : ''}"
+           data-episode-id="${episode.id}"
+           data-series-id="${seriesId}"
+           role="listitem"
+           aria-labelledby="episode-title-${episode.id}">
+        <div class="episode-checkbox">
+          <input type="checkbox"
+                 id="${episode.id}"
+                 data-episode-id="${episode.id}"
+                 aria-label="Mark ${episode.title} as watched"
+                 ${isWatched ? 'checked' : ''} />
+          <label for="${episode.id}" class="visually-hidden">Toggle watched status for ${episode.title}</label>
+        </div>
+        <div class="episode-content">
+          <div class="episode-header">
+            <span class="episode-number">S${episode.season}E${String(episode.episode).padStart(2, '0')}</span>
+            <h4 class="episode-title" id="episode-title-${episode.id}">${episode.title}</h4>
+          </div>
+          <div class="episode-details">
+            <span class="episode-air-date">${airDate}</span>
+            ${episode.stardate === 'None' ? '' : `<span class="episode-stardate">Stardate: ${episode.stardate}</span>`}
+          </div>
+          <div class="episode-synopsis" aria-label="Episode synopsis">
+            ${episode.synopsis}
+          </div>
+        </div>
+      </div>
+    `
+  }
+
   const createItemElement = (item: StarTrekItem): string => {
     const isWatched = progressTracker.isWatched(item.id)
     const typeClass = `type-${item.type}`
+    const hasEpisodes = item.episodeData && item.episodeData.length > 0
+
+    // Create episode list HTML if episodes exist
+    const episodeListHTML = hasEpisodes
+      ? `
+      <div class="episode-list-container" data-series-id="${item.id}">
+        <div class="episode-list-header">
+          <button class="episode-toggle-btn"
+                  data-series-id="${item.id}"
+                  aria-expanded="false"
+                  aria-controls="episodes-${item.id}">
+            <span class="episode-toggle-icon">▼</span>
+            <span class="episode-count">${item.episodeData?.length || 0} episodes</span>
+          </button>
+        </div>
+        <div class="episode-list"
+             id="episodes-${item.id}"
+             style="display: none;"
+             role="list"
+             aria-label="Episodes for ${item.title}">
+          ${(item.episodeData || []).map(episode => createEpisodeElement(episode, item.id)).join('')}
+        </div>
+      </div>
+    `
+      : ''
 
     return `
-      <div class="viewing-item ${typeClass} ${isWatched ? 'watched' : ''}" data-item-id="${item.id}"
-           role="listitem" aria-labelledby="title-${item.id}">
+      <div class="viewing-item ${typeClass} ${isWatched ? 'watched' : ''} ${hasEpisodes ? 'has-episodes' : ''}"
+           data-item-id="${item.id}"
+           role="listitem"
+           aria-labelledby="title-${item.id}">
         <div class="item-checkbox">
           <input type="checkbox"
                  id="${item.id}"
@@ -68,6 +136,7 @@ export const createTimelineRenderer = (
             ${item.episodes && item.episodes > 1 ? `<span class="item-episodes" aria-label="Episode count">${item.episodes} episodes</span>` : ''}
           </div>
           <div class="item-notes" aria-label="Additional notes">${item.notes}</div>
+          ${episodeListHTML}
         </div>
       </div>
     `
@@ -93,6 +162,30 @@ export const createTimelineRenderer = (
       if (icon) icon.textContent = '▲'
       if (header) header.setAttribute('aria-expanded', 'true')
       eraElement.classList.add('expanded')
+    }
+  }
+
+  const toggleEpisodeList = (seriesId: string): void => {
+    const episodeContainer = container.querySelector(
+      `[data-series-id="${seriesId}"] .episode-list`,
+    ) as HTMLElement
+    const toggleButton = container.querySelector(
+      `[data-series-id="${seriesId}"] .episode-toggle-btn`,
+    ) as HTMLElement
+    const toggleIcon = toggleButton?.querySelector('.episode-toggle-icon')
+
+    if (!episodeContainer || !toggleButton) return
+
+    if (expandedEpisodeLists.has(seriesId)) {
+      expandedEpisodeLists.delete(seriesId)
+      episodeContainer.style.display = 'none'
+      if (toggleIcon) toggleIcon.textContent = '▼'
+      toggleButton.setAttribute('aria-expanded', 'false')
+    } else {
+      expandedEpisodeLists.add(seriesId)
+      episodeContainer.style.display = 'block'
+      if (toggleIcon) toggleIcon.textContent = '▲'
+      toggleButton.setAttribute('aria-expanded', 'true')
     }
   }
 
@@ -143,13 +236,44 @@ export const createTimelineRenderer = (
       })
     }
 
-    // Add event listeners for item checkboxes
+    // Add event listeners for item checkboxes and episode functionality
     const checkboxes = eraDiv.querySelectorAll('input[type="checkbox"]')
     checkboxes.forEach(checkbox => {
       checkbox.addEventListener('change', e => {
         const target = e.target as HTMLInputElement
         if (target?.dataset['itemId']) {
           progressTracker.toggleItem(target.dataset['itemId'])
+        } else if (target?.dataset['episodeId']) {
+          progressTracker.toggleItem(target.dataset['episodeId'])
+        }
+      })
+    })
+
+    // Add event listeners for episode list toggle buttons
+    const episodeToggleButtons = eraDiv.querySelectorAll('.episode-toggle-btn')
+    episodeToggleButtons.forEach(button => {
+      button.addEventListener('click', e => {
+        const target = e.target as HTMLElement
+        const seriesId =
+          target.dataset['seriesId'] ||
+          target.closest('[data-series-id]')?.getAttribute('data-series-id')
+        if (seriesId) {
+          toggleEpisodeList(seriesId)
+        }
+      })
+
+      // Add keyboard support for episode toggle
+      button.addEventListener('keydown', (e: Event) => {
+        const keyEvent = e as KeyboardEvent
+        if (keyEvent.key === 'Enter' || keyEvent.key === ' ') {
+          e.preventDefault()
+          const target = e.target as HTMLElement
+          const seriesId =
+            target.dataset['seriesId'] ||
+            target.closest('[data-series-id]')?.getAttribute('data-series-id')
+          if (seriesId) {
+            toggleEpisodeList(seriesId)
+          }
         }
       })
     })
@@ -267,6 +391,7 @@ export const createTimelineRenderer = (
   }
 
   const updateItemStates = (): void => {
+    // Update item states
     const items = container.querySelectorAll('.viewing-item')
     items.forEach(item => {
       const itemElement = item as HTMLElement
@@ -279,6 +404,20 @@ export const createTimelineRenderer = (
         item.classList.toggle('watched', isWatched)
       }
     })
+
+    // Update episode states
+    const episodes = container.querySelectorAll('.episode-item')
+    episodes.forEach(episode => {
+      const episodeElement = episode as HTMLElement
+      const episodeId = episodeElement.dataset['episodeId']
+      const checkbox = episode.querySelector('input[type="checkbox"]') as HTMLInputElement
+
+      if (episodeId && checkbox) {
+        const isWatched = progressTracker.isWatched(episodeId)
+        checkbox.checked = isWatched
+        episode.classList.toggle('watched', isWatched)
+      }
+    })
   }
 
   // Return public API
@@ -286,7 +425,9 @@ export const createTimelineRenderer = (
     render,
     createEraElement,
     createItemElement,
+    createEpisodeElement,
     toggleEra,
+    toggleEpisodeList,
     expandAll,
     collapseAll,
     updateProgress,
