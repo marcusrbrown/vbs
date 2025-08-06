@@ -288,6 +288,44 @@ export interface FilterState {
 }
 
 /**
+ * Episode-specific filtering criteria for detailed episode search and management.
+ * Used by EpisodeManager factory to handle episode-level filtering and discovery.
+ *
+ * @example
+ * ```typescript
+ * const criteria: EpisodeFilterCriteria = {
+ *   searchTerm: 'borg',
+ *   seriesId: 'tng',
+ *   season: 3,
+ *   guestStars: ['John de Lancie'],
+ *   plotKeywords: ['time travel'],
+ *   spoilerLevel: 'safe'
+ * }
+ * ```
+ */
+export interface EpisodeFilterCriteria {
+  /** Text search across episode titles, synopsis, and plot points */
+  searchTerm?: string
+  /** Filter by specific series ID */
+  seriesId?: string
+  /** Filter by specific season number */
+  season?: number
+  /** Filter by guest star appearances */
+  guestStars?: string[]
+  /** Filter by plot keywords and themes */
+  plotKeywords?: string[]
+  /** Spoiler safety level for content display */
+  spoilerLevel?: 'safe' | 'moderate' | 'full'
+  /** Filter by episode air date range */
+  airDateRange?: {
+    start: string
+    end: string
+  }
+  /** Filter by watched/unwatched status */
+  watchedStatus?: 'watched' | 'unwatched' | 'any'
+}
+
+/**
  * Data structure for progress import/export functionality.
  * Ensures version compatibility and includes metadata for data integrity.
  *
@@ -481,6 +519,64 @@ export interface SearchFilterInstance {
 }
 
 /**
+ * Public API interface for EpisodeManager factory instances.
+ * Manages episode-level filtering, search, and lazy loading functionality with spoiler-safe content display.
+ * Uses closure-based state management for episode lists and filtering criteria.
+ *
+ * @example
+ * ```typescript
+ * const episodeManager = createEpisodeManager()
+ * episodeManager.setFilterCriteria({ seriesId: 'ent', season: 1 })
+ * episodeManager.searchEpisodes('borg')
+ *
+ * episodeManager.on('filter-change', ({ filteredEpisodes, filterCriteria }) => {
+ *   renderEpisodeList(filteredEpisodes)
+ *   updateFilterUI(filterCriteria)
+ * })
+ * ```
+ */
+export interface EpisodeManagerInstance {
+  /** Set episode filtering criteria */
+  setFilterCriteria(criteria: EpisodeFilterCriteria): void
+  /** Search episodes by text across multiple fields */
+  searchEpisodes(searchTerm: string): void
+  /** Get episodes for a specific series and season */
+  getEpisodesForSeason(seriesId: string, season: number): Episode[]
+  /** Get filtered episodes based on current criteria */
+  getFilteredEpisodes(): Episode[]
+  /** Load more episodes for lazy loading functionality */
+  loadMoreEpisodes(count?: number): void
+  /** Toggle episode detail expansion with spoiler control */
+  toggleEpisodeDetail(episodeId: string, spoilerLevel?: 'safe' | 'moderate' | 'full'): void
+  /** Check if episode matches current filter criteria */
+  matchesFilter(episode: Episode): boolean
+  /** Get current filtering state */
+  getCurrentCriteria(): EpisodeFilterCriteria
+  /** Reset all filters and search criteria */
+  resetFilters(): void
+  /** Set spoiler safety level for content display */
+  setSpoilerLevel(level: 'safe' | 'moderate' | 'full'): void
+
+  /** Subscribe to an event with a type-safe listener */
+  on<TEventName extends keyof EpisodeManagerEvents>(
+    eventName: TEventName,
+    listener: EventListener<EpisodeManagerEvents[TEventName]>,
+  ): void
+  /** Unsubscribe from an event */
+  off<TEventName extends keyof EpisodeManagerEvents>(
+    eventName: TEventName,
+    listener: EventListener<EpisodeManagerEvents[TEventName]>,
+  ): void
+  /** Subscribe to an event once (auto-unsubscribe after first emission) */
+  once<TEventName extends keyof EpisodeManagerEvents>(
+    eventName: TEventName,
+    listener: EventListener<EpisodeManagerEvents[TEventName]>,
+  ): void
+  /** Remove all listeners for a specific event or all events */
+  removeAllListeners<TEventName extends keyof EpisodeManagerEvents>(eventName?: TEventName): void
+}
+
+/**
  * Public API interface for TimelineRenderer factory instances.
  * Manages DOM rendering and UI interactions for the Star Trek timeline.
  * Uses dependency injection to integrate with ProgressTracker for real-time updates.
@@ -499,8 +595,12 @@ export interface TimelineRendererInstance {
   createEraElement(era: StarTrekEra): HTMLDivElement
   /** Create HTML string for a specific Star Trek item */
   createItemElement(item: StarTrekItem): string
+  /** Create HTML string for an individual episode */
+  createEpisodeElement(episode: Episode, seriesId: string): string
   /** Toggle the expanded/collapsed state of an era section */
   toggleEra(eraId: string): void
+  /** Toggle the expanded/collapsed state of an episode list for a series */
+  toggleEpisodeList(seriesId: string): void
   /** Expand all era sections */
   expandAll(): void
   /** Collapse all era sections */
@@ -563,6 +663,27 @@ export type CreateProgressTracker = () => ProgressTrackerInstance
  * ```
  */
 export type CreateSearchFilter = () => SearchFilterInstance
+
+/**
+ * Factory function signature for creating EpisodeManager instances.
+ * Returns an EpisodeManager instance with closure-based state management for episode filtering and search.
+ * Uses generic constraints to ensure type safety and proper EventEmitter integration.
+ *
+ * @returns EpisodeManagerInstance with methods for episode management and filtering
+ *
+ * @example
+ * ```typescript
+ * const createManager: CreateEpisodeManager = () => createEpisodeManager()
+ * const manager = createManager()
+ *
+ * // Type-safe event handling
+ * manager.on('filter-change', ({ filteredEpisodes, filterCriteria }) => {
+ *   renderEpisodeList(filteredEpisodes)
+ *   updateFilterUI(filterCriteria)
+ * })
+ * ```
+ */
+export type CreateEpisodeManager = () => EpisodeManagerInstance
 
 /**
  * Factory function signature for creating TimelineRenderer instances.
@@ -1144,6 +1265,42 @@ export interface EpisodeTrackerEvents extends EventMap {
     seriesId: string
     season: number
     affectedEpisodes: number
+  }
+}
+
+/**
+ * Event types for episode list management and filtering functionality.
+ * Used by createEpisodeManager factory for type-safe event handling.
+ */
+export interface EpisodeManagerEvents extends EventMap {
+  /** Fired when episode filtering criteria change */
+  'filter-change': {
+    filteredEpisodes: Episode[]
+    filterCriteria: EpisodeFilterCriteria
+  }
+  /** Fired when search results are updated */
+  'search-update': {
+    searchTerm: string
+    matchingEpisodes: Episode[]
+    totalMatches: number
+  }
+  /** Fired when lazy loading fetches more episodes */
+  'episodes-loaded': {
+    loadedEpisodes: Episode[]
+    totalLoaded: number
+    hasMore: boolean
+  }
+  /** Fired when episode details are expanded/collapsed */
+  'episode-detail-toggle': {
+    episodeId: string
+    isExpanded: boolean
+    spoilerLevel: 'safe' | 'moderate' | 'full'
+  }
+  /** Fired when bulk episode operations are performed */
+  'bulk-filter-applied': {
+    filterType: string
+    matchingCount: number
+    totalCount: number
   }
 }
 
