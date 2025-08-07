@@ -15,6 +15,7 @@ The architecture emphasizes type safety through advanced TypeScript generics, ge
 ## Architecture & Examples
 
 - [Generic Types Examples](docs/generic-types-examples.md): Comprehensive examples of the generic TypeScript system with EventEmitters and storage utilities
+- [Composition Examples](docs/composition-examples.md): Real-world functional composition patterns and utilities usage throughout VBS
 - [IndexedDB Migration Plan](docs/indexeddb-migration.md): Technical specification for planned migration from LocalStorage to IndexedDB
 
 ## Core Implementation
@@ -22,6 +23,10 @@ The architecture emphasizes type safety through advanced TypeScript generics, ge
 - [Main Application](src/main.ts): Primary application factory coordinating all modules and DOM interactions
 - [Star Trek Data](src/data/star-trek-data.ts): Comprehensive 570-line dataset covering all Star Trek content across 7 chronological eras
 - [Progress Tracker](src/modules/progress.ts): Factory managing watched items state with generic EventEmitter integration
+- [Episode Tracker](src/modules/episode-tracker.ts): Factory for episode-level progress tracking with type-safe event handling
+- [Episodes Manager](src/modules/episodes.ts): Episode management factory with functional composition utilities integration
+- [Progress Validation](src/modules/progress-validation.ts): Validation and error recovery utilities for episode progress data integrity
+- [Migration Utilities](src/modules/migration.ts): Data migration system for version upgrades and schema evolution
 - [Search Filter](src/modules/search.ts): Real-time search and filtering factory with type-safe events
 - [Timeline Renderer](src/modules/timeline.ts): Era-based timeline rendering with dependency injection
 - [Storage Utilities](src/modules/storage.ts): Generic storage adapters with validation and export/import functionality
@@ -42,6 +47,9 @@ The architecture emphasizes type safety through advanced TypeScript generics, ge
 - [Episode Tracking Feature Plan](.ai/plan/feature-episode-tracking-1.md): Detailed specification for individual episode progress tracking
 - [Advanced Visualization Plan](.ai/plan/feature-advanced-visualization-1.md): Technical roadmap for D3.js timeline visualization features
 - [Functional Composition Plan](.ai/plan/feature-functional-composition-1.md): Architecture specification for functional programming utilities
+- [Git Pre-commit Hooks Plan](.ai/plan/process-git-precommit-hooks-1.md): Implementation plan for automated code quality enforcement
+- [Generic Types Refactor Plan](.ai/plan/refactor-generic-types-1.md): Specification for enhanced type safety through generic TypeScript patterns
+- [Functional Factory Refactor Plan](.ai/plan/refactor-modules-functional-1.md): Migration plan from class-based to functional factory architecture
 
 ## Optional
 
