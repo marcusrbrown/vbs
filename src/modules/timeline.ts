@@ -8,6 +8,7 @@ import type {
   TimelineRendererInstance,
 } from './types.js'
 import {curry, pipe, tap} from '../utils/composition.js'
+import {calculateSeasonProgress} from './progress.js'
 
 export const createTimelineRenderer = (
   container: HTMLElement,
@@ -87,6 +88,42 @@ export const createTimelineRenderer = (
     const typeClass = `type-${item.type}`
     const hasEpisodes = item.episodeData && item.episodeData.length > 0
 
+    // Calculate season progress for series with episodes
+    let seasonProgressHTML = ''
+    if (hasEpisodes && item.episodeData) {
+      // Group episodes by season for progress calculation
+      const seasonNumbers = [...new Set(item.episodeData.map(ep => ep.season))].sort(
+        (a, b) => a - b,
+      )
+      const watchedItems = progressTracker.getWatchedItems()
+
+      seasonProgressHTML = seasonNumbers
+        .map(seasonNum => {
+          const seasonProgress = calculateSeasonProgress(item.id, seasonNum, watchedItems)
+          if (!seasonProgress) return ''
+
+          return `
+          <div class="season-progress" aria-label="Season ${seasonNum} progress">
+            <div class="season-progress-header">
+              <span class="season-label">Season ${seasonNum}</span>
+              <span class="season-progress-text" aria-live="polite">
+                ${seasonProgress.watchedEpisodes}/${seasonProgress.totalEpisodes} episodes watched
+              </span>
+            </div>
+            <div class="season-progress-bar" role="progressbar"
+                 aria-valuemin="0"
+                 aria-valuemax="${seasonProgress.totalEpisodes}"
+                 aria-valuenow="${seasonProgress.watchedEpisodes}"
+                 aria-label="Season ${seasonNum} progress: ${seasonProgress.watchedEpisodes} of ${seasonProgress.totalEpisodes} episodes watched">
+              <div class="season-progress-fill" style="width: ${seasonProgress.percentage}%"></div>
+            </div>
+            <div class="season-progress-percentage">${seasonProgress.percentage}%</div>
+          </div>
+        `
+        })
+        .join('')
+    }
+
     // Create episode list HTML if episodes exist
     const episodeListHTML = hasEpisodes
       ? `
@@ -100,6 +137,7 @@ export const createTimelineRenderer = (
             <span class="episode-count">${item.episodeData?.length || 0} episodes</span>
           </button>
         </div>
+        ${seasonProgressHTML ? `<div class="season-progress-container">${seasonProgressHTML}</div>` : ''}
         <div class="episode-list"
              id="episodes-${item.id}"
              style="display: none;"
