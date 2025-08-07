@@ -12,11 +12,15 @@ The project uses **functional factory patterns** with closures for state managem
 
 - `createStarTrekViewingGuide` (main.ts): Main application factory coordinating all modules and DOM interactions
 - `createProgressTracker`: Factory managing watched items state with generic EventEmitter (`ProgressTrackerEvents`)
+- `createEpisodeTracker`: Factory for episode-level progress tracking with hierarchical calculations (`EpisodeTrackerEvents`)
+- `createEpisodeManager`: Factory for episode filtering, search, and spoiler-safe content management (`EpisodeManagerEvents`)
 - `createSearchFilter`: Factory handling real-time search with generic EventEmitter (`SearchFilterEvents`)
 - `createTimelineRenderer`: Factory rendering era-based timeline with dependency injection
 - `createElementsManager`: Factory for DOM element caching and management
 - `createEventEmitter<T>`: Generic EventEmitter factory with type-safe event handling
 - `storage.ts`: Generic storage utilities with EventEmitter notifications (`StorageEvents`)
+- `migration.ts`: Data migration utilities for schema evolution and version management
+- `progress-validation.ts`: Validation and error recovery for progress data integrity
 
 ### Factory Function Pattern
 
@@ -214,6 +218,56 @@ interface StarTrekItem {
 
 **Critical**: Item IDs must be unique across all eras for progress tracking. When adding content, follow existing ID patterns.
 
+## Episode-Level Architecture
+
+VBS implements hierarchical progress tracking with episode-level granularity:
+
+### ID Convention Patterns
+
+```typescript
+// ID format patterns for validation and structure
+const episodeId = 'tng_s3_e15'    // series_s{season}_e{episode}
+const seasonId = 'tng_s3'         // series_s{season}
+const seriesId = 'tng'            // series identifier
+
+// Validation patterns
+const EPISODE_ID_PATTERN = /^[a-z]+_s\d+_e\d+$/
+const SEASON_ID_PATTERN = /^[a-z]+_s\d+$/
+const SERIES_ID_PATTERN = /^[a-z]+(?:_s\d+)?$/
+```
+
+### Hierarchical Progress Tracking
+
+```typescript
+// Episode-level progress with hierarchical calculations
+const episodeTracker = createEpisodeTracker()
+
+// Track individual episodes
+episodeTracker.toggleEpisode('tng_s3_e15')
+
+// Calculate nested progress: episode → season → series → era
+const seasonProgress = episodeTracker.getSeasonProgress('tng', 3)
+const seriesProgress = episodeTracker.getSeriesProgress('tng')
+```
+
+### Data Migration & Versioning
+
+```typescript
+// Migration between schema versions
+import { MIGRATION_VERSIONS, migratePipelineData } from './migration.js'
+
+// Migrate from season-level to episode-level tracking
+const migrationResult = await migratePipelineData(
+  currentProgress,
+  MIGRATION_VERSIONS.SEASON_LEVEL,
+  MIGRATION_VERSIONS.EPISODE_LEVEL
+)
+
+// Migration state tracking with backup
+const migrationState = getMigrationState()
+// { currentVersion: '2.0', lastMigrated: '2025-08-07', backupData: [...] }
+```
+
 ## Development Workflow
 
 ```bash
@@ -293,6 +347,65 @@ describe('ProgressTracker', () => {
 ```
 
 **Mock LocalStorage** for storage tests. Import modules using `.js` extensions (TypeScript ES modules). Test factory functions, not classes. Always test both successful operations and event emissions. Use `vi.fn()` for mocking event listeners and async operations.
+
+### Episode Management & Validation Testing
+
+Test episode-level functionality with hierarchical progress and validation:
+
+```typescript
+describe('EpisodeTracker', () => {
+  let episodeTracker: EpisodeTrackerInstance
+
+  beforeEach(() => {
+    episodeTracker = createEpisodeTracker()
+  })
+
+  it('should track episodes with hierarchical progress', () => {
+    episodeTracker.toggleEpisode('tng_s3_e15')
+
+    const seasonProgress = episodeTracker.getSeasonProgress('tng', 3)
+    expect(seasonProgress.episodesWatched).toContain('tng_s3_e15')
+
+    const seriesProgress = episodeTracker.getSeriesProgress('tng')
+    expect(seriesProgress.totalEpisodes).toBeGreaterThan(0)
+  })
+
+  it('should validate episode ID formats', () => {
+    expect(isValidEpisodeId('tng_s3_e15')).toBe(true)
+    expect(isValidEpisodeId('invalid_id')).toBe(false)
+  })
+
+  it('should handle data migration', async () => {
+    const result = await migratePipelineData(
+      ['tng_s3'], // Season-level data
+      MIGRATION_VERSIONS.SEASON_LEVEL,
+      MIGRATION_VERSIONS.EPISODE_LEVEL
+    )
+    expect(result.success).toBe(true)
+    expect(result.migratedItems.length).toBeGreaterThan(0)
+  })
+})
+
+describe('EpisodeManager', () => {
+  it('should filter episodes with spoiler safety', () => {
+    const episodeManager = createEpisodeManager()
+
+    episodeManager.setFilterCriteria({
+      seriesId: 'tng',
+      spoilerLevel: 'safe'
+    })
+
+    const mockListener = vi.fn()
+    episodeManager.on('filter-change', mockListener)
+
+    expect(mockListener).toHaveBeenCalledWith({
+      filteredEpisodes: expect.arrayContaining([
+        expect.objectContaining({ spoilerLevel: 'safe' })
+      ])
+    })
+  })
+})
+```
 
 ### Composition Utilities Testing
 
@@ -393,6 +506,16 @@ interface ProgressExportData {
 
 **Progress calculation**: Total progress is calculated by counting watched items across all eras, not just within individual eras.
 
+**Episode ID validation**: Use predefined patterns for episode (`tng_s3_e15`), season (`tng_s3`), and series (`tng`) IDs with validation utilities.
+
+**Hierarchical progress**: Calculate progress at multiple levels (episode → season → series → era) using composition utilities.
+
+**Data migration**: Version progress data with migration utilities and backup mechanisms for schema evolution.
+
+**Spoiler-safe filtering**: Progressive disclosure of episode content based on user preferences and spoiler levels.
+
+**Error recovery**: Validate and sanitize corrupted progress data with graceful fallbacks and user notifications.
+
 **Event handling**: Factories provide modern EventEmitter methods (`on`, `off`, `once`) for enhanced type safety.
 
 **Generic storage operations**: Use `createStorage<T>()` with `StorageAdapter<T>` for type-safe storage with validation and EventEmitter notifications.
@@ -407,6 +530,10 @@ When adding features, consider these integration points:
 - **New progress metrics**: Extend `ProgressData` interface and update calculation methods
 - **New export formats**: Add handlers in `storage.ts` alongside existing JSON export
 - **Timeline visualization**: The factory functions are designed for extension with chart libraries
+- **Episode metadata**: Add new fields to `Episode` interface for enhanced episode tracking
+- **Migration strategies**: Extend `migration.ts` with new version handlers for schema evolution
+- **Validation rules**: Add new validation patterns in `progress-validation.ts` for data integrity
+- **Spoiler management**: Extend spoiler-safe filtering with new content classification levels
 - **Composition pipelines**: Create new pipeline builders using `createPipeline()` for domain-specific transformations
 - **Debug utilities**: Use `debugTap()`, `perfTap()`, and `createDebugPipe()` for development and troubleshooting
 
@@ -414,12 +541,12 @@ When adding features, consider these integration points:
 
 VBS has comprehensive implementation plans for major feature expansions:
 
-### Episode-Level Tracking (Planned)
-- Individual episode progress vs current season-level tracking
-- Episode metadata: title, air date, synopsis, plot points, guest stars, connections
-- Hierarchical progress: episode → season → series → era
-- New interfaces: `Episode`, `EpisodeProgress`, `SeasonProgress`
-- Migration system from current season-based progress
+### Episode-Level Tracking (Implemented)
+- ✅ Individual episode progress with hierarchical tracking (episode → season → series → era)
+- ✅ Episode management with advanced filtering, search, and spoiler-safe content
+- ✅ Data migration system with version management and backup capabilities
+- ✅ Progress validation and error recovery utilities
+- 🚧 Episode metadata expansion: Enhanced plot points, guest stars, and cross-references
 
 ### Advanced Features (Planned)
 - **Interactive Timeline**: D3.js chronological visualization with zoom/pan
@@ -438,3 +565,6 @@ VBS has comprehensive implementation plans for major feature expansions:
 - Leverage generic storage utilities for data persistence with validation
 - Integrate functional composition utilities for elegant data transformation pipelines
 - Use debugging utilities (`debugTap`, `createDebugPipe`) for development and troubleshooting
+- Follow ID validation patterns for data integrity (`isValidEpisodeId`, `isValidSeasonId`)
+- Implement migration strategies for schema changes using `migration.ts` utilities
+- Use spoiler-safe progressive disclosure for sensitive content
