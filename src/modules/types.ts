@@ -597,10 +597,14 @@ export interface TimelineRendererInstance {
   createItemElement(item: StarTrekItem): string
   /** Create HTML string for an individual episode */
   createEpisodeElement(episode: Episode, seriesId: string): string
+  /** Create HTML string for episode list with lazy loading support */
+  createLazyEpisodeListContent(item: StarTrekItem): string
   /** Toggle the expanded/collapsed state of an era section */
   toggleEra(eraId: string): void
   /** Toggle the expanded/collapsed state of an episode list for a series */
   toggleEpisodeList(seriesId: string): void
+  /** Load more episodes for a specific series (lazy loading) */
+  loadMoreEpisodes(seriesId: string): void
   /** Expand all era sections */
   expandAll(): void
   /** Collapse all era sections */
@@ -611,6 +615,8 @@ export interface TimelineRendererInstance {
   updateItemStates(): void
   /** Calculate progress statistics for a specific era */
   calculateEraProgress(era: StarTrekEra): EraProgress
+  /** Setup keyboard navigation for episode lists in an era element */
+  setupEpisodeKeyboardNavigation(eraElement: HTMLElement): void
 }
 
 // ============================================================================

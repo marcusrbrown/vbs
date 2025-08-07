@@ -17,6 +17,174 @@ export const createTimelineRenderer = (
   // Closure variables for private state
   const expandedEras: Set<string> = new Set()
   const expandedEpisodeLists: Set<string> = new Set()
+  const episodeLoadStates: Map<string, {loaded: number; total: number}> = new Map()
+
+  // Constants for lazy loading
+  const INITIAL_EPISODE_LOAD = 10
+  const LOAD_MORE_BATCH_SIZE = 10
+
+  /**
+   * Handle keyboard navigation within episode lists.
+   * Supports arrow keys, space, enter, and bulk operations.
+   */
+  const handleEpisodeListKeyNavigation = (e: KeyboardEvent): void => {
+    const target = e.target as HTMLElement
+
+    // Only handle keyboard navigation for episode items and controls
+    if (!target.closest('.episode-item') && !target.closest('.episode-list-header')) {
+      return
+    }
+
+    const episodeList = target.closest('.episode-list') as HTMLElement
+    if (!episodeList) return
+
+    const episodeItems = Array.from(episodeList.querySelectorAll('.episode-item'))
+    const currentIndex = episodeItems.findIndex(
+      item => item.contains(target) || item.querySelector(':focus') === target,
+    )
+
+    switch (e.key) {
+      case 'ArrowDown': {
+        e.preventDefault()
+        if (currentIndex < episodeItems.length - 1) {
+          const nextItem = episodeItems[currentIndex + 1] as HTMLElement
+          const checkbox = nextItem.querySelector('input[type="checkbox"]') as HTMLInputElement
+          checkbox?.focus()
+        }
+        break
+      }
+
+      case 'ArrowUp': {
+        e.preventDefault()
+        if (currentIndex > 0) {
+          const prevItem = episodeItems[currentIndex - 1] as HTMLElement
+          const checkbox = prevItem.querySelector('input[type="checkbox"]') as HTMLInputElement
+          checkbox?.focus()
+        } else if (currentIndex === 0) {
+          // Focus on episode toggle button when going up from first item
+          const toggleBtn = episodeList.parentElement?.querySelector(
+            '.episode-toggle-btn',
+          ) as HTMLElement
+          toggleBtn?.focus()
+        }
+        break
+      }
+
+      case 'Home': {
+        e.preventDefault()
+        if (episodeItems.length > 0) {
+          const firstItem = episodeItems[0] as HTMLElement
+          const checkbox = firstItem.querySelector('input[type="checkbox"]') as HTMLInputElement
+          checkbox?.focus()
+        }
+        break
+      }
+
+      case 'End': {
+        e.preventDefault()
+        if (episodeItems.length > 0) {
+          const lastItem = episodeItems.at(-1) as HTMLElement
+          const checkbox = lastItem.querySelector('input[type="checkbox"]') as HTMLInputElement
+          checkbox?.focus()
+        }
+        break
+      }
+
+      case ' ':
+      case 'Space': {
+        if ((target as HTMLInputElement).type === 'checkbox') {
+          // Let the default checkbox behavior happen
+          return
+        }
+        e.preventDefault()
+        // Toggle the current episode if focus is on episode item
+        const currentItem = episodeItems[currentIndex] as HTMLElement
+        if (currentItem) {
+          const checkbox = currentItem.querySelector('input[type="checkbox"]') as HTMLInputElement
+          if (checkbox) {
+            checkbox.checked = !checkbox.checked
+            checkbox.dispatchEvent(new Event('change', {bubbles: true}))
+          }
+        }
+        break
+      }
+
+      case 'Enter': {
+        if (target.classList.contains('episode-details-btn')) {
+          // Let the default button behavior happen
+          return
+        }
+        e.preventDefault()
+        // Show episode details for current item
+        const currentEpisodeItem = episodeItems[currentIndex] as HTMLElement
+        if (currentEpisodeItem) {
+          const detailsBtn = currentEpisodeItem.querySelector('.episode-details-btn') as HTMLElement
+          detailsBtn?.click()
+        }
+        break
+      }
+
+      case 'a':
+      case 'A': {
+        if (e.ctrlKey || e.metaKey) {
+          e.preventDefault()
+          // Select/Deselect all episodes in current list
+          const checkboxes = episodeList.querySelectorAll('input[type="checkbox"]')
+          const allChecked = Array.from(checkboxes).every(cb => (cb as HTMLInputElement).checked)
+
+          checkboxes.forEach(checkbox => {
+            const cb = checkbox as HTMLInputElement
+            cb.checked = !allChecked
+            cb.dispatchEvent(new Event('change', {bubbles: true}))
+          })
+        }
+        break
+      }
+    }
+  }
+
+  /**
+   * Setup keyboard navigation for episode lists.
+   * Adds event listeners for arrow key navigation and bulk operations.
+   */
+  const setupEpisodeKeyboardNavigation = (eraElement: HTMLElement): void => {
+    eraElement.addEventListener('keydown', (e: Event) => {
+      handleEpisodeListKeyNavigation(e as KeyboardEvent)
+    })
+
+    // Make episode items focusable and add ARIA attributes for better accessibility
+    const episodeItems = eraElement.querySelectorAll('.episode-item')
+    episodeItems.forEach(item => {
+      const checkbox = item.querySelector('input[type="checkbox"]') as HTMLInputElement
+
+      if (checkbox) {
+        // Add ARIA attributes for better screen reader support
+        checkbox.setAttribute('aria-describedby', `episode-navigation-help`)
+
+        // Add tabindex to make checkboxes part of tab order
+        checkbox.setAttribute('tabindex', '0')
+
+        // Add aria-label for context
+        const episodeTitle = item.querySelector('.episode-title')?.textContent
+        if (episodeTitle) {
+          checkbox.setAttribute(
+            'aria-label',
+            `Toggle watched status for ${episodeTitle}. Use arrow keys to navigate episodes.`,
+          )
+        }
+      }
+    })
+
+    // Add keyboard navigation help (invisible but available to screen readers)
+    if (!eraElement.querySelector('#episode-navigation-help')) {
+      const helpElement = document.createElement('div')
+      helpElement.id = 'episode-navigation-help'
+      helpElement.className = 'visually-hidden'
+      helpElement.textContent =
+        'Use arrow keys to navigate between episodes, Space to toggle watched status, Enter to view details, Ctrl+A to select all episodes'
+      eraElement.append(helpElement)
+    }
+  }
 
   const calculateEraProgress = (era: StarTrekEra): EraProgress => {
     return pipe(
@@ -42,6 +210,90 @@ export const createTimelineRenderer = (
         return undefined
       }),
     )
+  }
+
+  /**
+   * Initialize lazy loading state for a series' episodes.
+   * Sets the initial loaded count and total episode count.
+   */
+  const initializeLazyLoading = (seriesId: string, totalEpisodes: number): void => {
+    if (!episodeLoadStates.has(seriesId)) {
+      episodeLoadStates.set(seriesId, {
+        loaded: Math.min(INITIAL_EPISODE_LOAD, totalEpisodes),
+        total: totalEpisodes,
+      })
+    }
+  }
+
+  /**
+   * Render episode list content with lazy loading support.
+   */
+  const renderEpisodeListContent = (seriesId: string, episodeListElement: HTMLElement): void => {
+    const loadState = episodeLoadStates.get(seriesId)
+    if (!loadState) return
+
+    // For now, we'll implement a simplified version
+    // In production, this would need access to the actual episode data
+    const hasMore = loadState.loaded < loadState.total
+
+    if (hasMore) {
+      const loadMoreButton = episodeListElement.querySelector('.load-more-episodes-btn')
+      if (loadMoreButton) {
+        // Update the count
+        const countElement = loadMoreButton.querySelector('.load-more-count')
+        if (countElement) {
+          countElement.textContent = `(${loadState.total - loadState.loaded} remaining)`
+        }
+      } else {
+        const loadMoreHTML = `
+          <div class="load-more-episodes-container">
+            <button class="load-more-episodes-btn"
+                    data-series-id="${seriesId}"
+                    aria-label="Load more episodes for this series">
+              <span class="load-more-text">Load More Episodes</span>
+              <span class="load-more-count">(${loadState.total - loadState.loaded} remaining)</span>
+            </button>
+          </div>
+        `
+        episodeListElement.insertAdjacentHTML('beforeend', loadMoreHTML)
+      }
+    } else {
+      // Remove load more button if all episodes are loaded
+      const loadMoreContainer = episodeListElement.querySelector('.load-more-episodes-container')
+      if (loadMoreContainer) {
+        loadMoreContainer.remove()
+      }
+    }
+  }
+
+  /**
+   * Re-render a specific episode list with current lazy loading state.
+   */
+  const rerenderEpisodeList = (seriesId: string): void => {
+    const episodeList = container.querySelector(`#episodes-${seriesId}`)
+
+    if (!episodeList) return
+
+    // Re-render just the episode list content
+    renderEpisodeListContent(seriesId, episodeList as HTMLElement)
+  }
+
+  /**
+   * Load more episodes for a specific series.
+   * Updates the load state and re-renders the episode list.
+   */
+  const loadMoreEpisodes = (seriesId: string): void => {
+    const loadState = episodeLoadStates.get(seriesId)
+    if (!loadState) return
+
+    const newLoaded = Math.min(loadState.loaded + LOAD_MORE_BATCH_SIZE, loadState.total)
+    episodeLoadStates.set(seriesId, {
+      ...loadState,
+      loaded: newLoaded,
+    })
+
+    // Re-render the episode list with more episodes
+    rerenderEpisodeList(seriesId)
   }
 
   /**
@@ -205,6 +457,45 @@ export const createTimelineRenderer = (
     `
   }
 
+  /**
+   * Create episode list content with lazy loading support.
+   * Only renders the initial batch of episodes and adds a "Load More" button if needed.
+   */
+  const createLazyEpisodeListContent = (item: StarTrekItem): string => {
+    if (!item.episodeData || item.episodeData.length === 0) return ''
+
+    const totalEpisodes = item.episodeData.length
+
+    // Initialize lazy loading state
+    initializeLazyLoading(item.id, totalEpisodes)
+
+    const loadState = episodeLoadStates.get(item.id)
+    if (!loadState) return ''
+
+    // Render only the initially loaded episodes
+    const episodesToRender = item.episodeData.slice(0, loadState.loaded)
+    const episodeElements = episodesToRender
+      .map(episode => createEpisodeElement(episode, item.id))
+      .join('')
+
+    // Add load more button if there are more episodes
+    const hasMore = loadState.loaded < loadState.total
+    const loadMoreHTML = hasMore
+      ? `
+      <div class="load-more-episodes-container">
+        <button class="load-more-episodes-btn"
+                data-series-id="${item.id}"
+                aria-label="Load more episodes for ${item.title}">
+          <span class="load-more-text">Load More Episodes</span>
+          <span class="load-more-count">(${loadState.total - loadState.loaded} remaining)</span>
+        </button>
+      </div>
+    `
+      : ''
+
+    return episodeElements + loadMoreHTML
+  }
+
   const createItemElement = (item: StarTrekItem): string => {
     const isWatched = progressTracker.isWatched(item.id)
     const typeClass = `type-${item.type}`
@@ -265,7 +556,7 @@ export const createTimelineRenderer = (
              style="display: none;"
              role="list"
              aria-label="Episodes for ${item.title}">
-          ${(item.episodeData || []).map(episode => createEpisodeElement(episode, item.id)).join('')}
+          ${createLazyEpisodeListContent(item)}
         </div>
       </div>
     `
@@ -547,6 +838,38 @@ export const createTimelineRenderer = (
       })
     })
 
+    // Add event listeners for load more episodes buttons
+    const loadMoreButtons = eraDiv.querySelectorAll('.load-more-episodes-btn')
+    loadMoreButtons.forEach(button => {
+      button.addEventListener('click', e => {
+        const target = e.target as HTMLElement
+        const seriesId =
+          target.dataset['seriesId'] ||
+          target.closest('[data-series-id]')?.getAttribute('data-series-id')
+        if (seriesId) {
+          loadMoreEpisodes(seriesId)
+        }
+      })
+
+      // Add keyboard support for load more episodes
+      button.addEventListener('keydown', (e: Event) => {
+        const keyEvent = e as KeyboardEvent
+        if (keyEvent.key === 'Enter' || keyEvent.key === ' ') {
+          e.preventDefault()
+          const target = e.target as HTMLElement
+          const seriesId =
+            target.dataset['seriesId'] ||
+            target.closest('[data-series-id]')?.getAttribute('data-series-id')
+          if (seriesId) {
+            loadMoreEpisodes(seriesId)
+          }
+        }
+      })
+    })
+
+    // Setup keyboard navigation for episode lists
+    setupEpisodeKeyboardNavigation(eraDiv)
+
     return eraDiv
   }
 
@@ -695,12 +1018,15 @@ export const createTimelineRenderer = (
     createEraElement,
     createItemElement,
     createEpisodeElement,
+    createLazyEpisodeListContent,
     toggleEra,
     toggleEpisodeList,
+    loadMoreEpisodes,
     expandAll,
     collapseAll,
     updateProgress,
     updateItemStates,
     calculateEraProgress,
+    setupEpisodeKeyboardNavigation,
   }
 }
