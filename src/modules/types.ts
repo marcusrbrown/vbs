@@ -1310,6 +1310,93 @@ export interface EpisodeManagerEvents extends EventMap {
   }
 }
 
+/**
+ * User preferences for application settings and customization.
+ * Provides comprehensive configuration options for theme, accessibility, and user experience.
+ */
+export interface UserPreferences {
+  /** UI theme preference - supports system auto-detection */
+  theme: 'light' | 'dark' | 'auto'
+  /** Enable compact view for dense information display */
+  compactView: boolean
+  /** Enable accessibility features (high contrast, screen reader support) */
+  accessibilityMode: boolean
+  /** Enable automatic video/audio playback */
+  autoPlay: boolean
+  /** Show spoiler content in episode descriptions */
+  showSpoilers: boolean
+  /** Preferred streaming services for availability filtering */
+  preferredStreamingServices: string[]
+  /** Interface language setting */
+  language: string
+  /** Notification settings */
+  notifications: {
+    /** Master notification toggle */
+    enabled: boolean
+    /** Notify about new episode releases */
+    newEpisodes: boolean
+    /** Remind about viewing progress goals */
+    progressReminders: boolean
+  }
+  /** Timeline visualization preferences */
+  timeline: {
+    /** Show major galactic events on timeline */
+    showMajorEvents: boolean
+    /** Show minor events and background details */
+    showMinorEvents: boolean
+    /** Default zoom level for timeline view */
+    defaultZoomLevel: 'year' | 'decade' | 'century'
+  }
+  /** Privacy and data collection settings */
+  privacy: {
+    /** Allow anonymous usage analytics */
+    analyticsEnabled: boolean
+    /** Enable crash report collection */
+    crashReportsEnabled: boolean
+  }
+}
+
+/**
+ * Event map for user preferences changes and lifecycle events.
+ * Used with generic EventEmitter for type-safe preference event handling.
+ */
+export interface PreferencesEvents extends EventMap {
+  /** Fired when preferences are successfully loaded from storage */
+  'preferences-load': {
+    preferences: UserPreferences
+  }
+  /** Fired when preferences are saved to storage */
+  'preferences-save': {
+    preferences: UserPreferences
+  }
+  /** Fired when any preference value is changed */
+  'preferences-change': {
+    previous: UserPreferences
+    current: UserPreferences
+    changes: Partial<UserPreferences>
+  }
+  /** Fired when theme preference changes (for immediate UI updates) */
+  'theme-change': {
+    theme: UserPreferences['theme']
+    preferences: UserPreferences
+  }
+  /** Fired when compact view is toggled */
+  'compact-view-change': {
+    compactView: boolean
+    preferences: UserPreferences
+  }
+  /** Fired when accessibility mode is toggled */
+  'accessibility-change': {
+    accessibilityMode: boolean
+    preferences: UserPreferences
+  }
+  /** Fired when preferences are reset to defaults */
+  'preferences-reset': {
+    previous: UserPreferences
+    current: UserPreferences
+  }
+}
+
 // ============================================================================
 // FUNCTIONAL COMPOSITION PIPELINE TYPES
 // ============================================================================
