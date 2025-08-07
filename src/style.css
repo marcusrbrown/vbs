@@ -343,6 +343,206 @@ header h1 {
     line-height: 1.4;
 }
 
+/* Episode List Styles */
+.episode-list-container {
+    margin-top: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.episode-list-header {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.episode-toggle-btn {
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    padding: 0.25rem 0;
+    transition: color 0.2s ease;
+    width: 100%;
+    text-align: left;
+}
+
+.episode-toggle-btn:hover,
+.episode-toggle-btn:focus {
+    color: var(--accent-gold);
+    outline: none;
+}
+
+.episode-toggle-btn:focus-visible {
+    outline: 2px solid var(--accent-gold);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+.episode-toggle-icon {
+    transition: transform 0.2s ease;
+    font-size: 0.8rem;
+}
+
+.episode-list-container[aria-expanded="true"] .episode-toggle-icon {
+    transform: rotate(180deg);
+}
+
+.episode-count {
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+/* Season Progress Styles */
+.season-progress-container {
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.season-progress {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.season-progress:last-child {
+    margin-bottom: 0;
+}
+
+.season-progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.25rem;
+}
+
+.season-label {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+}
+
+.season-progress-text {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.season-progress-bar {
+    position: relative;
+    width: 100%;
+    height: 6px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.season-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent-gold), var(--success-color));
+    border-radius: 3px;
+    transition: width 0.3s ease;
+    width: 0;
+}
+
+.season-progress-percentage {
+    font-size: 0.8rem;
+    color: var(--accent-gold);
+    font-weight: 600;
+    text-align: right;
+    margin-top: 0.25rem;
+}
+
+.episode-list {
+    padding: 1rem;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.episode-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+    transition: background-color 0.2s ease;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid transparent;
+}
+
+.episode-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.episode-item.watched {
+    background: rgba(16, 185, 129, 0.1);
+    border-color: rgba(16, 185, 129, 0.3);
+}
+
+.episode-checkbox {
+    margin-top: 0.25rem;
+}
+
+.episode-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.episode-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.25rem;
+}
+
+.episode-number {
+    background: var(--secondary-blue);
+    color: white;
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    min-width: 3rem;
+    text-align: center;
+}
+
+.episode-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.episode-details {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.episode-air-date {
+    color: var(--text-secondary);
+}
+
+.episode-stardate {
+    color: var(--secondary-blue);
+}
+
+.episode-synopsis {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
 /* Footer Styles */
 footer {
     text-align: center;
