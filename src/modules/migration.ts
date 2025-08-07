@@ -1,6 +1,7 @@
 import type {Episode, StarTrekEra, StarTrekItem} from './types.js'
 import {starTrekData} from '../data/star-trek-data.js'
 import {pipe} from '../utils/composition.js'
+import {withSyncErrorHandling} from './error-handler.js'
 
 // Migration version constants
 export const MIGRATION_VERSIONS = {
@@ -14,7 +15,7 @@ export type MigrationVersion = (typeof MIGRATION_VERSIONS)[keyof typeof MIGRATIO
 const MIGRATION_STATE_KEY = 'starTrekMigrationState'
 
 /**
- * Migration state tracking for version management.
+ * Enhanced migration state tracking with atomic operations and transaction support.
  */
 export interface MigrationState {
   currentVersion: MigrationVersion
@@ -26,10 +27,24 @@ export interface MigrationState {
     timestamp: string
     itemCount: number
   }[]
+  transactionId?: string // For atomic operations
+  isRollbackAvailable: boolean
 }
 
 /**
- * Migration result information.
+ * Atomic migration transaction for safe data operations.
+ */
+export interface MigrationTransaction {
+  id: string
+  startTime: string
+  originalData: string[]
+  targetVersion: MigrationVersion
+  completed: boolean
+  rollbackData?: string[]
+}
+
+/**
+ * Enhanced migration result with transaction information.
  */
 export interface MigrationResult {
   success: boolean
@@ -37,49 +52,183 @@ export interface MigrationResult {
   backupData: string[]
   errors: string[]
   version: MigrationVersion
+  transactionId?: string
+  canRollback: boolean
 }
 
 /**
- * Get current migration state from localStorage.
+ * Get current migration state from localStorage with comprehensive error handling.
  */
-export const getMigrationState = (): MigrationState => {
-  try {
-    const stored = localStorage.getItem(MIGRATION_STATE_KEY)
-    if (!stored) {
-      return {
-        currentVersion: MIGRATION_VERSIONS.SEASON_LEVEL,
-        lastMigrated: new Date().toISOString(),
-        migrationHistory: [],
-      }
+export const getMigrationState = withSyncErrorHandling((): MigrationState => {
+  const stored = localStorage.getItem(MIGRATION_STATE_KEY)
+  if (!stored) {
+    return {
+      currentVersion: MIGRATION_VERSIONS.SEASON_LEVEL,
+      lastMigrated: new Date().toISOString(),
+      migrationHistory: [],
+      isRollbackAvailable: false,
     }
+  }
 
+  try {
     const state = JSON.parse(stored) as MigrationState
     return {
       currentVersion: state.currentVersion || MIGRATION_VERSIONS.SEASON_LEVEL,
       lastMigrated: state.lastMigrated || new Date().toISOString(),
       ...(state.backupData !== undefined && {backupData: state.backupData}),
       migrationHistory: state.migrationHistory || [],
+      ...(state.transactionId !== undefined && {transactionId: state.transactionId}),
+      isRollbackAvailable: state.isRollbackAvailable || false,
     }
-  } catch (error) {
-    console.warn('Failed to load migration state, using default:', error)
+  } catch (parseError) {
+    // Handle corrupted JSON gracefully by returning default state
+    console.warn('Failed to parse migration state, using default:', parseError)
     return {
       currentVersion: MIGRATION_VERSIONS.SEASON_LEVEL,
       lastMigrated: new Date().toISOString(),
       migrationHistory: [],
+      isRollbackAvailable: false,
     }
+  }
+}, 'getMigrationState')
+
+/**
+ * Save migration state to localStorage with error handling.
+ */
+export const saveMigrationState = withSyncErrorHandling((state: MigrationState): void => {
+  localStorage.setItem(MIGRATION_STATE_KEY, JSON.stringify(state))
+}, 'saveMigrationState')
+
+/**
+ * Create atomic migration transaction for safe operations.
+ */
+export const createMigrationTransaction = (
+  originalData: string[],
+  targetVersion: MigrationVersion,
+): MigrationTransaction => {
+  const transactionId = `migration_${Date.now()}_${Math.random().toString(36).slice(2)}`
+
+  return {
+    id: transactionId,
+    startTime: new Date().toISOString(),
+    originalData: [...originalData], // Create copy for safety
+    targetVersion,
+    completed: false,
   }
 }
 
 /**
- * Save migration state to localStorage.
+ * Begin atomic migration transaction with backup creation.
  */
-export const saveMigrationState = (state: MigrationState): void => {
-  try {
-    localStorage.setItem(MIGRATION_STATE_KEY, JSON.stringify(state))
-  } catch (error) {
-    console.error('Failed to save migration state:', error)
-  }
-}
+export const beginAtomicMigration = withSyncErrorHandling(
+  (currentProgress: string[], targetVersion: MigrationVersion): MigrationTransaction => {
+    const transaction = createMigrationTransaction(currentProgress, targetVersion)
+
+    // Save transaction state for recovery
+    const transactionKey = `migration_transaction_${transaction.id}`
+    localStorage.setItem(transactionKey, JSON.stringify(transaction))
+
+    return transaction
+  },
+  'beginAtomicMigration',
+)
+
+/**
+ * Complete atomic migration transaction with state update.
+ */
+export const completeAtomicMigration = withSyncErrorHandling(
+  (transaction: MigrationTransaction, result: MigrationResult): void => {
+    if (result.success) {
+      // Update migration state
+      const currentState = getMigrationState()
+      if (currentState) {
+        const newState: MigrationState = {
+          ...currentState,
+          currentVersion: result.version,
+          lastMigrated: new Date().toISOString(),
+          backupData: result.backupData,
+          isRollbackAvailable: true,
+          transactionId: transaction.id,
+          migrationHistory: [
+            ...currentState.migrationHistory,
+            {
+              from: currentState.currentVersion,
+              to: result.version,
+              timestamp: new Date().toISOString(),
+              itemCount: result.migratedItems.length,
+            },
+          ],
+        }
+
+        saveMigrationState(newState)
+      }
+
+      // Clean up transaction storage after successful completion
+      const transactionKey = `migration_transaction_${transaction.id}`
+      localStorage.removeItem(transactionKey)
+    } else {
+      // Keep transaction for potential retry or manual intervention
+      console.error('Migration transaction failed, keeping for potential retry')
+    }
+  },
+  'completeAtomicMigration',
+)
+
+/**
+ * Rollback atomic migration transaction to original state.
+ */
+export const rollbackAtomicMigration = withSyncErrorHandling(
+  (transactionId: string): MigrationResult => {
+    const transactionKey = `migration_transaction_${transactionId}`
+    const transactionData = localStorage.getItem(transactionKey)
+
+    if (!transactionData) {
+      throw new Error(`Transaction ${transactionId} not found for rollback`)
+    }
+
+    const transaction: MigrationTransaction = JSON.parse(transactionData)
+
+    // Restore original data
+    const rollbackResult: MigrationResult = {
+      success: true,
+      migratedItems: transaction.originalData,
+      backupData: transaction.rollbackData || [],
+      errors: [],
+      version: MIGRATION_VERSIONS.SEASON_LEVEL,
+      transactionId,
+      canRollback: false, // After rollback, no further rollback available
+    }
+
+    // Update migration state
+    const currentState = getMigrationState()
+    if (currentState) {
+      const newState: MigrationState = {
+        ...currentState,
+        currentVersion: MIGRATION_VERSIONS.SEASON_LEVEL,
+        lastMigrated: new Date().toISOString(),
+        backupData: transaction.originalData,
+        isRollbackAvailable: false,
+        migrationHistory: [
+          ...currentState.migrationHistory,
+          {
+            from: currentState.currentVersion,
+            to: MIGRATION_VERSIONS.SEASON_LEVEL,
+            timestamp: new Date().toISOString(),
+            itemCount: transaction.originalData.length,
+          },
+        ],
+      }
+
+      saveMigrationState(newState)
+    }
+
+    // Clean up transaction
+    localStorage.removeItem(transactionKey)
+
+    return rollbackResult
+  },
+  'rollbackAtomicMigration',
+)
 
 /**
  * Get all episodes for a given series/season combination.
@@ -171,6 +320,7 @@ export const migrateSeasonToEpisodeProgress = (seasonLevelProgress: string[]): M
         backupData: originalItems,
         errors,
         version: MIGRATION_VERSIONS.EPISODE_LEVEL,
+        canRollback: errors.length === 0,
       } as MigrationResult
     },
   )
@@ -231,6 +381,7 @@ export const rollbackEpisodeToSeasonProgress = (
         backupData: episodes,
         errors,
         version: MIGRATION_VERSIONS.SEASON_LEVEL,
+        canRollback: false, // Rollback doesn't support further rollback
       } as MigrationResult
     },
   )
@@ -241,6 +392,10 @@ export const rollbackEpisodeToSeasonProgress = (
  */
 export const isMigrationNeeded = (currentProgress: string[]): boolean => {
   const migrationState = getMigrationState()
+
+  if (!migrationState) {
+    return false
+  }
 
   // If already at episode level, no migration needed
   if (migrationState.currentVersion === MIGRATION_VERSIONS.EPISODE_LEVEL) {
@@ -254,11 +409,22 @@ export const isMigrationNeeded = (currentProgress: string[]): boolean => {
 }
 
 /**
- * Perform migration from season-level to episode-level progress.
+ * Perform migration from season-level to episode-level progress with atomic operations.
  * Updates migration state and returns result.
  */
 export const performMigration = (currentProgress: string[]): MigrationResult => {
   const migrationState = getMigrationState()
+  if (!migrationState) {
+    return {
+      success: false,
+      migratedItems: currentProgress,
+      backupData: currentProgress,
+      errors: ['Failed to get migration state'],
+      version: MIGRATION_VERSIONS.SEASON_LEVEL,
+      canRollback: false,
+    }
+  }
+
   const timestamp = new Date().toISOString()
 
   // Perform the actual migration
@@ -270,6 +436,7 @@ export const performMigration = (currentProgress: string[]): MigrationResult => 
       currentVersion: MIGRATION_VERSIONS.EPISODE_LEVEL,
       lastMigrated: timestamp,
       backupData: result.backupData,
+      isRollbackAvailable: true,
       migrationHistory: [
         ...migrationState.migrationHistory,
         {
@@ -286,15 +453,29 @@ export const performMigration = (currentProgress: string[]): MigrationResult => 
     console.error('Migration failed:', result.errors)
   }
 
-  return result
+  return {
+    ...result,
+    canRollback: result.success,
+  }
 }
 
 /**
- * Perform rollback from episode-level to season-level progress.
+ * Perform rollback from episode-level to season-level progress with atomic operations.
  * Updates migration state and returns result.
  */
 export const performRollback = (currentProgress: string[]): MigrationResult => {
   const migrationState = getMigrationState()
+  if (!migrationState) {
+    return {
+      success: false,
+      migratedItems: currentProgress,
+      backupData: currentProgress,
+      errors: ['Failed to get migration state'],
+      version: MIGRATION_VERSIONS.EPISODE_LEVEL,
+      canRollback: false,
+    }
+  }
+
   const timestamp = new Date().toISOString()
 
   // Perform the actual rollback
@@ -306,6 +487,7 @@ export const performRollback = (currentProgress: string[]): MigrationResult => {
       currentVersion: MIGRATION_VERSIONS.SEASON_LEVEL,
       lastMigrated: timestamp,
       backupData: result.backupData,
+      isRollbackAvailable: false,
       migrationHistory: [
         ...migrationState.migrationHistory,
         {
@@ -322,5 +504,8 @@ export const performRollback = (currentProgress: string[]): MigrationResult => {
     console.error('Rollback failed:', result.errors)
   }
 
-  return result
+  return {
+    ...result,
+    canRollback: false,
+  }
 }

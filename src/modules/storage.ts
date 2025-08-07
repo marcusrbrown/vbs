@@ -1,6 +1,8 @@
 import type {ProgressExportData, StorageEvents} from './types.js'
+import {withErrorHandling, withSyncErrorHandling} from './error-handler.js'
 import {createEventEmitter} from './events.js'
 import {isMigrationNeeded, performMigration} from './migration.js'
+import {versionManager} from './version-manager.js'
 
 const STORAGE_KEY = 'starTrekProgress'
 const EPISODE_STORAGE_KEY = 'starTrekEpisodeProgress'
@@ -280,6 +282,227 @@ export const createStorage = <T>(
     },
   }
 }
+
+// Enhanced Migration Detection and Storage Strategy System
+
+/**
+ * Storage migration strategy information.
+ */
+export interface StorageMigrationStrategy {
+  needsLocalStorageToIndexedDB: boolean
+  needsSeasonToEpisode: boolean
+  canAutoMigrate: boolean
+  requiresUserConsent: boolean
+  estimatedDataSize: number
+  migrationSteps: string[]
+}
+
+/**
+ * Enhanced migration detection that checks both storage backend and data format.
+ */
+export const detectMigrationNeeds = withSyncErrorHandling((): StorageMigrationStrategy => {
+  // Initialize version management
+  versionManager.initializeVersions()
+
+  // Check if IndexedDB is available
+  const indexedDBAvailable = 'indexedDB' in window && indexedDB !== null
+
+  // Check current storage usage
+  const hasLocalStorageData =
+    localStorage.getItem(STORAGE_KEY) !== null || localStorage.getItem(EPISODE_STORAGE_KEY) !== null
+
+  // Check version requirements
+  const versionMigration = versionManager.isMigrationNeeded()
+
+  // Load current progress to check format
+  const localStorageProgress = localStorage.getItem(STORAGE_KEY)
+  const currentProgress: string[] = localStorageProgress ? JSON.parse(localStorageProgress) : []
+
+  // Check if season-to-episode migration is needed
+  const needsDataMigration = isMigrationNeeded(currentProgress)
+
+  // Estimate data size for migration planning
+  const estimatedSize = new Blob([localStorageProgress || '']).size
+
+  const strategy: StorageMigrationStrategy = {
+    needsLocalStorageToIndexedDB: indexedDBAvailable && hasLocalStorageData,
+    needsSeasonToEpisode: needsDataMigration,
+    canAutoMigrate: indexedDBAvailable && estimatedSize < 1024 * 1024, // Auto-migrate if < 1MB
+    requiresUserConsent: estimatedSize >= 1024 * 100, // Require consent if >= 100KB
+    estimatedDataSize: estimatedSize,
+    migrationSteps: [],
+  }
+
+  // Build migration steps list
+  if (strategy.needsLocalStorageToIndexedDB) {
+    strategy.migrationSteps.push('Transfer data from LocalStorage to IndexedDB')
+  }
+
+  if (strategy.needsSeasonToEpisode) {
+    strategy.migrationSteps.push('Convert season-level progress to episode-level tracking')
+  }
+
+  if (versionMigration.needed) {
+    strategy.migrationSteps.push(`Update schema versions: ${versionMigration.schemas.join(', ')}`)
+  }
+
+  return strategy
+}, 'detectMigrationNeeds')
+
+/**
+ * Check if IndexedDB storage should be used based on availability and migration status.
+ */
+export const shouldUseIndexedDB = withSyncErrorHandling((): boolean => {
+  // Check browser support
+  if (!('indexedDB' in window) || indexedDB === null) {
+    return false
+  }
+
+  // Check migration strategy
+  const strategy = detectMigrationNeeds()
+
+  if (!strategy) {
+    // If detection fails, fall back to LocalStorage
+    return false
+  }
+
+  // Use IndexedDB if:
+  // 1. No migration needed, OR
+  // 2. Migration needed but can auto-migrate
+  return !strategy.needsLocalStorageToIndexedDB || strategy.canAutoMigrate
+}, 'shouldUseIndexedDB')
+
+/**
+ * Get the appropriate storage adapter based on migration status and browser capabilities.
+ */
+export const getOptimalStorageAdapter = withSyncErrorHandling(
+  <T>(options: StorageValidationOptions<T> = {}): StorageAdapter<T> => {
+    const useIndexedDB = shouldUseIndexedDB()
+
+    if (useIndexedDB) {
+      // Emit event for potential UI updates
+      storageEventEmitter.emit('storageAdapterChanged', {
+        newAdapter: 'IndexedDB',
+        oldAdapter: 'LocalStorage',
+        reason: 'optimization',
+      })
+
+      return new IndexedDBAdapter<T>('StarTrekVBS', 'progress', 1, options)
+    } else {
+      // Fall back to LocalStorage
+      storageEventEmitter.emit('storageAdapterChanged', {
+        newAdapter: 'LocalStorage',
+        oldAdapter: 'IndexedDB',
+        reason: 'fallback',
+      })
+
+      return new LocalStorageAdapter<T>(options)
+    }
+  },
+  'getOptimalStorageAdapter',
+)
+
+/**
+ * Perform automatic migration if safe to do so.
+ */
+export const performAutomaticMigration = withErrorHandling(
+  async (): Promise<{
+    success: boolean
+    strategy: StorageMigrationStrategy | null
+    errors: string[]
+  }> => {
+    const strategy = detectMigrationNeeds()
+    const errors: string[] = []
+
+    if (!strategy) {
+      return {
+        success: false,
+        strategy: null,
+        errors: ['Failed to detect migration needs'],
+      }
+    }
+
+    // Only proceed with automatic migration if safe
+    if (!strategy.canAutoMigrate) {
+      return {
+        success: false,
+        strategy,
+        errors: ['Automatic migration not safe - user consent required'],
+      }
+    }
+
+    try {
+      // Perform season-to-episode migration if needed
+      if (strategy.needsSeasonToEpisode) {
+        const currentProgress = localStorage.getItem(STORAGE_KEY)
+        if (currentProgress) {
+          const progress = JSON.parse(currentProgress) as string[]
+          const migrationResult = performMigration(progress)
+
+          if (migrationResult.success) {
+            // Update storage with migrated data
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(migrationResult.migratedItems))
+
+            // Emit migration success event
+            storageEventEmitter.emit('migrationCompleted', {
+              from: 'season-level',
+              to: 'episode-level',
+              itemCount: migrationResult.migratedItems.length,
+              backupAvailable: migrationResult.canRollback,
+            })
+          } else {
+            errors.push(...migrationResult.errors)
+          }
+        }
+      }
+
+      // Perform LocalStorage to IndexedDB migration if needed
+      if (strategy.needsLocalStorageToIndexedDB && errors.length === 0) {
+        const localData = localStorage.getItem(STORAGE_KEY)
+        if (localData) {
+          const adapter = new IndexedDBAdapter<string[]>('StarTrekVBS', 'progress', 1)
+          await adapter.save(STORAGE_KEY, JSON.parse(localData))
+
+          // Verify the migration
+          const verified = await adapter.load(STORAGE_KEY)
+          if (verified) {
+            // Emit successful storage migration event
+            storageEventEmitter.emit('storageBackendMigrated', {
+              from: 'LocalStorage',
+              to: 'IndexedDB',
+              itemCount: JSON.parse(localData).length,
+              preserveBackup: true,
+            })
+          } else {
+            errors.push('Failed to verify IndexedDB migration')
+          }
+        }
+      }
+
+      // Update version tracking
+      if (errors.length === 0) {
+        versionManager.updateVersions({
+          storage: versionManager.CURRENT_VERSIONS.storage,
+          progress: versionManager.CURRENT_VERSIONS.progress,
+        })
+      }
+
+      return {
+        success: errors.length === 0,
+        strategy,
+        errors,
+      }
+    } catch (error) {
+      errors.push(`Migration failed: ${error}`)
+      return {
+        success: false,
+        strategy,
+        errors,
+      }
+    }
+  },
+  'performAutomaticMigration',
+)
 
 // Type guards for data validation
 export const isStringArray = (data: unknown): data is string[] => {
