@@ -32,6 +32,52 @@
                     <option value="animated">Animated</option>
                 </select>
             </div>
+
+            <!-- Episode-specific search and filtering controls -->
+            <div class="episode-search-filter" id="episodeSearchControls" style="display: none;" role="region" aria-label="Episode search and filtering">
+                <div class="episode-search-row">
+                    <label for="episodeSearchInput" class="visually-hidden">Search episodes</label>
+                    <input type="text" id="episodeSearchInput" placeholder="Search episodes by title, plot, or guest stars..."
+                           aria-label="Search episodes by title, plot, guest stars" role="searchbox">
+                    <button id="clearEpisodeSearch" aria-label="Clear episode search" title="Clear search">✕</button>
+                </div>
+                <div class="episode-filter-row">
+                    <label for="seriesFilter" class="visually-hidden">Filter by series</label>
+                    <select id="seriesFilter" aria-label="Filter episodes by series">
+                        <option value="">All Series</option>
+                        <option value="ent">Enterprise</option>
+                        <option value="tos">Original Series</option>
+                        <option value="tas">Animated Series</option>
+                        <option value="tng">Next Generation</option>
+                        <option value="ds9">Deep Space Nine</option>
+                        <option value="voy">Voyager</option>
+                        <option value="pic">Picard</option>
+                        <option value="dis">Discovery</option>
+                        <option value="snw">Strange New Worlds</option>
+                        <option value="low">Lower Decks</option>
+                        <option value="pro">Prodigy</option>
+                    </select>
+                    <label for="seasonFilter" class="visually-hidden">Filter by season</label>
+                    <select id="seasonFilter" aria-label="Filter episodes by season">
+                        <option value="">All Seasons</option>
+                        <option value="1">Season 1</option>
+                        <option value="2">Season 2</option>
+                        <option value="3">Season 3</option>
+                        <option value="4">Season 4</option>
+                        <option value="5">Season 5</option>
+                        <option value="6">Season 6</option>
+                        <option value="7">Season 7</option>
+                    </select>
+                    <label for="guestStarFilter" class="visually-hidden">Filter by guest star</label>
+                    <input type="text" id="guestStarFilter" placeholder="Filter by guest star..."
+                           aria-label="Filter episodes by guest star">
+                    <button id="resetEpisodeFilters" aria-label="Reset all episode filters" title="Reset filters">↺</button>
+                </div>
+                <div class="episode-filter-status" id="episodeFilterStatus" aria-live="polite">
+                    <!-- Filter status will be shown here -->
+                </div>
+            </div>
+        </div>
             <div class="control-buttons" role="group" aria-label="Timeline actions">
                 <button id="expandAll" aria-label="Expand all timeline sections">Expand All</button>
                 <button id="collapseAll" aria-label="Collapse all timeline sections">Collapse All</button>

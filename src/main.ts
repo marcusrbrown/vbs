@@ -1,10 +1,12 @@
 import type {
+  EpisodeManagerInstance,
   ProgressTrackerEvents,
   ProgressTrackerInstance,
   SearchFilterEvents,
   SearchFilterInstance,
   TimelineRendererInstance,
 } from './modules/types.js'
+import {createEpisodeManager} from './modules/episodes.js'
 import {
   initializeGlobalErrorHandling,
   withErrorHandling,
@@ -33,6 +35,14 @@ export const createElementsManager = () => {
     exportProgressBtn: HTMLButtonElement | null
     importButton: HTMLButtonElement | null
     importProgressInput: HTMLInputElement | null
+    episodeSearchControls: HTMLElement | null
+    episodeSearchInput: HTMLInputElement | null
+    seriesFilter: HTMLSelectElement | null
+    seasonFilter: HTMLSelectElement | null
+    guestStarFilter: HTMLInputElement | null
+    clearEpisodeSearchBtn: HTMLButtonElement | null
+    resetEpisodeFiltersBtn: HTMLButtonElement | null
+    episodeFilterStatus: HTMLElement | null
   } = {
     container: null,
     searchInput: null,
@@ -43,6 +53,14 @@ export const createElementsManager = () => {
     exportProgressBtn: null,
     importButton: null,
     importProgressInput: null,
+    episodeSearchControls: null,
+    episodeSearchInput: null,
+    seriesFilter: null,
+    seasonFilter: null,
+    guestStarFilter: null,
+    clearEpisodeSearchBtn: null,
+    resetEpisodeFiltersBtn: null,
+    episodeFilterStatus: null,
   }
 
   return {
@@ -57,6 +75,14 @@ export const createElementsManager = () => {
         exportProgressBtn: document.querySelector('#exportProgress'),
         importProgressInput: document.querySelector('#importProgress'),
         importButton: document.querySelector('#importButton'),
+        episodeSearchControls: document.querySelector('#episodeSearchControls'),
+        episodeSearchInput: document.querySelector('#episodeSearchInput'),
+        seriesFilter: document.querySelector('#seriesFilter'),
+        seasonFilter: document.querySelector('#seasonFilter'),
+        guestStarFilter: document.querySelector('#guestStarFilter'),
+        clearEpisodeSearchBtn: document.querySelector('#clearEpisodeSearch'),
+        resetEpisodeFiltersBtn: document.querySelector('#resetEpisodeFilters'),
+        episodeFilterStatus: document.querySelector('#episodeFilterStatus'),
       }
 
       if (!elements.container) {
@@ -72,6 +98,7 @@ export const createElementsManager = () => {
 export const createEventHandlers = (
   progressTracker: ProgressTrackerInstance,
   searchFilter: SearchFilterInstance,
+  episodeManager: EpisodeManagerInstance,
   timelineRenderer: TimelineRendererInstance | null,
   elementsManager: ReturnType<typeof createElementsManager>,
 ) => {
@@ -100,6 +127,40 @@ export const createEventHandlers = (
     target.value = ''
   }, 'Import Progress')
 
+  const updateEpisodeFilterStatus = (customMessage?: string): void => {
+    const statusElement = elementsManager.get().episodeFilterStatus
+    if (!statusElement) return
+
+    if (customMessage) {
+      statusElement.textContent = customMessage
+      return
+    }
+
+    const criteria = episodeManager.getCurrentCriteria()
+    const filteredEpisodes = episodeManager.getFilteredEpisodes()
+
+    const activeFilters: string[] = []
+    if (criteria.searchTerm) activeFilters.push(`search: "${criteria.searchTerm}"`)
+    if (criteria.seriesId) activeFilters.push(`series: ${criteria.seriesId.toUpperCase()}`)
+    if (criteria.season) activeFilters.push(`season: ${criteria.season}`)
+    if (criteria.guestStars && criteria.guestStars.length > 0) {
+      activeFilters.push(`guest: ${criteria.guestStars.join(', ')}`)
+    }
+
+    if (activeFilters.length === 0) {
+      statusElement.textContent = 'All episodes visible'
+    } else {
+      statusElement.textContent = `${filteredEpisodes.length} episodes found • Filters: ${activeFilters.join(' • ')}`
+    }
+  }
+
+  const toggleEpisodeSearchControls = (show: boolean): void => {
+    const controls = elementsManager.get().episodeSearchControls
+    if (controls) {
+      controls.style.display = show ? 'flex' : 'none'
+    }
+  }
+
   const setupEventListeners = (): void => {
     const elements = elementsManager.get()
 
@@ -112,6 +173,72 @@ export const createEventHandlers = (
     elements.filterSelect?.addEventListener('change', e => {
       const target = e.target as HTMLSelectElement
       searchFilter.setFilter(target.value)
+    })
+
+    // Episode search and filtering
+    elements.episodeSearchInput?.addEventListener('input', e => {
+      const target = e.target as HTMLInputElement
+      episodeManager.searchEpisodes(target.value)
+      updateEpisodeFilterStatus()
+    })
+
+    elements.seriesFilter?.addEventListener('change', e => {
+      const target = e.target as HTMLSelectElement
+      const currentCriteria = episodeManager.getCurrentCriteria()
+      const newCriteria = {...currentCriteria}
+      if (target.value) {
+        newCriteria.seriesId = target.value
+      } else {
+        delete newCriteria.seriesId
+      }
+      episodeManager.setFilterCriteria(newCriteria)
+      updateEpisodeFilterStatus()
+    })
+
+    elements.seasonFilter?.addEventListener('change', e => {
+      const target = e.target as HTMLSelectElement
+      const currentCriteria = episodeManager.getCurrentCriteria()
+      const newCriteria = {...currentCriteria}
+      if (target.value) {
+        newCriteria.season = Number.parseInt(target.value, 10)
+      } else {
+        delete newCriteria.season
+      }
+      episodeManager.setFilterCriteria(newCriteria)
+      updateEpisodeFilterStatus()
+    })
+
+    elements.guestStarFilter?.addEventListener('input', e => {
+      const target = e.target as HTMLInputElement
+      const currentCriteria = episodeManager.getCurrentCriteria()
+      const newCriteria = {...currentCriteria}
+      if (target.value) {
+        newCriteria.guestStars = [target.value]
+      } else {
+        delete newCriteria.guestStars
+      }
+      episodeManager.setFilterCriteria(newCriteria)
+      updateEpisodeFilterStatus()
+    })
+
+    elements.clearEpisodeSearchBtn?.addEventListener('click', () => {
+      if (elements.episodeSearchInput) {
+        elements.episodeSearchInput.value = ''
+        episodeManager.searchEpisodes('')
+        updateEpisodeFilterStatus()
+      }
+    })
+
+    elements.resetEpisodeFiltersBtn?.addEventListener('click', () => {
+      // Reset all episode filter controls
+      if (elements.episodeSearchInput) elements.episodeSearchInput.value = ''
+      if (elements.seriesFilter) elements.seriesFilter.value = ''
+      if (elements.seasonFilter) elements.seasonFilter.value = ''
+      if (elements.guestStarFilter) elements.guestStarFilter.value = ''
+
+      // Reset episode manager filters
+      episodeManager.resetFilters()
+      updateEpisodeFilterStatus()
     })
 
     // Control buttons
@@ -156,6 +283,25 @@ export const createEventHandlers = (
     searchFilter.on('filter-change', (data: SearchFilterEvents['filter-change']) => {
       timelineRenderer?.render(data.filteredData)
       timelineRenderer?.updateItemStates()
+
+      // Show/hide episode search controls based on whether any series items are visible
+      const hasSeriesItems = data.filteredData.some(era =>
+        era.items.some(
+          item => item.type === 'series' && item.episodeData && item.episodeData.length > 0,
+        ),
+      )
+      toggleEpisodeSearchControls(hasSeriesItems)
+    })
+
+    // Episode manager event callbacks
+    episodeManager.on('filter-change', () => {
+      updateEpisodeFilterStatus()
+      // Note: Episode filtering is handled within individual episode lists
+      // This event is for updating the status display
+    })
+
+    episodeManager.on('search-update', ({searchTerm, totalMatches}) => {
+      updateEpisodeFilterStatus(`Found ${totalMatches} episodes matching "${searchTerm}"`)
     })
   }
 
@@ -163,6 +309,8 @@ export const createEventHandlers = (
     setupEventListeners,
     handleResetProgress,
     handleImportProgress,
+    updateEpisodeFilterStatus,
+    toggleEpisodeSearchControls,
   }
 }
 
@@ -171,6 +319,7 @@ export const createStarTrekViewingGuide = () => {
   // Create module instances
   const progressTracker = createProgressTracker()
   const searchFilter = createSearchFilter()
+  const episodeManager = createEpisodeManager()
   let timelineRenderer: TimelineRendererInstance | null = null
 
   // Create managers
@@ -206,6 +355,7 @@ export const createStarTrekViewingGuide = () => {
       const eventHandlers = createEventHandlers(
         progressTracker,
         searchFilter,
+        episodeManager,
         timelineRenderer,
         elementsManager,
       )
