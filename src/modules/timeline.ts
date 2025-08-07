@@ -45,12 +45,119 @@ export const createTimelineRenderer = (
   }
 
   /**
+   * Create detailed episode information content with progressive disclosure for spoiler-safe viewing.
+   * Displays plot points, guest stars, and cross-series connections with accessibility support.
+   */
+  const createEpisodeDetailsContent = (episode: Episode): string => {
+    const hasPlotPoints = episode.plotPoints && episode.plotPoints.length > 0
+    const hasGuestStars = episode.guestStars && episode.guestStars.length > 0
+    const hasConnections = episode.connections && episode.connections.length > 0
+
+    return `
+      <div class="episode-details-content">
+        <div class="episode-details-header">
+          <h5 class="episode-details-title">Episode Details</h5>
+          <div class="spoiler-controls">
+            <button class="spoiler-toggle-btn"
+                    data-episode-id="${episode.id}"
+                    aria-label="Toggle spoiler content visibility"
+                    aria-pressed="false">
+              <span class="spoiler-icon">👁️</span>
+              <span class="spoiler-text">Show Details</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="episode-spoiler-content"
+             id="spoiler-content-${episode.id}"
+             aria-hidden="true"
+             style="display: none;">
+
+          ${
+            hasPlotPoints
+              ? `
+            <div class="episode-plot-points">
+              <h6 class="detail-section-title">Key Plot Points</h6>
+              <ul class="plot-points-list" role="list">
+                ${episode.plotPoints
+                  .map(
+                    point => `
+                  <li class="plot-point" role="listitem">${point}</li>
+                `,
+                  )
+                  .join('')}
+              </ul>
+            </div>
+          `
+              : ''
+          }
+
+          ${
+            hasGuestStars
+              ? `
+            <div class="episode-guest-stars">
+              <h6 class="detail-section-title">Notable Guest Stars</h6>
+              <ul class="guest-stars-list" role="list">
+                ${episode.guestStars
+                  .map(
+                    star => `
+                  <li class="guest-star" role="listitem">${star}</li>
+                `,
+                  )
+                  .join('')}
+              </ul>
+            </div>
+          `
+              : ''
+          }
+
+          ${
+            hasConnections
+              ? `
+            <div class="episode-connections">
+              <h6 class="detail-section-title">Cross-Series Connections</h6>
+              <ul class="connections-list" role="list">
+                ${episode.connections
+                  .map(
+                    connection => `
+                  <li class="connection-item" role="listitem">
+                    <span class="connection-type">[${connection.connectionType.toUpperCase()}]</span>
+                    <span class="connection-description">${connection.description}</span>
+                  </li>
+                `,
+                  )
+                  .join('')}
+              </ul>
+            </div>
+          `
+              : ''
+          }
+
+          ${
+            !hasPlotPoints && !hasGuestStars && !hasConnections
+              ? `
+            <div class="no-additional-details">
+              <p class="no-details-message">No additional details available for this episode.</p>
+            </div>
+          `
+              : ''
+          }
+        </div>
+      </div>
+    `
+  }
+
+  /**
    * Create HTML element for an individual episode within a season.
    * Supports episode-level progress tracking with spoiler-safe content display.
    */
   const createEpisodeElement = (episode: Episode, seriesId: string): string => {
     const isWatched = progressTracker.isWatched(episode.id)
-    const airDate = new Date(episode.airDate).toLocaleDateString()
+    const airDate = new Date(episode.airDate).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    })
 
     return `
       <div class="episode-item ${isWatched ? 'watched' : ''}"
@@ -70,6 +177,13 @@ export const createTimelineRenderer = (
           <div class="episode-header">
             <span class="episode-number">S${episode.season}E${String(episode.episode).padStart(2, '0')}</span>
             <h4 class="episode-title" id="episode-title-${episode.id}">${episode.title}</h4>
+            <button class="episode-details-btn"
+                    data-episode-id="${episode.id}"
+                    aria-label="Show details for ${episode.title}"
+                    aria-expanded="false"
+                    title="View episode details">
+              <span class="episode-details-icon">ⓘ</span>
+            </button>
           </div>
           <div class="episode-details">
             <span class="episode-air-date">${airDate}</span>
@@ -77,6 +191,14 @@ export const createTimelineRenderer = (
           </div>
           <div class="episode-synopsis" aria-label="Episode synopsis">
             ${episode.synopsis}
+          </div>
+          <div class="episode-details-panel"
+               id="details-panel-${episode.id}"
+               role="region"
+               aria-labelledby="episode-title-${episode.id}"
+               aria-hidden="true"
+               style="display: none;">
+            ${createEpisodeDetailsContent(episode)}
           </div>
         </div>
       </div>
@@ -227,6 +349,61 @@ export const createTimelineRenderer = (
     }
   }
 
+  /**
+   * Toggle episode details panel visibility with accessibility support.
+   * Shows/hides detailed episode information with progressive disclosure.
+   */
+  const toggleEpisodeDetails = (episodeId: string): void => {
+    const detailsPanel = container.querySelector(`#details-panel-${episodeId}`) as HTMLElement
+    const detailsButton = container.querySelector(
+      `[data-episode-id="${episodeId}"].episode-details-btn`,
+    ) as HTMLElement
+
+    if (!detailsPanel || !detailsButton) return
+
+    const isHidden = detailsPanel.getAttribute('aria-hidden') === 'true'
+
+    if (isHidden) {
+      detailsPanel.style.display = 'block'
+      detailsPanel.setAttribute('aria-hidden', 'false')
+      detailsButton.setAttribute('aria-expanded', 'true')
+      detailsButton.setAttribute('aria-label', `Hide details for episode`)
+    } else {
+      detailsPanel.style.display = 'none'
+      detailsPanel.setAttribute('aria-hidden', 'true')
+      detailsButton.setAttribute('aria-expanded', 'false')
+      detailsButton.setAttribute('aria-label', `Show details for episode`)
+    }
+  }
+
+  /**
+   * Toggle spoiler content visibility with progressive disclosure for spoiler-safe viewing.
+   * Controls whether plot points, guest stars, and connections are visible.
+   */
+  const toggleSpoilerContent = (episodeId: string): void => {
+    const spoilerContent = container.querySelector(`#spoiler-content-${episodeId}`) as HTMLElement
+    const spoilerButton = container.querySelector(
+      `[data-episode-id="${episodeId}"].spoiler-toggle-btn`,
+    ) as HTMLElement
+    const spoilerText = spoilerButton?.querySelector('.spoiler-text')
+
+    if (!spoilerContent || !spoilerButton) return
+
+    const isHidden = spoilerContent.getAttribute('aria-hidden') === 'true'
+
+    if (isHidden) {
+      spoilerContent.style.display = 'block'
+      spoilerContent.setAttribute('aria-hidden', 'false')
+      spoilerButton.setAttribute('aria-pressed', 'true')
+      if (spoilerText) spoilerText.textContent = 'Hide Details'
+    } else {
+      spoilerContent.style.display = 'none'
+      spoilerContent.setAttribute('aria-hidden', 'true')
+      spoilerButton.setAttribute('aria-pressed', 'false')
+      if (spoilerText) spoilerText.textContent = 'Show Details'
+    }
+  }
+
   const createEraElement = (era: StarTrekEra): HTMLDivElement => {
     const eraDiv = document.createElement('div')
     eraDiv.className = 'era'
@@ -311,6 +488,60 @@ export const createTimelineRenderer = (
             target.closest('[data-series-id]')?.getAttribute('data-series-id')
           if (seriesId) {
             toggleEpisodeList(seriesId)
+          }
+        }
+      })
+    })
+
+    // Add event listeners for episode details buttons
+    const episodeDetailsButtons = eraDiv.querySelectorAll('.episode-details-btn')
+    episodeDetailsButtons.forEach(button => {
+      button.addEventListener('click', e => {
+        const target = e.target as HTMLElement
+        const episodeId =
+          target.dataset['episodeId'] ||
+          target.closest('[data-episode-id]')?.getAttribute('data-episode-id')
+        if (episodeId) {
+          toggleEpisodeDetails(episodeId)
+        }
+      })
+
+      // Add keyboard support for episode details
+      button.addEventListener('keydown', (e: Event) => {
+        const keyEvent = e as KeyboardEvent
+        if (keyEvent.key === 'Enter' || keyEvent.key === ' ') {
+          e.preventDefault()
+          const target = e.target as HTMLElement
+          const episodeId =
+            target.dataset['episodeId'] ||
+            target.closest('[data-episode-id]')?.getAttribute('data-episode-id')
+          if (episodeId) {
+            toggleEpisodeDetails(episodeId)
+          }
+        }
+      })
+    })
+
+    // Add event listeners for spoiler toggle buttons
+    const spoilerToggleButtons = eraDiv.querySelectorAll('.spoiler-toggle-btn')
+    spoilerToggleButtons.forEach(button => {
+      button.addEventListener('click', e => {
+        const target = e.target as HTMLElement
+        const episodeId = target.dataset['episodeId']
+        if (episodeId) {
+          toggleSpoilerContent(episodeId)
+        }
+      })
+
+      // Add keyboard support for spoiler toggle
+      button.addEventListener('keydown', (e: Event) => {
+        const keyEvent = e as KeyboardEvent
+        if (keyEvent.key === 'Enter' || keyEvent.key === ' ') {
+          e.preventDefault()
+          const target = e.target as HTMLElement
+          const episodeId = target.dataset['episodeId']
+          if (episodeId) {
+            toggleSpoilerContent(episodeId)
           }
         }
       })
