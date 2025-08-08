@@ -32,31 +32,31 @@ describe('Storage', () => {
     localStorageMock.clear()
   })
 
-  it('should save progress to localStorage', () => {
+  it('should save progress to localStorage', async () => {
     const progress = ['item1', 'item2', 'item3']
-    saveProgress(progress)
+    await saveProgress(progress)
 
     const stored = JSON.parse(localStorage.getItem('starTrekProgress') || '[]')
     expect(stored).toEqual(progress)
   })
 
-  it('should load progress from localStorage', () => {
+  it('should load progress from localStorage', async () => {
     const progress = ['item1', 'item2']
     localStorage.setItem('starTrekProgress', JSON.stringify(progress))
 
-    const loaded = loadProgress()
+    const loaded = await loadProgress()
     expect(loaded).toEqual(progress)
   })
 
-  it('should return empty array when no progress stored', () => {
-    const loaded = loadProgress()
+  it('should return empty array when no progress stored', async () => {
+    const loaded = await loadProgress()
     expect(loaded).toEqual([])
   })
 
-  it('should handle corrupted localStorage data', () => {
+  it('should handle corrupted localStorage data', async () => {
     localStorage.setItem('starTrekProgress', 'invalid-json')
 
-    const loaded = loadProgress()
+    const loaded = await loadProgress()
     expect(loaded).toEqual([])
   })
 })

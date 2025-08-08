@@ -106,7 +106,7 @@ export const createEventHandlers = (
     // eslint-disable-next-line no-alert
     if (confirm('Are you sure you want to reset all progress? This cannot be undone.')) {
       progressTracker.resetProgress()
-      saveProgress([])
+      saveProgress([]).catch(console.error)
       timelineRenderer?.updateItemStates()
     }
   }, 'Reset Progress')
@@ -118,7 +118,7 @@ export const createEventHandlers = (
 
     const progress = await importProgressFromFile(file)
     progressTracker.setWatchedItems(progress)
-    saveProgress(progress)
+    await saveProgress(progress)
     timelineRenderer?.updateItemStates()
     // eslint-disable-next-line no-alert
     alert('Progress imported successfully!')
@@ -268,7 +268,7 @@ export const createEventHandlers = (
 
     // Progress tracker callbacks with improved type safety
     progressTracker.on('item-toggle', (_data: ProgressTrackerEvents['item-toggle']) => {
-      saveProgress(progressTracker.getWatchedItems())
+      saveProgress(progressTracker.getWatchedItems()).catch(console.error)
       timelineRenderer?.updateItemStates()
     })
 
@@ -325,9 +325,9 @@ export const createStarTrekViewingGuide = () => {
   // Create managers
   const elementsManager = createElementsManager()
 
-  const loadInitialData = (): void => {
-    const savedProgress = loadProgress()
-    progressTracker.setWatchedItems(savedProgress)
+  const loadInitialData = async (): Promise<void> => {
+    const savedProgress = await loadProgress()
+    progressTracker.setWatchedItems(savedProgress || [])
   }
 
   const render = (): void => {
@@ -343,12 +343,12 @@ export const createStarTrekViewingGuide = () => {
     timelineRenderer.updateItemStates()
   }
 
-  const setupApp = (): void => {
+  const setupApp = async (): Promise<void> => {
     try {
       // Initialize DOM elements manager first
       elementsManager.initialize()
 
-      loadInitialData()
+      await loadInitialData()
       render()
 
       // Create event handlers after timeline renderer is initialized
@@ -379,9 +379,9 @@ export const createStarTrekViewingGuide = () => {
   const init = (): void => {
     // Wait for DOM to be ready
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', () => setupApp())
+      document.addEventListener('DOMContentLoaded', async () => await setupApp())
     } else {
-      setupApp()
+      setupApp().catch(console.error)
     }
   }
 
