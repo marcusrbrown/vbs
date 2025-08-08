@@ -163,7 +163,7 @@ describe('Main Application', () => {
     it('should load initial progress data', async () => {
       const {loadProgress} = await import('../src/modules/storage.js')
       const mockLoadProgress = vi.mocked(loadProgress)
-      mockLoadProgress.mockReturnValue(['watched1', 'watched2'])
+      mockLoadProgress.mockResolvedValue(['watched1', 'watched2'])
 
       const {createStarTrekViewingGuide} = await import('../src/main.js')
       const app = createStarTrekViewingGuide()

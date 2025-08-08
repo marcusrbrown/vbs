@@ -558,23 +558,46 @@ export const isStorageVersionInfo = (data: unknown): data is StorageVersionInfo 
 
 // Existing functions maintained for backward compatibility
 
-// Pre-configured storage instance for progress data
-const progressStorage = createStorage(
-  new LocalStorageAdapter<string[]>({
-    validate: isStringArray,
-    fallback: [],
-  }),
-  STORAGE_KEY,
-)
+// Adaptive storage instance for progress data - auto-detects optimal storage backend
+let _progressStorage: ReturnType<typeof createStorage<string[]>> | null = null
 
-export const saveProgress = (watchedItems: string[]): void => {
+const getProgressStorage = () => {
+  if (!_progressStorage) {
+    const adapter = getOptimalStorageAdapter<string[]>({
+      validate: isStringArray,
+      fallback: [],
+    })
+    if (!adapter) {
+      throw new Error('Failed to get storage adapter')
+    }
+    _progressStorage = createStorage(adapter, STORAGE_KEY)
+  }
+  return _progressStorage
+}
+
+export const saveProgress = withErrorHandling(async (watchedItems: string[]): Promise<void> => {
   try {
-    progressStorage.save(watchedItems)
-    // Emit success event - treating save as a form of export
+    // Perform automatic migration if needed before saving
+    const migrationResult = await performAutomaticMigration()
+    if (migrationResult?.strategy?.needsLocalStorageToIndexedDB && !migrationResult.success) {
+      // If migration is needed but failed, still proceed with LocalStorage
+      console.warn('Migration needed but automatic migration failed, continuing with LocalStorage')
+    }
+
+    const storage = getProgressStorage()
+    const saveResult = storage.save(watchedItems)
+
+    // Handle both sync and async storage operations
+    if (saveResult instanceof Promise) {
+      await saveResult
+    }
+
+    // Emit success event with appropriate format indicator
+    const adapter = shouldUseIndexedDB() ? 'IndexedDB' : 'LocalStorage'
     storageEventEmitter.emit('data-exported', {
       exportedItems: [...watchedItems],
       timestamp: new Date().toISOString(),
-      format: 'localStorage',
+      format: adapter,
     })
   } catch (error) {
     storageEventEmitter.emit('storage-error', {
@@ -584,22 +607,32 @@ export const saveProgress = (watchedItems: string[]): void => {
     })
     throw error
   }
-}
+}, 'saveProgress')
 
-export const loadProgress = (): string[] => {
+export const loadProgress = withErrorHandling(async (): Promise<string[]> => {
   try {
-    const result = progressStorage.load()
-    // LocalStorageAdapter returns synchronously, so result won't be a Promise
-    const loadedItems = (result as string[]) || []
+    // Perform automatic migration if needed before loading
+    const migrationResult = await performAutomaticMigration()
+    if (migrationResult?.strategy?.needsLocalStorageToIndexedDB && !migrationResult.success) {
+      // If migration is needed but failed, still proceed with LocalStorage
+      console.warn('Migration needed but automatic migration failed, continuing with LocalStorage')
+    }
 
-    // Emit success event - treating load as a form of import
+    const storage = getProgressStorage()
+    const loadResult = storage.load()
+
+    // Handle both sync and async storage operations
+    const loadedItems = loadResult instanceof Promise ? await loadResult : loadResult
+    const finalItems = (loadedItems as string[]) || []
+
+    // Emit success event with appropriate format indicator
     storageEventEmitter.emit('data-imported', {
-      importedItems: [...loadedItems],
+      importedItems: [...finalItems],
       timestamp: new Date().toISOString(),
       version: '1.0',
     })
 
-    return loadedItems
+    return finalItems
   } catch (error) {
     storageEventEmitter.emit('storage-error', {
       operation: 'load',
@@ -607,7 +640,7 @@ export const loadProgress = (): string[] => {
     })
     return []
   }
-}
+}, 'loadProgress')
 
 // Enhanced storage functions for episode-level progress
 
@@ -684,11 +717,11 @@ export const saveEnhancedProgress = (data: EnhancedProgressData): void => {
  * Load progress with automatic migration support.
  * Detects current storage format and migrates if necessary.
  */
-export const loadProgressWithMigration = (): {
+export const loadProgressWithMigration = async (): Promise<{
   seasonProgress: string[]
   episodeProgress: string[]
   migrationPerformed: boolean
-} => {
+}> => {
   try {
     const versionInfo = getStorageVersion()
 
@@ -709,8 +742,17 @@ export const loadProgressWithMigration = (): {
       }
     }
 
-    // Load legacy progress data
-    const legacyProgress = loadProgress()
+    // Load legacy progress data using the new async loadProgress function
+    const legacyProgress = await loadProgress()
+
+    // Ensure we have valid progress data
+    if (!legacyProgress) {
+      return {
+        seasonProgress: [],
+        episodeProgress: [],
+        migrationPerformed: false,
+      }
+    }
 
     // Check if migration is needed
     if (isMigrationNeeded(legacyProgress)) {
