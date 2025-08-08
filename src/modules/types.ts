@@ -1397,6 +1397,87 @@ export interface PreferencesEvents extends EventMap {
   }
 }
 
+/**
+ * Event map for theme system changes and lifecycle events.
+ * Used with generic EventEmitter for type-safe theme event handling.
+ */
+export interface ThemeEvents extends EventMap {
+  /** Fired when theme system is initialized */
+  'theme-system-initialized': {
+    initialTheme: UserPreferences['theme']
+    resolvedTheme: 'light' | 'dark'
+    systemPrefersDark: boolean
+  }
+  /** Fired when a theme is applied to the document */
+  'theme-applied': {
+    theme: 'light' | 'dark'
+    originalTheme: UserPreferences['theme']
+    properties: string[]
+    timestamp: string
+  }
+  /** Fired when theme preference changes */
+  'theme-change': {
+    previousTheme: UserPreferences['theme']
+    currentTheme: UserPreferences['theme']
+    resolvedTheme: 'light' | 'dark'
+  }
+  /** Fired when system theme preference changes */
+  'system-theme-change': {
+    systemPrefersDark: boolean
+    currentTheme: 'light' | 'dark'
+  }
+}
+
+/**
+ * Theme system instance interface following VBS functional factory patterns.
+ * Provides comprehensive theme management with CSS custom properties and preferences integration.
+ */
+export interface ThemeSystemInstance {
+  /** Initialize the theme system with preferences integration */
+  initialize(): 'light' | 'dark' | null
+  /** Apply a specific theme */
+  setTheme(theme: UserPreferences['theme']): 'light' | 'dark' | null
+  /** Toggle between light and dark themes */
+  toggleTheme(): 'light' | 'dark' | null
+  /** Get current theme preference */
+  getCurrentTheme(): UserPreferences['theme']
+  /** Get resolved theme (auto converted to light/dark) */
+  getResolvedTheme(): 'light' | 'dark'
+  /** Get comprehensive theme information */
+  getThemeInfo(): {
+    currentTheme: UserPreferences['theme']
+    resolvedTheme: 'light' | 'dark'
+    systemPrefersDark: boolean
+    availableThemes: string[]
+    isInitialized: boolean
+    cssProperties: string[]
+  }
+  /** Check if theme system is initialized */
+  isInitialized(): boolean
+  /** Force reapply current theme */
+  refresh(): 'light' | 'dark' | null
+  /** Get available CSS custom properties */
+  getCSSProperties(): string[]
+  /** Get theme values for a specific theme */
+  getThemeValues(theme: 'light' | 'dark'): Record<string, string>
+  /** Cleanup theme system resources */
+  cleanup(): void
+
+  // Generic EventEmitter methods for type-safe event handling
+  on<TEventName extends keyof ThemeEvents>(
+    eventName: TEventName,
+    listener: EventListener<ThemeEvents[TEventName]>,
+  ): void
+  off<TEventName extends keyof ThemeEvents>(
+    eventName: TEventName,
+    listener: EventListener<ThemeEvents[TEventName]>,
+  ): void
+  once<TEventName extends keyof ThemeEvents>(
+    eventName: TEventName,
+    listener: EventListener<ThemeEvents[TEventName]>,
+  ): void
+}
+
 // ============================================================================
 // FUNCTIONAL COMPOSITION PIPELINE TYPES
 // ============================================================================
