@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="180" height="180" rx="40" fill="#1a1a1a"/>
+  <path d="M45 90L90 45L135 90L90 135L45 90Z" fill="#0ea5e9"/>
+  <text x="90" y="120" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="15" font-weight="bold">VBS</text>
+  <text x="90" y="140" text-anchor="middle" fill="#94a3b8" font-family="Arial, sans-serif" font-size="7">Star Trek Guide</text>
+</svg>

@@ -23,6 +23,45 @@ import {
 import {createTimelineRenderer} from './modules/timeline.js'
 import './style.css'
 
+/**
+ * Register Service Worker for PWA capabilities.
+ */
+const registerServiceWorker = async (): Promise<void> => {
+  if ('serviceWorker' in navigator) {
+    try {
+      const registration = await navigator.serviceWorker.register('/vbs/sw.js', {
+        scope: '/vbs/',
+      })
+
+      // Check if a new service worker is installing
+      if (registration.installing) {
+        console.warn('[VBS] Service Worker installing...')
+      } else if (registration.waiting) {
+        console.warn('[VBS] Service Worker waiting to activate...')
+      } else if (registration.active) {
+        console.warn('[VBS] Service Worker active and ready')
+      }
+
+      // Listen for service worker updates
+      registration.addEventListener('updatefound', () => {
+        const newWorker = registration.installing
+        if (newWorker) {
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              // New service worker available, show update notification
+              console.warn('[VBS] New version available! Refresh to update.')
+            }
+          })
+        }
+      })
+    } catch (error) {
+      console.error('[VBS] Service Worker registration failed:', error)
+    }
+  } else {
+    console.warn('[VBS] Service Workers not supported in this browser')
+  }
+}
+
 // Factory function to create DOM elements manager
 export const createElementsManager = () => {
   let elements: {
@@ -364,6 +403,9 @@ export const createStarTrekViewingGuide = () => {
 
       // Initialize global error handling
       initializeGlobalErrorHandling()
+
+      // Register Service Worker for PWA capabilities
+      await registerServiceWorker()
     } catch (error) {
       console.error('Failed to setup Star Trek Viewing Guide:', error)
 
