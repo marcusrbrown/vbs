@@ -1707,3 +1707,243 @@ export interface EventPipelineConfig<TEvent> {
   /** Function to handle DOM updates */
   onDOMUpdate?: (element: HTMLElement, newState: any) => void
 }
+
+// ============================================================================
+// TIMELINE VISUALIZATION TYPES AND INTERFACES
+// ============================================================================
+
+/**
+ * Timeline event types for categorizing different kinds of Star Trek events.
+ * Used for filtering and visual styling of timeline elements.
+ */
+export type TimelineEventType =
+  | 'series' // TV series content
+  | 'movie' // Feature films
+  | 'animated' // Animated series content
+  | 'galactic_event' // Major galactic events
+  | 'first_contact' // First contact events
+  | 'war' // Conflicts and wars
+  | 'technology' // Technological developments
+  | 'political' // Political events
+  | 'exploration' // Exploration missions
+
+/**
+ * Individual timeline event representing a specific point or period in Star Trek chronology.
+ * Optimized for D3.js rendering with position, scale, and interaction properties.
+ *
+ * @example
+ * ```typescript
+ * const event: TimelineEvent = {
+ *   id: 'tos_s1_premiere',
+ *   title: 'The Original Series Begins',
+ *   date: new Date('2266-01-01'),
+ *   stardate: '1312.4',
+ *   type: 'series',
+ *   description: 'Captain Kirk takes command of the Enterprise',
+ *   relatedItems: ['tos_s1'],
+ *   isWatched: false,
+ *   importance: 'major'
+ * }
+ * ```
+ */
+export interface TimelineEvent {
+  /** Unique identifier for the timeline event */
+  id: string
+  /** Display title for the event */
+  title: string
+  /** Date or start date for the event */
+  date: Date
+  /** End date for events spanning multiple dates (optional) */
+  endDate?: Date
+  /** In-universe stardate for the event */
+  stardate: string
+  /** End stardate for multi-stardate events (optional) */
+  endStardate?: string
+  /** Event category for filtering and styling */
+  type: TimelineEventType
+  /** Detailed description of the event */
+  description: string
+  /** Array of related Star Trek item IDs */
+  relatedItems: string[]
+  /** Whether related content has been watched */
+  isWatched: boolean
+  /** Event importance level affecting visual prominence */
+  importance: 'minor' | 'major' | 'critical'
+  /** Era this event belongs to */
+  eraId: string
+  /** Additional metadata for rendering and interaction */
+  metadata?: {
+    /** Color theme for the event marker */
+    color?: string
+    /** Icon or symbol identifier */
+    icon?: string
+    /** Additional CSS classes for styling */
+    cssClasses?: string[]
+    /** Custom data attributes */
+    dataAttributes?: Record<string, string>
+  }
+}
+
+/**
+ * Timeline configuration and filtering options.
+ * Controls what events are displayed and how the timeline behaves.
+ */
+export interface TimelineConfig {
+  /** Filter events by type */
+  eventTypes?: TimelineEventType[]
+  /** Filter events by era */
+  eraIds?: string[]
+  /** Filter events by watch status */
+  watchStatus?: 'all' | 'watched' | 'unwatched'
+  /** Filter events by importance level */
+  importance?: ('minor' | 'major' | 'critical')[]
+  /** Date range for filtering events */
+  dateRange?: {
+    start: Date
+    end: Date
+  }
+  /** Stardate range for filtering events */
+  stardateRange?: {
+    start: string
+    end: string
+  }
+  /** Whether to show only events with related items */
+  showOnlyWithItems?: boolean
+}
+
+/**
+ * Timeline visualization dimensions and layout configuration.
+ * Used for responsive design and canvas/SVG rendering setup.
+ */
+export interface TimelineLayout {
+  /** Total width of the timeline container */
+  width: number
+  /** Total height of the timeline container */
+  height: number
+  /** Margin configuration for the timeline */
+  margin: {
+    top: number
+    right: number
+    bottom: number
+    left: number
+  }
+  /** Timeline track height */
+  trackHeight: number
+  /** Spacing between timeline tracks */
+  trackSpacing: number
+  /** Event marker size configuration */
+  markerSize: {
+    width: number
+    height: number
+  }
+  /** Font configuration for timeline text */
+  fonts: {
+    title: string
+    subtitle: string
+    body: string
+  }
+}
+
+/**
+ * Timeline interaction state and event handlers.
+ * Manages user interactions like zoom, pan, and event selection.
+ */
+export interface TimelineInteraction {
+  /** Current zoom level (1.0 = no zoom) */
+  zoomLevel: number
+  /** Current pan offset in pixels */
+  panOffset: {x: number; y: number}
+  /** Currently selected event ID (if any) */
+  selectedEventId?: string
+  /** Currently hovered event ID (if any) */
+  hoveredEventId?: string
+  /** Whether the timeline is in touch interaction mode */
+  isTouchMode: boolean
+  /** Zoom limits */
+  zoomLimits: {
+    min: number
+    max: number
+  }
+}
+
+/**
+ * Timeline event map for type-safe event handling.
+ * Defines events emitted by the timeline visualization component.
+ */
+export interface TimelineEvents extends EventMap {
+  /** Fired when an event is selected on the timeline */
+  'event-select': {eventId: string; event: TimelineEvent}
+  /** Fired when an event is hovered */
+  'event-hover': {eventId: string; event: TimelineEvent | null}
+  /** Fired when timeline zoom level changes */
+  'zoom-change': {zoomLevel: number; zoomCenter: {x: number; y: number}}
+  /** Fired when timeline pan position changes */
+  'pan-change': {panOffset: {x: number; y: number}}
+  /** Fired when timeline filter configuration changes */
+  'filter-change': {config: TimelineConfig}
+  /** Fired when timeline layout changes (resize, etc.) */
+  'layout-change': {layout: TimelineLayout}
+  /** Fired when timeline export is requested */
+  'export-request': {format: 'png' | 'svg'; options: ExportOptions}
+}
+
+/**
+ * Timeline export configuration options.
+ * Used for generating PNG/SVG files for sharing progress.
+ */
+export interface ExportOptions {
+  /** Export file format */
+  format: 'png' | 'svg'
+  /** Output dimensions */
+  dimensions: {
+    width: number
+    height: number
+  }
+  /** Export quality (for PNG, 0.1-1.0) */
+  quality?: number
+  /** Background color for export */
+  backgroundColor?: string
+  /** Whether to include title and metadata */
+  includeMetadata?: boolean
+  /** Custom filename (without extension) */
+  filename?: string
+}
+
+/**
+ * Public API interface for TimelineVisualization factory instances.
+ * Provides methods for rendering, interaction, and data management.
+ */
+export interface TimelineVisualizationInstance {
+  /** Render the timeline with current data and configuration */
+  render(): void
+  /** Update timeline data with new events */
+  updateData(events: TimelineEvent[]): void
+  /** Update timeline configuration and re-render */
+  updateConfig(config: Partial<TimelineConfig>): void
+  /** Update timeline layout and re-render */
+  updateLayout(layout: Partial<TimelineLayout>): void
+  /** Zoom to specific level with optional center point */
+  zoomTo(level: number, center?: {x: number; y: number}): void
+  /** Pan to specific offset */
+  panTo(offset: {x: number; y: number}): void
+  /** Zoom to fit all events in view */
+  zoomToFit(): void
+  /** Select specific event by ID */
+  selectEvent(eventId: string | null): void
+  /** Export timeline as image or SVG */
+  exportTimeline(options: ExportOptions): Promise<Blob>
+  /** Destroy timeline and clean up resources */
+  destroy(): void
+  /** Get current timeline state */
+  getState(): {
+    config: TimelineConfig
+    layout: TimelineLayout
+    interaction: TimelineInteraction
+    events: TimelineEvent[]
+  }
+
+  // Generic EventEmitter methods for type-safe event handling
+  on<K extends keyof TimelineEvents>(event: K, listener: (data: TimelineEvents[K]) => void): void
+  off<K extends keyof TimelineEvents>(event: K, listener: (data: TimelineEvents[K]) => void): void
+  once<K extends keyof TimelineEvents>(event: K, listener: (data: TimelineEvents[K]) => void): void
+}
