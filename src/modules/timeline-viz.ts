@@ -1,5 +1,6 @@
 import type {
   ExportOptions,
+  ProgressTrackerInstance,
   TimelineConfig,
   TimelineEvent,
   TimelineEvents,
@@ -21,20 +22,24 @@ import {createEventEmitter} from './events.js'
  * Features include:
  * - Interactive zoom and pan with touch support
  * - Event filtering by type, era, and watch status
+ * - Progress integration showing watched/unwatched episodes
  * - Responsive design with configurable layout
  * - Export functionality for PNG/SVG sharing
  * - Performance optimization for large datasets
  *
  * @param container - DOM element to render the timeline in
  * @param initialEvents - Initial array of timeline events to display
+ * @param progressTracker - Progress tracker instance for watch status integration
  * @param initialConfig - Initial timeline configuration
  * @returns Timeline visualization instance with full API
  *
  * @example
  * ```typescript
+ * const progressTracker = createProgressTracker()
  * const timelineViz = createTimelineVisualization(
  *   document.getElementById('timeline-container'),
  *   timelineEvents,
+ *   progressTracker,
  *   { eventTypes: ['series', 'movie'], watchStatus: 'all' }
  * )
  *
@@ -48,6 +53,7 @@ import {createEventEmitter} from './events.js'
 export const createTimelineVisualization = <TContainer extends HTMLElement>(
   container: TContainer,
   initialEvents: TimelineEvent[] = [],
+  progressTracker: ProgressTrackerInstance,
   initialConfig: Partial<TimelineConfig> = {},
 ): TimelineVisualizationInstance => {
   // Private state managed via closure variables
@@ -237,25 +243,63 @@ export const createTimelineVisualization = <TContainer extends HTMLElement>(
       .attr('r', layout.markerSize.width / 2)
       .attr('cx', d => xScale(d.date))
       .attr('cy', layout.trackHeight / 2)
-      .style('fill', d => d.metadata?.color || '#2196F3')
-      .style('stroke', '#fff')
-      .style('stroke-width', 2)
+      .style('fill', d => {
+        const baseColor = d.metadata?.color || '#2196F3'
+        // Dim unwatched events and brighten watched events
+        return d.isWatched ? baseColor : d3.color(baseColor)?.darker(1).toString() || baseColor
+      })
+      .style('stroke', d => (d.isWatched ? '#4CAF50' : '#fff'))
+      .style('stroke-width', d => (d.isWatched ? 3 : 2))
+      .style('opacity', d => (d.isWatched ? 1 : 0.6))
       .style('cursor', 'pointer')
       .on('click', handleEventClick)
       .on('mouseover', handleEventHover)
       .on('mouseout', handleEventLeave)
 
-    // Update selection - update existing markers
+    // Update selection - update existing markers with progress indicators
     eventMarkers
       .transition()
       .duration(300)
       .attr('cx', d => xScale(d.date))
-      .style('fill', d => d.metadata?.color || '#2196F3')
+      .style('fill', d => {
+        const baseColor = d.metadata?.color || '#2196F3'
+        return d.isWatched ? baseColor : d3.color(baseColor)?.darker(1).toString() || baseColor
+      })
+      .style('stroke', d => (d.isWatched ? '#4CAF50' : '#fff'))
+      .style('stroke-width', d => (d.isWatched ? 3 : 2))
+      .style('opacity', d => (d.isWatched ? 1 : 0.6))
 
     // Exit selection - remove old markers
     eventMarkers.exit().transition().duration(300).attr('r', 0).remove()
 
-    // Add event labels
+    // Add progress indicators (checkmarks for watched events)
+    const progressIndicators = chartGroup
+      .selectAll<SVGTextElement, TimelineEvent>('.progress-indicator')
+      .data(
+        filteredEvents.filter(d => d.isWatched),
+        d => d.id,
+      )
+
+    progressIndicators
+      .enter()
+      .append('text')
+      .attr('class', 'progress-indicator')
+      .attr('x', d => xScale(d.date))
+      .attr('y', layout.trackHeight / 2 + 5)
+      .attr('text-anchor', 'middle')
+      .style('font-size', '12px')
+      .style('fill', '#4CAF50')
+      .style('font-weight', 'bold')
+      .text('✓')
+
+    progressIndicators
+      .transition()
+      .duration(300)
+      .attr('x', d => xScale(d.date))
+
+    progressIndicators.exit().remove()
+
+    // Add event labels with watch status styling
     const eventLabels = chartGroup
       .selectAll<SVGTextElement, TimelineEvent>('.event-label')
       .data(filteredEvents, d => d.id)
@@ -268,13 +312,16 @@ export const createTimelineVisualization = <TContainer extends HTMLElement>(
       .attr('y', layout.trackHeight / 2 - 15)
       .attr('text-anchor', 'middle')
       .style('font', layout.fonts.body)
-      .style('fill', '#333')
+      .style('fill', d => (d.isWatched ? '#333' : '#666'))
+      .style('font-weight', d => (d.isWatched ? 'bold' : 'normal'))
       .text(d => d.title)
 
     eventLabels
       .transition()
       .duration(300)
       .attr('x', d => xScale(d.date))
+      .style('fill', d => (d.isWatched ? '#333' : '#666'))
+      .style('font-weight', d => (d.isWatched ? 'bold' : 'normal'))
       .text(d => d.title)
 
     eventLabels.exit().remove()
@@ -321,6 +368,33 @@ export const createTimelineVisualization = <TContainer extends HTMLElement>(
     renderAxes()
     renderEvents()
   }, 'Failed to render timeline visualization')
+
+  // Progress integration functions (defined after render to avoid hoisting issues)
+  const updateEventWatchStatus = (): void => {
+    events = events.map(event => ({
+      ...event,
+      isWatched: event.relatedItems.some(itemId => progressTracker.isWatched(itemId)),
+    }))
+  }
+
+  // Listen to progress tracker changes and update timeline
+  const setupProgressIntegration = (): void => {
+    progressTracker.on('item-toggle', () => {
+      updateEventWatchStatus()
+      render() // Re-render timeline with updated progress
+    })
+
+    progressTracker.on('progress-update', () => {
+      updateEventWatchStatus()
+      render() // Re-render timeline with updated progress
+    })
+
+    // Initial update
+    updateEventWatchStatus()
+  }
+
+  // Setup progress integration after render function is defined
+  setupProgressIntegration()
 
   const updateData = withSyncErrorHandling((newEvents: TimelineEvent[]): void => {
     events = [...newEvents]
