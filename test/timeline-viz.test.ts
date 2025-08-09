@@ -1,4 +1,4 @@
-import type {TimelineVisualizationInstance} from '../src/modules/types.js'
+import type {ProgressTrackerInstance, TimelineVisualizationInstance} from '../src/modules/types.js'
 import {JSDOM} from 'jsdom'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {timelineEvents} from '../src/data/timeline-events.js'
@@ -88,6 +88,7 @@ vi.mock('d3', () => ({
 describe('Timeline Visualization', () => {
   let container: HTMLElement
   let timelineViz: TimelineVisualizationInstance
+  let mockProgressTracker: ProgressTrackerInstance
 
   beforeEach(() => {
     // Set up DOM environment
@@ -109,8 +110,28 @@ describe('Timeline Visualization', () => {
     Object.defineProperty(container, 'clientWidth', {value: 800, configurable: true})
     Object.defineProperty(container, 'clientHeight', {value: 400, configurable: true})
 
+    // Create mock progress tracker
+    mockProgressTracker = {
+      setWatchedItems: vi.fn(),
+      toggleItem: vi.fn(),
+      isWatched: vi.fn().mockReturnValue(false),
+      resetProgress: vi.fn(),
+      getWatchedItems: vi.fn().mockReturnValue([]),
+      updateProgress: vi.fn(),
+      calculateOverallProgress: vi.fn().mockReturnValue({total: 0, completed: 0, percentage: 0}),
+      calculateEraProgress: vi.fn().mockReturnValue([]),
+      on: vi.fn(),
+      off: vi.fn(),
+      once: vi.fn(),
+      removeAllListeners: vi.fn(),
+    }
+
     // Create timeline visualization instance
-    timelineViz = createTimelineVisualization(container, timelineEvents.slice(0, 5))
+    timelineViz = createTimelineVisualization(
+      container,
+      timelineEvents.slice(0, 5),
+      mockProgressTracker,
+    )
   })
 
   afterEach(() => {
