@@ -3,3 +3,4 @@
  */
 
 export * from './composition.js'
+export * from './download.js'

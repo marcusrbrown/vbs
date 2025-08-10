@@ -193,9 +193,49 @@
 /* Accessibility improvements */
 .timeline-controls__select:focus-visible,
 .timeline-controls__input:focus-visible,
-.timeline-controls__reset:focus-visible {
+.timeline-controls__reset:focus-visible,
+.timeline-controls__export-png:focus-visible,
+.timeline-controls__export-svg:focus-visible {
   outline: 2px solid var(--vbs-accent-color, #2196F3);
   outline-offset: 2px;
+}
+
+/* Export controls styling */
+.timeline-controls__export {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.timeline-controls__export-png,
+.timeline-controls__export-svg {
+  background: var(--vbs-secondary-color, #4CAF50);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.timeline-controls__export-png:hover,
+.timeline-controls__export-svg:hover {
+  background: var(--vbs-secondary-hover, #45a049);
+  transform: translateY(-1px);
+}
+
+.timeline-controls__export-png:active,
+.timeline-controls__export-svg:active {
+  transform: translateY(0);
+}
+
+.timeline-controls__export-svg {
+  background: var(--vbs-tertiary-color, #FF9800);
+}
+
+.timeline-controls__export-svg:hover {
+  background: var(--vbs-tertiary-hover, #f57c00);
 }
 
 /* High contrast mode support */
