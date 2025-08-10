@@ -86,6 +86,12 @@ export const createTimelineVisualization = <TContainer extends HTMLElement>(
     zoomLimits: {min: 0.1, max: 10},
   }
 
+  // Mobile and touch interaction state
+  let touchStartDistance = 0
+  let touchStartTime = 0
+  let lastTouchEnd = 0
+  let isDoubleTapPrevented = false
+
   // D3.js visualization elements
   let svg: d3.Selection<SVGSVGElement, unknown, null, undefined>
   let chartGroup: d3.Selection<SVGGElement, unknown, null, undefined>
@@ -546,13 +552,6 @@ export const createTimelineVisualization = <TContainer extends HTMLElement>(
     }
   }, 'Failed to export timeline') as (options: ExportOptions) => Promise<Blob>
 
-  const destroy = withSyncErrorHandling((): void => {
-    if (svg) {
-      svg.remove()
-    }
-    eventEmitter.removeAllListeners()
-  }, 'Failed to destroy timeline visualization')
-
   const getState = () => ({
     config,
     layout,
@@ -560,8 +559,180 @@ export const createTimelineVisualization = <TContainer extends HTMLElement>(
     events: [...events],
   })
 
+  // Calculate distance between two touch points for touch interactions
+  const getTouchDistance = (touches: TouchList): number => {
+    if (touches.length < 2) return 0
+    const touch1 = touches[0]
+    const touch2 = touches[1]
+    if (!touch1 || !touch2) return 0
+    return Math.hypot(touch2.clientX - touch1.clientX, touch2.clientY - touch1.clientY)
+  }
+
+  // Handle double tap to zoom
+  const handleDoubleTap = withSyncErrorHandling((touch: Touch): void => {
+    if (isDoubleTapPrevented) return
+
+    // Calculate touch position relative to SVG
+    const rect = svg.node()?.getBoundingClientRect()
+    if (!rect) return
+
+    const touchX = touch.clientX - rect.left
+    const touchY = touch.clientY - rect.top
+
+    // Toggle between zoom levels on double tap
+    const targetZoom = interaction.zoomLevel > 1 ? 1 : 2
+    zoomTo(targetZoom, {x: touchX, y: touchY})
+  }, 'Failed to handle double tap')
+
+  // Handle touch start for pinch-to-zoom and touch detection
+  const handleTouchStart = withSyncErrorHandling((event: TouchEvent): void => {
+    interaction.isTouchMode = true
+    touchStartTime = Date.now()
+
+    if (event.touches.length === 2) {
+      // Pinch-to-zoom start
+      touchStartDistance = getTouchDistance(event.touches)
+      event.preventDefault() // Prevent default browser zoom
+    }
+
+    // Handle single touch for tap detection
+    if (event.touches.length === 1) {
+      const now = Date.now()
+      const touch = event.touches[0]
+      if (touch && now - lastTouchEnd <= 300 && now - touchStartTime <= 100) {
+        // Double tap detected - check timing to prevent false positives
+        event.preventDefault()
+        handleDoubleTap(touch)
+        isDoubleTapPrevented = true
+      }
+    }
+  }, 'Failed to handle touch start')
+
+  // Handle touch move for pinch-to-zoom
+  const handleTouchMove = withSyncErrorHandling((event: TouchEvent): void => {
+    if (event.touches.length === 2 && touchStartDistance > 0) {
+      const currentDistance = getTouchDistance(event.touches)
+      const scaleChange = currentDistance / touchStartDistance
+
+      // Apply zoom with limits
+      const newZoom = Math.max(
+        interaction.zoomLimits.min,
+        Math.min(interaction.zoomLimits.max, interaction.zoomLevel * scaleChange),
+      )
+
+      if (newZoom !== interaction.zoomLevel) {
+        // Calculate center point between touches
+        const touch1 = event.touches[0]
+        const touch2 = event.touches[1]
+        if (touch1 && touch2) {
+          const centerX = (touch1.clientX + touch2.clientX) / 2
+          const centerY = (touch1.clientY + touch2.clientY) / 2
+
+          zoomTo(newZoom, {x: centerX, y: centerY})
+          touchStartDistance = currentDistance
+        }
+      }
+      event.preventDefault()
+    }
+  }, 'Failed to handle touch move')
+
+  // Handle touch end
+  const handleTouchEnd = withSyncErrorHandling((event: TouchEvent): void => {
+    if (event.touches.length === 0) {
+      touchStartDistance = 0
+      lastTouchEnd = Date.now()
+
+      // Reset double tap prevention after delay
+      setTimeout(() => {
+        isDoubleTapPrevented = false
+      }, 300)
+    }
+  }, 'Failed to handle touch end')
+
+  // Enhanced resize handler for responsive design
+  const handleResize = withSyncErrorHandling((): void => {
+    const containerRect = container.getBoundingClientRect()
+    const newWidth = containerRect.width || 800
+    const newHeight = containerRect.height || 400
+
+    // Update layout for responsive design
+    const responsiveLayout: Partial<TimelineLayout> = {
+      width: newWidth,
+      height: newHeight,
+    }
+
+    // Adjust margins and font sizes for mobile devices
+    if (newWidth < 768) {
+      responsiveLayout.margin = {
+        top: 20,
+        right: 20,
+        bottom: 40,
+        left: 40,
+      }
+      responsiveLayout.fonts = {
+        title: '12px sans-serif',
+        subtitle: '10px sans-serif',
+        body: '9px sans-serif',
+      }
+      responsiveLayout.markerSize = {
+        width: 8,
+        height: 8,
+      }
+    } else {
+      responsiveLayout.margin = {
+        top: 40,
+        right: 40,
+        bottom: 60,
+        left: 80,
+      }
+      responsiveLayout.fonts = {
+        title: '14px sans-serif',
+        subtitle: '12px sans-serif',
+        body: '11px sans-serif',
+      }
+      responsiveLayout.markerSize = {
+        width: 12,
+        height: 12,
+      }
+    }
+
+    updateLayout(responsiveLayout)
+  }, 'Failed to handle resize')
+
+  // Setup touch and resize event listeners after initialization
+  const setupEventListeners = withSyncErrorHandling((): void => {
+    // Add touch event listeners for enhanced mobile support
+    container.addEventListener('touchstart', handleTouchStart, {passive: false})
+    container.addEventListener('touchmove', handleTouchMove, {passive: false})
+    container.addEventListener('touchend', handleTouchEnd, {passive: true})
+
+    // Add resize listener for responsive design
+    window.addEventListener('resize', handleResize, {passive: true})
+
+    // Initial responsive adjustment
+    handleResize()
+  }, 'Failed to setup event listeners')
+
+  // Enhanced destroy function with proper cleanup
+  const enhancedDestroy = withSyncErrorHandling((): void => {
+    // Clean up touch and resize event listeners
+    container.removeEventListener('touchstart', handleTouchStart)
+    container.removeEventListener('touchmove', handleTouchMove)
+    container.removeEventListener('touchend', handleTouchEnd)
+    window.removeEventListener('resize', handleResize)
+
+    // Clean up D3 elements
+    if (svg) {
+      svg.remove()
+    }
+    eventEmitter.removeAllListeners()
+  }, 'Failed to destroy timeline visualization')
+
   // Initialize the visualization
   initializeVisualization()
+
+  // Setup enhanced touch and responsive event listeners
+  setupEventListeners()
 
   // Return public API
   return {
@@ -574,7 +745,7 @@ export const createTimelineVisualization = <TContainer extends HTMLElement>(
     zoomToFit,
     selectEvent,
     exportTimeline,
-    destroy,
+    destroy: enhancedDestroy, // Use enhanced destroy with touch cleanup
     getState,
 
     // Generic EventEmitter methods for type-safe event handling
