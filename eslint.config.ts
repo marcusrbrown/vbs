@@ -14,4 +14,7 @@ export default defineConfig({
   typescript: {
     tsconfigPath: './tsconfig.json',
   },
+  rules: {
+    'no-use-before-define': 'off',
+  },
 })

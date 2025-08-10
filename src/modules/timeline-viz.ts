@@ -6,6 +6,8 @@ import type {
   TimelineEvents,
   TimelineInteraction,
   TimelineLayout,
+  TimelinePerformanceConfig,
+  TimelinePerformanceMetrics,
   TimelineVisualizationInstance,
 } from './types.js'
 
@@ -65,6 +67,35 @@ export const createTimelineVisualization = <TContainer extends HTMLElement>(
     ...initialConfig,
   }
 
+  // Performance configuration with sensible defaults
+  const performanceConfig: TimelinePerformanceConfig = {
+    svgEventThreshold: 500,
+    targetFrameRate: 60,
+    maxRenderTimeMs: 16,
+    enableProfiling: false,
+    enableVirtualization: true,
+    virtualizationPadding: 100,
+    forceCanvasMode: false,
+    enableProgressiveRendering: true,
+    progressiveChunkSize: 50,
+    ...config.performance,
+  }
+
+  // Performance metrics tracking
+  const performanceMetrics: TimelinePerformanceMetrics = {
+    renderMode: 'svg',
+    renderedEventCount: 0,
+    totalEventCount: 0,
+    visibleEventCount: 0,
+    lastRenderTimeMs: 0,
+    averageRenderTimeMs: 0,
+    currentFps: 60,
+    memoryUsageBytes: 0,
+    virtualizationActive: false,
+  }
+
+  const renderTimes: number[] = []
+
   let layout: TimelineLayout = {
     width: container.clientWidth || 800,
     height: container.clientHeight || 400,
@@ -92,12 +123,17 @@ export const createTimelineVisualization = <TContainer extends HTMLElement>(
   let lastTouchEnd = 0
   let isDoubleTapPrevented = false
 
-  // D3.js visualization elements
+  // D3.js visualization elements (SVG mode)
   let svg: d3.Selection<SVGSVGElement, unknown, null, undefined>
   let chartGroup: d3.Selection<SVGGElement, unknown, null, undefined>
   let xScale: d3.ScaleTime<number, number>
   let yScale: d3.ScaleLinear<number, number>
   let zoom: d3.ZoomBehavior<SVGSVGElement, unknown>
+
+  // Canvas rendering elements (Canvas mode)
+  let canvas: HTMLCanvasElement | null = null
+  let canvasContext: CanvasRenderingContext2D | null = null
+  let animationFrameId: number | null = null
 
   // Generic EventEmitter for type-safe event handling
   const eventEmitter = createEventEmitter<TimelineEvents>()
@@ -116,6 +152,305 @@ export const createTimelineVisualization = <TContainer extends HTMLElement>(
   const handleEventLeave = (): void => {
     delete interaction.hoveredEventId
     eventEmitter.emit('event-hover', {eventId: '', event: null})
+  }
+
+  // Performance monitoring utilities
+  const startPerformanceMeasure = (): number => {
+    return performance.now()
+  }
+
+  const endPerformanceMeasure = (startTime: number): number => {
+    const renderTime = performance.now() - startTime
+    renderTimes.push(renderTime)
+
+    // Keep only last 10 measurements for rolling average
+    if (renderTimes.length > 10) {
+      renderTimes.shift()
+    }
+
+    performanceMetrics.lastRenderTimeMs = renderTime
+    performanceMetrics.averageRenderTimeMs =
+      renderTimes.reduce((sum, time) => sum + time, 0) / renderTimes.length
+    performanceMetrics.currentFps = Math.min(60, 1000 / renderTime)
+
+    if (performanceConfig.enableProfiling) {
+      eventEmitter.emit('performance-update', {metrics: performanceMetrics})
+    }
+
+    return renderTime
+  }
+
+  // Determine optimal rendering mode based on performance metrics
+  const shouldUseCanvasMode = (): boolean => {
+    if (performanceConfig.forceCanvasMode) return true
+
+    const filteredEvents = getFilteredEvents()
+    const eventCount = filteredEvents.length
+
+    return (
+      eventCount > performanceConfig.svgEventThreshold ||
+      performanceMetrics.lastRenderTimeMs > performanceConfig.maxRenderTimeMs
+    )
+  }
+
+  // Switch rendering modes with proper cleanup
+  const switchRenderMode = (newMode: 'svg' | 'canvas', reason: string): void => {
+    const oldMode = performanceMetrics.renderMode
+    if (oldMode === newMode) return
+
+    // Clean up old mode
+    if (oldMode === 'svg' && svg) {
+      svg.style('display', 'none')
+    } else if (oldMode === 'canvas' && canvas) {
+      canvas.style.display = 'none'
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId)
+        animationFrameId = null
+      }
+    }
+
+    performanceMetrics.renderMode = newMode
+    eventEmitter.emit('render-mode-change', {oldMode, newMode, reason})
+
+    // Initialize new mode
+    if (newMode === 'canvas') {
+      initializeCanvasMode()
+    } else {
+      initializeSVGMode()
+    }
+  }
+
+  // Initialize canvas rendering mode
+  const initializeCanvasMode = (): void => {
+    if (canvas) {
+      canvas.style.display = 'block'
+    } else {
+      canvas = document.createElement('canvas')
+      canvas.width = layout.width
+      canvas.height = layout.height
+      canvas.style.position = 'absolute'
+      canvas.style.top = '0'
+      canvas.style.left = '0'
+      container.append(canvas)
+
+      canvasContext = canvas.getContext('2d')
+      setupCanvasEventListeners()
+    }
+  }
+
+  // Initialize SVG rendering mode
+  const initializeSVGMode = (): void => {
+    if (svg) {
+      svg.style('display', 'block')
+    } else {
+      // Re-initialize SVG if needed
+      initializeVisualization()
+    }
+  }
+
+  // Setup canvas-specific event listeners
+  const setupCanvasEventListeners = (): void => {
+    if (!canvas) return
+
+    canvas.addEventListener('click', handleCanvasClick)
+    canvas.addEventListener('mousemove', handleCanvasMouseMove)
+    canvas.addEventListener('mouseout', handleCanvasMouseOut)
+  }
+
+  // Canvas event handlers
+  const handleCanvasClick = (event: MouseEvent): void => {
+    if (!canvas || !canvasContext) return
+
+    const rect = canvas.getBoundingClientRect()
+    const x = event.clientX - rect.left
+    const y = event.clientY - rect.top
+
+    const clickedEvent = findEventAtPosition(x, y)
+    if (clickedEvent) {
+      handleEventClick(event, clickedEvent)
+    }
+  }
+
+  const handleCanvasMouseMove = (event: MouseEvent): void => {
+    if (!canvas || !canvasContext) return
+
+    const rect = canvas.getBoundingClientRect()
+    const x = event.clientX - rect.left
+    const y = event.clientY - rect.top
+
+    const hoveredEvent = findEventAtPosition(x, y)
+    if (hoveredEvent) {
+      canvas.style.cursor = 'pointer'
+      handleEventHover(event, hoveredEvent)
+    } else {
+      canvas.style.cursor = 'default'
+      handleEventLeave()
+    }
+  }
+
+  const handleCanvasMouseOut = (): void => {
+    if (!canvas) return
+    canvas.style.cursor = 'default'
+    handleEventLeave()
+  }
+
+  // Find event at canvas position
+  const findEventAtPosition = (x: number, y: number): TimelineEvent | null => {
+    const filteredEvents = getFilteredEvents()
+    const markerRadius = layout.markerSize.width / 2
+
+    for (const event of filteredEvents) {
+      const eventX = xScale(event.date) + layout.margin.left
+      const eventY = layout.trackHeight / 2 + layout.margin.top
+
+      const distance = Math.hypot(x - eventX, y - eventY)
+
+      if (distance <= markerRadius + 5) {
+        // 5px tolerance
+        return event
+      }
+    }
+
+    return null
+  }
+
+  // Virtualization: get events visible in current viewport
+  const getVisibleEvents = (): TimelineEvent[] => {
+    if (!performanceConfig.enableVirtualization) {
+      return getFilteredEvents()
+    }
+
+    const filteredEvents = getFilteredEvents()
+    const chartWidth = layout.width - layout.margin.left - layout.margin.right
+
+    // Calculate visible date range based on zoom and pan
+    const scale = interaction.zoomLevel
+    const panX = interaction.panOffset.x
+
+    const visibleStartX = -panX - performanceConfig.virtualizationPadding
+    const visibleEndX = chartWidth / scale - panX + performanceConfig.virtualizationPadding
+
+    const visibleStartDate = xScale.invert(visibleStartX)
+    const visibleEndDate = xScale.invert(visibleEndX)
+
+    const visibleEvents = filteredEvents.filter(
+      event => event.date >= visibleStartDate && event.date <= visibleEndDate,
+    )
+
+    performanceMetrics.visibleEventCount = visibleEvents.length
+    performanceMetrics.virtualizationActive = visibleEvents.length < filteredEvents.length
+
+    if (performanceMetrics.virtualizationActive) {
+      const startIndex = filteredEvents.findIndex(e => e.id === visibleEvents[0]?.id) || 0
+      const endIndex = startIndex + visibleEvents.length
+
+      performanceMetrics.viewportBounds = {
+        startDate: visibleStartDate,
+        endDate: visibleEndDate,
+        startIndex,
+        endIndex,
+      }
+
+      eventEmitter.emit('viewport-change', {
+        visibleEvents,
+        totalEvents: filteredEvents.length,
+      })
+    }
+
+    return visibleEvents
+  }
+
+  // Canvas rendering functions
+  const renderEventsCanvas = (): void => {
+    if (!canvas || !canvasContext) return
+
+    const startTime = startPerformanceMeasure()
+
+    // Clear canvas
+    canvasContext.clearRect(0, 0, canvas.width, canvas.height)
+
+    const visibleEvents = getVisibleEvents()
+    performanceMetrics.renderedEventCount = visibleEvents.length
+    performanceMetrics.totalEventCount = events.length
+
+    // Render events in chunks for better performance
+    if (
+      performanceConfig.enableProgressiveRendering &&
+      visibleEvents.length > performanceConfig.progressiveChunkSize
+    ) {
+      renderEventsProgressive(visibleEvents, 0)
+    } else {
+      renderEventsBatch(visibleEvents)
+    }
+
+    endPerformanceMeasure(startTime)
+  }
+
+  const renderEventsBatch = (eventsToRender: TimelineEvent[]): void => {
+    if (!canvasContext) return
+
+    for (const event of eventsToRender) {
+      renderSingleEventCanvas(event)
+    }
+  }
+
+  const renderEventsProgressive = (eventsToRender: TimelineEvent[], startIndex: number): void => {
+    if (!canvasContext || startIndex >= eventsToRender.length) return
+
+    const endIndex = Math.min(
+      startIndex + performanceConfig.progressiveChunkSize,
+      eventsToRender.length,
+    )
+    const chunk = eventsToRender.slice(startIndex, endIndex)
+
+    renderEventsBatch(chunk)
+
+    if (endIndex < eventsToRender.length) {
+      animationFrameId = requestAnimationFrame(() => {
+        renderEventsProgressive(eventsToRender, endIndex)
+      })
+    }
+  }
+
+  const renderSingleEventCanvas = (event: TimelineEvent): void => {
+    if (!canvasContext) return
+
+    const x = xScale(event.date) + layout.margin.left
+    const y = layout.trackHeight / 2 + layout.margin.top
+    const radius = layout.markerSize.width / 2
+
+    // Apply zoom and pan transform
+    const transformedX = x * interaction.zoomLevel + interaction.panOffset.x
+    const transformedY = y * interaction.zoomLevel + interaction.panOffset.y
+    const transformedRadius = radius * interaction.zoomLevel
+
+    // Event marker
+    canvasContext.beginPath()
+    canvasContext.arc(transformedX, transformedY, transformedRadius, 0, 2 * Math.PI)
+
+    const baseColor = event.metadata?.color || '#2196F3'
+    canvasContext.fillStyle = event.isWatched ? baseColor : `${baseColor}80` // Add transparency for unwatched
+    canvasContext.fill()
+
+    canvasContext.strokeStyle = event.isWatched ? '#4CAF50' : '#fff'
+    canvasContext.lineWidth = event.isWatched ? 3 : 2
+    canvasContext.stroke()
+
+    // Progress indicator for watched events
+    if (event.isWatched) {
+      canvasContext.font = `${12 * interaction.zoomLevel}px sans-serif`
+      canvasContext.fillStyle = '#4CAF50'
+      canvasContext.textAlign = 'center'
+      canvasContext.fillText('✓', transformedX, transformedY + 4 * interaction.zoomLevel)
+    }
+
+    // Event label (only if zoomed in enough)
+    if (interaction.zoomLevel > 0.5) {
+      canvasContext.font = `${11 * interaction.zoomLevel}px sans-serif`
+      canvasContext.fillStyle = event.isWatched ? '#333' : '#666'
+      canvasContext.textAlign = 'center'
+      canvasContext.fillText(event.title, transformedX, transformedY - 15 * interaction.zoomLevel)
+    }
   }
 
   // Handle zoom events
@@ -364,24 +699,44 @@ export const createTimelineVisualization = <TContainer extends HTMLElement>(
       .call(yAxis as any)
   }, 'Failed to render timeline axes')
 
-  // Public API methods
-  const render = withSyncErrorHandling((): void => {
-    if (!svg) {
-      initializeVisualization()
-    }
-
-    updateScales()
-    renderAxes()
-    renderEvents()
-  }, 'Failed to render timeline visualization')
-
-  // Progress integration functions (defined after render to avoid hoisting issues)
+  // Progress integration functions
   const updateEventWatchStatus = (): void => {
     events = events.map(event => ({
       ...event,
       isWatched: event.relatedItems.some(itemId => progressTracker.isWatched(itemId)),
     }))
   }
+
+  // Public API methods
+  const render = withSyncErrorHandling((): void => {
+    const startTime = startPerformanceMeasure()
+
+    // Update event watch status from progress tracker
+    updateEventWatchStatus()
+
+    // Determine optimal rendering mode
+    const useCanvas = shouldUseCanvasMode()
+
+    if (useCanvas && performanceMetrics.renderMode !== 'canvas') {
+      switchRenderMode('canvas', 'Performance optimization')
+    } else if (!useCanvas && performanceMetrics.renderMode !== 'svg') {
+      switchRenderMode('svg', 'Optimal for current dataset')
+    }
+
+    // Render using appropriate mode
+    if (performanceMetrics.renderMode === 'canvas') {
+      if (!canvas) initializeCanvasMode()
+      updateScales()
+      renderEventsCanvas()
+    } else {
+      if (!svg) initializeVisualization()
+      updateScales()
+      renderAxes()
+      renderEvents()
+    }
+
+    endPerformanceMeasure(startTime)
+  }, 'Failed to render timeline visualization')
 
   // Listen to progress tracker changes and update timeline
   const setupProgressIntegration = (): void => {
@@ -551,13 +906,6 @@ export const createTimelineVisualization = <TContainer extends HTMLElement>(
       })
     }
   }, 'Failed to export timeline') as (options: ExportOptions) => Promise<Blob>
-
-  const getState = () => ({
-    config,
-    layout,
-    interaction,
-    events: [...events],
-  })
 
   // Calculate distance between two touch points for touch interactions
   const getTouchDistance = (touches: TouchList): number => {
@@ -734,6 +1082,27 @@ export const createTimelineVisualization = <TContainer extends HTMLElement>(
   // Setup enhanced touch and responsive event listeners
   setupEventListeners()
 
+  // Performance and rendering mode control methods
+  const getPerformanceMetrics = (): TimelinePerformanceMetrics => {
+    return {...performanceMetrics}
+  }
+
+  const enableCanvasMode = (): void => {
+    switchRenderMode('canvas', 'Manual mode switch')
+    render()
+  }
+
+  const enableSVGMode = (): void => {
+    switchRenderMode('svg', 'Manual mode switch')
+    render()
+  }
+
+  const enableAutoOptimization = (): void => {
+    // Reset any forced mode preferences and let adaptive rendering take over
+    performanceConfig.forceCanvasMode = false
+    render()
+  }
+
   // Return public API
   return {
     render,
@@ -746,7 +1115,17 @@ export const createTimelineVisualization = <TContainer extends HTMLElement>(
     selectEvent,
     exportTimeline,
     destroy: enhancedDestroy, // Use enhanced destroy with touch cleanup
-    getState,
+    getState: () => ({
+      config,
+      layout,
+      interaction,
+      events,
+      performance: performanceMetrics,
+    }),
+    getPerformanceMetrics,
+    enableCanvasMode,
+    enableSVGMode,
+    enableAutoOptimization,
 
     // Generic EventEmitter methods for type-safe event handling
     on: eventEmitter.on.bind(eventEmitter),
