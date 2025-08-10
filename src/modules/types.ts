@@ -1813,6 +1813,8 @@ export interface TimelineConfig {
   seriesIds?: string[]
   /** Search text for filtering events by title/description */
   searchText?: string
+  /** Performance configuration for large datasets */
+  performance?: Partial<TimelinePerformanceConfig>
 }
 
 /**
@@ -1871,6 +1873,63 @@ export interface TimelineInteraction {
 }
 
 /**
+ * Timeline performance configuration and metrics.
+ * Controls rendering optimization and performance monitoring.
+ */
+export interface TimelinePerformanceConfig {
+  /** Maximum number of events to render with SVG before switching to Canvas */
+  svgEventThreshold: number
+  /** Target frame rate for smooth animations (fps) */
+  targetFrameRate: number
+  /** Maximum render time before switching to canvas (milliseconds) */
+  maxRenderTimeMs: number
+  /** Enable performance monitoring and metrics collection */
+  enableProfiling: boolean
+  /** Enable event virtualization (only render visible events) */
+  enableVirtualization: boolean
+  /** Viewport padding for virtualization (pixels) */
+  virtualizationPadding: number
+  /** Force canvas rendering regardless of event count */
+  forceCanvasMode: boolean
+  /** Enable progressive rendering for large datasets */
+  enableProgressiveRendering: boolean
+  /** Number of events to render per frame in progressive mode */
+  progressiveChunkSize: number
+}
+
+/**
+ * Timeline performance metrics and monitoring data.
+ * Tracks rendering performance to enable adaptive optimization.
+ */
+export interface TimelinePerformanceMetrics {
+  /** Current rendering mode: 'svg' or 'canvas' */
+  renderMode: 'svg' | 'canvas'
+  /** Number of events currently being rendered */
+  renderedEventCount: number
+  /** Total number of events in dataset */
+  totalEventCount: number
+  /** Number of events visible in current viewport */
+  visibleEventCount: number
+  /** Last render time in milliseconds */
+  lastRenderTimeMs: number
+  /** Average render time over last 10 renders */
+  averageRenderTimeMs: number
+  /** Current frame rate (fps) */
+  currentFps: number
+  /** Memory usage estimate (bytes) */
+  memoryUsageBytes: number
+  /** Whether virtualization is currently active */
+  virtualizationActive: boolean
+  /** Viewport bounds for virtualization */
+  viewportBounds?: {
+    startDate: Date
+    endDate: Date
+    startIndex: number
+    endIndex: number
+  }
+}
+
+/**
  * Timeline event map for type-safe event handling.
  * Defines events emitted by the timeline visualization component.
  */
@@ -1889,6 +1948,12 @@ export interface TimelineEvents extends EventMap {
   'layout-change': {layout: TimelineLayout}
   /** Fired when timeline export is requested */
   'export-request': {format: 'png' | 'svg'; options: ExportOptions}
+  /** Fired when rendering mode changes due to performance optimization */
+  'render-mode-change': {oldMode: 'svg' | 'canvas'; newMode: 'svg' | 'canvas'; reason: string}
+  /** Fired when performance metrics are updated */
+  'performance-update': {metrics: TimelinePerformanceMetrics}
+  /** Fired when virtualization viewport changes */
+  'viewport-change': {visibleEvents: TimelineEvent[]; totalEvents: number}
 }
 
 /**
@@ -1961,7 +2026,16 @@ export interface TimelineVisualizationInstance {
     layout: TimelineLayout
     interaction: TimelineInteraction
     events: TimelineEvent[]
+    performance?: TimelinePerformanceMetrics
   }
+  /** Get current performance metrics */
+  getPerformanceMetrics(): TimelinePerformanceMetrics
+  /** Force switch to canvas rendering mode */
+  enableCanvasMode(): void
+  /** Force switch to SVG rendering mode */
+  enableSVGMode(): void
+  /** Enable automatic performance optimization */
+  enableAutoOptimization(): void
 
   // Generic EventEmitter methods for type-safe event handling
   on<K extends keyof TimelineEvents>(event: K, listener: (data: TimelineEvents[K]) => void): void
