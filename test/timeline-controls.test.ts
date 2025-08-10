@@ -454,6 +454,85 @@ describe('TimelineControls', () => {
     })
   })
 
+  describe('Export Functionality', () => {
+    it('should emit config-export event for PNG export', () => {
+      const mockListener = vi.fn()
+      timelineControls.on('config-export', mockListener)
+
+      timelineControls.render()
+
+      const exportButton = container.querySelector(
+        '[data-testid="export-png"]',
+      ) as HTMLButtonElement
+      expect(exportButton).toBeTruthy()
+
+      exportButton.click()
+
+      expect(mockListener).toHaveBeenCalledWith(
+        expect.objectContaining({
+          config: expect.any(Object),
+          exportData: expect.objectContaining({
+            format: 'png',
+            options: expect.objectContaining({
+              format: 'png',
+              dimensions: {width: 1200, height: 800},
+              quality: 0.9,
+              backgroundColor: 'white',
+              includeMetadata: true,
+              filename: expect.stringMatching(/^star-trek-timeline-\d+$/),
+            }),
+          }),
+        }),
+      )
+    })
+
+    it('should emit config-export event for SVG export', () => {
+      const mockListener = vi.fn()
+      timelineControls.on('config-export', mockListener)
+
+      timelineControls.render()
+
+      const exportButton = container.querySelector(
+        '[data-testid="export-svg"]',
+      ) as HTMLButtonElement
+      expect(exportButton).toBeTruthy()
+
+      exportButton.click()
+
+      expect(mockListener).toHaveBeenCalledWith(
+        expect.objectContaining({
+          config: expect.any(Object),
+          exportData: expect.objectContaining({
+            format: 'svg',
+            options: expect.objectContaining({
+              format: 'svg',
+              dimensions: {width: 1200, height: 800},
+              backgroundColor: 'transparent',
+              includeMetadata: true,
+              filename: expect.stringMatching(/^star-trek-timeline-\d+$/),
+            }),
+          }),
+        }),
+      )
+    })
+
+    it('should render export buttons with correct styling', () => {
+      timelineControls.render()
+
+      const exportPngButton = container.querySelector(
+        '[data-testid="export-png"]',
+      ) as HTMLButtonElement
+      const exportSvgButton = container.querySelector(
+        '[data-testid="export-svg"]',
+      ) as HTMLButtonElement
+
+      expect(exportPngButton).toBeTruthy()
+      expect(exportSvgButton).toBeTruthy()
+      expect(exportPngButton.textContent?.trim()).toBe('Export PNG')
+      expect(exportSvgButton.textContent?.trim()).toBe('Export SVG')
+    })
+  })
+
   describe('Series Filtering', () => {
     it('should extract series from related items correctly', () => {
       // Debug the issue by testing the regex directly

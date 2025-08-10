@@ -62,6 +62,8 @@ export const createTimelineControls = <TContainer extends HTMLElement>(
   let watchStatusSelect: HTMLSelectElement
   let importanceSelect: HTMLSelectElement
   let resetButton: HTMLButtonElement
+  let exportPngButton: HTMLButtonElement
+  let exportSvgButton: HTMLButtonElement
 
   // Generic EventEmitter for type-safe event handling
   const eventEmitter = createEventEmitter<TimelineControlsEvents>()
@@ -151,6 +153,14 @@ export const createTimelineControls = <TContainer extends HTMLElement>(
             <button class="timeline-controls__reset" data-testid="reset-filters">
               Reset Filters
             </button>
+            <div class="timeline-controls__export">
+              <button class="timeline-controls__export-png" data-testid="export-png">
+                Export PNG
+              </button>
+              <button class="timeline-controls__export-svg" data-testid="export-svg">
+                Export SVG
+              </button>
+            </div>
           </div>
         </div>
 
@@ -264,6 +274,36 @@ export const createTimelineControls = <TContainer extends HTMLElement>(
     eventEmitter.emit('filters-reset', {config})
   })
 
+  // Export event handlers
+  const handleExportPng = curry((_event: Event): void => {
+    const exportOptions = {
+      format: 'png' as const,
+      dimensions: {width: 1200, height: 800},
+      quality: 0.9,
+      backgroundColor: 'white',
+      includeMetadata: true,
+      filename: `star-trek-timeline-${Date.now()}`,
+    }
+    eventEmitter.emit('config-export', {
+      config,
+      exportData: {format: 'png', options: exportOptions},
+    })
+  })
+
+  const handleExportSvg = curry((_event: Event): void => {
+    const exportOptions = {
+      format: 'svg' as const,
+      dimensions: {width: 1200, height: 800},
+      backgroundColor: 'transparent',
+      includeMetadata: true,
+      filename: `star-trek-timeline-${Date.now()}`,
+    }
+    eventEmitter.emit('config-export', {
+      config,
+      exportData: {format: 'svg', options: exportOptions},
+    })
+  })
+
   // Cache DOM elements after render
   const cacheElements = (): void => {
     eraSelect = container.querySelector('[data-testid="era-filter"]') as HTMLSelectElement
@@ -278,6 +318,8 @@ export const createTimelineControls = <TContainer extends HTMLElement>(
       '[data-testid="importance-filter"]',
     ) as HTMLSelectElement
     resetButton = container.querySelector('[data-testid="reset-filters"]') as HTMLButtonElement
+    exportPngButton = container.querySelector('[data-testid="export-png"]') as HTMLButtonElement
+    exportSvgButton = container.querySelector('[data-testid="export-svg"]') as HTMLButtonElement
   }
 
   // Attach event listeners to form elements
@@ -288,6 +330,8 @@ export const createTimelineControls = <TContainer extends HTMLElement>(
     watchStatusSelect?.addEventListener('change', handleFilterChange)
     importanceSelect?.addEventListener('change', handleFilterChange)
     resetButton?.addEventListener('click', handleResetFilters)
+    exportPngButton?.addEventListener('click', handleExportPng)
+    exportSvgButton?.addEventListener('click', handleExportSvg)
   }
 
   // Remove event listeners
@@ -298,6 +342,8 @@ export const createTimelineControls = <TContainer extends HTMLElement>(
     watchStatusSelect?.removeEventListener('change', handleFilterChange)
     importanceSelect?.removeEventListener('change', handleFilterChange)
     resetButton?.removeEventListener('click', handleResetFilters)
+    exportPngButton?.removeEventListener('click', handleExportPng)
+    exportSvgButton?.removeEventListener('click', handleExportSvg)
   }
 
   // Public API methods
