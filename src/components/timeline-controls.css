@@ -1,0 +1,211 @@
+/* Timeline Controls Styling */
+
+.timeline-controls {
+  background: var(--vbs-bg-card, #ffffff);
+  border: 1px solid var(--vbs-border-color, #e0e0e0);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.timeline-controls__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--vbs-border-color, #e0e0e0);
+}
+
+.timeline-controls__title {
+  margin: 0;
+  color: var(--vbs-text-primary, #1a1a1a);
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.timeline-controls__actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.timeline-controls__reset {
+  background: var(--vbs-accent-color, #2196F3);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.timeline-controls__reset:hover {
+  background: var(--vbs-accent-hover, #1976D2);
+  transform: translateY(-1px);
+}
+
+.timeline-controls__reset:active {
+  transform: translateY(0);
+}
+
+.timeline-controls__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.timeline-controls__group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.timeline-controls__group--wide {
+  grid-column: 1 / -1;
+}
+
+.timeline-controls__label {
+  font-weight: 500;
+  color: var(--vbs-text-secondary, #666666);
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+}
+
+.timeline-controls__select {
+  background: var(--vbs-bg-input, #ffffff);
+  border: 1px solid var(--vbs-border-input, #d0d0d0);
+  border-radius: 4px;
+  padding: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--vbs-text-primary, #1a1a1a);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.timeline-controls__select:focus {
+  outline: none;
+  border-color: var(--vbs-accent-color, #2196F3);
+  box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
+}
+
+.timeline-controls__select[multiple] {
+  min-height: 80px;
+}
+
+.timeline-controls__input {
+  background: var(--vbs-bg-input, #ffffff);
+  border: 1px solid var(--vbs-border-input, #d0d0d0);
+  border-radius: 4px;
+  padding: 0.75rem;
+  font-size: 0.875rem;
+  color: var(--vbs-text-primary, #1a1a1a);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.timeline-controls__input:focus {
+  outline: none;
+  border-color: var(--vbs-accent-color, #2196F3);
+  box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
+}
+
+.timeline-controls__input::placeholder {
+  color: var(--vbs-text-muted, #999999);
+}
+
+/* Dark theme support */
+@media (prefers-color-scheme: dark) {
+  .timeline-controls {
+    --vbs-bg-card: #2d2d2d;
+    --vbs-bg-input: #3d3d3d;
+    --vbs-border-color: #4d4d4d;
+    --vbs-border-input: #5d5d5d;
+    --vbs-text-primary: #f0f0f0;
+    --vbs-text-secondary: #b0b0b0;
+    --vbs-text-muted: #808080;
+    --vbs-accent-color: #42A5F5;
+    --vbs-accent-hover: #2196F3;
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .timeline-controls {
+    padding: 1rem;
+  }
+
+  .timeline-controls__header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+
+  .timeline-controls__actions {
+    justify-content: center;
+  }
+
+  .timeline-controls__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .timeline-controls__group--wide {
+    grid-column: 1;
+  }
+}
+
+/* Animation for filter changes */
+.timeline-controls__select,
+.timeline-controls__input {
+  animation: subtle-pulse 0.3s ease when filter changes;
+}
+
+@keyframes subtle-pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+
+/* Loading state (for future enhancement) */
+.timeline-controls--loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.timeline-controls--loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border: 2px solid var(--vbs-accent-color, #2196F3);
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 1s infinite linear;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Accessibility improvements */
+.timeline-controls__select:focus-visible,
+.timeline-controls__input:focus-visible,
+.timeline-controls__reset:focus-visible {
+  outline: 2px solid var(--vbs-accent-color, #2196F3);
+  outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .timeline-controls {
+    border: 2px solid;
+  }
+
+  .timeline-controls__select,
+  .timeline-controls__input {
+    border: 2px solid;
+  }
+}
