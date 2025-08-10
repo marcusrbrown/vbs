@@ -1,0 +1,194 @@
+/* Timeline Visualization Responsive Styling */
+
+.timeline-visualization {
+  width: 100%;
+  height: 100%;
+  background: var(--vbs-bg-card, #ffffff);
+  border-radius: 8px;
+  overflow: hidden;
+  touch-action: pan-x pan-y; /* Enable smooth touch interactions */
+  user-select: none; /* Prevent text selection during touch interactions */
+}
+
+/* Timeline container responsive styles */
+.timeline-container {
+  position: relative;
+  width: 100%;
+  min-height: 400px;
+  max-height: 80vh;
+  overflow: hidden;
+  background: var(--vbs-bg-card, #ffffff);
+  border: 1px solid var(--vbs-border-color, #e0e0e0);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Event markers responsive sizing */
+.timeline-visualization .event-marker {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.timeline-visualization .event-marker:hover {
+  stroke-width: 4px;
+  filter: brightness(1.1);
+}
+
+.timeline-visualization .event-marker.selected {
+  stroke-width: 5px;
+  filter: drop-shadow(0 0 8px currentColor);
+}
+
+/* Event labels responsive sizing */
+.timeline-visualization .event-label {
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Progress indicators */
+.timeline-visualization .progress-indicator {
+  pointer-events: none;
+  user-select: none;
+  font-weight: bold;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+}
+
+/* Responsive design for mobile devices */
+@media (max-width: 768px) {
+  .timeline-container {
+    min-height: 300px;
+    max-height: 60vh;
+  }
+
+  .timeline-visualization .event-marker {
+    r: 6px; /* Larger touch targets on mobile */
+  }
+
+  .timeline-visualization .event-marker:hover {
+    stroke-width: 3px;
+  }
+
+  .timeline-visualization .event-marker.selected {
+    stroke-width: 4px;
+  }
+
+  .timeline-visualization .event-label {
+    font-size: 10px;
+  }
+
+  .timeline-visualization .progress-indicator {
+    font-size: 10px;
+  }
+}
+
+/* Extra small devices (phones in portrait) */
+@media (max-width: 480px) {
+  .timeline-container {
+    min-height: 250px;
+    max-height: 50vh;
+  }
+
+  .timeline-visualization .event-marker {
+    r: 4px;
+  }
+
+  .timeline-visualization .event-label {
+    font-size: 8px;
+    text-anchor: middle;
+  }
+
+  .timeline-visualization .progress-indicator {
+    font-size: 8px;
+  }
+}
+
+/* Dark theme support */
+@media (prefers-color-scheme: dark) {
+  .timeline-visualization {
+    --vbs-bg-card: #2d2d2d;
+    --vbs-border-color: #4d4d4d;
+  }
+
+  .timeline-container {
+    background: var(--vbs-bg-card);
+    border-color: var(--vbs-border-color);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .timeline-container {
+    border: 2px solid;
+  }
+
+  .timeline-visualization .event-marker {
+    stroke-width: 3px;
+  }
+
+  .timeline-visualization .event-marker:hover,
+  .timeline-visualization .event-marker.selected {
+    stroke-width: 5px;
+  }
+}
+
+/* Print styles */
+@media print {
+  .timeline-container {
+    max-height: none;
+    overflow: visible;
+    border: 1px solid #000;
+    box-shadow: none;
+  }
+}
+
+/* Loading state */
+.timeline-container--loading {
+  position: relative;
+  opacity: 0.7;
+}
+
+.timeline-container--loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 40px;
+  height: 40px;
+  margin: -20px 0 0 -20px;
+  border: 3px solid var(--vbs-accent-color, #2196F3);
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 1s infinite linear;
+  z-index: 1000;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Touch feedback for interactive elements */
+@media (hover: none) and (pointer: coarse) {
+  .timeline-visualization .event-marker {
+    r: 8px; /* Even larger touch targets for touch-only devices */
+  }
+}
+
+/* Accessibility improvements */
+.timeline-visualization:focus-visible {
+  outline: 2px solid var(--vbs-accent-color, #2196F3);
+  outline-offset: 2px;
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .timeline-visualization .event-marker,
+  .timeline-visualization .event-label,
+  .timeline-visualization .progress-indicator {
+    transition: none;
+  }
+
+  .timeline-container--loading::after {
+    animation: none;
+  }
+}
