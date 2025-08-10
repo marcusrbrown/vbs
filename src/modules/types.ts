@@ -1809,6 +1809,10 @@ export interface TimelineConfig {
   }
   /** Whether to show only events with related items */
   showOnlyWithItems?: boolean
+  /** Filter events by series ID extracted from related items */
+  seriesIds?: string[]
+  /** Search text for filtering events by title/description */
+  searchText?: string
 }
 
 /**
@@ -1888,6 +1892,23 @@ export interface TimelineEvents extends EventMap {
 }
 
 /**
+ * Timeline controls event map for type-safe event handling.
+ * Defines events emitted by the timeline filter controls component.
+ */
+export interface TimelineControlsEvents extends EventMap {
+  /** Fired when filter configuration changes */
+  'filter-change': {config: TimelineConfig; filterState: Partial<TimelineConfig>}
+  /** Fired when filters are reset to defaults */
+  'filters-reset': {config: TimelineConfig}
+  /** Fired when filter configuration is exported */
+  'config-export': {config: TimelineConfig; exportData: any}
+  /** Fired when filter configuration is imported */
+  'config-import': {config: Partial<TimelineConfig>}
+  /** Fired when controls rendering is complete */
+  'render-complete': {config: TimelineConfig}
+}
+
+/**
  * Timeline export configuration options.
  * Used for generating PNG/SVG files for sharing progress.
  */
@@ -1946,4 +1967,46 @@ export interface TimelineVisualizationInstance {
   on<K extends keyof TimelineEvents>(event: K, listener: (data: TimelineEvents[K]) => void): void
   off<K extends keyof TimelineEvents>(event: K, listener: (data: TimelineEvents[K]) => void): void
   once<K extends keyof TimelineEvents>(event: K, listener: (data: TimelineEvents[K]) => void): void
+}
+
+/**
+ * Timeline controls instance interface.
+ * Provides the public API for timeline filter controls component.
+ */
+export interface TimelineControlsInstance {
+  /** Render the controls with current configuration */
+  render(): void
+  /** Update controls data with new events */
+  updateData(events: TimelineEvent[]): void
+  /** Update controls configuration */
+  updateConfig(config: Partial<TimelineConfig>): void
+  /** Get current filter configuration */
+  getConfig(): TimelineConfig
+  /** Get available filter options extracted from data */
+  getFilterOptions(): {
+    eras: string[]
+    eventTypes: string[]
+    series: string[]
+    importanceLevels: string[]
+  }
+  /** Import filter configuration from external source */
+  importConfig(config: Partial<TimelineConfig>): void
+  /** Destroy controls and clean up resources */
+  destroy(): void
+
+  // Generic EventEmitter methods for type-safe event handling
+  on<K extends keyof TimelineControlsEvents>(
+    event: K,
+    listener: (data: TimelineControlsEvents[K]) => void,
+  ): void
+  off<K extends keyof TimelineControlsEvents>(
+    event: K,
+    listener: (data: TimelineControlsEvents[K]) => void,
+  ): void
+  once<K extends keyof TimelineControlsEvents>(
+    event: K,
+    listener: (data: TimelineControlsEvents[K]) => void,
+  ): void
+  emit<K extends keyof TimelineControlsEvents>(event: K, data: TimelineControlsEvents[K]): void
+  removeAllListeners(): void
 }
