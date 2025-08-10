@@ -2084,3 +2084,279 @@ export interface TimelineControlsInstance {
   emit<K extends keyof TimelineControlsEvents>(event: K, data: TimelineControlsEvents[K]): void
   removeAllListeners(): void
 }
+
+// ============================================================================
+// STREAMING SERVICE INTEGRATION TYPES
+// ============================================================================
+
+/**
+ * Streaming platform information for displaying availability data.
+ * Used throughout the streaming integration system for platform identification and display.
+ */
+export interface StreamingPlatform {
+  /** Unique platform identifier (e.g., 'netflix', 'paramount-plus') */
+  id: string
+  /** Display name for the platform */
+  name: string
+  /** Platform logo URL or icon identifier */
+  logo?: string
+  /** Platform website base URL */
+  url: string
+  /** Whether platform requires subscription */
+  requiresSubscription: boolean
+  /** Available in which geographic regions */
+  regions: string[]
+}
+
+/**
+ * Streaming availability data for a specific Star Trek content item.
+ * Contains platform-specific availability information with deep linking support.
+ */
+export interface StreamingAvailability {
+  /** Content identifier (matches StarTrekItem.id) */
+  contentId: string
+  /** Content type ('series', 'movie', 'animated') */
+  contentType: string
+  /** Platform where content is available */
+  platform: StreamingPlatform
+  /** Direct URL to content on the platform */
+  url: string
+  /** Availability type ('subscription', 'rent', 'buy', 'free') */
+  type: 'subscription' | 'rent' | 'buy' | 'free'
+  /** Price information (for rent/buy options) */
+  price?: {
+    amount: number
+    currency: string
+  }
+  /** Quality options available (HD, 4K, etc.) */
+  quality: string[]
+  /** Geographic regions where available */
+  regions: string[]
+  /** When this availability data was last updated */
+  lastUpdated: string
+  /** When this data expires and should be refreshed */
+  expiresAt: string
+}
+
+/**
+ * Cached streaming data for efficient storage and retrieval.
+ * Used by IndexedDB storage adapter for local streaming availability caching.
+ */
+export interface StreamingCache {
+  /** Content identifier */
+  contentId: string
+  /** Array of streaming availability options */
+  availability: StreamingAvailability[]
+  /** When data was cached */
+  cachedAt: string
+  /** When data expires and needs refresh */
+  expiresAt: string
+  /** API response metadata */
+  metadata: {
+    /** Source API used (e.g., 'watchmode') */
+    source: string
+    /** Response timestamp from API */
+    timestamp: string
+    /** API call success status */
+    success: boolean
+  }
+}
+
+/**
+ * User preferences for streaming service integration.
+ * Extends UserPreferences with streaming-specific settings.
+ */
+export interface StreamingPreferences {
+  /** User's preferred streaming platforms in priority order */
+  preferredPlatforms: string[]
+  /** Hide content not available on preferred platforms */
+  hideUnavailable: boolean
+  /** Show price information for rent/buy options */
+  showPricing: boolean
+  /** User's geographic region for availability filtering */
+  region: string
+  /** Enable streaming availability notifications */
+  enableNotifications: boolean
+  /** Maximum price willing to pay for content */
+  maxPrice?: {
+    rent: number
+    buy: number
+    currency: string
+  }
+}
+
+/**
+ * Rate limiting configuration for streaming API calls.
+ * Manages API call frequency to respect service quotas and rate limits.
+ */
+export interface RateLimitConfig {
+  /** Maximum requests per minute */
+  requestsPerMinute: number
+  /** Maximum requests per hour */
+  requestsPerHour: number
+  /** Maximum requests per day */
+  requestsPerDay: number
+  /** Current request counts */
+  current: {
+    minute: number
+    hour: number
+    day: number
+  }
+  /** Timestamps for rate limit windows */
+  windows: {
+    minute: number
+    hour: number
+    day: number
+  }
+}
+
+/**
+ * Streaming API response data structure.
+ * Standardized response format for external streaming service APIs.
+ */
+export interface StreamingApiResponse<T = unknown> {
+  /** Response success status */
+  success: boolean
+  /** Response data */
+  data?: T
+  /** Error message if request failed */
+  error?: string
+  /** HTTP status code */
+  status: number
+  /** Rate limit information */
+  rateLimit?: {
+    remaining: number
+    reset: number
+    limit: number
+  }
+  /** Response metadata */
+  metadata: {
+    /** Request timestamp */
+    timestamp: string
+    /** Response time in milliseconds */
+    responseTime: number
+    /** Source API identifier */
+    source: string
+  }
+}
+
+/**
+ * Event map for streaming API events.
+ * Defines type-safe event structure for streaming-related operations.
+ */
+export interface StreamingApiEvents extends EventMap {
+  /** Emitted when streaming availability data is updated */
+  'availability-updated': {
+    contentId: string
+    availability: StreamingAvailability[]
+    source: string
+  }
+  /** Emitted when rate limit is approaching */
+  'rate-limit-warning': {
+    current: number
+    limit: number
+    resetTime: number
+  }
+  /** Emitted when rate limit is exceeded */
+  'rate-limit-exceeded': {
+    retryAfter: number
+    endpoint: string
+  }
+  /** Emitted when API error occurs */
+  'api-error': {
+    error: string
+    endpoint: string
+    status: number
+  }
+  /** Emitted when cache is updated */
+  'cache-updated': {
+    contentId: string
+    cacheSize: number
+    expiresAt: string
+  }
+  /** Emitted when background refresh completes */
+  'background-refresh': {
+    updatedItems: number
+    failedItems: number
+    duration: number
+  }
+}
+
+/**
+ * Streaming API instance interface following VBS functional factory pattern.
+ * Provides methods for managing streaming availability data with rate limiting and caching.
+ */
+export interface StreamingApiInstance {
+  /** Initialize the streaming API with configuration */
+  initialize(config: StreamingApiConfig): Promise<void>
+  /** Get streaming availability for specific content */
+  getAvailability(contentId: string): Promise<StreamingAvailability[]>
+  /** Get availability for multiple content items (batch operation) */
+  getBatchAvailability(contentIds: string[]): Promise<Map<string, StreamingAvailability[]>>
+  /** Search for content by title */
+  searchContent(title: string, type?: string): Promise<StreamingApiResponse>
+  /** Refresh availability data for specific content */
+  refreshAvailability(contentId: string): Promise<StreamingAvailability[]>
+  /** Get cached availability data */
+  getCachedAvailability(contentId: string): StreamingAvailability[] | null
+  /** Clear expired cache entries */
+  clearExpiredCache(): Promise<number>
+  /** Get current rate limit status */
+  getRateLimitStatus(): RateLimitConfig
+  /** Check if request is allowed under rate limits */
+  isRequestAllowed(): boolean
+  /** Set user preferences for streaming services */
+  setPreferences(preferences: StreamingPreferences): void
+  /** Get current streaming preferences */
+  getPreferences(): StreamingPreferences
+  /** Destroy instance and clean up resources */
+  destroy(): void
+
+  // Generic EventEmitter methods for type-safe event handling
+  on<K extends keyof StreamingApiEvents>(
+    event: K,
+    listener: (data: StreamingApiEvents[K]) => void,
+  ): void
+  off<K extends keyof StreamingApiEvents>(
+    event: K,
+    listener: (data: StreamingApiEvents[K]) => void,
+  ): void
+  once<K extends keyof StreamingApiEvents>(
+    event: K,
+    listener: (data: StreamingApiEvents[K]) => void,
+  ): void
+  emit<K extends keyof StreamingApiEvents>(event: K, data: StreamingApiEvents[K]): void
+  removeAllListeners(): void
+}
+
+/**
+ * Configuration for streaming API initialization.
+ * Contains API keys, endpoints, and operational settings.
+ */
+export interface StreamingApiConfig {
+  /** API provider ('watchmode', 'streaming-availability') */
+  provider: string
+  /** API key for authentication */
+  apiKey: string
+  /** API base URL */
+  baseUrl: string
+  /** Rate limiting configuration */
+  rateLimit: {
+    requestsPerMinute: number
+    requestsPerHour: number
+    requestsPerDay: number
+  }
+  /** Cache configuration */
+  cache: {
+    /** Default expiration time in hours */
+    defaultExpiration: number
+    /** Maximum cache size in MB */
+    maxSize: number
+    /** Enable background refresh */
+    backgroundRefresh: boolean
+  }
+  /** Default user region for availability filtering */
+  defaultRegion: string
+  /** Enable development/debug mode */
+  debugMode: boolean
+}
