@@ -8,6 +8,7 @@ import type {
   StreamingCache,
   StreamingPreferences,
 } from './types.js'
+import {filterAvailabilityByRegion, sanitizeLocationPreferences} from '../utils/geographic.js'
 import {withErrorHandling, withSyncErrorHandling} from './error-handler.js'
 import {createEventEmitter} from './events.js'
 import {createStorage, IndexedDBAdapter, LocalStorageAdapter} from './storage.js'
@@ -25,7 +26,12 @@ const DEFAULT_STREAMING_PREFERENCES: StreamingPreferences = {
   preferredPlatforms: ['paramount-plus', 'netflix', 'amazon-prime', 'hulu'],
   hideUnavailable: false,
   showPricing: true,
-  region: 'US',
+  location: {
+    region: 'US',
+    allowAutoDetection: false,
+    showOtherRegions: false,
+    locale: 'en-US',
+  },
   enableNotifications: true,
   maxPrice: {
     rent: 5.99,
@@ -79,7 +85,8 @@ const validateStreamingPreferences = (data: unknown): data is StreamingPreferenc
   return (
     Array.isArray(prefs['preferredPlatforms']) &&
     typeof prefs['hideUnavailable'] === 'boolean' &&
-    typeof prefs['region'] === 'string'
+    typeof prefs['location'] === 'object' &&
+    prefs['location'] !== null
   )
 }
 
@@ -93,6 +100,10 @@ const sanitizeStreamingPreferences = (prefs: StreamingPreferences): StreamingPre
     preferredPlatforms: Array.isArray(prefs.preferredPlatforms)
       ? prefs.preferredPlatforms
       : DEFAULT_STREAMING_PREFERENCES.preferredPlatforms,
+    location: sanitizeLocationPreferences({
+      ...DEFAULT_STREAMING_PREFERENCES.location,
+      ...(prefs.location || {}),
+    }),
   }
 }
 
@@ -590,7 +601,8 @@ export const createStreamingApi = (): StreamingApiInstance => {
       // Check cache first
       const cached = await getCachedAvailability(contentId)
       if (cached) {
-        return cached
+        // Apply geographic filtering to cached data based on current preferences
+        return filterAvailabilityByRegion(cached, currentPreferences.location.region)
       }
 
       // Make API request for fresh data
@@ -601,15 +613,22 @@ export const createStreamingApi = (): StreamingApiInstance => {
       }
 
       const availability = transformAvailabilityData(response.data)
+      // Cache the unfiltered data to support region changes
       await cacheAvailabilityData(contentId, availability)
+
+      // Filter by current region preference before returning
+      const filteredAvailability = filterAvailabilityByRegion(
+        availability,
+        currentPreferences.location.region,
+      )
 
       eventEmitter.emit('availability-updated', {
         contentId,
-        availability,
+        availability: filteredAvailability,
         source: config.provider,
       })
 
-      return availability
+      return filteredAvailability
     },
 
     /**
@@ -722,6 +741,61 @@ export const createStreamingApi = (): StreamingApiInstance => {
      * Get current streaming preferences
      */
     getPreferences: (): StreamingPreferences => currentPreferences,
+
+    /**
+     * Get availability filtered by specific region
+     * Useful for showing availability in different regions
+     */
+    getAvailabilityByRegion: async (
+      contentId: string,
+      region: string,
+    ): Promise<StreamingAvailability[]> => {
+      if (!isInitialized || !config) {
+        throw new Error('Streaming API not initialized')
+      }
+
+      // Get unfiltered availability from cache or API
+      const cached = await getCachedAvailability(contentId)
+      if (cached) {
+        return filterAvailabilityByRegion(cached, region as any)
+      }
+
+      // If not cached, get fresh data but don't apply current region filter
+      const response = await makeApiRequest<any[]>(`/title/${contentId}/sources`)
+
+      if (!response.success || !response.data) {
+        throw new Error('Failed to fetch streaming availability')
+      }
+
+      const availability = transformAvailabilityData(response.data)
+      await cacheAvailabilityData(contentId, availability)
+
+      return filterAvailabilityByRegion(availability, region as any)
+    },
+
+    /**
+     * Update user's region preference and emit update event
+     */
+    updateRegionPreference: (region: string): void => {
+      withSyncErrorHandling(() => {
+        const updatedPreferences = {
+          ...currentPreferences,
+          location: {
+            ...currentPreferences.location,
+            region: region as any,
+          },
+        }
+
+        currentPreferences = sanitizeStreamingPreferences(updatedPreferences)
+        preferencesStorage.save(STREAMING_PREFERENCES_KEY, currentPreferences)
+
+        eventEmitter.emit('region-changed', {
+          previousRegion: currentPreferences.location.region,
+          newRegion: region,
+          timestamp: new Date().toISOString(),
+        })
+      }, 'Failed to update region preference')()
+    },
 
     /**
      * Destroy instance and clean up resources
