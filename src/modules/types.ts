@@ -2274,6 +2274,11 @@ export interface StreamingApiEvents extends EventMap {
     cacheSize: number
     expiresAt: string
   }
+  /** Emitted when cached data expires */
+  'cache-expired': {
+    contentId: string
+    expiredAt: string
+  }
   /** Emitted when background refresh completes */
   'background-refresh': {
     updatedItems: number
@@ -2298,7 +2303,7 @@ export interface StreamingApiInstance {
   /** Refresh availability data for specific content */
   refreshAvailability(contentId: string): Promise<StreamingAvailability[]>
   /** Get cached availability data */
-  getCachedAvailability(contentId: string): StreamingAvailability[] | null
+  getCachedAvailability(contentId: string): Promise<StreamingAvailability[] | null>
   /** Clear expired cache entries */
   clearExpiredCache(): Promise<number>
   /** Get current rate limit status */
