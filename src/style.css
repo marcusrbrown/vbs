@@ -1,4 +1,8 @@
 /* Star Trek Viewing Guide Styles */
+
+/* Component Imports */
+@import url('./components/streaming-indicators.css');
+
 :root {
     --primary-blue: #1e3a8a;
     --secondary-blue: #3b82f6;

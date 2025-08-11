@@ -39,12 +39,33 @@ vi.mock('../src/modules/timeline.js', () => ({
     render: vi.fn(),
     createEraElement: vi.fn(),
     createItemElement: vi.fn(),
+    createEpisodeElement: vi.fn(),
+    createLazyEpisodeListContent: vi.fn(),
     toggleEra: vi.fn(),
+    toggleEpisodeList: vi.fn(),
+    loadMoreEpisodes: vi.fn(),
+    loadStreamingIndicators: vi.fn(async () => {}),
     expandAll: vi.fn(),
     collapseAll: vi.fn(),
     updateProgress: vi.fn(),
     updateItemStates: vi.fn(),
     calculateEraProgress: vi.fn(),
+    setupKeyboardNavigation: vi.fn(),
+  }),
+}))
+
+vi.mock('../src/modules/episodes.js', () => ({
+  createEpisodeManager: () => ({
+    searchEpisodes: vi.fn(),
+    setFilterCriteria: vi.fn(),
+    resetFilters: vi.fn(),
+    getCurrentCriteria: vi.fn(() => ({})),
+    getFilteredEpisodes: vi.fn(() => []),
+    isEpisodeVisible: vi.fn(() => true),
+    on: vi.fn(),
+    off: vi.fn(),
+    once: vi.fn(),
+    removeAllListeners: vi.fn(),
   }),
 }))
 
@@ -53,6 +74,59 @@ vi.mock('../src/modules/storage.js', () => ({
   importProgressFromFile: vi.fn(),
   loadProgress: vi.fn(() => []),
   saveProgress: vi.fn(),
+  createStorage: vi.fn(() => ({
+    save: vi.fn(),
+    load: vi.fn(),
+    remove: vi.fn(),
+    clear: vi.fn(),
+    exists: vi.fn(() => false),
+  })),
+  IndexedDBAdapter: vi.fn().mockImplementation(() => ({
+    save: vi.fn(),
+    load: vi.fn(),
+    remove: vi.fn(),
+    clear: vi.fn(),
+    exists: vi.fn(() => false),
+  })),
+  LocalStorageAdapter: vi.fn().mockImplementation(() => ({
+    save: vi.fn(),
+    load: vi.fn(),
+    remove: vi.fn(),
+    clear: vi.fn(),
+    exists: vi.fn(() => false),
+  })),
+  storageEventEmitter: {
+    on: vi.fn(),
+    off: vi.fn(),
+    once: vi.fn(),
+    emit: vi.fn(),
+    removeAllListeners: vi.fn(),
+  },
+  detectMigrationNeeds: vi.fn(() => ({type: 'none'})),
+  shouldUseIndexedDB: vi.fn(() => false),
+  getOptimalStorageAdapter: vi.fn(),
+  performAutomaticMigration: vi.fn(),
+  isStringArray: vi.fn(() => true),
+  isProgressExportData: vi.fn(() => true),
+  isEnhancedProgressData: vi.fn(() => true),
+  isStorageVersionInfo: vi.fn(() => true),
+  getStorageVersion: vi.fn(() => ({currentVersion: '2.0', lastUpdated: '', migrationHistory: []})),
+  saveStorageVersion: vi.fn(),
+}))
+
+vi.mock('../src/modules/streaming-api.js', () => ({
+  createStreamingApi: () => ({
+    getAvailability: vi.fn(async () => []),
+    getItemAvailability: vi.fn(async () => []),
+    refreshAvailability: vi.fn(async () => {}),
+    isInitialized: vi.fn(() => true),
+    getLastRefresh: vi.fn(() => new Date()),
+    clearCache: vi.fn(async () => {}),
+    on: vi.fn(),
+    off: vi.fn(),
+    once: vi.fn(),
+    removeAllListeners: vi.fn(),
+  }),
 }))
 
 describe('Main Application', () => {
