@@ -5,14 +5,17 @@ import type {
   ProgressTrackerInstance,
   StarTrekEra,
   StarTrekItem,
+  StreamingApiInstance,
   TimelineRendererInstance,
 } from './types.js'
+import {createStreamingIndicators} from '../components/streaming-indicators.js'
 import {curry, pipe, tap} from '../utils/composition.js'
 import {calculateSeasonProgress} from './progress.js'
 
 export const createTimelineRenderer = (
   container: HTMLElement,
   progressTracker: ProgressTrackerInstance,
+  streamingApi?: StreamingApiInstance,
 ): TimelineRendererInstance => {
   // Closure variables for private state
   const expandedEras: Set<string> = new Set()
@@ -443,6 +446,10 @@ export const createTimelineRenderer = (
           </div>
           <div class="episode-synopsis" aria-label="Episode synopsis">
             ${episode.synopsis}
+          </div>
+          <div class="streaming-availability"
+               data-streaming-content-id="${episode.id}">
+            <!-- Streaming indicators will be loaded asynchronously -->
           </div>
           <div class="episode-details-panel"
                id="details-panel-${episode.id}"
@@ -1012,6 +1019,76 @@ export const createTimelineRenderer = (
     })
   }
 
+  /**
+   * Load streaming indicators for episodes asynchronously
+   * This function is called after episode list rendering to populate streaming availability
+   */
+  const loadStreamingIndicators = async (): Promise<void> => {
+    if (!streamingApi) return
+
+    // Find all streaming content elements that need loading
+    const streamingElements = container.querySelectorAll('[data-streaming-content-id]')
+
+    if (streamingElements.length === 0) return
+
+    // Extract content IDs for batch loading
+    const contentIds = Array.from(streamingElements)
+      .map(element => (element as HTMLElement).dataset['streamingContentId'])
+      .filter((id): id is string => id !== null && id !== undefined)
+
+    try {
+      // Load streaming indicators in batches for better performance
+      const batchSize = 10
+      for (let i = 0; i < contentIds.length; i += batchSize) {
+        const batch = contentIds.slice(i, i + batchSize)
+
+        // Get cached availability first for immediate display
+        for (const contentId of batch) {
+          const cachedAvailability = await streamingApi.getCachedAvailability(contentId)
+          if (cachedAvailability && cachedAvailability.length > 0) {
+            const indicatorHtml = createStreamingIndicators(cachedAvailability, {
+              size: 'small',
+              maxPlatforms: 2,
+              showPricing: false,
+            })
+
+            // Update the DOM with cached data
+            const elements = container.querySelectorAll(
+              `[data-streaming-content-id="${contentId}"]`,
+            )
+            elements.forEach(element => {
+              element.innerHTML = indicatorHtml
+            })
+          }
+        }
+
+        // Then refresh with fresh data in the background
+        const batchAvailability = await streamingApi.getBatchAvailability(batch)
+
+        for (const [contentId, availability] of batchAvailability) {
+          const indicatorHtml = createStreamingIndicators(availability, {
+            size: 'small',
+            maxPlatforms: 2,
+            showPricing: false,
+          })
+
+          // Update the DOM with fresh data
+          const elements = container.querySelectorAll(`[data-streaming-content-id="${contentId}"]`)
+          elements.forEach(element => {
+            element.innerHTML = indicatorHtml
+          })
+        }
+      }
+    } catch (error) {
+      console.warn('Failed to load streaming indicators:', error)
+
+      // Show error state for all elements
+      streamingElements.forEach(element => {
+        element.innerHTML = '<div class="streaming-indicators-error">Unable to load</div>'
+      })
+    }
+  }
+
   // Return public API
   return {
     render,
@@ -1022,6 +1099,7 @@ export const createTimelineRenderer = (
     toggleEra,
     toggleEpisodeList,
     loadMoreEpisodes,
+    loadStreamingIndicators,
     expandAll,
     collapseAll,
     updateProgress,

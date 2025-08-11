@@ -605,6 +605,8 @@ export interface TimelineRendererInstance {
   toggleEpisodeList(seriesId: string): void
   /** Load more episodes for a specific series (lazy loading) */
   loadMoreEpisodes(seriesId: string): void
+  /** Load streaming availability indicators for all episodes asynchronously */
+  loadStreamingIndicators(): Promise<void>
   /** Expand all era sections */
   expandAll(): void
   /** Collapse all era sections */

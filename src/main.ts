@@ -20,6 +20,7 @@ import {
   loadProgress,
   saveProgress,
 } from './modules/storage.js'
+import {createStreamingApi} from './modules/streaming-api.js'
 import {createTimelineRenderer} from './modules/timeline.js'
 import './style.css'
 
@@ -359,6 +360,7 @@ export const createStarTrekViewingGuide = () => {
   const progressTracker = createProgressTracker()
   const searchFilter = createSearchFilter()
   const episodeManager = createEpisodeManager()
+  const streamingApi = createStreamingApi()
   let timelineRenderer: TimelineRendererInstance | null = null
 
   // Create managers
@@ -369,17 +371,20 @@ export const createStarTrekViewingGuide = () => {
     progressTracker.setWatchedItems(savedProgress || [])
   }
 
-  const render = (): void => {
+  const render = async (): Promise<void> => {
     const elements = elementsManager.get()
     if (!elements.container) return
 
-    // Initialize timeline renderer (takes container and progressTracker only)
-    timelineRenderer = createTimelineRenderer(elements.container, progressTracker)
+    // Initialize timeline renderer with streaming API support
+    timelineRenderer = createTimelineRenderer(elements.container, progressTracker, streamingApi)
 
     // Initial render with search filter
     const filteredData = searchFilter.getFilteredData()
     timelineRenderer.render(filteredData)
     timelineRenderer.updateItemStates()
+
+    // Load streaming indicators asynchronously after rendering
+    await timelineRenderer.loadStreamingIndicators()
   }
 
   const setupApp = async (): Promise<void> => {
@@ -388,7 +393,7 @@ export const createStarTrekViewingGuide = () => {
       elementsManager.initialize()
 
       await loadInitialData()
-      render()
+      await render()
 
       // Create event handlers after timeline renderer is initialized
       const eventHandlers = createEventHandlers(
