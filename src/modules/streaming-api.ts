@@ -8,9 +8,9 @@ import type {
   StreamingCache,
   StreamingPreferences,
 } from './types.js'
-import {withSyncErrorHandling} from './error-handler.js'
+import {withErrorHandling, withSyncErrorHandling} from './error-handler.js'
 import {createEventEmitter} from './events.js'
-import {createStorage, LocalStorageAdapter} from './storage.js'
+import {createStorage, IndexedDBAdapter, LocalStorageAdapter} from './storage.js'
 
 // Storage keys for streaming data
 const STREAMING_CACHE_KEY = 'streamingAvailabilityCache'
@@ -138,7 +138,7 @@ export const createStreamingApi = (): StreamingApiInstance => {
 
   // Create storage adapters for different data types
   const cacheStorage = createStorage(
-    new LocalStorageAdapter<Map<string, StreamingCache>>({
+    new IndexedDBAdapter<Map<string, StreamingCache>>('StreamingVBS', 'availability_cache', 1, {
       validate: (data: unknown): data is Map<string, StreamingCache> => {
         if (!(data instanceof Map)) return false
         for (const [, value] of data) {
@@ -372,11 +372,16 @@ export const createStreamingApi = (): StreamingApiInstance => {
 
   /**
    * Get cached availability data for content
+   * Handles expiration checking and automatic cleanup of expired entries
+   * Returns null if no valid cache exists
    */
-  const getCachedAvailability = (contentId: string): StreamingAvailability[] | null => {
+  const getCachedAvailability = async (
+    contentId: string,
+  ): Promise<StreamingAvailability[] | null> => {
     try {
-      const cache = cacheStorage.load(STREAMING_CACHE_KEY) as Map<string, StreamingCache> | null
-      if (!cache || !(cache instanceof Map)) return null
+      const cache =
+        (await cacheStorage.load(STREAMING_CACHE_KEY)) || new Map<string, StreamingCache>()
+      if (!(cache instanceof Map)) return null
 
       const cached = cache.get(contentId)
       if (!cached) return null
@@ -384,7 +389,11 @@ export const createStreamingApi = (): StreamingApiInstance => {
       // Check if cache is expired
       if (new Date(cached.expiresAt) < new Date()) {
         cache.delete(contentId)
-        cacheStorage.save(STREAMING_CACHE_KEY, cache)
+        await cacheStorage.save(STREAMING_CACHE_KEY, cache)
+
+        // Emit cache-expired event to trigger background refresh
+        eventEmitter.emit('cache-expired', {contentId, expiredAt: cached.expiresAt})
+
         return null
       }
 
@@ -396,15 +405,15 @@ export const createStreamingApi = (): StreamingApiInstance => {
   }
 
   /**
-   * Cache availability data for content
+   * Cache availability data for content with IndexedDB persistence
    */
-  const cacheAvailabilityData = (
+  const cacheAvailabilityData = async (
     contentId: string,
     availability: StreamingAvailability[],
-  ): void => {
+  ): Promise<void> => {
     try {
       const cache =
-        (cacheStorage.load(STREAMING_CACHE_KEY) as Map<string, StreamingCache>) || new Map()
+        ((await cacheStorage.load(STREAMING_CACHE_KEY)) as Map<string, StreamingCache>) || new Map()
 
       const cacheEntry: StreamingCache = {
         contentId,
@@ -421,7 +430,7 @@ export const createStreamingApi = (): StreamingApiInstance => {
       }
 
       cache.set(contentId, cacheEntry)
-      cacheStorage.save(STREAMING_CACHE_KEY, cache)
+      await cacheStorage.save(STREAMING_CACHE_KEY, cache)
 
       eventEmitter.emit('cache-updated', {
         contentId,
@@ -430,6 +439,115 @@ export const createStreamingApi = (): StreamingApiInstance => {
       })
     } catch (error) {
       console.error('Failed to cache availability data:', error)
+    }
+  }
+
+  /**
+   * Background refresh functionality for expired cache entries
+   * Refreshes data automatically in the background without blocking user operations
+   */
+  const startBackgroundRefresh = withErrorHandling(async (): Promise<void> => {
+    if (!config?.cache.backgroundRefresh) return
+
+    const cache =
+      (await cacheStorage.load(STREAMING_CACHE_KEY)) || new Map<string, StreamingCache>()
+    if (!(cache instanceof Map)) return
+
+    const now = new Date()
+    const expiredEntries: string[] = []
+
+    // Identify expired entries that need refresh
+    for (const [contentId, cached] of cache.entries()) {
+      if (new Date(cached.expiresAt) < now) {
+        expiredEntries.push(contentId)
+      }
+    }
+
+    if (expiredEntries.length === 0) return
+
+    const startTime = Date.now()
+    let updatedItems = 0
+    let failedItems = 0
+
+    // Refresh expired entries with rate limiting
+    for (const contentId of expiredEntries) {
+      try {
+        if (!isRequestAllowed()) {
+          // Skip if rate limit would be exceeded
+          break
+        }
+
+        const response = await makeApiRequest<any[]>(`/title/${contentId}/sources`)
+        if (response.success && response.data) {
+          const availability = transformAvailabilityData(response.data)
+          await cacheAvailabilityData(contentId, availability)
+          updatedItems++
+        } else {
+          failedItems++
+        }
+
+        // Small delay between requests to avoid overwhelming the API
+        await new Promise(resolve => setTimeout(resolve, 1000))
+      } catch (error) {
+        console.error(`Failed to refresh availability for ${contentId}:`, error)
+        failedItems++
+      }
+    }
+
+    // Emit background refresh completion event
+    eventEmitter.emit('background-refresh', {
+      updatedItems,
+      failedItems,
+      duration: Date.now() - startTime,
+    })
+  }, 'Background refresh failed')
+
+  /**
+   * Clear expired cache entries and return count of cleared items
+   */
+  const clearExpiredCacheImpl = async (): Promise<number> => {
+    const cache =
+      (await cacheStorage.load(STREAMING_CACHE_KEY)) || new Map<string, StreamingCache>()
+    if (!(cache instanceof Map)) return 0
+
+    const now = new Date()
+    let clearedCount = 0
+
+    for (const [contentId, cached] of cache.entries()) {
+      if (new Date(cached.expiresAt) < now) {
+        cache.delete(contentId)
+        clearedCount++
+      }
+    }
+
+    if (clearedCount > 0) {
+      await cacheStorage.save(STREAMING_CACHE_KEY, cache)
+    }
+
+    return clearedCount
+  }
+
+  const clearExpiredCache = withErrorHandling(
+    clearExpiredCacheImpl,
+    'Failed to clear expired cache',
+  )
+
+  // Set up periodic background refresh if enabled
+  let backgroundRefreshInterval: NodeJS.Timeout | null = null
+
+  const setupBackgroundRefresh = (): void => {
+    if (backgroundRefreshInterval) {
+      clearInterval(backgroundRefreshInterval)
+    }
+
+    if (config?.cache.backgroundRefresh) {
+      // Run background refresh every hour
+      backgroundRefreshInterval = setInterval(
+        () => {
+          startBackgroundRefresh()
+        },
+        60 * 60 * 1000,
+      )
     }
   }
 
@@ -456,6 +574,9 @@ export const createStreamingApi = (): StreamingApiInstance => {
       }
 
       updateRateLimitState()
+
+      // Set up background refresh if enabled
+      setupBackgroundRefresh()
     },
 
     /**
@@ -467,7 +588,7 @@ export const createStreamingApi = (): StreamingApiInstance => {
       }
 
       // Check cache first
-      const cached = getCachedAvailability(contentId)
+      const cached = await getCachedAvailability(contentId)
       if (cached) {
         return cached
       }
@@ -480,7 +601,7 @@ export const createStreamingApi = (): StreamingApiInstance => {
       }
 
       const availability = transformAvailabilityData(response.data)
-      cacheAvailabilityData(contentId, availability)
+      await cacheAvailabilityData(contentId, availability)
 
       eventEmitter.emit('availability-updated', {
         contentId,
@@ -570,24 +691,8 @@ export const createStreamingApi = (): StreamingApiInstance => {
      * Clear expired cache entries
      */
     clearExpiredCache: async (): Promise<number> => {
-      const cache = cacheStorage.load(STREAMING_CACHE_KEY) as Map<string, StreamingCache> | null
-      if (!cache || !(cache instanceof Map)) return 0
-
-      const now = new Date()
-      let cleared = 0
-
-      for (const [contentId, entry] of cache) {
-        if (new Date(entry.expiresAt) < now) {
-          cache.delete(contentId)
-          cleared++
-        }
-      }
-
-      if (cleared > 0) {
-        cacheStorage.save(STREAMING_CACHE_KEY, cache)
-      }
-
-      return cleared
+      const result = await clearExpiredCache()
+      return result ?? 0
     },
 
     /**

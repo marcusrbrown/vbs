@@ -7,6 +7,54 @@ import type {StreamingApiConfig, StreamingPreferences} from '../src/modules/type
 import {beforeEach, describe, expect, it, vi, type MockedFunction} from 'vitest'
 import {createStreamingApi} from '../src/modules/streaming-api.js'
 
+// Mock IndexedDB for testing
+const mockIDBRequest = {
+  result: null as any,
+  addEventListener: vi.fn((event: string, callback: () => void) => {
+    if (event === 'success') {
+      // Simulate immediate success for most operations
+      setTimeout(callback, 0)
+    }
+  }),
+}
+
+const mockObjectStore = {
+  put: vi.fn(() => mockIDBRequest),
+  get: vi.fn(() => ({
+    ...mockIDBRequest,
+    result: null, // Return null for cache misses
+  })),
+  delete: vi.fn(() => mockIDBRequest),
+  clear: vi.fn(() => mockIDBRequest),
+}
+
+const mockTransaction = {
+  objectStore: vi.fn(() => mockObjectStore),
+}
+
+const mockIDBDatabase = {
+  objectStoreNames: {
+    contains: vi.fn(() => true),
+  },
+  createObjectStore: vi.fn(),
+  transaction: vi.fn(() => mockTransaction),
+}
+
+const mockIndexedDB = {
+  open: vi.fn(() => ({
+    ...mockIDBRequest,
+    addEventListener: vi.fn((event: string, callback: () => void) => {
+      if (event === 'success') {
+        mockIDBRequest.result = mockIDBDatabase
+        setTimeout(callback, 0)
+      }
+    }),
+  })),
+}
+
+// Setup global mocks
+vi.stubGlobal('indexedDB', mockIndexedDB)
+
 // Mock fetch globally
 const mockFetch = vi.fn() as MockedFunction<typeof fetch>
 vi.stubGlobal('fetch', mockFetch)
@@ -100,7 +148,7 @@ describe('StreamingApi', () => {
     await api.initialize(mockConfig)
 
     // Test with no cached data
-    const cached = api.getCachedAvailability('test-content-id')
+    const cached = await api.getCachedAvailability('test-content-id')
     expect(cached).toBeNull()
   })
 
