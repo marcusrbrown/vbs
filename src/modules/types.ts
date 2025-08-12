@@ -2331,6 +2331,15 @@ export interface StreamingApiEvents extends EventMap {
     newRegion: string
     timestamp: string
   }
+  /** Emitted when batch availability operation completes */
+  'batch-availability-updated': {
+    totalRequested: number
+    totalFetched: number
+    fromCache: number
+    fromApi: number
+    failed: string[]
+    duration: number
+  }
 }
 
 /**
@@ -2362,6 +2371,28 @@ export interface StreamingApiInstance {
   getPreferences(): StreamingPreferences
   /** Get availability filtered by specific region */
   getAvailabilityByRegion(contentId: string, region: string): Promise<StreamingAvailability[]>
+  /** Preload streaming availability for multiple content items in background */
+  preloadBatchAvailability(
+    contentIds: string[],
+    options?: {
+      maxConcurrency?: number
+      skipCache?: boolean
+      priority?: 'high' | 'normal' | 'low'
+    },
+  ): Promise<void>
+  /** Get batch availability cache statistics */
+  getBatchCacheStats(contentIds: string[]): Promise<{
+    total: number
+    cached: number
+    expired: number
+    missing: number
+    hitRate: number
+    cacheAgeStats: {
+      newest: string | null
+      oldest: string | null
+      averageAge: number
+    }
+  }>
   /** Update user's region preference */
   updateRegionPreference(region: string): void
   /** Destroy instance and clean up resources */

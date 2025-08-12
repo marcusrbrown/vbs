@@ -85,6 +85,8 @@ const createMockStreamingApi = (): StreamingApiInstance => {
     setPreferences: vi.fn(),
     getPreferences: vi.fn(),
     getAvailabilityByRegion: vi.fn(),
+    preloadBatchAvailability: vi.fn(),
+    getBatchCacheStats: vi.fn(),
     updateRegionPreference: vi.fn(),
     destroy: vi.fn(),
     on: vi.fn(),
