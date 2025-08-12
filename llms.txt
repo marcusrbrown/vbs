@@ -22,6 +22,7 @@ The architecture emphasizes type safety through advanced TypeScript generics, ge
 
 - [Main Application](src/main.ts): Primary application factory coordinating all modules and DOM interactions
 - [Star Trek Data](src/data/star-trek-data.ts): Comprehensive 570-line dataset covering all Star Trek content across 7 chronological eras
+- [Timeline Events](src/data/timeline-events.ts): Chronological timeline data for major galactic events and plot points
 - [Progress Tracker](src/modules/progress.ts): Factory managing watched items state with generic EventEmitter integration
 - [Episode Tracker](src/modules/episode-tracker.ts): Factory for episode-level progress tracking with type-safe event handling
 - [Episodes Manager](src/modules/episodes.ts): Episode management factory with functional composition utilities integration
@@ -29,11 +30,24 @@ The architecture emphasizes type safety through advanced TypeScript generics, ge
 - [Migration Utilities](src/modules/migration.ts): Data migration system for version upgrades and schema evolution
 - [Search Filter](src/modules/search.ts): Real-time search and filtering factory with type-safe events
 - [Timeline Renderer](src/modules/timeline.ts): Era-based timeline rendering with dependency injection
+- [Timeline Visualization](src/modules/timeline-viz.ts): Interactive timeline visualization system with D3.js integration
+- [User Preferences](src/modules/preferences.ts): Settings management for themes, display options, and user configurations
+- [Theme System](src/modules/themes.ts): Dark/light theme management with CSS custom properties and auto-detection
+- [Streaming API](src/modules/streaming-api.ts): Integration utilities for streaming service availability and content discovery
+- [Version Manager](src/modules/version-manager.ts): Application version management and feature compatibility tracking
 - [Storage Utilities](src/modules/storage.ts): Generic storage adapters with validation and export/import functionality
 - [Type Definitions](src/modules/types.ts): Comprehensive TypeScript interfaces and utility types
 - [Event System](src/modules/events.ts): Generic EventEmitter factory for type-safe inter-module communication
 - [Error Handler](src/modules/error-handler.ts): Centralized error management, logging, and user-friendly error reporting
 - [Composition Utilities](src/utils/composition.ts): Functional composition utilities with pipe(), compose(), curry(), and tap() functions
+
+## Components
+
+- [Migration Progress](src/components/migration-progress.ts): Progress indicator component for data migration operations
+- [Streaming Indicators](src/components/streaming-indicators.ts): UI components showing streaming service availability
+- [Streaming Preferences](src/components/streaming-preferences.ts): User interface for streaming service preference configuration
+- [Timeline Controls](src/components/timeline-controls.ts): Interactive controls for timeline navigation and filtering
+- [Component Styles](src/components/): CSS files for component styling and responsive design patterns
 
 ## Configuration & Development
 
@@ -41,9 +55,11 @@ The architecture emphasizes type safety through advanced TypeScript generics, ge
 - [Vite Configuration](vite.config.ts): Build system configuration with GitHub Pages deployment settings
 - [TypeScript Configuration](tsconfig.json): Strict TypeScript compiler settings with modern ES modules
 - [ESLint Configuration](eslint.config.ts): Code quality and formatting rules with automated pre-commit hooks
+- [Markdown Linting](.markdownlint-cli2.yaml): Markdown formatting and style enforcement configuration
 
 ## Planning & Development
 
+- [Feature Prompts](.ai/notes/feature-prompts.md): Collection of detailed feature development prompts and implementation ideas
 - [Episode Tracking Feature Plan](.ai/plan/feature-episode-tracking-1.md): Detailed specification for individual episode progress tracking
 - [Advanced Visualization Plan](.ai/plan/feature-advanced-visualization-1.md): Technical roadmap for D3.js timeline visualization features
 - [Functional Composition Plan](.ai/plan/feature-functional-composition-1.md): Architecture specification for functional programming utilities
