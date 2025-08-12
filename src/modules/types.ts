@@ -2165,6 +2165,44 @@ export interface StreamingCache {
 }
 
 /**
+ * Supported geographic regions for streaming availability.
+ * Each region has different streaming platforms and content availability.
+ */
+export type SupportedRegion = 'US' | 'CA' | 'UK'
+
+/**
+ * Geographic region information with metadata for streaming availability.
+ * Includes region-specific platform mappings and currency information.
+ */
+export interface GeographicRegion {
+  /** Region code (ISO 3166-1 alpha-2) */
+  code: SupportedRegion
+  /** Human-readable region name */
+  name: string
+  /** Currency code for pricing (ISO 4217) */
+  currency: string
+  /** Streaming platforms available in this region */
+  availablePlatforms: string[]
+  /** Region-specific platform identifiers */
+  platformMapping: Record<string, string>
+}
+
+/**
+ * Location preferences for geographic availability handling.
+ * Allows users to specify their region and location-based preferences.
+ */
+export interface LocationPreferences {
+  /** User's preferred region for content availability */
+  region: SupportedRegion
+  /** Allow automatic region detection (requires user consent) */
+  allowAutoDetection: boolean
+  /** Show availability for other regions */
+  showOtherRegions: boolean
+  /** Preferred language/locale for the region */
+  locale?: string
+}
+
+/**
  * User preferences for streaming service integration.
  * Extends UserPreferences with streaming-specific settings.
  */
@@ -2175,8 +2213,8 @@ export interface StreamingPreferences {
   hideUnavailable: boolean
   /** Show price information for rent/buy options */
   showPricing: boolean
-  /** User's geographic region for availability filtering */
-  region: string
+  /** User's geographic location preferences */
+  location: LocationPreferences
   /** Enable streaming availability notifications */
   enableNotifications: boolean
   /** Maximum price willing to pay for content */
@@ -2287,6 +2325,12 @@ export interface StreamingApiEvents extends EventMap {
     failedItems: number
     duration: number
   }
+  /** Emitted when user's region preference changes */
+  'region-changed': {
+    previousRegion: string
+    newRegion: string
+    timestamp: string
+  }
 }
 
 /**
@@ -2316,6 +2360,10 @@ export interface StreamingApiInstance {
   setPreferences(preferences: StreamingPreferences): void
   /** Get current streaming preferences */
   getPreferences(): StreamingPreferences
+  /** Get availability filtered by specific region */
+  getAvailabilityByRegion(contentId: string, region: string): Promise<StreamingAvailability[]>
+  /** Update user's region preference */
+  updateRegionPreference(region: string): void
   /** Destroy instance and clean up resources */
   destroy(): void
 

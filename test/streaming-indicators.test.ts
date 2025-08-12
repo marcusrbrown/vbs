@@ -84,6 +84,8 @@ const createMockStreamingApi = (): StreamingApiInstance => {
     isRequestAllowed: vi.fn(),
     setPreferences: vi.fn(),
     getPreferences: vi.fn(),
+    getAvailabilityByRegion: vi.fn(),
+    updateRegionPreference: vi.fn(),
     destroy: vi.fn(),
     on: vi.fn(),
     off: vi.fn(),
