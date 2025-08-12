@@ -21,6 +21,10 @@ The project uses **functional factory patterns** with closures for state managem
 - `storage.ts`: Generic storage utilities with EventEmitter notifications (`StorageEvents`)
 - `migration.ts`: Data migration utilities for schema evolution and version management
 - `progress-validation.ts`: Validation and error recovery for progress data integrity
+- `themes.ts`: CSS custom properties system with Star Trek theming and auto-detection
+- `preferences.ts`: User settings management with persistent storage
+- `timeline-viz.ts`: Interactive timeline visualization with D3.js integration
+- `streaming-api.ts`: Streaming service availability and content discovery
 
 ### Factory Function Pattern
 
@@ -197,6 +201,115 @@ const createRenderer = <TContainer extends HTMLElement>(container: TContainer) =
 
 **For comprehensive examples and usage patterns, see `docs/generic-types-examples.md`.**
 
+## Theme System & CSS Custom Properties
+
+VBS implements a comprehensive theme system using CSS custom properties for consistent Star Trek-inspired styling:
+
+```typescript
+// Theme management with auto-detection
+const themeSystem = createThemeSystem(preferences)
+
+// CSS custom properties for consistent theming
+const THEME_PROPERTIES = {
+  '--vbs-color-primary': 'Primary brand color',
+  '--vbs-color-starfleet': 'Starfleet red accent color',
+  '--vbs-bg-primary': 'Main background color',
+  '--vbs-text-primary': 'Primary text color',
+  // ... comprehensive design token system
+}
+
+// Theme switching with preference persistence
+themeSystem.setTheme('dark') // 'light', 'dark', 'auto'
+themeSystem.on('theme-change', (theme) => updateCSS(theme))
+```
+
+### Star Trek Design Tokens
+
+The theme system includes Star Trek-specific design tokens:
+- **Color palette**: Starfleet red, Enterprise blue, Deep Space Nine gold
+- **Typography**: LCARS-inspired font stacks and sizing
+- **Spacing**: Consistent spacing based on 8px grid system
+- **Era-specific styling**: Visual cues for different Star Trek eras
+
+## Component Architecture
+
+VBS extends the functional factory pattern to UI components in `src/components/`:
+
+```typescript
+// Component factory with DOM management
+const createTimelineControls = <TContainer extends HTMLElement>(
+  container: TContainer,
+  initialEvents: TimelineEvent[],
+  initialConfig: Partial<TimelineConfig>
+): TimelineControlsInstance => {
+  // Private component state
+  let config: TimelineConfig = { ...initialConfig }
+  let filterOptions = extractFilterOptions(initialEvents)
+
+  // DOM element creation and caching
+  const elements = createComponentElements(container)
+
+  // Event handling with composition utilities
+  const handleFilterChange = curry((filterType: string, value: any) => {
+    // Update config and emit events
+  })
+
+  return {
+    updateEvents: (newEvents: TimelineEvent[]) => { /* */ },
+    setConfig: (newConfig: Partial<TimelineConfig>) => { /* */ },
+    destroy: () => cleanup(),
+    on: eventEmitter.on.bind(eventEmitter),
+    // ... full component API
+  }
+}
+```
+
+### Component Patterns
+
+- **DOM element caching**: Components cache frequently accessed elements in closure
+- **CSS class management**: Use CSS modules or scoped classes with `--vbs-` prefix
+- **Event delegation**: Components use event delegation for performance
+- **Cleanup handling**: All components provide `destroy()` method for proper cleanup
+- **Responsive design**: Components adapt to container size using CSS custom properties
+
+## Timeline Visualization
+
+The timeline system provides interactive D3.js-based visualization:
+
+```typescript
+// Timeline with event filtering and zoom capabilities
+const timeline = createTimelineVisualization(container, {
+  events: timelineEvents,
+  initialZoom: { start: 2151, end: 2400 }, // Enterprise to Voyager era
+  showConnections: true,
+  groupByEra: true
+})
+
+// Event interaction with composition utilities
+const eventPipeline = pipe(
+  timelineEvents,
+  filterByEra(selectedEra),
+  filterByImportance(minImportance),
+  sortByStardate,
+  tap(events => timeline.updateEvents(events))
+)
+```
+
+### Timeline Event Structure
+
+```typescript
+interface TimelineEvent {
+  id: string                    // 'dominion_war_start'
+  title: string                 // 'Dominion War Begins'
+  stardate: number             // 49011.4
+  era: string                  // 'ds9'
+  type: TimelineEventType      // 'war' | 'technology' | 'first_contact'
+  importance: 'minor' | 'major' | 'critical'
+  relatedItems: string[]       // Related episode/movie IDs
+  description?: string         // Optional detailed description
+}
+```
+
 ## Data Structure
 
 The core data lives in `src/data/star-trek-data.ts` - a 570-line structured dataset:
@@ -217,6 +330,31 @@ interface StarTrekItem {
 ```
 
 **Critical**: Item IDs must be unique across all eras for progress tracking. When adding content, follow existing ID patterns.
+
+## Component System Data Flow
+
+VBS components follow a unidirectional data flow pattern with event-driven updates:
+
+```typescript
+// Main application coordinates component communication
+const app = createStarTrekViewingGuide()
+
+// Components receive data and emit events upward
+const timelineControls = createTimelineControls(controlsContainer, events)
+const timelineViz = createTimelineVisualization(vizContainer, events)
+
+// Event coordination through main application
+timelineControls.on('filter-change', (filters) => {
+  const filteredEvents = applyFilters(events, filters)
+  timelineViz.updateEvents(filteredEvents)
+})
+
+// Progress tracking integration
+progressTracker.on('progress-update', () => {
+  const updatedEvents = enrichEventsWithProgress(events, progressTracker)
+  timelineViz.updateEvents(updatedEvents)
+})
+```
 
 ## Episode-Level Architecture
 
@@ -549,9 +687,9 @@ VBS has comprehensive implementation plans for major feature expansions:
 - 🚧 Episode metadata expansion: Enhanced plot points, guest stars, and cross-references
 
 ### Advanced Features (Planned)
-- **Interactive Timeline**: D3.js chronological visualization with zoom/pan
-- **User Preferences**: Dark/light themes, compact view, accessibility settings
-- **Streaming Integration**: Paramount+/Netflix availability via APIs
+- **Interactive Timeline**: D3.js chronological visualization with zoom/pan ✅ **Implemented**
+- **User Preferences**: Dark/light themes, compact view, accessibility settings ✅ **Implemented**
+- **Streaming Integration**: Paramount+/Netflix availability via APIs ✅ **Implemented**
 - **Local-First Architecture**: Service Workers + IndexedDB replacing LocalStorage
 - **PWA Capabilities**: Offline support, app installation, background sync
 
