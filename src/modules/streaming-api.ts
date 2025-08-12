@@ -633,35 +633,180 @@ export const createStreamingApi = (): StreamingApiInstance => {
 
     /**
      * Get availability for multiple content items (batch operation)
+     * Implements intelligent batching with cache optimization, rate limiting,
+     * and comprehensive error handling for efficient streaming data updates.
+     *
+     * @param contentIds Array of content IDs to fetch availability for
+     * @returns Map of content ID to streaming availability data
+     *
+     * Features:
+     * - Cache-aware batching (fetches from cache first, API only for missing/expired)
+     * - Intelligent batch sizing based on rate limits and cache state
+     * - Comprehensive error handling and recovery
+     * - Performance monitoring and event emission
+     * - Automatic retry for failed requests with exponential backoff
+     *
+     * @example
+     * ```typescript
+     * const streamingApi = createStreamingApi()
+     * const contentIds = ['tos_s1', 'tng_s1', 'ds9_s1']
+     * const availability = await streamingApi.getBatchAvailability(contentIds)
+     *
+     * // Listen for batch completion events
+     * streamingApi.on('batch-availability-updated', ({ totalRequested, fromCache, fromApi }) => {
+     *   console.log(`Batch complete: ${totalRequested} requested, ${fromCache} from cache, ${fromApi} from API`)
+     * })
+     * ```
      */
     getBatchAvailability: async (
       contentIds: string[],
     ): Promise<Map<string, StreamingAvailability[]>> => {
+      if (!isInitialized || !config) {
+        throw new Error('Streaming API not initialized')
+      }
+
+      if (contentIds.length === 0) {
+        return new Map()
+      }
+
+      const startTime = Date.now()
       const results = new Map<string, StreamingAvailability[]>()
+      const failed: string[] = []
+      let fromCache = 0
+      let fromApi = 0
 
-      // Process in batches to respect rate limits
-      const batchSize = Math.min(5, Math.floor(config?.rateLimit.requestsPerMinute || 10 / 2))
-
-      for (let i = 0; i < contentIds.length; i += batchSize) {
-        const batch = contentIds.slice(i, i + batchSize)
-
-        const batchPromises = batch.map(async contentId => {
-          try {
-            const availability = await streamingApi.getAvailability(contentId)
-            results.set(contentId, availability)
-          } catch (error) {
-            console.warn(`Failed to get availability for ${contentId}:`, error)
-            results.set(contentId, [])
+      // Phase 1: Check cache for all items first (batch cache operation)
+      const cacheCheckPromises = contentIds.map(async contentId => {
+        try {
+          const cached = await getCachedAvailability(contentId)
+          if (cached) {
+            const filteredAvailability = filterAvailabilityByRegion(
+              cached,
+              currentPreferences.location.region,
+            )
+            results.set(contentId, filteredAvailability)
+            fromCache++
+            return {contentId, cached: true}
           }
-        })
+          return {contentId, cached: false}
+        } catch (error) {
+          console.warn(`Cache check failed for ${contentId}:`, error)
+          return {contentId, cached: false}
+        }
+      })
 
-        await Promise.all(batchPromises)
+      const cacheResults = await Promise.all(cacheCheckPromises)
+      const uncachedIds = cacheResults
+        .filter(result => !result.cached)
+        .map(result => result.contentId)
 
-        // Small delay between batches to respect rate limits
-        if (i + batchSize < contentIds.length) {
-          await new Promise(resolve => setTimeout(resolve, 1000))
+      // Phase 2: Batch API requests for uncached items with intelligent sizing
+      if (uncachedIds.length > 0) {
+        // Calculate optimal batch size based on rate limits and current usage
+        const rateLimitStatus = rateLimitState
+        const availableRequests = Math.max(
+          1,
+          Math.min(
+            rateLimitStatus.requestsPerMinute - rateLimitStatus.current.minute,
+            Math.floor(rateLimitStatus.requestsPerHour / 12), // Conservative hourly distribution
+            uncachedIds.length,
+          ),
+        )
+
+        const optimalBatchSize = Math.min(
+          Math.max(2, Math.floor(availableRequests / 2)), // Reserve half for other operations
+          8, // Max batch size to prevent overwhelming API
+        )
+
+        // Process uncached items in optimized batches
+        for (let i = 0; i < uncachedIds.length; i += optimalBatchSize) {
+          const batch = uncachedIds.slice(i, i + optimalBatchSize)
+
+          // Check rate limits before each batch
+          if (!isRequestAllowed()) {
+            console.warn('Rate limit reached during batch operation, stopping')
+            failed.push(...uncachedIds.slice(i))
+            break
+          }
+
+          // Process batch with retry logic
+          const batchPromises = batch.map(async contentId => {
+            const maxRetries = 2
+            let retryCount = 0
+
+            while (retryCount <= maxRetries) {
+              try {
+                // Use direct API call to avoid recursive cache checks
+                const response = await makeApiRequest<any[]>(`/title/${contentId}/sources`)
+
+                if (!response.success || !response.data) {
+                  throw new Error(`API request failed: ${response.status || 'Unknown error'}`)
+                }
+
+                const availability = transformAvailabilityData(response.data)
+                await cacheAvailabilityData(contentId, availability)
+
+                const filteredAvailability = filterAvailabilityByRegion(
+                  availability,
+                  currentPreferences.location.region,
+                )
+
+                results.set(contentId, filteredAvailability)
+                fromApi++
+                return {contentId, success: true}
+              } catch (error) {
+                retryCount++
+                if (retryCount <= maxRetries) {
+                  // Exponential backoff for retries
+                  const backoffTime = Math.min(1000 * 2 ** (retryCount - 1), 5000)
+                  await new Promise(resolve => setTimeout(resolve, backoffTime))
+                  console.warn(
+                    `Retry ${retryCount}/${maxRetries} for ${contentId} after ${backoffTime}ms:`,
+                    error,
+                  )
+                } else {
+                  console.error(
+                    `Failed to get availability for ${contentId} after ${maxRetries} retries:`,
+                    error,
+                  )
+                  results.set(contentId, [])
+                  failed.push(contentId)
+                  return {contentId, success: false}
+                }
+              }
+            }
+            return {contentId, success: false}
+          })
+
+          await Promise.all(batchPromises)
+
+          // Progressive delay between batches (longer delays for larger batches)
+          if (i + optimalBatchSize < uncachedIds.length) {
+            const delay = Math.min(1000 + batch.length * 200, 3000)
+            await new Promise(resolve => setTimeout(resolve, delay))
+          }
         }
       }
+
+      // Phase 3: Handle completely failed items with empty arrays
+      const remainingIds = contentIds.filter(id => !results.has(id))
+      remainingIds.forEach(contentId => {
+        results.set(contentId, [])
+        if (!failed.includes(contentId)) {
+          failed.push(contentId)
+        }
+      })
+
+      // Emit comprehensive batch completion event
+      const duration = Date.now() - startTime
+      eventEmitter.emit('batch-availability-updated', {
+        totalRequested: contentIds.length,
+        totalFetched: results.size,
+        fromCache,
+        fromApi,
+        failed,
+        duration,
+      })
 
       return results
     },
@@ -771,6 +916,157 @@ export const createStreamingApi = (): StreamingApiInstance => {
       await cacheAvailabilityData(contentId, availability)
 
       return filterAvailabilityByRegion(availability, region as any)
+    },
+
+    /**
+     * Preload streaming availability for multiple content items in background
+     * Useful for warming cache before user interactions
+     *
+     * @param contentIds Array of content IDs to preload
+     * @param options Preload options for controlling behavior
+     * @param options.maxConcurrency Maximum number of concurrent requests (default: 3)
+     * @param options.skipCache Whether to skip cache check and force fresh API calls (default: false)
+     * @param options.priority Priority level affecting delay between requests (default: 'normal')
+     * @returns Promise that resolves when preloading completes
+     */
+    preloadBatchAvailability: async (
+      contentIds: string[],
+      options: {
+        maxConcurrency?: number
+        skipCache?: boolean
+        priority?: 'high' | 'normal' | 'low'
+      } = {},
+    ): Promise<void> => {
+      if (!isInitialized || !config) {
+        throw new Error('Streaming API not initialized')
+      }
+
+      const {maxConcurrency = 3, skipCache = false, priority = 'normal'} = options
+
+      // Filter out already cached items unless skipCache is true
+      let idsToPreload = contentIds
+      if (!skipCache) {
+        const cacheChecks = await Promise.all(
+          contentIds.map(async id => ({
+            id,
+            cached: (await getCachedAvailability(id)) !== null,
+          })),
+        )
+        idsToPreload = cacheChecks.filter(check => !check.cached).map(check => check.id)
+      }
+
+      // Process with concurrency control based on priority
+      const delay = priority === 'high' ? 500 : priority === 'normal' ? 1000 : 2000
+      const chunks = []
+      for (let i = 0; i < idsToPreload.length; i += maxConcurrency) {
+        chunks.push(idsToPreload.slice(i, i + maxConcurrency))
+      }
+
+      for (const chunk of chunks) {
+        const promises = chunk.map(async contentId => {
+          try {
+            await streamingApi.getAvailability(contentId)
+          } catch (error) {
+            console.warn(`Preload failed for ${contentId}:`, error)
+          }
+        })
+
+        await Promise.all(promises)
+
+        // Respect rate limits with priority-based delays
+        if (chunks.indexOf(chunk) < chunks.length - 1) {
+          await new Promise(resolve => setTimeout(resolve, delay))
+        }
+      }
+    },
+
+    /**
+     * Get batch availability cache statistics
+     * Useful for monitoring cache effectiveness and planning batch operations
+     *
+     * @param contentIds Array of content IDs to check cache status for
+     * @returns Cache statistics for the provided content IDs
+     */
+    getBatchCacheStats: async (
+      contentIds: string[],
+    ): Promise<{
+      total: number
+      cached: number
+      expired: number
+      missing: number
+      hitRate: number
+      cacheAgeStats: {
+        newest: string | null
+        oldest: string | null
+        averageAge: number
+      }
+    }> => {
+      if (contentIds.length === 0) {
+        return {
+          total: 0,
+          cached: 0,
+          expired: 0,
+          missing: 0,
+          hitRate: 0,
+          cacheAgeStats: {newest: null, oldest: null, averageAge: 0},
+        }
+      }
+
+      const now = new Date()
+      const cacheAges: number[] = []
+      let cached = 0
+      let expired = 0
+      let newest: string | null = null
+      let oldest: string | null = null
+
+      for (const contentId of contentIds) {
+        try {
+          const cache =
+            (await cacheStorage.load(STREAMING_CACHE_KEY)) || new Map<string, StreamingCache>()
+          if (!(cache instanceof Map)) continue
+
+          const cachedData = cache.get(contentId)
+          if (cachedData) {
+            const cacheDate = new Date(cachedData.cachedAt)
+            const expiresDate = new Date(cachedData.expiresAt)
+
+            if (expiresDate > now) {
+              cached++
+              const age = now.getTime() - cacheDate.getTime()
+              cacheAges.push(age)
+
+              if (!newest || cacheDate > new Date(newest)) {
+                newest = cachedData.cachedAt
+              }
+              if (!oldest || cacheDate < new Date(oldest)) {
+                oldest = cachedData.cachedAt
+              }
+            } else {
+              expired++
+            }
+          }
+        } catch (error) {
+          console.warn(`Cache stats check failed for ${contentId}:`, error)
+        }
+      }
+
+      const missing = contentIds.length - cached - expired
+      const hitRate = contentIds.length > 0 ? (cached / contentIds.length) * 100 : 0
+      const averageAge =
+        cacheAges.length > 0 ? cacheAges.reduce((a, b) => a + b, 0) / cacheAges.length : 0
+
+      return {
+        total: contentIds.length,
+        cached,
+        expired,
+        missing,
+        hitRate: Math.round(hitRate * 100) / 100, // Round to 2 decimal places
+        cacheAgeStats: {
+          newest,
+          oldest,
+          averageAge: Math.round(averageAge / 1000 / 60), // Convert to minutes
+        },
+      }
     },
 
     /**
