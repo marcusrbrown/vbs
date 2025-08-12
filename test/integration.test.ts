@@ -67,7 +67,7 @@ describe('Generic EventEmitter Integration Tests', () => {
       })
     })
 
-    it('should allow search filter to communicate filtered data through events', () => {
+    it('should allow search filter to communicate filtered data through events', async () => {
       const filterChangeSpy = vi.fn()
 
       // Subscribe to search filter events
@@ -75,6 +75,9 @@ describe('Generic EventEmitter Integration Tests', () => {
 
       // Trigger a search
       searchFilter.setSearch('Enterprise')
+
+      // Wait for async operations to complete
+      await new Promise(resolve => setTimeout(resolve, 0))
 
       // Verify event communication
       expect(filterChangeSpy).toHaveBeenCalledWith({
@@ -256,7 +259,7 @@ describe('Generic EventEmitter Integration Tests', () => {
   })
 
   describe('Complex interaction scenarios', () => {
-    it('should handle coordinated updates between all modules', () => {
+    it('should handle coordinated updates between all modules', async () => {
       const progressSpy = vi.fn()
       const filterSpy = vi.fn()
 
@@ -268,6 +271,9 @@ describe('Generic EventEmitter Integration Tests', () => {
       searchFilter.setSearch('Original Series')
       progressTracker.toggleItem('tos_s1')
       searchFilter.setFilter('series')
+
+      // Wait for async operations to complete
+      await new Promise(resolve => setTimeout(resolve, 0))
 
       // Verify all events were fired
       expect(progressSpy).toHaveBeenCalled()

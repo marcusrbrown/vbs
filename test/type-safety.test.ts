@@ -406,7 +406,7 @@ describe('TypeScript Type Safety Tests', () => {
       progressTracker.toggleItem('test-item')
     })
 
-    it('should work with generic factory function constraints', () => {
+    it('should work with generic factory function constraints', async () => {
       // Test that factory functions maintain type safety
       const progressTracker = createProgressTracker()
       const searchFilter = createSearchFilter()
@@ -421,6 +421,9 @@ describe('TypeScript Type Safety Tests', () => {
       // Trigger events
       progressTracker.toggleItem('test')
       searchFilter.setSearch('test')
+
+      // Wait for async operations to complete
+      await new Promise(resolve => setTimeout(resolve, 0))
 
       expect(progressListener).toHaveBeenCalled()
       expect(searchListener).toHaveBeenCalled()

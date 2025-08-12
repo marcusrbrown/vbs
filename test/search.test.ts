@@ -25,7 +25,7 @@ describe('SearchFilter', () => {
     expect(searchFilter.getCurrentFilters().filter).toBe('movie')
   })
 
-  it('should match items correctly', () => {
+  it('should match items correctly', async () => {
     const testItem = {
       id: 'ent_s1',
       title: 'Star Trek: Enterprise',
@@ -36,16 +36,16 @@ describe('SearchFilter', () => {
     }
 
     searchFilter.setSearch('enterprise')
-    expect(searchFilter.matchesFilters(testItem)).toBe(true)
+    expect(await searchFilter.matchesFilters(testItem)).toBe(true)
 
     searchFilter.setSearch('voyager')
-    expect(searchFilter.matchesFilters(testItem)).toBe(false)
+    expect(await searchFilter.matchesFilters(testItem)).toBe(false)
 
     searchFilter.setSearch('')
     searchFilter.setFilter('series')
-    expect(searchFilter.matchesFilters(testItem)).toBe(true)
+    expect(await searchFilter.matchesFilters(testItem)).toBe(true)
 
     searchFilter.setFilter('movie')
-    expect(searchFilter.matchesFilters(testItem)).toBe(false)
+    expect(await searchFilter.matchesFilters(testItem)).toBe(false)
   })
 })
