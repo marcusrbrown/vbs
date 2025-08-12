@@ -378,8 +378,8 @@ export const createStarTrekViewingGuide = () => {
     // Initialize timeline renderer with streaming API support
     timelineRenderer = createTimelineRenderer(elements.container, progressTracker, streamingApi)
 
-    // Initial render with search filter
-    const filteredData = searchFilter.getFilteredData()
+    // Initial render with search filter (await async filtering)
+    const filteredData = await searchFilter.getFilteredData()
     timelineRenderer.render(filteredData)
     timelineRenderer.updateItemStates()
 

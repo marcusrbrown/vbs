@@ -5,6 +5,24 @@ import type {
 } from '../modules/types.js'
 
 /**
+ * Affiliate tracking configuration for deep links
+ */
+export interface AffiliateConfig {
+  /** Enable affiliate tracking */
+  enabled: boolean
+  /** Affiliate tracking ID or partner code */
+  affiliateId?: string
+  /** UTM campaign parameters for analytics */
+  utmCampaign?: string
+  /** UTM source identifier */
+  utmSource?: string
+  /** UTM medium identifier */
+  utmMedium?: string
+  /** Custom tracking parameters per platform */
+  customParams?: Record<string, Record<string, string>>
+}
+
+/**
  * Configuration options for streaming indicators display
  */
 export interface StreamingIndicatorConfig {
@@ -22,6 +40,8 @@ export interface StreamingIndicatorConfig {
   layout: 'horizontal' | 'vertical'
   /** Whether to show platform icons */
   showIcons: boolean
+  /** Affiliate tracking configuration */
+  affiliateTracking?: AffiliateConfig
 }
 
 /**
@@ -35,6 +55,12 @@ const DEFAULT_CONFIG: StreamingIndicatorConfig = {
   size: 'medium',
   layout: 'horizontal',
   showIcons: true,
+  affiliateTracking: {
+    enabled: false,
+    utmSource: 'vbs-viewing-guide',
+    utmMedium: 'referral',
+    utmCampaign: 'star-trek-streaming',
+  },
 }
 
 /**
@@ -138,6 +164,62 @@ const formatPrice = (price: {amount: number; currency: string}): string => {
 }
 
 /**
+ * Generate affiliate tracking URL with UTM parameters and custom tracking
+ */
+const generateAffiliateUrl = (
+  originalUrl: string,
+  platformId: string,
+  config: AffiliateConfig,
+): string => {
+  if (!config.enabled || !originalUrl) {
+    return originalUrl
+  }
+
+  try {
+    const url = new URL(originalUrl)
+
+    // Add UTM parameters for analytics
+    if (config.utmSource) {
+      url.searchParams.set('utm_source', config.utmSource)
+    }
+    if (config.utmMedium) {
+      url.searchParams.set('utm_medium', config.utmMedium)
+    }
+    if (config.utmCampaign) {
+      url.searchParams.set('utm_campaign', config.utmCampaign)
+    }
+
+    // Add affiliate ID if provided
+    if (config.affiliateId) {
+      // Platform-specific affiliate parameter mapping
+      const affiliateParamMap: Record<string, string> = {
+        'paramount-plus': 'ref',
+        netflix: 'trackId',
+        'amazon-prime': 'tag',
+        hulu: 'affiliateId',
+        'disney-plus': 'cid',
+        'hbo-max': 'pid',
+      }
+
+      const affiliateParam = affiliateParamMap[platformId] || 'ref'
+      url.searchParams.set(affiliateParam, config.affiliateId)
+    }
+
+    // Add custom platform-specific parameters
+    if (config.customParams?.[platformId]) {
+      for (const [key, value] of Object.entries(config.customParams[platformId])) {
+        url.searchParams.set(key, value)
+      }
+    }
+
+    return url.toString()
+  } catch (error) {
+    console.warn(`Failed to generate affiliate URL for ${platformId}:`, error)
+    return originalUrl
+  }
+}
+
+/**
  * Create a streaming availability indicator for a single platform
  */
 const createPlatformIndicator = (
@@ -148,6 +230,12 @@ const createPlatformIndicator = (
   const hasPrice = availability.price && config.showPricing
   const hasQuality = availability.quality.length > 0 && config.showQuality
   const hasLink = availability.url && config.showLinks
+
+  // Generate affiliate tracking URL if enabled
+  const finalUrl =
+    hasLink && config.affiliateTracking?.enabled && availability.url
+      ? generateAffiliateUrl(availability.url, platform.id, config.affiliateTracking)
+      : availability.url
 
   const iconHtml = config.showIcons ? `<span class="platform-icon">${platform.icon}</span>` : ''
 
@@ -170,14 +258,16 @@ const createPlatformIndicator = (
     ${qualityHtml}
   `
 
-  if (hasLink) {
+  if (hasLink && finalUrl) {
     return `
-      <a href="${availability.url}"
+      <a href="${finalUrl}"
          class="streaming-platform-indicator ${typeClass} ${sizeClass}"
          target="_blank"
          rel="noopener noreferrer"
          title="${platform.name} - ${availability.type}${hasPrice && availability.price ? ` - ${formatPrice(availability.price)}` : ''}"
-         style="--platform-color: ${platform.color}">
+         style="--platform-color: ${platform.color}"
+         data-platform="${platform.id}"
+         data-tracking-enabled="${config.affiliateTracking?.enabled || false}">
         ${content}
       </a>
     `
@@ -185,7 +275,8 @@ const createPlatformIndicator = (
     return `
       <div class="streaming-platform-indicator ${typeClass} ${sizeClass}"
            title="${platform.name} - ${availability.type}${hasPrice && availability.price ? ` - ${formatPrice(availability.price)}` : ''}"
-           style="--platform-color: ${platform.color}">
+           style="--platform-color: ${platform.color}"
+           data-platform="${platform.id}">
         ${content}
       </div>
     `
@@ -320,5 +411,62 @@ export const updateStreamingIndicators = async (
     indicatorElements.forEach(element => {
       element.innerHTML = errorHtml
     })
+  }
+}
+
+/**
+ * Enable affiliate tracking for streaming indicators
+ *
+ * @param affiliateId - Affiliate ID or partner code for tracking
+ * @param customParams - Custom tracking parameters per platform
+ * @returns Affiliate configuration object
+ */
+export const enableAffiliateTracking = (
+  affiliateId: string,
+  customParams?: Record<string, Record<string, string>>,
+): AffiliateConfig => {
+  const config: AffiliateConfig = {
+    enabled: true,
+    affiliateId,
+    utmSource: 'vbs-viewing-guide',
+    utmMedium: 'referral',
+    utmCampaign: 'star-trek-streaming',
+  }
+
+  if (customParams) {
+    config.customParams = customParams
+  }
+
+  return config
+}
+
+/**
+ * Create affiliate configuration for specific platform partnerships
+ *
+ * @param platformConfigs - Platform-specific affiliate configurations
+ * @returns Comprehensive affiliate configuration
+ */
+export const createPlatformAffiliateConfig = (
+  platformConfigs: Record<string, {affiliateId: string; customParams?: Record<string, string>}>,
+): AffiliateConfig => {
+  const customParams: Record<string, Record<string, string>> = {}
+  let primaryAffiliateId = ''
+
+  for (const [platformId, config] of Object.entries(platformConfigs)) {
+    if (config.customParams) {
+      customParams[platformId] = config.customParams
+    }
+    if (!primaryAffiliateId) {
+      primaryAffiliateId = config.affiliateId
+    }
+  }
+
+  return {
+    enabled: true,
+    affiliateId: primaryAffiliateId,
+    utmSource: 'vbs-viewing-guide',
+    utmMedium: 'referral',
+    utmCampaign: 'star-trek-streaming',
+    customParams,
   }
 }

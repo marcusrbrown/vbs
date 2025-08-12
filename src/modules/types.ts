@@ -276,7 +276,9 @@ export interface SeasonProgress extends ProgressData {
  * ```typescript
  * const filterState: FilterState = {
  *   search: 'enterprise',
- *   filter: 'series'
+ *   filter: 'series',
+ *   streamingPlatforms: ['paramount-plus', 'netflix'],
+ *   availabilityOnly: true
  * }
  * ```
  */
@@ -285,6 +287,14 @@ export interface FilterState {
   search: string
   /** Current filter type selection */
   filter: string
+  /** Filter by specific streaming platforms */
+  streamingPlatforms?: string[]
+  /** Show only content available on any streaming platform */
+  availabilityOnly?: boolean
+  /** Filter by streaming availability type (free, subscription, rent, buy) */
+  availabilityType?: string[]
+  /** Filter by maximum price for paid content */
+  maxPrice?: number
 }
 
 /**
@@ -299,7 +309,9 @@ export interface FilterState {
  *   season: 3,
  *   guestStars: ['John de Lancie'],
  *   plotKeywords: ['time travel'],
- *   spoilerLevel: 'safe'
+ *   spoilerLevel: 'safe',
+ *   streamingPlatforms: ['paramount-plus'],
+ *   availabilityType: ['subscription']
  * }
  * ```
  */
@@ -323,6 +335,14 @@ export interface EpisodeFilterCriteria {
   }
   /** Filter by watched/unwatched status */
   watchedStatus?: 'watched' | 'unwatched' | 'any'
+  /** Filter by specific streaming platforms */
+  streamingPlatforms?: string[]
+  /** Show only content available on any streaming platform */
+  availabilityOnly?: boolean
+  /** Filter by streaming availability type (free, subscription, rent, buy) */
+  availabilityType?: string[]
+  /** Filter by maximum price for paid content */
+  maxPrice?: number
 }
 
 /**
@@ -490,12 +510,20 @@ export interface SearchFilterInstance {
   setSearch(searchTerm: string): void
   /** Set the current filter type */
   setFilter(filterType: string): void
+  /** Set streaming platform filters */
+  setStreamingPlatforms(platforms: string[]): void
+  /** Set availability only filter */
+  setAvailabilityOnly(availabilityOnly: boolean): void
+  /** Set streaming availability type filters */
+  setAvailabilityType(types: string[]): void
+  /** Set maximum price filter */
+  setMaxPrice(maxPrice?: number): void
   /** Get filtered data based on current search and filter criteria */
-  getFilteredData(): StarTrekEra[]
+  getFilteredData(): Promise<StarTrekEra[]>
   /** Check if a specific item matches current filter criteria */
-  matchesFilters(item: StarTrekItem): boolean
+  matchesFilters(item: StarTrekItem): Promise<boolean>
   /** Trigger filter change notifications to subscribers */
-  notifyFilterChange(): void
+  notifyFilterChange(): Promise<void>
   /** Get current search and filter state */
   getCurrentFilters(): FilterState
 

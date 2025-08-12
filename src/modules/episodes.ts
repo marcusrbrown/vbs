@@ -4,6 +4,7 @@ import type {
   EpisodeManagerEvents,
   EpisodeManagerInstance,
   StarTrekEra,
+  StreamingApiInstance,
 } from './types.js'
 import {starTrekData} from '../data/star-trek-data.js'
 import {curry, pipe, tap} from '../utils/composition.js'
@@ -17,6 +18,7 @@ import {createEventEmitter} from './events.js'
  * Features:
  * - Episode search across titles, synopsis, plot points, and guest stars
  * - Advanced filtering by series, season, guest stars, plot keywords
+ * - Streaming availability filtering with platform-specific criteria
  * - Lazy loading for performance with large episode datasets
  * - Spoiler-safe progressive disclosure
  * - Bulk filtering operations with performance optimization
@@ -30,11 +32,13 @@ import {createEventEmitter} from './events.js'
  * // Search for episodes containing 'borg'
  * episodeManager.searchEpisodes('borg')
  *
- * // Filter by specific criteria
+ * // Filter by specific criteria including streaming availability
  * episodeManager.setFilterCriteria({
  *   seriesId: 'tng',
  *   season: 3,
- *   spoilerLevel: 'safe'
+ *   spoilerLevel: 'safe',
+ *   streamingPlatforms: ['paramount-plus'],
+ *   availabilityOnly: true
  * })
  *
  * // Listen for filter changes
@@ -43,7 +47,9 @@ import {createEventEmitter} from './events.js'
  * })
  * ```
  */
-export const createEpisodeManager = (): EpisodeManagerInstance => {
+export const createEpisodeManager = (
+  _streamingApi?: StreamingApiInstance,
+): EpisodeManagerInstance => {
   // Closure variables for private state management
   let currentCriteria: EpisodeFilterCriteria = {}
   let allEpisodes: Episode[] = []
