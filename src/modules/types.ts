@@ -271,7 +271,13 @@ export interface ConflictResolutionRecord {
   /** Chosen resolution value */
   resolution: unknown
   /** Strategy used for resolution */
-  strategy: 'highest-confidence' | 'most-recent' | 'manual' | 'consensus'
+  strategy:
+    | 'highest-confidence'
+    | 'most-recent'
+    | 'manual'
+    | 'consensus'
+    | 'source-priority'
+    | 'field-specific'
   /** Timestamp of resolution */
   resolvedAt: string
 }

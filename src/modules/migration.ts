@@ -7,9 +7,20 @@ import {withSyncErrorHandling} from './error-handler.js'
 export const MIGRATION_VERSIONS = {
   SEASON_LEVEL: '1.0',
   EPISODE_LEVEL: '2.0',
+  METADATA_V1: '3.0',
+  METADATA_V2: '3.1',
+} as const
+
+// Metadata schema version constants for evolution tracking
+export const METADATA_SCHEMA_VERSIONS = {
+  BASIC: '1.0',
+  ENRICHED: '2.0',
+  MULTI_SOURCE: '3.0',
 } as const
 
 export type MigrationVersion = (typeof MIGRATION_VERSIONS)[keyof typeof MIGRATION_VERSIONS]
+export type MetadataSchemaVersion =
+  (typeof METADATA_SCHEMA_VERSIONS)[keyof typeof METADATA_SCHEMA_VERSIONS]
 
 // Storage key for migration state
 const MIGRATION_STATE_KEY = 'starTrekMigrationState'
@@ -508,4 +519,289 @@ export const performRollback = (currentProgress: string[]): MigrationResult => {
     ...result,
     canRollback: false,
   }
+}
+
+// ============================================================================
+// METADATA VERSIONING SYSTEM
+// ============================================================================
+
+/**
+ * Metadata schema evolution tracking interface.
+ */
+export interface MetadataSchemaEvolution {
+  fromVersion: MetadataSchemaVersion
+  toVersion: MetadataSchemaVersion
+  migrationRules: MetadataMigrationRule[]
+  isBreakingChange: boolean
+  description: string
+}
+
+/**
+ * Individual metadata field migration rule.
+ */
+export interface MetadataMigrationRule {
+  fieldPath: string
+  transformation: 'rename' | 'convert' | 'split' | 'merge' | 'delete' | 'add'
+  fromField?: string
+  toField?: string
+  converter?: (value: unknown) => unknown
+  defaultValue?: unknown
+}
+
+/**
+ * Metadata versioning state for tracking schema evolution.
+ */
+export interface MetadataVersionState {
+  currentSchemaVersion: MetadataSchemaVersion
+  lastMigrated: string
+  migrationHistory: {
+    fromVersion: MetadataSchemaVersion
+    toVersion: MetadataSchemaVersion
+    timestamp: string
+    affectedEpisodes: number
+  }[]
+  pendingMigrations: MetadataSchemaEvolution[]
+}
+
+// Storage key for metadata versioning state
+const METADATA_VERSION_STATE_KEY = 'vbs-metadata-version-state'
+
+/**
+ * Get current metadata versioning state.
+ */
+export const getMetadataVersionState = withSyncErrorHandling((): MetadataVersionState => {
+  const stored = localStorage.getItem(METADATA_VERSION_STATE_KEY)
+  if (!stored) {
+    return {
+      currentSchemaVersion: METADATA_SCHEMA_VERSIONS.BASIC,
+      lastMigrated: new Date().toISOString(),
+      migrationHistory: [],
+      pendingMigrations: [],
+    }
+  }
+
+  try {
+    const state = JSON.parse(stored) as MetadataVersionState
+    return {
+      currentSchemaVersion: state.currentSchemaVersion || METADATA_SCHEMA_VERSIONS.BASIC,
+      lastMigrated: state.lastMigrated || new Date().toISOString(),
+      migrationHistory: state.migrationHistory || [],
+      pendingMigrations: state.pendingMigrations || [],
+    }
+  } catch (parseError) {
+    console.warn('Failed to parse metadata version state, using default:', parseError)
+    return {
+      currentSchemaVersion: METADATA_SCHEMA_VERSIONS.BASIC,
+      lastMigrated: new Date().toISOString(),
+      migrationHistory: [],
+      pendingMigrations: [],
+    }
+  }
+}, 'getMetadataVersionState')
+
+/**
+ * Save metadata versioning state.
+ */
+export const saveMetadataVersionState = withSyncErrorHandling(
+  (state: MetadataVersionState): void => {
+    localStorage.setItem(METADATA_VERSION_STATE_KEY, JSON.stringify(state))
+  },
+  'saveMetadataVersionState',
+)
+
+/**
+ * Check if metadata schema needs migration.
+ */
+export const needsMetadataMigration = (targetVersion: MetadataSchemaVersion): boolean => {
+  const currentState = getMetadataVersionState()
+  if (!currentState) return true
+  return currentState.currentSchemaVersion !== targetVersion
+}
+
+/**
+ * Migrate metadata to target schema version.
+ */
+export const migrateMetadataSchema = withSyncErrorHandling(
+  (
+    targetVersion: MetadataSchemaVersion,
+    metadataRecords: Record<string, unknown>,
+  ): {success: boolean; migratedRecords: Record<string, unknown>; errors: string[]} => {
+    const currentState = getMetadataVersionState()
+    const errors: string[] = []
+
+    if (!currentState) {
+      errors.push('Failed to get metadata version state')
+      return {
+        success: false,
+        migratedRecords: metadataRecords,
+        errors,
+      }
+    }
+
+    if (currentState.currentSchemaVersion === targetVersion) {
+      return {
+        success: true,
+        migratedRecords: metadataRecords,
+        errors: [],
+      }
+    }
+
+    // Apply migration rules based on version transition
+    const migrationPath = getMetadataMigrationPath(currentState.currentSchemaVersion, targetVersion)
+
+    if (!migrationPath) {
+      errors.push(
+        `No migration path found from ${currentState.currentSchemaVersion} to ${targetVersion}`,
+      )
+      return {
+        success: false,
+        migratedRecords: metadataRecords,
+        errors,
+      }
+    }
+
+    try {
+      let currentRecords = {...metadataRecords}
+
+      // Apply each migration step in the path
+      for (const evolution of migrationPath) {
+        currentRecords = applyMetadataMigrationRules(currentRecords, evolution.migrationRules)
+      }
+
+      // Update version state
+      const newState: MetadataVersionState = {
+        ...currentState,
+        currentSchemaVersion: targetVersion,
+        lastMigrated: new Date().toISOString(),
+        migrationHistory: [
+          ...currentState.migrationHistory,
+          {
+            fromVersion: currentState.currentSchemaVersion,
+            toVersion: targetVersion,
+            timestamp: new Date().toISOString(),
+            affectedEpisodes: Object.keys(metadataRecords).length,
+          },
+        ],
+        pendingMigrations: currentState.pendingMigrations,
+      }
+
+      saveMetadataVersionState(newState)
+
+      return {
+        success: true,
+        migratedRecords: currentRecords,
+        errors: [],
+      }
+    } catch (migrationError) {
+      errors.push(
+        `Migration failed: ${migrationError instanceof Error ? migrationError.message : String(migrationError)}`,
+      )
+      return {
+        success: false,
+        migratedRecords: metadataRecords,
+        errors,
+      }
+    }
+  },
+  'migrateMetadataSchema',
+)
+
+/**
+ * Get migration path between two schema versions.
+ */
+const getMetadataMigrationPath = (
+  fromVersion: MetadataSchemaVersion,
+  toVersion: MetadataSchemaVersion,
+): MetadataSchemaEvolution[] | null => {
+  // Define migration evolutions (simplified for initial implementation)
+  const evolutions: MetadataSchemaEvolution[] = [
+    {
+      fromVersion: METADATA_SCHEMA_VERSIONS.BASIC,
+      toVersion: METADATA_SCHEMA_VERSIONS.ENRICHED,
+      migrationRules: [
+        {
+          fieldPath: 'dataSource',
+          transformation: 'add',
+          defaultValue: 'manual',
+        },
+        {
+          fieldPath: 'confidenceScore',
+          transformation: 'add',
+          defaultValue: 0.5,
+        },
+      ],
+      isBreakingChange: false,
+      description: 'Add data source tracking and confidence scoring',
+    },
+    {
+      fromVersion: METADATA_SCHEMA_VERSIONS.ENRICHED,
+      toVersion: METADATA_SCHEMA_VERSIONS.MULTI_SOURCE,
+      migrationRules: [
+        {
+          fieldPath: 'fieldValidation',
+          transformation: 'add',
+          defaultValue: {},
+        },
+        {
+          fieldPath: 'conflictResolution',
+          transformation: 'add',
+          defaultValue: [],
+        },
+      ],
+      isBreakingChange: false,
+      description: 'Add multi-source conflict resolution capabilities',
+    },
+  ]
+
+  // Find direct path or build composite path
+  for (const evolution of evolutions) {
+    if (evolution.fromVersion === fromVersion && evolution.toVersion === toVersion) {
+      return [evolution]
+    }
+  }
+
+  // For now, return null for complex paths - can be enhanced later
+  return null
+}
+
+/**
+ * Apply migration rules to metadata records.
+ */
+const applyMetadataMigrationRules = (
+  records: Record<string, unknown>,
+  rules: MetadataMigrationRule[],
+): Record<string, unknown> => {
+  const migratedRecords: Record<string, unknown> = {}
+
+  for (const [episodeId, record] of Object.entries(records)) {
+    const migratedRecord = {...(record as Record<string, unknown>)}
+
+    for (const rule of rules) {
+      switch (rule.transformation) {
+        case 'add':
+          if (!(rule.fieldPath in migratedRecord)) {
+            migratedRecord[rule.fieldPath] = rule.defaultValue
+          }
+          break
+        case 'rename':
+          if (rule.fromField && rule.toField && rule.fromField in migratedRecord) {
+            migratedRecord[rule.toField] = migratedRecord[rule.fromField]
+            delete migratedRecord[rule.fromField]
+          }
+          break
+        case 'convert':
+          if (rule.fieldPath in migratedRecord && rule.converter) {
+            migratedRecord[rule.fieldPath] = rule.converter(migratedRecord[rule.fieldPath])
+          }
+          break
+        case 'delete':
+          delete migratedRecord[rule.fieldPath]
+          break
+      }
+    }
+
+    migratedRecords[episodeId] = migratedRecord
+  }
+
+  return migratedRecords
 }

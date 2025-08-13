@@ -2,7 +2,7 @@
 goal: Episode Metadata Enrichment System with Service Worker Background Sync
 version: 1.0
 date_created: 2025-08-12
-last_updated: 2025-08-12
+last_updated: 2025-08-13
 owner: Marcus R. Brown
 status: 'In Progress'
 tags: ['feature', 'metadata', 'service-worker', 'background-sync', 'api-integration', 'cli-tools']
@@ -57,10 +57,10 @@ This plan extends the existing VBS Service Worker to implement a comprehensive e
 | TASK-004 | Create MetadataCache interface for IndexedDB storage with expiration policies and update strategies | ✅ | 2025-08-12 |
 | TASK-005 | Implement metadata validation schemas using type guards for runtime data integrity checking | ✅ | 2025-08-12 |
 | TASK-006 | Create MetadataStorageAdapter extending existing storage patterns with metadata-specific operations | ✅ | 2025-08-12 |
-| TASK-007 | Add metadata versioning system to handle schema evolution and migration of existing episode data | |  |
-| TASK-008 | Implement conflict resolution strategies for when multiple sources provide different metadata | |  |
-| TASK-009 | Create metadata quality scoring system to rank data source reliability and completeness | |  |
-| TASK-010 | Add comprehensive TypeScript types for all external API response formats (TMDB, Memory Alpha) | |  |
+| TASK-007 | Add metadata versioning system to handle schema evolution and migration of existing episode data | ✅ | 2025-08-13 |
+| TASK-008 | Implement conflict resolution strategies for when multiple sources provide different metadata | ✅ | 2025-08-13 |
+| TASK-009 | Create metadata quality scoring system to rank data source reliability and completeness | ✅ | 2025-08-13 |
+| TASK-010 | Add comprehensive TypeScript types for all external API response formats (TMDB, Memory Alpha) | ✅ | 2025-08-13 |
 
 ### Implementation Phase 2: API Integration Layer
 
@@ -168,6 +168,10 @@ This plan extends the existing VBS Service Worker to implement a comprehensive e
 - **FILE-014**: `test/service-worker-metadata.test.ts` - Service Worker background sync tests
 - **FILE-015**: `src/data/metadata-sources-config.ts` - Configuration for all external data sources
 - **FILE-016**: `src/modules/metadata-queue.ts` - Background sync queue management with prioritization
+- **FILE-017**: `src/modules/migration.ts` - Extended with metadata versioning and schema evolution capabilities
+- **FILE-018**: `src/modules/conflict-resolution.ts` - Multi-source conflict resolution strategies and algorithms
+- **FILE-019**: `src/modules/metadata-quality.ts` - Quality scoring system for data source reliability assessment
+- **FILE-020**: `src/modules/external-api-types.ts` - Comprehensive TypeScript definitions for all external API formats
 
 ## 6. Testing
 
