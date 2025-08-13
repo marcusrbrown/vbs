@@ -11,6 +11,7 @@
 /**
  * Individual episode data with comprehensive metadata.
  * Used for episode-level tracking with detailed information including synopsis, guest stars, and connections.
+ * Extended to support enriched metadata from multiple external sources (Memory Alpha, TMDB, etc.).
  *
  * @example
  * ```typescript
@@ -24,7 +25,14 @@
  *   synopsis: 'Captain Archer and his crew embark on their first mission aboard Enterprise.',
  *   plotPoints: ['First contact with Klingons', 'Introduction of Temporal Cold War'],
  *   guestStars: ['John Fleck as Silik'],
- *   connections: []
+ *   connections: [],
+ *   // Extended metadata fields (optional for backward compatibility)
+ *   productionCode: '176251',
+ *   director: ['James L. Conway'],
+ *   writer: ['Rick Berman', 'Brannon Braga'],
+ *   memoryAlphaUrl: 'https://memory-alpha.fandom.com/wiki/Broken_Bow_(episode)',
+ *   tmdbId: 228456,
+ *   imdbId: 'tt0572248'
  * }
  * ```
  */
@@ -49,6 +57,20 @@ export interface Episode {
   guestStars: string[]
   /** Cross-series connections and references */
   connections: EpisodeConnection[]
+
+  // Extended metadata fields from external sources (optional for backward compatibility)
+  /** Production code for the episode (e.g., '176251') */
+  productionCode?: string
+  /** Director(s) of the episode */
+  director?: string[]
+  /** Writer(s) of the episode */
+  writer?: string[]
+  /** Memory Alpha URL for the episode page */
+  memoryAlphaUrl?: string
+  /** The Movie Database (TMDB) ID for the episode */
+  tmdbId?: number
+  /** Internet Movie Database (IMDb) ID for the episode */
+  imdbId?: string
 }
 
 /**
@@ -75,6 +97,195 @@ export interface EpisodeConnection {
   /** Description of the connection */
   description: string
 }
+
+/**
+ * Comprehensive episode metadata with data source tracking and validation status.
+ * Used to track metadata enrichment from multiple external sources with freshness and reliability indicators.
+ *
+ * @example
+ * ```typescript
+ * const metadata: EpisodeMetadata = {
+ *   episodeId: 'ent_s1_e01',
+ *   dataSource: 'memory-alpha',
+ *   lastUpdated: '2025-08-12T10:30:00.000Z',
+ *   isValidated: true,
+ *   confidenceScore: 0.95,
+ *   version: '1.0',
+ *   enrichmentStatus: 'complete',
+ *   fieldValidation: {
+ *     productionCode: { isValid: true, source: 'memory-alpha' },
+ *     director: { isValid: true, source: 'tmdb' }
+ *   }
+ * }
+ * ```
+ */
+export interface EpisodeMetadata {
+  /** Episode ID this metadata belongs to */
+  episodeId: string
+  /** Primary data source for this metadata */
+  dataSource: MetadataSourceType
+  /** ISO timestamp when metadata was last updated */
+  lastUpdated: string
+  /** Whether the metadata has been validated for accuracy */
+  isValidated: boolean
+  /** Reliability score from 0-1 based on source confidence and data completeness */
+  confidenceScore: number
+  /** Schema version for metadata evolution tracking */
+  version: string
+  /** Current enrichment status */
+  enrichmentStatus: 'pending' | 'partial' | 'complete' | 'failed'
+  /** Validation status for individual metadata fields */
+  fieldValidation?: Record<string, FieldValidationInfo>
+  /** Conflict resolution history when multiple sources disagree */
+  conflictResolution?: ConflictResolutionRecord[]
+  /** Expiration timestamp for cache invalidation */
+  expiresAt?: string
+}
+
+/**
+ * Data source configuration for metadata enrichment with reliability scoring.
+ * Tracks metadata source characteristics and performance metrics for intelligent source selection.
+ *
+ * @example
+ * ```typescript
+ * const source: MetadataSource = {
+ *   name: 'memory-alpha',
+ *   type: 'scraping',
+ *   baseUrl: 'https://memory-alpha.fandom.com',
+ *   confidenceLevel: 0.9,
+ *   lastAccessed: '2025-08-12T10:30:00.000Z',
+ *   isAvailable: true,
+ *   rateLimit: { requestsPerMinute: 10, burstLimit: 5 },
+ *   fields: ['synopsis', 'guestStars', 'productionCode'],
+ *   reliability: { uptime: 0.99, accuracy: 0.95, latency: 250 }
+ * }
+ * ```
+ */
+export interface MetadataSource {
+  /** Unique identifier for the data source */
+  name: string
+  /** Type of data source */
+  type: MetadataSourceType
+  /** Base URL for API or scraping */
+  baseUrl: string
+  /** Confidence level in data from this source (0-1) */
+  confidenceLevel: number
+  /** ISO timestamp of last successful access */
+  lastAccessed: string
+  /** Whether the source is currently available */
+  isAvailable: boolean
+  /** Rate limiting configuration */
+  rateLimit: {
+    requestsPerMinute: number
+    burstLimit: number
+  }
+  /** Metadata fields this source can provide */
+  fields: string[]
+  /** Source reliability metrics */
+  reliability: {
+    uptime: number
+    accuracy: number
+    latency: number
+  }
+  /** Optional API configuration */
+  apiConfig?: {
+    apiKey?: string
+    headers?: Record<string, string>
+    timeout?: number
+  }
+}
+
+/**
+ * Cache configuration for metadata storage with expiration and update policies.
+ * Manages IndexedDB storage for metadata with intelligent caching strategies and quota management.
+ *
+ * @example
+ * ```typescript
+ * const cache: MetadataCache = {
+ *   storeName: 'episode-metadata',
+ *   version: 1,
+ *   keyPath: 'episodeId',
+ *   expiration: { defaultTtl: 86400000, maxAge: 604800000 },
+ *   updateStrategy: 'background-sync',
+ *   quotaManagement: { maxSize: 50000000, cleanupThreshold: 0.8 },
+ *   indexes: [
+ *     { name: 'dataSource', keyPath: 'dataSource' },
+ *     { name: 'lastUpdated', keyPath: 'lastUpdated' }
+ *   ]
+ * }
+ * ```
+ */
+export interface MetadataCache {
+  /** IndexedDB object store name */
+  storeName: string
+  /** Database version for schema evolution */
+  version: number
+  /** Primary key path for the object store */
+  keyPath: string
+  /** Expiration policies for cached metadata */
+  expiration: {
+    defaultTtl: number // Default time-to-live in milliseconds
+    maxAge: number // Maximum age before forced refresh
+  }
+  /** Strategy for updating cached metadata */
+  updateStrategy: 'immediate' | 'background-sync' | 'on-demand'
+  /** Quota management for IndexedDB storage */
+  quotaManagement: {
+    maxSize: number // Maximum storage size in bytes
+    cleanupThreshold: number // Cleanup when usage exceeds this ratio
+  }
+  /** Secondary indexes for efficient querying */
+  indexes: {
+    name: string
+    keyPath: string
+    unique?: boolean
+  }[]
+}
+
+/**
+ * Field-level validation information for metadata quality tracking.
+ */
+export interface FieldValidationInfo {
+  /** Whether the field value is valid */
+  isValid: boolean
+  /** Source that provided this field value */
+  source: MetadataSourceType
+  /** Validation timestamp */
+  validatedAt?: string
+  /** Validation error message if applicable */
+  error?: string
+}
+
+/**
+ * Record of conflict resolution when multiple sources provide different values.
+ */
+export interface ConflictResolutionRecord {
+  /** Field name that had conflicting values */
+  fieldName: string
+  /** Conflicting values from different sources */
+  conflicts: {
+    source: MetadataSourceType
+    value: unknown
+    confidence: number
+  }[]
+  /** Chosen resolution value */
+  resolution: unknown
+  /** Strategy used for resolution */
+  strategy: 'highest-confidence' | 'most-recent' | 'manual' | 'consensus'
+  /** Timestamp of resolution */
+  resolvedAt: string
+}
+
+/**
+ * Supported metadata source types.
+ */
+export type MetadataSourceType =
+  | 'memory-alpha'
+  | 'tmdb'
+  | 'imdb'
+  | 'manual'
+  | 'trekcore'
+  | 'startrek-com'
 
 /**
  * Represents a single Star Trek content item (series, movie, or animated content).
@@ -1337,6 +1548,94 @@ export interface EpisodeManagerEvents extends EventMap {
     filterType: string
     matchingCount: number
     totalCount: number
+  }
+}
+
+/**
+ * Event map for metadata enrichment system events.
+ * Used with generic EventEmitter for type-safe metadata event handling.
+ */
+export interface MetadataEnrichmentEvents extends EventMap {
+  /** Fired when metadata enrichment starts for an episode */
+  'enrichment-start': {
+    episodeId: string
+    sources: MetadataSourceType[]
+    priority: 'high' | 'medium' | 'low'
+  }
+  /** Fired when metadata enrichment completes successfully */
+  'enrichment-complete': {
+    episodeId: string
+    metadata: EpisodeMetadata
+    sources: MetadataSourceType[]
+    duration: number
+  }
+  /** Fired when metadata enrichment fails */
+  'enrichment-failed': {
+    episodeId: string
+    error: string
+    sources: MetadataSourceType[]
+    retryable: boolean
+  }
+  /** Fired when metadata conflicts are detected between sources */
+  'conflict-detected': {
+    episodeId: string
+    fieldName: string
+    conflicts: ConflictResolutionRecord['conflicts']
+  }
+  /** Fired when metadata conflicts are resolved */
+  'conflict-resolved': {
+    episodeId: string
+    resolution: ConflictResolutionRecord
+  }
+  /** Fired when metadata is validated */
+  'metadata-validated': {
+    episodeId: string
+    isValid: boolean
+    validationErrors: string[]
+  }
+  /** Fired during bulk metadata operations */
+  'bulk-progress': {
+    completed: number
+    total: number
+    currentEpisodeId?: string
+    estimatedTimeRemaining?: number
+  }
+}
+
+/**
+ * Event map for metadata storage adapter events.
+ * Used with generic EventEmitter for type-safe storage event handling.
+ */
+export interface MetadataStorageEvents extends EventMap {
+  /** Fired when metadata is successfully stored */
+  'metadata-stored': {
+    episodeId: string
+    metadata: EpisodeMetadata
+    storageSize: number
+  }
+  /** Fired when metadata is retrieved from storage */
+  'metadata-retrieved': {
+    episodeId: string
+    metadata: EpisodeMetadata | null
+    fromCache: boolean
+  }
+  /** Fired when metadata cache is cleaned up */
+  'cache-cleanup': {
+    removedEntries: number
+    freedSpace: number
+    totalEntries: number
+  }
+  /** Fired when storage quota approaches limit */
+  'quota-warning': {
+    currentUsage: number
+    maxQuota: number
+    usagePercentage: number
+  }
+  /** Fired when storage operations fail */
+  'storage-error': {
+    operation: 'store' | 'retrieve' | 'cleanup' | 'delete'
+    episodeId?: string
+    error: string
   }
 }
 
