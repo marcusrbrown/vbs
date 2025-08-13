@@ -2779,3 +2779,131 @@ export interface StreamingApiConfig {
   /** Enable development/debug mode */
   debugMode: boolean
 }
+
+// ============================================================================
+// METADATA ENRICHMENT API TYPES
+// ============================================================================
+
+/**
+ * Configuration for metadata source integrations.
+ */
+export interface MetadataSourceConfig {
+  memoryAlpha?: {
+    enabled: boolean
+    rateLimitConfig: {
+      requestsPerSecond: number
+      burstSize: number
+    }
+    retryConfig?: RetryConfig
+    respectRobotsTxt?: boolean
+  }
+  tmdb?: {
+    enabled: boolean
+    apiKey?: string
+    rateLimitConfig: {
+      requestsPerSecond: number
+      burstSize: number
+    }
+    retryConfig?: RetryConfig
+  }
+  trekCore?: {
+    enabled: boolean
+    rateLimitConfig: {
+      requestsPerSecond: number
+      burstSize: number
+    }
+    retryConfig?: RetryConfig
+  }
+}
+
+/**
+ * Retry configuration for API calls.
+ */
+export interface RetryConfig {
+  maxRetries: number
+  initialDelayMs: number
+  maxDelayMs: number
+  backoffMultiplier: number
+  jitterMs: number
+}
+
+/**
+ * Rate limiting configuration for API sources.
+ */
+export interface SimpleRateLimitConfig {
+  requestsPerSecond: number
+  burstSize: number
+}
+
+/**
+ * Enhanced metadata source configuration with health monitoring.
+ */
+export interface EnhancedMetadataSource extends MetadataSource {
+  id: string
+  enabled: boolean
+  rateLimitConfig: SimpleRateLimitConfig
+  retryConfig: RetryConfig
+  priority: number
+  requiresAuth?: boolean
+  apiKey?: string
+}
+
+/**
+ * Event map for metadata source events.
+ */
+export interface MetadataSourceEvents extends EventMap {
+  'metadata-enriched': {
+    episodeId: string
+    sourceId: string
+    metadata: EpisodeMetadata
+  }
+  'enrichment-completed': {
+    episodeId: string
+    sourcesUsed: MetadataSourceType[]
+    confidenceScore: number
+  }
+  'enrichment-failed': {
+    episodeId: string
+    errors: {
+      category: string
+      message: string
+      sourceApi: string
+    }[]
+  }
+  'health-status-change': {
+    sourceId: string
+    isHealthy: boolean
+    consecutiveFailures: number
+  }
+  'cache-cleared': {
+    timestamp: number
+  }
+}
+
+/**
+ * Public API interface for MetadataSource factory instances.
+ */
+export interface MetadataSourceInstance {
+  /** Enrich episode metadata using multiple sources with intelligent fallback */
+  enrichEpisode(episodeId: string): Promise<EpisodeMetadata | null>
+  /** Get health status for all sources */
+  getHealthStatus(): Record<string, any>
+  /** Get API usage analytics for quota management */
+  getUsageAnalytics(): any
+  /** Clear cached responses */
+  clearCache(): void
+
+  // EventEmitter methods
+  on<K extends keyof MetadataSourceEvents>(
+    event: K,
+    listener: (data: MetadataSourceEvents[K]) => void,
+  ): void
+  off<K extends keyof MetadataSourceEvents>(
+    event: K,
+    listener: (data: MetadataSourceEvents[K]) => void,
+  ): void
+  once<K extends keyof MetadataSourceEvents>(
+    event: K,
+    listener: (data: MetadataSourceEvents[K]) => void,
+  ): void
+}
