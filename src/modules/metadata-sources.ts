@@ -112,6 +112,16 @@ export const createMetadataSources = (config: MetadataSourceConfig): MetadataSou
   const healthStatus = new Map<string, ApiHealthStatus>()
   const responseCache = new Map<string, {data: any; timestamp: number; expiresAt: number}>()
 
+  // Usage analytics tracking
+  const usageAnalytics = {
+    requestCounts: new Map<string, number>(),
+    responseTimes: new Map<string, number[]>(),
+    errorCounts: new Map<string, number>(),
+    cacheHits: 0,
+    cacheMisses: 0,
+    lastResetTime: Date.now(),
+  }
+
   // Configuration with defaults
   const defaultRetryConfig: RetryConfig = {
     maxRetries: 3,
@@ -284,15 +294,32 @@ export const createMetadataSources = (config: MetadataSourceConfig): MetadataSou
       responseTimeMs: 0,
     }
 
+    // Update usage analytics
+    const currentCount = usageAnalytics.requestCounts.get(sourceId) || 0
+    usageAnalytics.requestCounts.set(sourceId, currentCount + 1)
+
     if (success) {
       current.isHealthy = true
       current.lastSuccessful = Date.now()
       current.consecutiveFailures = 0
       current.nextRetryTime = 0
       current.responseTimeMs = responseTime
+
+      // Track response times for analytics
+      const responseTimes = usageAnalytics.responseTimes.get(sourceId) || []
+      responseTimes.push(responseTime)
+      // Keep only last 100 response times to prevent memory growth
+      if (responseTimes.length > 100) {
+        responseTimes.shift()
+      }
+      usageAnalytics.responseTimes.set(sourceId, responseTimes)
     } else {
       current.consecutiveFailures += 1
       current.responseTimeMs = responseTime
+
+      // Track error counts
+      const currentErrors = usageAnalytics.errorCounts.get(sourceId) || 0
+      usageAnalytics.errorCounts.set(sourceId, currentErrors + 1)
 
       // Mark unhealthy after 3 consecutive failures
       if (current.consecutiveFailures >= 3) {
@@ -321,13 +348,18 @@ export const createMetadataSources = (config: MetadataSourceConfig): MetadataSou
    */
   const getCachedResponse = (cacheKey: string): any | null => {
     const cached = responseCache.get(cacheKey)
-    if (!cached) return null
-
-    if (Date.now() > cached.expiresAt) {
-      responseCache.delete(cacheKey)
+    if (!cached) {
+      usageAnalytics.cacheMisses += 1
       return null
     }
 
+    if (Date.now() > cached.expiresAt) {
+      responseCache.delete(cacheKey)
+      usageAnalytics.cacheMisses += 1
+      return null
+    }
+
+    usageAnalytics.cacheHits += 1
     return cached.data
   }
 
@@ -1123,16 +1155,67 @@ export const createMetadataSources = (config: MetadataSourceConfig): MetadataSou
    * Get API usage analytics for quota management.
    */
   const getUsageAnalytics = () => {
-    const analytics = {
-      totalRequests: 0,
-      requestsBySource: new Map<string, number>(),
-      averageResponseTime: 0,
-      cacheHitRate: 0,
-      errorRate: 0,
-    }
+    const totalRequests = Array.from(usageAnalytics.requestCounts.values()).reduce(
+      (sum, count) => sum + count,
+      0,
+    )
 
-    // Implementation would track these metrics over time
-    return analytics
+    const totalErrors = Array.from(usageAnalytics.errorCounts.values()).reduce(
+      (sum, count) => sum + count,
+      0,
+    )
+
+    // Calculate average response time across all sources
+    let totalResponseTime = 0
+    let responseCount = 0
+    usageAnalytics.responseTimes.forEach(times => {
+      totalResponseTime += times.reduce((sum, time) => sum + time, 0)
+      responseCount += times.length
+    })
+
+    const averageResponseTime = responseCount > 0 ? totalResponseTime / responseCount : 0
+
+    // Calculate cache hit rate
+    const totalCacheAttempts = usageAnalytics.cacheHits + usageAnalytics.cacheMisses
+    const cacheHitRate = totalCacheAttempts > 0 ? usageAnalytics.cacheHits / totalCacheAttempts : 0
+
+    // Calculate error rate
+    const errorRate = totalRequests > 0 ? totalErrors / totalRequests : 0
+
+    // Get requests by source for quota monitoring
+    const requestsBySource = new Map<string, number>()
+    usageAnalytics.requestCounts.forEach((count, sourceId) => {
+      requestsBySource.set(sourceId, count)
+    })
+
+    // Calculate time since last reset for rate calculations
+    const hoursSinceReset = (Date.now() - usageAnalytics.lastResetTime) / (1000 * 60 * 60)
+
+    return {
+      totalRequests,
+      requestsBySource,
+      averageResponseTime: Math.round(averageResponseTime),
+      cacheHitRate: Math.round(cacheHitRate * 100) / 100, // Round to 2 decimal places
+      errorRate: Math.round(errorRate * 100) / 100,
+      totalErrors,
+      cacheHits: usageAnalytics.cacheHits,
+      cacheMisses: usageAnalytics.cacheMisses,
+      hoursSinceReset,
+      requestsPerHour: hoursSinceReset > 0 ? Math.round(totalRequests / hoursSinceReset) : 0,
+      quota: {
+        // Calculate quota usage based on known limits
+        tmdb: {
+          used: usageAnalytics.requestCounts.get('tmdb') || 0,
+          limit: 1000, // TMDB daily limit
+          remaining: Math.max(0, 1000 - (usageAnalytics.requestCounts.get('tmdb') || 0)),
+        },
+        memoryAlpha: {
+          used: usageAnalytics.requestCounts.get('memory-alpha') || 0,
+          limit: 86400, // 1 request per second = 86400 per day
+          remaining: Math.max(0, 86400 - (usageAnalytics.requestCounts.get('memory-alpha') || 0)),
+        },
+      },
+    }
   }
 
   /**
@@ -1143,11 +1226,25 @@ export const createMetadataSources = (config: MetadataSourceConfig): MetadataSou
     eventEmitter.emit('cache-cleared', {timestamp: Date.now()})
   }
 
+  /**
+   * Reset usage analytics (typically called at start of new quota period).
+   */
+  const resetAnalytics = (): void => {
+    usageAnalytics.requestCounts.clear()
+    usageAnalytics.responseTimes.clear()
+    usageAnalytics.errorCounts.clear()
+    usageAnalytics.cacheHits = 0
+    usageAnalytics.cacheMisses = 0
+    usageAnalytics.lastResetTime = Date.now()
+    eventEmitter.emit('analytics-reset', {timestamp: Date.now()})
+  }
+
   return {
     enrichEpisode,
     getHealthStatus,
     getUsageAnalytics,
     clearCache,
+    resetAnalytics,
 
     // EventEmitter methods
     on: eventEmitter.on.bind(eventEmitter),

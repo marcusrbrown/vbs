@@ -2887,6 +2887,9 @@ export interface MetadataSourceEvents extends EventMap {
   'cache-cleared': {
     timestamp: number
   }
+  'analytics-reset': {
+    timestamp: number
+  }
 }
 
 /**
@@ -2901,6 +2904,8 @@ export interface MetadataSourceInstance {
   getUsageAnalytics(): any
   /** Clear cached responses */
   clearCache(): void
+  /** Reset usage analytics (typically called at start of new quota period) */
+  resetAnalytics(): void
 
   // EventEmitter methods
   on<K extends keyof MetadataSourceEvents>(
