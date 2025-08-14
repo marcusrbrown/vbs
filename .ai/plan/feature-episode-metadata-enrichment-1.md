@@ -70,11 +70,11 @@ This plan extends the existing VBS Service Worker to implement a comprehensive e
 |------|-------------|-----------|------|
 | TASK-011 | Create `src/modules/metadata-sources.ts` factory with Memory Alpha integration using ethical scraping practices | ✅ | 2025-08-13 |
 | TASK-012 | Implement TMDB API integration in metadata-sources.ts with proper authentication and rate limiting | ✅ | 2025-08-13 |
-| TASK-013 | Add TrekCore and other supplementary data sources with fallback hierarchies | |  |
+| TASK-013 | Add TrekCore and other supplementary data sources with fallback hierarchies | ✅ | 2025-08-13 |
 | TASK-014 | Create rate limiting middleware using token bucket algorithm with per-source limits | |  |
 | TASK-015 | Implement retry logic with exponential backoff using existing withErrorHandling utilities | |  |
 | TASK-016 | Add API response caching with smart invalidation based on data freshness requirements | |  |
-| TASK-017 | Create metadata normalization pipeline using composition utilities to standardize data formats | |  |
+| TASK-017 | Create metadata normalization pipeline using composition utilities to standardize data formats | ✅ | 2025-08-13 |
 | TASK-018 | Implement API health monitoring with automatic fallback to cached data when services are unavailable | |  |
 | TASK-019 | Add data enrichment strategies (combine multiple sources, fill gaps, validate consistency) | |  |
 | TASK-020 | Create API usage analytics and quota management to prevent service disruptions | |  |
