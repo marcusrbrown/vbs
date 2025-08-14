@@ -291,6 +291,7 @@ export type MetadataSourceType =
   | 'imdb'
   | 'manual'
   | 'trekcore'
+  | 'stapi'
   | 'startrek-com'
 
 /**
@@ -2807,6 +2808,14 @@ export interface MetadataSourceConfig {
     retryConfig?: RetryConfig
   }
   trekCore?: {
+    enabled: boolean
+    rateLimitConfig: {
+      requestsPerSecond: number
+      burstSize: number
+    }
+    retryConfig?: RetryConfig
+  }
+  stapi?: {
     enabled: boolean
     rateLimitConfig: {
       requestsPerSecond: number
