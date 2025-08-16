@@ -2921,3 +2921,215 @@ export interface MetadataSourceInstance {
     listener: (data: MetadataSourceEvents[K]) => void,
   ): void
 }
+
+// ============================================================================
+// METADATA QUEUE AND BACKGROUND SYNC TYPES
+// ============================================================================
+
+/**
+ * Metadata sync job definition for background processing.
+ * Represents individual metadata enrichment tasks in the background sync queue.
+ */
+export interface MetadataQueueJob {
+  /** Unique identifier for the job */
+  id: string
+  /** Episode ID to enrich */
+  episodeId: string
+  /** Job priority (higher number = higher priority) */
+  priority: number
+  /** Job type for different metadata operations */
+  type: 'enrich' | 'refresh' | 'validate' | 'cache-warm'
+  /** Current job status */
+  status: 'pending' | 'in-progress' | 'completed' | 'failed' | 'cancelled'
+  /** Number of retry attempts */
+  retryCount: number
+  /** Maximum retry attempts before job fails */
+  maxRetries: number
+  /** ISO timestamp when job was created */
+  createdAt: string
+  /** ISO timestamp when job was last updated */
+  updatedAt: string
+  /** ISO timestamp when job should be processed (for scheduling) */
+  scheduledAt: string
+  /** Specific metadata sources to use for this job */
+  targetSources?: string[]
+  /** Additional job metadata */
+  metadata?: Record<string, any>
+  /** Error information if job failed */
+  error?: {
+    message: string
+    category: string
+    retryable: boolean
+    lastAttemptAt: string
+  }
+}
+
+/**
+ * Background sync queue configuration.
+ */
+export interface MetadataQueueConfig {
+  /** Maximum number of concurrent jobs */
+  maxConcurrentJobs: number
+  /** Default job priority */
+  defaultPriority: number
+  /** Maximum retry attempts for failed jobs */
+  maxRetries: number
+  /** Job timeout in milliseconds */
+  jobTimeout: number
+  /** Queue processing interval in milliseconds */
+  processingInterval: number
+  /** Enable intelligent scheduling */
+  enableIntelligentScheduling: boolean
+  /** Network preference for scheduling */
+  networkPreference: 'any' | 'wifi-only' | 'cellular-allowed'
+  /** Battery optimization settings */
+  batteryOptimization: {
+    enabled: boolean
+    pauseOnLowBattery: boolean
+    pauseWhileCharging: boolean
+  }
+}
+
+/**
+ * Intelligent scheduling configuration.
+ */
+export interface SchedulingConfig {
+  /** Prefer WiFi connections for large operations */
+  preferWiFi: boolean
+  /** Avoid peak usage times */
+  avoidPeakHours: boolean
+  /** Peak hours definition (24-hour format) */
+  peakHours: {
+    start: number // 0-23
+    end: number // 0-23
+  }
+  /** Maximum jobs per hour during peak times */
+  peakHourLimit: number
+  /** Battery level threshold to pause processing */
+  lowBatteryThreshold: number
+  /** Respect device charging state */
+  pauseWhileCharging: boolean
+}
+
+/**
+ * Progress tracking for bulk metadata operations.
+ */
+export interface MetadataProgress {
+  /** Operation ID */
+  operationId: string
+  /** Total number of jobs */
+  totalJobs: number
+  /** Number of completed jobs */
+  completedJobs: number
+  /** Number of failed jobs */
+  failedJobs: number
+  /** Number of cancelled jobs */
+  cancelledJobs: number
+  /** Current job being processed */
+  currentJob?: string
+  /** Operation start time */
+  startedAt: string
+  /** Estimated completion time */
+  estimatedCompletion?: string
+  /** Whether operation can be cancelled */
+  cancellable: boolean
+  /** Operation status */
+  status: 'running' | 'completed' | 'failed' | 'cancelled' | 'paused'
+}
+
+/**
+ * Network condition information for intelligent scheduling.
+ */
+export interface NetworkCondition {
+  /** Network connection type */
+  type: 'wifi' | 'cellular' | 'ethernet' | 'unknown'
+  /** Effective connection type */
+  effectiveType: 'slow-2g' | '2g' | '3g' | '4g' | 'unknown'
+  /** Whether connection is metered */
+  isMetered: boolean
+  /** Connection speed estimate in Mbps */
+  downlink?: number
+  /** Round-trip time estimate in ms */
+  rtt?: number
+}
+
+/**
+ * Device condition information for intelligent scheduling.
+ */
+export interface DeviceCondition {
+  /** Battery charging state */
+  isCharging: boolean
+  /** Battery level (0-1) */
+  batteryLevel?: number
+  /** Whether device is in power save mode */
+  isPowerSaveMode: boolean
+  /** Available memory estimate in MB */
+  availableMemory?: number
+  /** CPU usage estimate (0-1) */
+  cpuUsage?: number
+}
+
+/**
+ * Event map for metadata queue operations.
+ */
+export interface MetadataQueueEvents extends EventMap {
+  'job-added': {job: MetadataQueueJob}
+  'job-started': {job: MetadataQueueJob}
+  'job-completed': {job: MetadataQueueJob; result: any}
+  'job-failed': {job: MetadataQueueJob; error: Error}
+  'job-cancelled': {job: MetadataQueueJob}
+  'queue-paused': {reason: string}
+  'queue-resumed': {reason: string}
+  'progress-update': {progress: MetadataProgress}
+  'scheduling-changed': {condition: NetworkCondition | DeviceCondition}
+}
+
+/**
+ * Public API interface for MetadataQueue factory instances.
+ */
+export interface MetadataQueueInstance {
+  /** Add a new job to the queue */
+  addJob(job: Omit<MetadataQueueJob, 'id' | 'createdAt' | 'updatedAt' | 'status'>): string
+  /** Cancel a specific job */
+  cancelJob(jobId: string): boolean
+  /** Cancel all jobs in queue */
+  cancelAllJobs(): number
+  /** Get job by ID */
+  getJob(jobId: string): MetadataQueueJob | null
+  /** Get all jobs with optional filter */
+  getJobs(filter?: Partial<MetadataQueueJob>): MetadataQueueJob[]
+  /** Get queue status */
+  getStatus(): {
+    totalJobs: number
+    pendingJobs: number
+    runningJobs: number
+    completedJobs: number
+    failedJobs: number
+  }
+  /** Start queue processing */
+  start(): void
+  /** Pause queue processing */
+  pause(reason?: string): void
+  /** Resume queue processing */
+  resume(reason?: string): void
+  /** Update queue configuration */
+  updateConfig(config: Partial<MetadataQueueConfig>): void
+  /** Clear completed jobs */
+  clearCompleted(): number
+  /** Get progress for bulk operations */
+  getProgress(operationId?: string): MetadataProgress[]
+
+  // EventEmitter methods
+  on<K extends keyof MetadataQueueEvents>(
+    event: K,
+    listener: (data: MetadataQueueEvents[K]) => void,
+  ): void
+  off<K extends keyof MetadataQueueEvents>(
+    event: K,
+    listener: (data: MetadataQueueEvents[K]) => void,
+  ): void
+  once<K extends keyof MetadataQueueEvents>(
+    event: K,
+    listener: (data: MetadataQueueEvents[K]) => void,
+  ): void
+}
