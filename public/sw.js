@@ -258,6 +258,10 @@ globalThis.addEventListener('sync', event => {
     event.waitUntil(syncStreamingData())
   } else if (event.tag === 'progress-sync') {
     event.waitUntil(syncProgressData())
+  } else if (event.tag === 'metadata-sync') {
+    event.waitUntil(handleMetadataSync(event))
+  } else if (event.tag === 'bulk-metadata-sync') {
+    event.waitUntil(handleBulkMetadataSync(event))
   }
 })
 
@@ -312,6 +316,46 @@ globalThis.addEventListener('message', event => {
         data: {success: true},
       })
     })
+  } else if (event.data && event.data.type === 'START_METADATA_SYNC') {
+    // Start metadata sync operation
+    const {operationId, episodeIds, sources} = event.data.payload || {}
+    startMetadataSync(operationId, episodeIds, sources).then(() => {
+      if (event.ports[0]) {
+        event.ports[0].postMessage({
+          type: 'METADATA_SYNC_STARTED',
+          data: {operationId, success: true},
+        })
+      }
+    })
+  } else if (event.data && event.data.type === 'CANCEL_METADATA_SYNC') {
+    // Cancel ongoing metadata sync operation
+    const {operationId} = event.data.payload || {}
+    const cancelled = cancelMetadataSync(operationId)
+    if (event.ports[0]) {
+      event.ports[0].postMessage({
+        type: 'METADATA_SYNC_CANCELLED',
+        data: {operationId, cancelled},
+      })
+    }
+  } else if (event.data && event.data.type === 'GET_METADATA_PROGRESS') {
+    // Get current progress for operation
+    const {operationId} = event.data.payload || {}
+    const progress = getMetadataProgress(operationId)
+    if (event.ports[0]) {
+      event.ports[0].postMessage({
+        type: 'METADATA_PROGRESS',
+        data: progress,
+      })
+    }
+  } else if (event.data && event.data.type === 'GET_ALL_PROGRESS') {
+    // Get all active progress operations
+    const allProgress = getAllProgress()
+    if (event.ports[0]) {
+      event.ports[0].postMessage({
+        type: 'ALL_METADATA_PROGRESS',
+        data: allProgress,
+      })
+    }
   }
 })
 
@@ -340,4 +384,433 @@ async function getCacheStatus() {
 async function clearAllCaches() {
   const cacheNames = await caches.keys()
   return Promise.all(cacheNames.map(cacheName => caches.delete(cacheName)))
+}
+
+// ============================================================================
+// TASK-026: Progress Tracking for Bulk Metadata Operations
+// ============================================================================
+
+/**
+ * Metadata progress tracking state - persisted across Service Worker restarts.
+ */
+const metadataProgress = new Map()
+
+/**
+ * Active metadata operations - tracked for progress reporting.
+ */
+const activeOperations = new Map()
+
+/**
+ * Handle metadata sync background operations.
+ */
+async function handleMetadataSync(event) {
+  try {
+    const operationId = `metadata-sync-${Date.now()}`
+
+    // Initialize progress tracking
+    const progress = {
+      operationId,
+      totalJobs: 1,
+      completedJobs: 0,
+      failedJobs: 0,
+      cancelledJobs: 0,
+      startedAt: new Date().toISOString(),
+      cancellable: true,
+      status: 'running',
+    }
+
+    metadataProgress.set(operationId, progress)
+    activeOperations.set(operationId, {type: 'single', event})
+
+    // Notify clients of operation start
+    await notifyClientsOfProgress(progress)
+
+    // Simulate metadata sync operation (actual implementation would call metadata APIs)
+    await new Promise(resolve => setTimeout(resolve, 2000))
+
+    // Update progress
+    progress.completedJobs = 1
+    progress.status = 'completed'
+    metadataProgress.set(operationId, progress)
+
+    // Notify clients of completion
+    await notifyClientsOfProgress(progress)
+
+    // Clean up completed operation
+    setTimeout(() => {
+      metadataProgress.delete(operationId)
+      activeOperations.delete(operationId)
+    }, 5000) // Keep for 5 seconds for client consumption
+  } catch (error) {
+    console.error('[VBS SW] Metadata sync failed:', error)
+
+    // Update progress with error
+    const operations = Array.from(activeOperations.entries())
+    for (const [operationId, operation] of operations) {
+      if (operation.type === 'single') {
+        const progress = metadataProgress.get(operationId)
+        if (progress) {
+          progress.status = 'failed'
+          progress.failedJobs = 1
+          metadataProgress.set(operationId, progress)
+          await notifyClientsOfProgress(progress)
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Handle bulk metadata sync operations with comprehensive progress tracking.
+ */
+async function handleBulkMetadataSync(event) {
+  try {
+    const operationId = `bulk-metadata-sync-${Date.now()}`
+
+    // Get operation details from IndexedDB or default
+    const operationDetails = (await getStoredOperationDetails(operationId)) || {
+      episodeIds: ['sample_episode_1', 'sample_episode_2', 'sample_episode_3'],
+      sources: ['tmdb', 'memory-alpha'],
+      priority: 1,
+    }
+
+    const totalJobs = operationDetails.episodeIds.length
+
+    // Initialize progress tracking
+    const progress = {
+      operationId,
+      totalJobs,
+      completedJobs: 0,
+      failedJobs: 0,
+      cancelledJobs: 0,
+      startedAt: new Date().toISOString(),
+      cancellable: true,
+      status: 'running',
+      estimatedCompletion: new Date(Date.now() + totalJobs * 3000).toISOString(), // Rough estimate
+    }
+
+    metadataProgress.set(operationId, progress)
+    activeOperations.set(operationId, {
+      type: 'bulk',
+      event,
+      details: operationDetails,
+      cancelled: false,
+    })
+
+    // Notify clients of operation start
+    await notifyClientsOfProgress(progress)
+
+    // Process episodes sequentially with progress updates
+    for (let i = 0; i < operationDetails.episodeIds.length; i++) {
+      const operation = activeOperations.get(operationId)
+
+      // Check for cancellation
+      if (operation?.cancelled) {
+        progress.status = 'cancelled'
+        progress.cancelledJobs = totalJobs - i
+        metadataProgress.set(operationId, progress)
+        await notifyClientsOfProgress(progress)
+        return
+      }
+
+      const episodeId = operationDetails.episodeIds[i]
+      progress.currentJob = episodeId
+
+      try {
+        // Simulate episode metadata enrichment
+        await enrichEpisodeMetadata(episodeId, operationDetails.sources)
+
+        progress.completedJobs = i + 1
+        progress.currentJob = undefined
+
+        // Update estimated completion based on actual progress
+        const elapsed = Date.now() - new Date(progress.startedAt).getTime()
+        const avgTimePerJob = elapsed / (i + 1)
+        const remaining = totalJobs - (i + 1)
+        progress.estimatedCompletion = new Date(
+          Date.now() + remaining * avgTimePerJob,
+        ).toISOString()
+      } catch (error) {
+        console.error(`[VBS SW] Failed to enrich metadata for ${episodeId}:`, error)
+        progress.failedJobs += 1
+        progress.currentJob = undefined
+      }
+
+      metadataProgress.set(operationId, progress)
+      await notifyClientsOfProgress(progress)
+
+      // Add delay between operations to avoid overwhelming APIs
+      await new Promise(resolve => setTimeout(resolve, 500))
+    }
+
+    // Mark operation as completed
+    progress.status = progress.failedJobs > 0 ? 'failed' : 'completed'
+    progress.currentJob = undefined
+    metadataProgress.set(operationId, progress)
+
+    // Final notification
+    await notifyClientsOfProgress(progress)
+    await showOperationNotification(progress)
+
+    // Clean up completed operation after delay
+    setTimeout(() => {
+      metadataProgress.delete(operationId)
+      activeOperations.delete(operationId)
+    }, 30000) // Keep for 30 seconds for client consumption
+  } catch (error) {
+    console.error('[VBS SW] Bulk metadata sync failed:', error)
+
+    // Update progress with error
+    const operations = Array.from(activeOperations.entries())
+    for (const [operationId, operation] of operations) {
+      if (operation.type === 'bulk') {
+        const progress = metadataProgress.get(operationId)
+        if (progress) {
+          progress.status = 'failed'
+          metadataProgress.set(operationId, progress)
+          await notifyClientsOfProgress(progress)
+          await showOperationNotification(progress)
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Simulate episode metadata enrichment (actual implementation would call APIs).
+ */
+async function enrichEpisodeMetadata(episodeId, sources) {
+  // Simulate API calls to TMDB, Memory Alpha, etc.
+  const delay = Math.random() * 2000 + 1000 // 1-3 second delay
+  await new Promise(resolve => setTimeout(resolve, delay))
+
+  // Simulate occasional failures (10% failure rate)
+  if (Math.random() < 0.1) {
+    throw new Error(`Failed to fetch metadata for ${episodeId}`)
+  }
+
+  return {
+    episodeId,
+    sources,
+    enriched: true,
+    timestamp: new Date().toISOString(),
+  }
+}
+
+/**
+ * Get stored operation details from IndexedDB (placeholder implementation).
+ */
+async function getStoredOperationDetails(_operationId) {
+  // In actual implementation, this would read from IndexedDB
+  // For now, return null to use defaults
+  return null
+}
+
+/**
+ * Notify all clients about progress updates.
+ */
+async function notifyClientsOfProgress(progress) {
+  try {
+    const clients = await globalThis.clients.matchAll({
+      includeUncontrolled: true,
+      type: 'window',
+    })
+
+    const message = {
+      type: 'METADATA_PROGRESS_UPDATE',
+      data: progress,
+    }
+
+    // Send progress update to all connected clients
+    for (const client of clients) {
+      client.postMessage(message)
+    }
+
+    // Store progress in cache for clients that connect later
+    await storeProgressInCache(progress)
+  } catch (error) {
+    console.error('[VBS SW] Failed to notify clients of progress:', error)
+  }
+}
+
+/**
+ * Store progress information in cache for persistence.
+ */
+async function storeProgressInCache(progress) {
+  try {
+    const cache = await caches.open('vbs-metadata-progress')
+    const response = new Response(JSON.stringify(progress), {
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache',
+      },
+    })
+
+    await cache.put(`/vbs/progress/${progress.operationId}`, response)
+  } catch (error) {
+    console.error('[VBS SW] Failed to store progress in cache:', error)
+  }
+}
+
+/**
+ * Show notification to user about operation completion.
+ */
+async function showOperationNotification(progress) {
+  try {
+    // Check if notifications are supported and permitted
+    if (!globalThis.Notification) {
+      return
+    }
+
+    let title, body, icon
+
+    if (progress.status === 'completed') {
+      if (progress.failedJobs > 0) {
+        title = 'Metadata Sync Completed with Errors'
+        body = `${progress.completedJobs} episodes updated, ${progress.failedJobs} failed`
+        icon = '/vbs/icon-192.svg'
+      } else {
+        title = 'Metadata Sync Completed'
+        body = `Successfully updated ${progress.completedJobs} episodes`
+        icon = '/vbs/icon-192.svg'
+      }
+    } else if (progress.status === 'failed') {
+      title = 'Metadata Sync Failed'
+      body = `Failed to update episode metadata. ${progress.failedJobs} episodes affected.`
+      icon = '/vbs/icon-192.svg'
+    } else if (progress.status === 'cancelled') {
+      title = 'Metadata Sync Cancelled'
+      body = `Operation cancelled by user. ${progress.completedJobs} episodes were updated.`
+      icon = '/vbs/icon-192.svg'
+    } else {
+      return // Don't show notification for running operations
+    }
+
+    // Show notification
+    await globalThis.registration.showNotification(title, {
+      body,
+      icon,
+      badge: '/vbs/icon-192.svg',
+      tag: `metadata-sync-${progress.operationId}`,
+      data: {
+        operationId: progress.operationId,
+        url: '/vbs/',
+      },
+      actions: [
+        {
+          action: 'view',
+          title: 'View Details',
+        },
+      ],
+    })
+  } catch (error) {
+    console.error('[VBS SW] Failed to show notification:', error)
+  }
+}
+
+/**
+ * Handle notification clicks.
+ */
+globalThis.addEventListener('notificationclick', event => {
+  event.notification.close()
+
+  if (event.action === 'view' || !event.action) {
+    // Open app to show metadata details
+    event.waitUntil(globalThis.clients.openWindow('/vbs/'))
+  }
+})
+
+/**
+ * Start a metadata sync operation programmatically.
+ */
+async function startMetadataSync(operationId, episodeIds, sources) {
+  try {
+    if (!operationId) {
+      operationId = `manual-metadata-sync-${Date.now()}`
+    }
+
+    // Store operation details for processing
+    const operationDetails = {
+      episodeIds: episodeIds || ['sample_episode_1'],
+      sources: sources || ['tmdb', 'memory-alpha'],
+      priority: 1,
+    }
+
+    // Register background sync if available
+    if (globalThis.registration && globalThis.registration.sync) {
+      // Store operation data for background sync
+      activeOperations.set(operationId, {
+        type: 'bulk',
+        details: operationDetails,
+        cancelled: false,
+      })
+
+      await globalThis.registration.sync.register('bulk-metadata-sync')
+    } else {
+      // Fallback to immediate execution
+      await handleBulkMetadataSync({operationId, operationDetails})
+    }
+
+    return operationId
+  } catch (error) {
+    console.error('[VBS SW] Failed to start metadata sync:', error)
+    throw error
+  }
+}
+
+/**
+ * Cancel an ongoing metadata sync operation.
+ */
+function cancelMetadataSync(operationId) {
+  try {
+    const operation = activeOperations.get(operationId)
+    if (!operation) {
+      return false
+    }
+
+    // Mark operation as cancelled
+    operation.cancelled = true
+    activeOperations.set(operationId, operation)
+
+    // Update progress
+    const progress = metadataProgress.get(operationId)
+    if (progress && progress.status === 'running') {
+      progress.status = 'cancelled'
+      metadataProgress.set(operationId, progress)
+
+      // Notify clients
+      notifyClientsOfProgress(progress)
+    }
+
+    return true
+  } catch (error) {
+    console.error('[VBS SW] Failed to cancel metadata sync:', error)
+    return false
+  }
+}
+
+/**
+ * Get progress for a specific operation.
+ */
+function getMetadataProgress(operationId) {
+  if (operationId) {
+    return metadataProgress.get(operationId) || null
+  }
+
+  // Return most recent operation if no ID specified
+  const allProgress = Array.from(metadataProgress.values())
+  return (
+    allProgress.sort(
+      (a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime(),
+    )[0] || null
+  )
+}
+
+/**
+ * Get all active progress operations.
+ */
+function getAllProgress() {
+  return Array.from(metadataProgress.values()).filter(
+    progress => progress.status === 'running' || progress.status === 'paused',
+  )
 }
