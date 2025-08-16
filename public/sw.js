@@ -400,6 +400,369 @@ const metadataProgress = new Map()
  */
 const activeOperations = new Map()
 
+// ============================================================================
+// TASK-027: Conflict Resolution for Concurrent Metadata Updates
+// ============================================================================
+
+/**
+ * Operation locks to prevent concurrent processing of the same episode.
+ */
+const operationLocks = new Map()
+
+/**
+ * Pending operation queues for episodes being processed.
+ */
+const pendingOperations = new Map()
+
+/**
+ * Last update timestamps for episodes to detect concurrent modifications.
+ */
+const lastUpdateTimestamps = new Map()
+
+/**
+ * Acquire lock for episode processing.
+ */
+function acquireEpisodeLock(episodeId, operationId) {
+  if (operationLocks.has(episodeId)) {
+    return false
+  }
+
+  operationLocks.set(episodeId, {
+    operationId,
+    lockedAt: new Date().toISOString(),
+    lockType: 'metadata-update',
+  })
+
+  return true
+}
+
+/**
+ * Release lock for episode processing.
+ */
+function releaseEpisodeLock(episodeId, operationId) {
+  const lock = operationLocks.get(episodeId)
+  if (lock && lock.operationId === operationId) {
+    operationLocks.delete(episodeId)
+
+    // Process any pending operations for this episode
+    processPendingOperations(episodeId)
+    return true
+  }
+  return false
+}
+
+/**
+ * Queue operation for episode that is currently locked.
+ */
+function queuePendingOperation(episodeId, operationDetails) {
+  if (!pendingOperations.has(episodeId)) {
+    pendingOperations.set(episodeId, [])
+  }
+
+  const queue = pendingOperations.get(episodeId)
+
+  // Check for duplicate operations (same episode, same sources)
+  const isDuplicate = queue.some(pending => arraysEqual(pending.sources, operationDetails.sources))
+
+  if (!isDuplicate) {
+    queue.push({
+      ...operationDetails,
+      queuedAt: new Date().toISOString(),
+      priority: operationDetails.priority || 1,
+    })
+
+    // Sort by priority (higher priority first)
+    queue.sort((a, b) => b.priority - a.priority)
+  }
+}
+
+/**
+ * Process pending operations for an episode after lock is released.
+ */
+async function processPendingOperations(episodeId) {
+  const queue = pendingOperations.get(episodeId)
+  if (!queue || queue.length === 0) {
+    return
+  }
+
+  // Take the highest priority operation
+  const nextOperation = queue.shift()
+
+  if (queue.length === 0) {
+    pendingOperations.delete(episodeId)
+  }
+
+  // Process the next operation
+  try {
+    await processEpisodeMetadata(episodeId, nextOperation)
+  } catch (error) {
+    console.error(`[VBS SW] Failed to process pending operation for ${episodeId}:`, error)
+    // Release lock if processing fails
+    releaseEpisodeLock(episodeId, nextOperation.operationId)
+  }
+}
+
+/**
+ * Resolve conflicts when multiple metadata sources provide different data.
+ */
+async function resolveMetadataConflicts(episodeId, newMetadata, existingMetadata) {
+  try {
+    // Get stored operation details for conflict resolution strategy
+    const conflictStrategy = 'latest-wins' // Default strategy
+
+    if (!existingMetadata) {
+      // No conflict - first metadata for this episode
+      return newMetadata
+    }
+
+    const resolvedMetadata = {...existingMetadata}
+
+    switch (conflictStrategy) {
+      case 'latest-wins':
+        // Latest update wins, but preserve non-empty values
+        Object.keys(newMetadata).forEach(key => {
+          if (newMetadata[key] != null && newMetadata[key] !== '') {
+            resolvedMetadata[key] = newMetadata[key]
+          }
+        })
+        break
+
+      case 'merge-with-priority': {
+        // Merge based on source priority (TMDB > Memory Alpha > others)
+        const sourcePriority = ['tmdb', 'memory-alpha', 'trekcore', 'manual']
+
+        Object.keys(newMetadata).forEach(key => {
+          const newValue = newMetadata[key]
+          const existingValue = existingMetadata[key]
+
+          if (newValue == null || newValue === '') {
+            return // Keep existing value
+          }
+
+          if (existingValue == null || existingValue === '') {
+            resolvedMetadata[key] = newValue
+            return
+          }
+
+          // Compare source priorities
+          const newSource = newMetadata._source || 'manual'
+          const existingSource = existingMetadata._source || 'manual'
+
+          const newPriority = sourcePriority.indexOf(newSource)
+          const existingPriority = sourcePriority.indexOf(existingSource)
+
+          if (newPriority !== -1 && (existingPriority === -1 || newPriority < existingPriority)) {
+            resolvedMetadata[key] = newValue
+          }
+        })
+        break
+      }
+
+      case 'manual-review': {
+        // Store conflicts for manual review
+        const conflicts = []
+        Object.keys(newMetadata).forEach(key => {
+          const newValue = newMetadata[key]
+          const existingValue = existingMetadata[key]
+
+          if (newValue != null && existingValue != null && newValue !== existingValue) {
+            conflicts.push({
+              field: key,
+              newValue,
+              existingValue,
+              newSource: newMetadata._source,
+              existingSource: existingMetadata._source,
+            })
+          }
+        })
+
+        if (conflicts.length > 0) {
+          // Store conflicts for later review
+          await storeMetadataConflicts(episodeId, conflicts)
+          // For now, keep existing data
+          return existingMetadata
+        }
+
+        // No conflicts, merge new data
+        Object.keys(newMetadata).forEach(key => {
+          if (newMetadata[key] != null && newMetadata[key] !== '') {
+            resolvedMetadata[key] = newMetadata[key]
+          }
+        })
+        break
+      }
+
+      default:
+        // Default to latest-wins
+        Object.assign(resolvedMetadata, newMetadata)
+    }
+
+    // Update last modification timestamp
+    resolvedMetadata._lastUpdated = new Date().toISOString()
+    resolvedMetadata._resolvedAt = new Date().toISOString()
+
+    return resolvedMetadata
+  } catch (error) {
+    console.error(`[VBS SW] Failed to resolve metadata conflicts for ${episodeId}:`, error)
+    // Fallback to existing metadata on error
+    return existingMetadata || newMetadata
+  }
+}
+
+/**
+ * Store metadata conflicts for manual review.
+ */
+async function storeMetadataConflicts(episodeId, conflicts) {
+  try {
+    const cache = await caches.open('vbs-metadata-conflicts')
+    const conflictData = {
+      episodeId,
+      conflicts,
+      detectedAt: new Date().toISOString(),
+      status: 'pending-review',
+    }
+
+    const response = new Response(JSON.stringify(conflictData), {
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache',
+      },
+    })
+
+    await cache.put(`/vbs/conflicts/${episodeId}`, response)
+  } catch (error) {
+    console.error('[VBS SW] Failed to store metadata conflicts:', error)
+  }
+}
+
+/**
+ * Process episode metadata with conflict resolution.
+ */
+async function processEpisodeMetadata(episodeId, operationDetails) {
+  const operationId = operationDetails.operationId || `episode-${episodeId}-${Date.now()}`
+
+  try {
+    // Try to acquire lock
+    if (!acquireEpisodeLock(episodeId, operationId)) {
+      // Episode is locked, queue the operation
+      queuePendingOperation(episodeId, {...operationDetails, operationId})
+      return {
+        status: 'queued',
+        message: `Operation queued for episode ${episodeId}`,
+      }
+    }
+
+    // Check for recent updates to detect concurrent modifications
+    const lastUpdate = lastUpdateTimestamps.get(episodeId)
+    const now = Date.now()
+
+    if (lastUpdate && now - lastUpdate < 5000) {
+      // Recent update detected, introduce small delay to avoid race conditions
+      await new Promise(resolve => setTimeout(resolve, Math.random() * 1000 + 500))
+    }
+
+    // Get existing metadata from cache/storage
+    const existingMetadata = await getExistingMetadata(episodeId)
+
+    // Simulate metadata enrichment (actual implementation would call APIs)
+    const newMetadata = await simulateMetadataEnrichment(episodeId, operationDetails.sources)
+
+    // Resolve any conflicts between existing and new metadata
+    const resolvedMetadata = await resolveMetadataConflicts(
+      episodeId,
+      newMetadata,
+      existingMetadata,
+    )
+
+    // Store the resolved metadata
+    await storeEpisodeMetadata(episodeId, resolvedMetadata)
+
+    // Update timestamp
+    lastUpdateTimestamps.set(episodeId, now)
+
+    // Release lock
+    releaseEpisodeLock(episodeId, operationId)
+
+    return {
+      status: 'completed',
+      metadata: resolvedMetadata,
+      conflicts: resolvedMetadata._conflicts || [],
+    }
+  } catch (error) {
+    // Ensure lock is released on error
+    releaseEpisodeLock(episodeId, operationId)
+    throw error
+  }
+}
+
+/**
+ * Get existing metadata for an episode.
+ */
+async function getExistingMetadata(episodeId) {
+  try {
+    const cache = await caches.open('vbs-episode-metadata')
+    const response = await cache.match(`/vbs/metadata/${episodeId}`)
+
+    if (response) {
+      return await response.json()
+    }
+
+    return null
+  } catch (error) {
+    console.error(`[VBS SW] Failed to get existing metadata for ${episodeId}:`, error)
+    return null
+  }
+}
+
+/**
+ * Store episode metadata.
+ */
+async function storeEpisodeMetadata(episodeId, metadata) {
+  try {
+    const cache = await caches.open('vbs-episode-metadata')
+    const response = new Response(JSON.stringify(metadata), {
+      headers: {
+        'Content-Type': 'application/json',
+        'Last-Modified': new Date().toUTCString(),
+      },
+    })
+
+    await cache.put(`/vbs/metadata/${episodeId}`, response)
+  } catch (error) {
+    console.error(`[VBS SW] Failed to store metadata for ${episodeId}:`, error)
+  }
+}
+
+/**
+ * Simulate metadata enrichment for testing.
+ */
+async function simulateMetadataEnrichment(episodeId, sources) {
+  // Simulate API delay
+  await new Promise(resolve => setTimeout(resolve, Math.random() * 1000 + 500))
+
+  return {
+    episodeId,
+    title: `Episode ${episodeId}`,
+    airDate: '2024-01-01',
+    _source: sources[0] || 'manual',
+    _enrichedAt: new Date().toISOString(),
+  }
+}
+
+/**
+ * Utility function to compare arrays for equality.
+ */
+function arraysEqual(a, b) {
+  if (a === b) return true
+  if (a == null || b == null) return false
+  if (a.length !== b.length) return false
+
+  for (const [index, item] of a.entries()) {
+    if (item !== b[index]) return false
+  }
+  return true
+}
+
 /**
  * Handle metadata sync background operations.
  */
@@ -425,12 +788,28 @@ async function handleMetadataSync(event) {
     // Notify clients of operation start
     await notifyClientsOfProgress(progress)
 
-    // Simulate metadata sync operation (actual implementation would call metadata APIs)
-    await new Promise(resolve => setTimeout(resolve, 2000))
+    // Use conflict resolution for single episode metadata sync
+    const episodeId = 'sample_episode_1' // In real implementation, extract from event data
+    const operationDetails = {
+      operationId,
+      sources: ['tmdb', 'memory-alpha'],
+      priority: 1,
+    }
 
-    // Update progress
-    progress.completedJobs = 1
-    progress.status = 'completed'
+    const result = await processEpisodeMetadata(episodeId, operationDetails)
+
+    if (result.status === 'completed') {
+      // Update progress
+      progress.completedJobs = 1
+      progress.status = 'completed'
+      progress.conflicts = result.conflicts
+    } else if (result.status === 'queued') {
+      // Operation was queued due to conflict
+      progress.status = 'queued'
+    } else {
+      throw new Error(`Unexpected result status: ${result.status}`)
+    }
+
     metadataProgress.set(operationId, progress)
 
     // Notify clients of completion
@@ -452,6 +831,7 @@ async function handleMetadataSync(event) {
         if (progress) {
           progress.status = 'failed'
           progress.failedJobs = 1
+          progress.error = error.message
           metadataProgress.set(operationId, progress)
           await notifyClientsOfProgress(progress)
         }
@@ -517,19 +897,48 @@ async function handleBulkMetadataSync(event) {
       progress.currentJob = episodeId
 
       try {
-        // Simulate episode metadata enrichment
-        await enrichEpisodeMetadata(episodeId, operationDetails.sources)
+        // Use conflict resolution for episode metadata processing
+        const episodeOperationDetails = {
+          operationId: `${operationId}-episode-${i}`,
+          sources: operationDetails.sources,
+          priority: operationDetails.priority,
+        }
 
-        progress.completedJobs = i + 1
-        progress.currentJob = undefined
+        const result = await processEpisodeMetadata(episodeId, episodeOperationDetails)
 
-        // Update estimated completion based on actual progress
-        const elapsed = Date.now() - new Date(progress.startedAt).getTime()
-        const avgTimePerJob = elapsed / (i + 1)
-        const remaining = totalJobs - (i + 1)
-        progress.estimatedCompletion = new Date(
-          Date.now() + remaining * avgTimePerJob,
-        ).toISOString()
+        if (result.status === 'completed') {
+          progress.completedJobs = i + 1
+          progress.currentJob = undefined
+
+          // Track conflicts at operation level
+          if (result.conflicts && result.conflicts.length > 0) {
+            if (!progress.conflicts) {
+              progress.conflicts = []
+            }
+            progress.conflicts.push(
+              ...result.conflicts.map(conflict => ({
+                ...conflict,
+                episodeId,
+              })),
+            )
+          }
+
+          // Update estimated completion based on actual progress
+          const elapsed = Date.now() - new Date(progress.startedAt).getTime()
+          const avgTimePerJob = elapsed / (i + 1)
+          const remaining = totalJobs - (i + 1)
+          progress.estimatedCompletion = new Date(
+            Date.now() + remaining * avgTimePerJob,
+          ).toISOString()
+        } else if (result.status === 'queued') {
+          // Episode was queued, will be processed later
+          // For now, don't count as completed but track as queued
+          if (!progress.queuedJobs) {
+            progress.queuedJobs = 0
+          }
+          progress.queuedJobs += 1
+          progress.currentJob = undefined
+        }
       } catch (error) {
         console.error(`[VBS SW] Failed to enrich metadata for ${episodeId}:`, error)
         progress.failedJobs += 1
@@ -573,27 +982,6 @@ async function handleBulkMetadataSync(event) {
         }
       }
     }
-  }
-}
-
-/**
- * Simulate episode metadata enrichment (actual implementation would call APIs).
- */
-async function enrichEpisodeMetadata(episodeId, sources) {
-  // Simulate API calls to TMDB, Memory Alpha, etc.
-  const delay = Math.random() * 2000 + 1000 // 1-3 second delay
-  await new Promise(resolve => setTimeout(resolve, delay))
-
-  // Simulate occasional failures (10% failure rate)
-  if (Math.random() < 0.1) {
-    throw new Error(`Failed to fetch metadata for ${episodeId}`)
-  }
-
-  return {
-    episodeId,
-    sources,
-    enriched: true,
-    timestamp: new Date().toISOString(),
   }
 }
 
