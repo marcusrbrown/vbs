@@ -16,8 +16,8 @@
   "scripts": {
     "build": "tsc && vite build",
     "dev": "vite",
-    "fix": "eslint . --fix",
-    "lint": "eslint .",
+    "fix": "eslint --fix",
+    "lint": "eslint",
     "lint-staged": "lint-staged",
     "prepare": "simple-git-hooks",
     "preview": "vite preview",
