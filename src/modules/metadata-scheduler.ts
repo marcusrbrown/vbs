@@ -168,35 +168,35 @@ const calculateSyncDelay = (
  */
 export interface MetadataSchedulerInstance {
   /** Get current device and network conditions */
-  getCurrentConditions(): DeviceCondition & NetworkCondition
+  getCurrentConditions: () => DeviceCondition & NetworkCondition
   /** Get current scheduling configuration */
-  getSchedulingConfig(): SchedulingConfig
+  getSchedulingConfig: () => SchedulingConfig
   /** Update scheduling configuration */
-  updateSchedulingConfig(newConfig: Partial<SchedulingConfig>): void
+  updateSchedulingConfig: (newConfig: Partial<SchedulingConfig>) => void
   /** Calculate optimal delay for next sync */
-  getOptimalSyncDelay(): number
+  getOptimalSyncDelay: () => number
   /** Check if sync should be allowed now */
-  shouldAllowSync(): boolean
+  shouldAllowSync: () => boolean
   /** Start condition monitoring */
-  startMonitoring(): void
+  startMonitoring: () => void
   /** Stop condition monitoring */
-  stopMonitoring(): void
+  stopMonitoring: () => void
   /** Cleanup and destroy instance */
-  destroy(): void
+  destroy: () => void
 
   // EventEmitter methods
-  on<K extends keyof MetadataSchedulerEvents>(
+  on: <K extends keyof MetadataSchedulerEvents>(
     event: K,
     listener: (payload: MetadataSchedulerEvents[K]) => void,
-  ): void
-  off<K extends keyof MetadataSchedulerEvents>(
+  ) => void
+  off: <K extends keyof MetadataSchedulerEvents>(
     event: K,
     listener: (payload: MetadataSchedulerEvents[K]) => void,
-  ): void
-  once<K extends keyof MetadataSchedulerEvents>(
+  ) => void
+  once: <K extends keyof MetadataSchedulerEvents>(
     event: K,
     listener: (payload: MetadataSchedulerEvents[K]) => void,
-  ): void
+  ) => void
 }
 
 /**
