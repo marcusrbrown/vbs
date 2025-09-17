@@ -612,40 +612,42 @@ export interface ProgressExportData {
  */
 export interface ProgressTrackerInstance {
   /** Set the complete list of watched items (used for import functionality) */
-  setWatchedItems(items: string[]): void
+  setWatchedItems: (items: string[]) => void
   /** Toggle the watched state of a specific item */
-  toggleItem(itemId: string): void
+  toggleItem: (itemId: string) => void
   /** Check if a specific item is marked as watched */
-  isWatched(itemId: string): boolean
+  isWatched: (itemId: string) => boolean
   /** Reset all progress data (clear all watched items) */
-  resetProgress(): void
+  resetProgress: () => void
   /** Get immutable copy of currently watched item IDs */
-  getWatchedItems(): string[]
+  getWatchedItems: () => string[]
   /** Update progress calculations and notify subscribers */
-  updateProgress(): void
+  updateProgress: () => void
   /** Calculate overall progress statistics across all eras */
-  calculateOverallProgress(): ProgressData
+  calculateOverallProgress: () => ProgressData
   /** Calculate progress statistics for each individual era */
-  calculateEraProgress(): EraProgress[]
+  calculateEraProgress: () => EraProgress[]
 
   // Generic EventEmitter methods for enhanced type safety
   /** Subscribe to an event with a type-safe listener */
-  on<TEventName extends keyof ProgressTrackerEvents>(
+  on: <TEventName extends keyof ProgressTrackerEvents>(
     eventName: TEventName,
     listener: EventListener<ProgressTrackerEvents[TEventName]>,
-  ): void
+  ) => void
   /** Unsubscribe from an event */
-  off<TEventName extends keyof ProgressTrackerEvents>(
+  off: <TEventName extends keyof ProgressTrackerEvents>(
     eventName: TEventName,
     listener: EventListener<ProgressTrackerEvents[TEventName]>,
-  ): void
+  ) => void
   /** Subscribe to an event once (auto-unsubscribe after first emission) */
-  once<TEventName extends keyof ProgressTrackerEvents>(
+  once: <TEventName extends keyof ProgressTrackerEvents>(
     eventName: TEventName,
     listener: EventListener<ProgressTrackerEvents[TEventName]>,
-  ): void
+  ) => void
   /** Remove all listeners for a specific event or all events */
-  removeAllListeners<TEventName extends keyof ProgressTrackerEvents>(eventName?: TEventName): void
+  removeAllListeners: <TEventName extends keyof ProgressTrackerEvents>(
+    eventName?: TEventName,
+  ) => void
 }
 
 /**
@@ -666,44 +668,46 @@ export interface ProgressTrackerInstance {
  */
 export interface EpisodeTrackerInstance {
   /** Set the complete list of watched episodes (used for import functionality) */
-  setWatchedEpisodes(episodeIds: string[]): void
+  setWatchedEpisodes: (episodeIds: string[]) => void
   /** Toggle the watched state of a specific episode */
-  toggleEpisode(episodeId: string): void
+  toggleEpisode: (episodeId: string) => void
   /** Check if a specific episode is marked as watched */
-  isEpisodeWatched(episodeId: string): boolean
+  isEpisodeWatched: (episodeId: string) => boolean
   /** Mark all episodes in a season as watched */
-  markSeasonWatched(seriesId: string, season: number): void
+  markSeasonWatched: (seriesId: string, season: number) => void
   /** Mark all episodes in a season as unwatched */
-  markSeasonUnwatched(seriesId: string, season: number): void
+  markSeasonUnwatched: (seriesId: string, season: number) => void
   /** Reset all episode progress data (clear all watched episodes) */
-  resetEpisodeProgress(): void
+  resetEpisodeProgress: () => void
   /** Get immutable copy of currently watched episode IDs */
-  getWatchedEpisodes(): string[]
+  getWatchedEpisodes: () => string[]
   /** Update episode progress calculations and notify subscribers */
-  updateEpisodeProgress(): void
+  updateEpisodeProgress: () => void
   /** Calculate progress statistics for a specific season */
-  calculateSeasonProgress(seriesId: string, season: number): SeasonProgress | null
+  calculateSeasonProgress: (seriesId: string, season: number) => SeasonProgress | null
   /** Calculate episode progress statistics across all series */
-  calculateEpisodeProgress(): SeasonProgress[]
+  calculateEpisodeProgress: () => SeasonProgress[]
 
   // Generic EventEmitter methods for enhanced type safety
   /** Subscribe to an event with a type-safe listener */
-  on<TEventName extends keyof EpisodeTrackerEvents>(
+  on: <TEventName extends keyof EpisodeTrackerEvents>(
     eventName: TEventName,
     listener: EventListener<EpisodeTrackerEvents[TEventName]>,
-  ): void
+  ) => void
   /** Unsubscribe from an event */
-  off<TEventName extends keyof EpisodeTrackerEvents>(
+  off: <TEventName extends keyof EpisodeTrackerEvents>(
     eventName: TEventName,
     listener: EventListener<EpisodeTrackerEvents[TEventName]>,
-  ): void
+  ) => void
   /** Subscribe to an event once (auto-unsubscribe after first emission) */
-  once<TEventName extends keyof EpisodeTrackerEvents>(
+  once: <TEventName extends keyof EpisodeTrackerEvents>(
     eventName: TEventName,
     listener: EventListener<EpisodeTrackerEvents[TEventName]>,
-  ): void
+  ) => void
   /** Remove all listeners for a specific event or all events */
-  removeAllListeners<TEventName extends keyof EpisodeTrackerEvents>(eventName?: TEventName): void
+  removeAllListeners: <TEventName extends keyof EpisodeTrackerEvents>(
+    eventName?: TEventName,
+  ) => void
 }
 
 /**
@@ -725,43 +729,43 @@ export interface EpisodeTrackerInstance {
  */
 export interface SearchFilterInstance {
   /** Set the current search term */
-  setSearch(searchTerm: string): void
+  setSearch: (searchTerm: string) => void
   /** Set the current filter type */
-  setFilter(filterType: string): void
+  setFilter: (filterType: string) => void
   /** Set streaming platform filters */
-  setStreamingPlatforms(platforms: string[]): void
+  setStreamingPlatforms: (platforms: string[]) => void
   /** Set availability only filter */
-  setAvailabilityOnly(availabilityOnly: boolean): void
+  setAvailabilityOnly: (availabilityOnly: boolean) => void
   /** Set streaming availability type filters */
-  setAvailabilityType(types: string[]): void
+  setAvailabilityType: (types: string[]) => void
   /** Set maximum price filter */
-  setMaxPrice(maxPrice?: number): void
+  setMaxPrice: (maxPrice?: number) => void
   /** Get filtered data based on current search and filter criteria */
-  getFilteredData(): Promise<StarTrekEra[]>
+  getFilteredData: () => Promise<StarTrekEra[]>
   /** Check if a specific item matches current filter criteria */
-  matchesFilters(item: StarTrekItem): Promise<boolean>
+  matchesFilters: (item: StarTrekItem) => Promise<boolean>
   /** Trigger filter change notifications to subscribers */
-  notifyFilterChange(): Promise<void>
+  notifyFilterChange: () => Promise<void>
   /** Get current search and filter state */
-  getCurrentFilters(): FilterState
+  getCurrentFilters: () => FilterState
 
   /** Subscribe to an event with a type-safe listener */
-  on<TEventName extends keyof SearchFilterEvents>(
+  on: <TEventName extends keyof SearchFilterEvents>(
     eventName: TEventName,
     listener: EventListener<SearchFilterEvents[TEventName]>,
-  ): void
+  ) => void
   /** Unsubscribe from an event */
-  off<TEventName extends keyof SearchFilterEvents>(
+  off: <TEventName extends keyof SearchFilterEvents>(
     eventName: TEventName,
     listener: EventListener<SearchFilterEvents[TEventName]>,
-  ): void
+  ) => void
   /** Subscribe to an event once (auto-unsubscribe after first emission) */
-  once<TEventName extends keyof SearchFilterEvents>(
+  once: <TEventName extends keyof SearchFilterEvents>(
     eventName: TEventName,
     listener: EventListener<SearchFilterEvents[TEventName]>,
-  ): void
+  ) => void
   /** Remove all listeners for a specific event or all events */
-  removeAllListeners<TEventName extends keyof SearchFilterEvents>(eventName?: TEventName): void
+  removeAllListeners: <TEventName extends keyof SearchFilterEvents>(eventName?: TEventName) => void
 }
 
 /**
@@ -783,43 +787,45 @@ export interface SearchFilterInstance {
  */
 export interface EpisodeManagerInstance {
   /** Set episode filtering criteria */
-  setFilterCriteria(criteria: EpisodeFilterCriteria): void
+  setFilterCriteria: (criteria: EpisodeFilterCriteria) => void
   /** Search episodes by text across multiple fields */
-  searchEpisodes(searchTerm: string): void
+  searchEpisodes: (searchTerm: string) => void
   /** Get episodes for a specific series and season */
-  getEpisodesForSeason(seriesId: string, season: number): Episode[]
+  getEpisodesForSeason: (seriesId: string, season: number) => Episode[]
   /** Get filtered episodes based on current criteria */
-  getFilteredEpisodes(): Episode[]
+  getFilteredEpisodes: () => Episode[]
   /** Load more episodes for lazy loading functionality */
-  loadMoreEpisodes(count?: number): void
+  loadMoreEpisodes: (count?: number) => void
   /** Toggle episode detail expansion with spoiler control */
-  toggleEpisodeDetail(episodeId: string, spoilerLevel?: 'safe' | 'moderate' | 'full'): void
+  toggleEpisodeDetail: (episodeId: string, spoilerLevel?: 'safe' | 'moderate' | 'full') => void
   /** Check if episode matches current filter criteria */
-  matchesFilter(episode: Episode): boolean
+  matchesFilter: (episode: Episode) => boolean
   /** Get current filtering state */
-  getCurrentCriteria(): EpisodeFilterCriteria
+  getCurrentCriteria: () => EpisodeFilterCriteria
   /** Reset all filters and search criteria */
-  resetFilters(): void
+  resetFilters: () => void
   /** Set spoiler safety level for content display */
-  setSpoilerLevel(level: 'safe' | 'moderate' | 'full'): void
+  setSpoilerLevel: (level: 'safe' | 'moderate' | 'full') => void
 
   /** Subscribe to an event with a type-safe listener */
-  on<TEventName extends keyof EpisodeManagerEvents>(
+  on: <TEventName extends keyof EpisodeManagerEvents>(
     eventName: TEventName,
     listener: EventListener<EpisodeManagerEvents[TEventName]>,
-  ): void
+  ) => void
   /** Unsubscribe from an event */
-  off<TEventName extends keyof EpisodeManagerEvents>(
+  off: <TEventName extends keyof EpisodeManagerEvents>(
     eventName: TEventName,
     listener: EventListener<EpisodeManagerEvents[TEventName]>,
-  ): void
+  ) => void
   /** Subscribe to an event once (auto-unsubscribe after first emission) */
-  once<TEventName extends keyof EpisodeManagerEvents>(
+  once: <TEventName extends keyof EpisodeManagerEvents>(
     eventName: TEventName,
     listener: EventListener<EpisodeManagerEvents[TEventName]>,
-  ): void
+  ) => void
   /** Remove all listeners for a specific event or all events */
-  removeAllListeners<TEventName extends keyof EpisodeManagerEvents>(eventName?: TEventName): void
+  removeAllListeners: <TEventName extends keyof EpisodeManagerEvents>(
+    eventName?: TEventName,
+  ) => void
 }
 
 /**
@@ -836,35 +842,35 @@ export interface EpisodeManagerInstance {
  */
 export interface TimelineRendererInstance {
   /** Render the complete timeline with provided era data */
-  render(data: StarTrekEra[]): void
+  render: (data: StarTrekEra[]) => void
   /** Create DOM element for a specific era section */
-  createEraElement(era: StarTrekEra): HTMLDivElement
+  createEraElement: (era: StarTrekEra) => HTMLDivElement
   /** Create HTML string for a specific Star Trek item */
-  createItemElement(item: StarTrekItem): string
+  createItemElement: (item: StarTrekItem) => string
   /** Create HTML string for an individual episode */
-  createEpisodeElement(episode: Episode, seriesId: string): string
+  createEpisodeElement: (episode: Episode, seriesId: string) => string
   /** Create HTML string for episode list with lazy loading support */
-  createLazyEpisodeListContent(item: StarTrekItem): string
+  createLazyEpisodeListContent: (item: StarTrekItem) => string
   /** Toggle the expanded/collapsed state of an era section */
-  toggleEra(eraId: string): void
+  toggleEra: (eraId: string) => void
   /** Toggle the expanded/collapsed state of an episode list for a series */
-  toggleEpisodeList(seriesId: string): void
+  toggleEpisodeList: (seriesId: string) => void
   /** Load more episodes for a specific series (lazy loading) */
-  loadMoreEpisodes(seriesId: string): void
+  loadMoreEpisodes: (seriesId: string) => void
   /** Load streaming availability indicators for all episodes asynchronously */
-  loadStreamingIndicators(): Promise<void>
+  loadStreamingIndicators: () => Promise<void>
   /** Expand all era sections */
-  expandAll(): void
+  expandAll: () => void
   /** Collapse all era sections */
-  collapseAll(): void
+  collapseAll: () => void
   /** Update progress display with new progress data */
-  updateProgress(progressData: OverallProgress): void
+  updateProgress: (progressData: OverallProgress) => void
   /** Update the visual state of all items based on watched status */
-  updateItemStates(): void
+  updateItemStates: () => void
   /** Calculate progress statistics for a specific era */
-  calculateEraProgress(era: StarTrekEra): EraProgress
+  calculateEraProgress: (era: StarTrekEra) => EraProgress
   /** Setup keyboard navigation for episode lists in an era element */
-  setupEpisodeKeyboardNavigation(eraElement: HTMLElement): void
+  setupEpisodeKeyboardNavigation: (eraElement: HTMLElement) => void
 }
 
 // ============================================================================
@@ -1041,19 +1047,19 @@ export type FactoryConfig<TConfig, TRequired extends keyof TConfig> = PickRequir
  * ```
  */
 export type EventCapableFactory<TBase, TEvents extends EventMap> = TBase & {
-  on<TEventName extends keyof TEvents>(
+  on: <TEventName extends keyof TEvents>(
     eventName: TEventName,
     listener: EventListener<TEvents[TEventName]>,
-  ): void
-  off<TEventName extends keyof TEvents>(
+  ) => void
+  off: <TEventName extends keyof TEvents>(
     eventName: TEventName,
     listener: EventListener<TEvents[TEventName]>,
-  ): void
-  once<TEventName extends keyof TEvents>(
+  ) => void
+  once: <TEventName extends keyof TEvents>(
     eventName: TEventName,
     listener: EventListener<TEvents[TEventName]>,
-  ): void
-  removeAllListeners<TEventName extends keyof TEvents>(eventName?: TEventName): void
+  ) => void
+  removeAllListeners: <TEventName extends keyof TEvents>(eventName?: TEventName) => void
 }
 
 /**
@@ -1770,17 +1776,17 @@ export interface ThemeEvents extends EventMap {
  */
 export interface ThemeSystemInstance {
   /** Initialize the theme system with preferences integration */
-  initialize(): 'light' | 'dark' | null
+  initialize: () => 'light' | 'dark' | null
   /** Apply a specific theme */
-  setTheme(theme: UserPreferences['theme']): 'light' | 'dark' | null
+  setTheme: (theme: UserPreferences['theme']) => 'light' | 'dark' | null
   /** Toggle between light and dark themes */
-  toggleTheme(): 'light' | 'dark' | null
+  toggleTheme: () => 'light' | 'dark' | null
   /** Get current theme preference */
-  getCurrentTheme(): UserPreferences['theme']
+  getCurrentTheme: () => UserPreferences['theme']
   /** Get resolved theme (auto converted to light/dark) */
-  getResolvedTheme(): 'light' | 'dark'
+  getResolvedTheme: () => 'light' | 'dark'
   /** Get comprehensive theme information */
-  getThemeInfo(): {
+  getThemeInfo: () => {
     currentTheme: UserPreferences['theme']
     resolvedTheme: 'light' | 'dark'
     systemPrefersDark: boolean
@@ -1789,29 +1795,29 @@ export interface ThemeSystemInstance {
     cssProperties: string[]
   }
   /** Check if theme system is initialized */
-  isInitialized(): boolean
+  isInitialized: () => boolean
   /** Force reapply current theme */
-  refresh(): 'light' | 'dark' | null
+  refresh: () => 'light' | 'dark' | null
   /** Get available CSS custom properties */
-  getCSSProperties(): string[]
+  getCSSProperties: () => string[]
   /** Get theme values for a specific theme */
-  getThemeValues(theme: 'light' | 'dark'): Record<string, string>
+  getThemeValues: (theme: 'light' | 'dark') => Record<string, string>
   /** Cleanup theme system resources */
-  cleanup(): void
+  cleanup: () => void
 
   // Generic EventEmitter methods for type-safe event handling
-  on<TEventName extends keyof ThemeEvents>(
+  on: <TEventName extends keyof ThemeEvents>(
     eventName: TEventName,
     listener: EventListener<ThemeEvents[TEventName]>,
-  ): void
-  off<TEventName extends keyof ThemeEvents>(
+  ) => void
+  off: <TEventName extends keyof ThemeEvents>(
     eventName: TEventName,
     listener: EventListener<ThemeEvents[TEventName]>,
-  ): void
-  once<TEventName extends keyof ThemeEvents>(
+  ) => void
+  once: <TEventName extends keyof ThemeEvents>(
     eventName: TEventName,
     listener: EventListener<ThemeEvents[TEventName]>,
-  ): void
+  ) => void
 }
 
 // ============================================================================
@@ -2337,27 +2343,27 @@ export interface ExportOptions {
  */
 export interface TimelineVisualizationInstance {
   /** Render the timeline with current data and configuration */
-  render(): void
+  render: () => void
   /** Update timeline data with new events */
-  updateData(events: TimelineEvent[]): void
+  updateData: (events: TimelineEvent[]) => void
   /** Update timeline configuration and re-render */
-  updateConfig(config: Partial<TimelineConfig>): void
+  updateConfig: (config: Partial<TimelineConfig>) => void
   /** Update timeline layout and re-render */
-  updateLayout(layout: Partial<TimelineLayout>): void
+  updateLayout: (layout: Partial<TimelineLayout>) => void
   /** Zoom to specific level with optional center point */
-  zoomTo(level: number, center?: {x: number; y: number}): void
+  zoomTo: (level: number, center?: {x: number; y: number}) => void
   /** Pan to specific offset */
-  panTo(offset: {x: number; y: number}): void
+  panTo: (offset: {x: number; y: number}) => void
   /** Zoom to fit all events in view */
-  zoomToFit(): void
+  zoomToFit: () => void
   /** Select specific event by ID */
-  selectEvent(eventId: string | null): void
+  selectEvent: (eventId: string | null) => void
   /** Export timeline as image or SVG */
-  exportTimeline(options: ExportOptions): Promise<Blob>
+  exportTimeline: (options: ExportOptions) => Promise<Blob>
   /** Destroy timeline and clean up resources */
-  destroy(): void
+  destroy: () => void
   /** Get current timeline state */
-  getState(): {
+  getState: () => {
     config: TimelineConfig
     layout: TimelineLayout
     interaction: TimelineInteraction
@@ -2365,18 +2371,27 @@ export interface TimelineVisualizationInstance {
     performance?: TimelinePerformanceMetrics
   }
   /** Get current performance metrics */
-  getPerformanceMetrics(): TimelinePerformanceMetrics
+  getPerformanceMetrics: () => TimelinePerformanceMetrics
   /** Force switch to canvas rendering mode */
-  enableCanvasMode(): void
+  enableCanvasMode: () => void
   /** Force switch to SVG rendering mode */
-  enableSVGMode(): void
+  enableSVGMode: () => void
   /** Enable automatic performance optimization */
-  enableAutoOptimization(): void
+  enableAutoOptimization: () => void
 
   // Generic EventEmitter methods for type-safe event handling
-  on<K extends keyof TimelineEvents>(event: K, listener: (data: TimelineEvents[K]) => void): void
-  off<K extends keyof TimelineEvents>(event: K, listener: (data: TimelineEvents[K]) => void): void
-  once<K extends keyof TimelineEvents>(event: K, listener: (data: TimelineEvents[K]) => void): void
+  on: <K extends keyof TimelineEvents>(
+    event: K,
+    listener: (data: TimelineEvents[K]) => void,
+  ) => void
+  off: <K extends keyof TimelineEvents>(
+    event: K,
+    listener: (data: TimelineEvents[K]) => void,
+  ) => void
+  once: <K extends keyof TimelineEvents>(
+    event: K,
+    listener: (data: TimelineEvents[K]) => void,
+  ) => void
 }
 
 /**
@@ -2385,40 +2400,40 @@ export interface TimelineVisualizationInstance {
  */
 export interface TimelineControlsInstance {
   /** Render the controls with current configuration */
-  render(): void
+  render: () => void
   /** Update controls data with new events */
-  updateData(events: TimelineEvent[]): void
+  updateData: (events: TimelineEvent[]) => void
   /** Update controls configuration */
-  updateConfig(config: Partial<TimelineConfig>): void
+  updateConfig: (config: Partial<TimelineConfig>) => void
   /** Get current filter configuration */
-  getConfig(): TimelineConfig
+  getConfig: () => TimelineConfig
   /** Get available filter options extracted from data */
-  getFilterOptions(): {
+  getFilterOptions: () => {
     eras: string[]
     eventTypes: string[]
     series: string[]
     importanceLevels: string[]
   }
   /** Import filter configuration from external source */
-  importConfig(config: Partial<TimelineConfig>): void
+  importConfig: (config: Partial<TimelineConfig>) => void
   /** Destroy controls and clean up resources */
-  destroy(): void
+  destroy: () => void
 
   // Generic EventEmitter methods for type-safe event handling
-  on<K extends keyof TimelineControlsEvents>(
+  on: <K extends keyof TimelineControlsEvents>(
     event: K,
     listener: (data: TimelineControlsEvents[K]) => void,
-  ): void
-  off<K extends keyof TimelineControlsEvents>(
+  ) => void
+  off: <K extends keyof TimelineControlsEvents>(
     event: K,
     listener: (data: TimelineControlsEvents[K]) => void,
-  ): void
-  once<K extends keyof TimelineControlsEvents>(
+  ) => void
+  once: <K extends keyof TimelineControlsEvents>(
     event: K,
     listener: (data: TimelineControlsEvents[K]) => void,
-  ): void
-  emit<K extends keyof TimelineControlsEvents>(event: K, data: TimelineControlsEvents[K]): void
-  removeAllListeners(): void
+  ) => void
+  emit: <K extends keyof TimelineControlsEvents>(event: K, data: TimelineControlsEvents[K]) => void
+  removeAllListeners: () => void
 }
 
 // ============================================================================
@@ -2682,40 +2697,40 @@ export interface StreamingApiEvents extends EventMap {
  */
 export interface StreamingApiInstance {
   /** Initialize the streaming API with configuration */
-  initialize(config: StreamingApiConfig): Promise<void>
+  initialize: (config: StreamingApiConfig) => Promise<void>
   /** Get streaming availability for specific content */
-  getAvailability(contentId: string): Promise<StreamingAvailability[]>
+  getAvailability: (contentId: string) => Promise<StreamingAvailability[]>
   /** Get availability for multiple content items (batch operation) */
-  getBatchAvailability(contentIds: string[]): Promise<Map<string, StreamingAvailability[]>>
+  getBatchAvailability: (contentIds: string[]) => Promise<Map<string, StreamingAvailability[]>>
   /** Search for content by title */
-  searchContent(title: string, type?: string): Promise<StreamingApiResponse>
+  searchContent: (title: string, type?: string) => Promise<StreamingApiResponse>
   /** Refresh availability data for specific content */
-  refreshAvailability(contentId: string): Promise<StreamingAvailability[]>
+  refreshAvailability: (contentId: string) => Promise<StreamingAvailability[]>
   /** Get cached availability data */
-  getCachedAvailability(contentId: string): Promise<StreamingAvailability[] | null>
+  getCachedAvailability: (contentId: string) => Promise<StreamingAvailability[] | null>
   /** Clear expired cache entries */
-  clearExpiredCache(): Promise<number>
+  clearExpiredCache: () => Promise<number>
   /** Get current rate limit status */
-  getRateLimitStatus(): RateLimitConfig
+  getRateLimitStatus: () => RateLimitConfig
   /** Check if request is allowed under rate limits */
-  isRequestAllowed(): boolean
+  isRequestAllowed: () => boolean
   /** Set user preferences for streaming services */
-  setPreferences(preferences: StreamingPreferences): void
+  setPreferences: (preferences: StreamingPreferences) => void
   /** Get current streaming preferences */
-  getPreferences(): StreamingPreferences
+  getPreferences: () => StreamingPreferences
   /** Get availability filtered by specific region */
-  getAvailabilityByRegion(contentId: string, region: string): Promise<StreamingAvailability[]>
+  getAvailabilityByRegion: (contentId: string, region: string) => Promise<StreamingAvailability[]>
   /** Preload streaming availability for multiple content items in background */
-  preloadBatchAvailability(
+  preloadBatchAvailability: (
     contentIds: string[],
     options?: {
       maxConcurrency?: number
       skipCache?: boolean
       priority?: 'high' | 'normal' | 'low'
     },
-  ): Promise<void>
+  ) => Promise<void>
   /** Get batch availability cache statistics */
-  getBatchCacheStats(contentIds: string[]): Promise<{
+  getBatchCacheStats: (contentIds: string[]) => Promise<{
     total: number
     cached: number
     expired: number
@@ -2728,25 +2743,25 @@ export interface StreamingApiInstance {
     }
   }>
   /** Update user's region preference */
-  updateRegionPreference(region: string): void
+  updateRegionPreference: (region: string) => void
   /** Destroy instance and clean up resources */
-  destroy(): void
+  destroy: () => void
 
   // Generic EventEmitter methods for type-safe event handling
-  on<K extends keyof StreamingApiEvents>(
+  on: <K extends keyof StreamingApiEvents>(
     event: K,
     listener: (data: StreamingApiEvents[K]) => void,
-  ): void
-  off<K extends keyof StreamingApiEvents>(
+  ) => void
+  off: <K extends keyof StreamingApiEvents>(
     event: K,
     listener: (data: StreamingApiEvents[K]) => void,
-  ): void
-  once<K extends keyof StreamingApiEvents>(
+  ) => void
+  once: <K extends keyof StreamingApiEvents>(
     event: K,
     listener: (data: StreamingApiEvents[K]) => void,
-  ): void
-  emit<K extends keyof StreamingApiEvents>(event: K, data: StreamingApiEvents[K]): void
-  removeAllListeners(): void
+  ) => void
+  emit: <K extends keyof StreamingApiEvents>(event: K, data: StreamingApiEvents[K]) => void
+  removeAllListeners: () => void
 }
 
 /**
@@ -2897,29 +2912,29 @@ export interface MetadataSourceEvents extends EventMap {
  */
 export interface MetadataSourceInstance {
   /** Enrich episode metadata using multiple sources with intelligent fallback */
-  enrichEpisode(episodeId: string): Promise<EpisodeMetadata | null>
+  enrichEpisode: (episodeId: string) => Promise<EpisodeMetadata | null>
   /** Get health status for all sources */
-  getHealthStatus(): Record<string, any>
+  getHealthStatus: () => Record<string, any>
   /** Get API usage analytics for quota management */
-  getUsageAnalytics(): any
+  getUsageAnalytics: () => any
   /** Clear cached responses */
-  clearCache(): void
+  clearCache: () => void
   /** Reset usage analytics (typically called at start of new quota period) */
-  resetAnalytics(): void
+  resetAnalytics: () => void
 
   // EventEmitter methods
-  on<K extends keyof MetadataSourceEvents>(
+  on: <K extends keyof MetadataSourceEvents>(
     event: K,
     listener: (data: MetadataSourceEvents[K]) => void,
-  ): void
-  off<K extends keyof MetadataSourceEvents>(
+  ) => void
+  off: <K extends keyof MetadataSourceEvents>(
     event: K,
     listener: (data: MetadataSourceEvents[K]) => void,
-  ): void
-  once<K extends keyof MetadataSourceEvents>(
+  ) => void
+  once: <K extends keyof MetadataSourceEvents>(
     event: K,
     listener: (data: MetadataSourceEvents[K]) => void,
-  ): void
+  ) => void
 }
 
 // ============================================================================
@@ -3089,17 +3104,17 @@ export interface MetadataQueueEvents extends EventMap {
  */
 export interface MetadataQueueInstance {
   /** Add a new job to the queue */
-  addJob(job: Omit<MetadataQueueJob, 'id' | 'createdAt' | 'updatedAt' | 'status'>): string
+  addJob: (job: Omit<MetadataQueueJob, 'id' | 'createdAt' | 'updatedAt' | 'status'>) => string
   /** Cancel a specific job */
-  cancelJob(jobId: string): boolean
+  cancelJob: (jobId: string) => boolean
   /** Cancel all jobs in queue */
-  cancelAllJobs(): number
+  cancelAllJobs: () => number
   /** Get job by ID */
-  getJob(jobId: string): MetadataQueueJob | null
+  getJob: (jobId: string) => MetadataQueueJob | null
   /** Get all jobs with optional filter */
-  getJobs(filter?: Partial<MetadataQueueJob>): MetadataQueueJob[]
+  getJobs: (filter?: Partial<MetadataQueueJob>) => MetadataQueueJob[]
   /** Get queue status */
-  getStatus(): {
+  getStatus: () => {
     totalJobs: number
     pendingJobs: number
     runningJobs: number
@@ -3107,29 +3122,29 @@ export interface MetadataQueueInstance {
     failedJobs: number
   }
   /** Start queue processing */
-  start(): void
+  start: () => void
   /** Pause queue processing */
-  pause(reason?: string): void
+  pause: (reason?: string) => void
   /** Resume queue processing */
-  resume(reason?: string): void
+  resume: (reason?: string) => void
   /** Update queue configuration */
-  updateConfig(config: Partial<MetadataQueueConfig>): void
+  updateConfig: (config: Partial<MetadataQueueConfig>) => void
   /** Clear completed jobs */
-  clearCompleted(): number
+  clearCompleted: () => number
   /** Get progress for bulk operations */
-  getProgress(operationId?: string): MetadataProgress[]
+  getProgress: (operationId?: string) => MetadataProgress[]
 
   // EventEmitter methods
-  on<K extends keyof MetadataQueueEvents>(
+  on: <K extends keyof MetadataQueueEvents>(
     event: K,
     listener: (data: MetadataQueueEvents[K]) => void,
-  ): void
-  off<K extends keyof MetadataQueueEvents>(
+  ) => void
+  off: <K extends keyof MetadataQueueEvents>(
     event: K,
     listener: (data: MetadataQueueEvents[K]) => void,
-  ): void
-  once<K extends keyof MetadataQueueEvents>(
+  ) => void
+  once: <K extends keyof MetadataQueueEvents>(
     event: K,
     listener: (data: MetadataQueueEvents[K]) => void,
-  ): void
+  ) => void
 }
