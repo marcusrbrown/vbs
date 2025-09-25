@@ -196,15 +196,15 @@ describe('Generic Utility Types Library', () => {
     })
 
     it('should constrain factory functions with FactoryFunction', () => {
-      const _validFactory: FactoryFunction<{init(): void; destroy(): void}> = () => ({
+      const _validFactory: FactoryFunction<{init: () => void; destroy: () => void}> = () => ({
         init: () => {},
         destroy: () => {},
       })
 
       type FactoryResult = FactoryReturnType<typeof _validFactory>
       expectTypeOf<FactoryResult>().toEqualTypeOf<{
-        init(): void
-        destroy(): void
+        init: () => void
+        destroy: () => void
       }>()
     })
 
@@ -213,9 +213,9 @@ describe('Generic Utility Types Library', () => {
         count: number
         name: string
         enabled: boolean
-        increment(): void
-        reset(): void
-        configure(_options: object): void
+        increment: () => void
+        reset: () => void
+        configure: (_options: object) => void
       }
 
       type ModuleUpdate = FactoryUpdate<ModuleInstance>
@@ -251,7 +251,7 @@ describe('Generic Utility Types Library', () => {
     })
 
     it('should create union of callback keys with CallbackKeys', () => {
-      type EventMap = {
+      interface EventMap {
         click: (x: number, y: number) => void
         hover: (element: HTMLElement) => void
         focus: () => void
@@ -286,18 +286,18 @@ describe('Generic Utility Types Library', () => {
       interface Mixed {
         name: string
         count: number
-        increment(): void
-        decrement(): void
-        reset(): void
+        increment: () => void
+        decrement: () => void
+        reset: () => void
         enabled: boolean
       }
 
       type Methods = FunctionProperties<Mixed>
 
       expectTypeOf<Methods>().toEqualTypeOf<{
-        increment(): void
-        decrement(): void
-        reset(): void
+        increment: () => void
+        decrement: () => void
+        reset: () => void
       }>()
     })
 
@@ -305,8 +305,8 @@ describe('Generic Utility Types Library', () => {
       interface Mixed {
         name: string
         count: number
-        increment(): void
-        decrement(): void
+        increment: () => void
+        decrement: () => void
         enabled: boolean
       }
 
