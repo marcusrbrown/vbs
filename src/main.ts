@@ -426,7 +426,7 @@ export const createStarTrekViewingGuide = () => {
   const init = (): void => {
     // Wait for DOM to be ready
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', async () => await setupApp())
+      document.addEventListener('DOMContentLoaded', async () => setupApp())
     } else {
       setupApp().catch(console.error)
     }
