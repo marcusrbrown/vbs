@@ -768,8 +768,7 @@ export const createTimelineRenderer = (
       button.addEventListener('click', e => {
         const target = e.target as HTMLElement
         const seriesId =
-          target.dataset['seriesId'] ||
-          target.closest('[data-series-id]')?.getAttribute('data-series-id')
+          target.dataset['seriesId'] || target.closest('[data-series-id]')?.dataset.seriesId
         if (seriesId) {
           toggleEpisodeList(seriesId)
         }
@@ -782,8 +781,7 @@ export const createTimelineRenderer = (
           e.preventDefault()
           const target = e.target as HTMLElement
           const seriesId =
-            target.dataset['seriesId'] ||
-            target.closest('[data-series-id]')?.getAttribute('data-series-id')
+            target.dataset['seriesId'] || target.closest('[data-series-id]')?.dataset.seriesId
           if (seriesId) {
             toggleEpisodeList(seriesId)
           }
@@ -797,8 +795,7 @@ export const createTimelineRenderer = (
       button.addEventListener('click', e => {
         const target = e.target as HTMLElement
         const episodeId =
-          target.dataset['episodeId'] ||
-          target.closest('[data-episode-id]')?.getAttribute('data-episode-id')
+          target.dataset['episodeId'] || target.closest('[data-episode-id]')?.dataset.episodeId
         if (episodeId) {
           toggleEpisodeDetails(episodeId)
         }
@@ -811,8 +808,7 @@ export const createTimelineRenderer = (
           e.preventDefault()
           const target = e.target as HTMLElement
           const episodeId =
-            target.dataset['episodeId'] ||
-            target.closest('[data-episode-id]')?.getAttribute('data-episode-id')
+            target.dataset['episodeId'] || target.closest('[data-episode-id]')?.dataset.episodeId
           if (episodeId) {
             toggleEpisodeDetails(episodeId)
           }
@@ -851,8 +847,7 @@ export const createTimelineRenderer = (
       button.addEventListener('click', e => {
         const target = e.target as HTMLElement
         const seriesId =
-          target.dataset['seriesId'] ||
-          target.closest('[data-series-id]')?.getAttribute('data-series-id')
+          target.dataset['seriesId'] || target.closest('[data-series-id]')?.dataset.seriesId
         if (seriesId) {
           loadMoreEpisodes(seriesId)
         }
@@ -865,8 +860,7 @@ export const createTimelineRenderer = (
           e.preventDefault()
           const target = e.target as HTMLElement
           const seriesId =
-            target.dataset['seriesId'] ||
-            target.closest('[data-series-id]')?.getAttribute('data-series-id')
+            target.dataset['seriesId'] || target.closest('[data-series-id]')?.dataset.seriesId
           if (seriesId) {
             loadMoreEpisodes(seriesId)
           }

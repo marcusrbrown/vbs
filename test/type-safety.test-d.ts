@@ -109,11 +109,17 @@ describe('EventEmitter Type Safety', () => {
     expectTypeOf<EventListener<number>>().toEqualTypeOf<(payload: number) => void>()
 
     // Test complex EventListener types
-    type ComplexPayload = {user: {id: number}; metadata: string[]}
+    interface ComplexPayload {
+      user: {id: number}
+      metadata: string[]
+    }
     expectTypeOf<EventListener<ComplexPayload>>().toEqualTypeOf<(payload: ComplexPayload) => void>()
 
     // Test actual VBS event payload types
-    type ItemTogglePayload = {itemId: string; isWatched: boolean}
+    interface ItemTogglePayload {
+      itemId: string
+      isWatched: boolean
+    }
     expectTypeOf<EventListener<ItemTogglePayload>>().toEqualTypeOf<
       (payload: ItemTogglePayload) => void
     >()

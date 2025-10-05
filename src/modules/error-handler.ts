@@ -12,10 +12,10 @@ export interface ErrorDetails {
 }
 
 export interface ErrorHandler {
-  handleError(error: Error, context: string): void
-  logError(details: ErrorDetails): void
-  showUserError(message: string, isRecoverable?: boolean): void
-  getErrorSummary(): ErrorDetails[]
+  handleError: (error: Error, context: string) => void
+  logError: (details: ErrorDetails) => void
+  showUserError: (message: string, isRecoverable?: boolean) => void
+  getErrorSummary: () => ErrorDetails[]
 }
 
 /**
