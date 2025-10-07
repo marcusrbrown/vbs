@@ -301,32 +301,20 @@ async function syncProgressData() {
 // ============================================================================
 
 /**
- * Configuration for metadata batch processing.
- * Optimizes API usage by grouping multiple episode requests into batches.
+ * Batch processing configuration optimized for different API rate limits and response characteristics.
  */
 const BATCH_CONFIG = {
-  // Maximum batch sizes for different operations
   maxBatchSize: 20,
-  tmdbBatchSize: 20, // TMDB supports batch requests
-  memoryAlphaBatchSize: 5, // Memory Alpha requires more conservative batching
+  tmdbBatchSize: 20, // TMDB API supports batch operations efficiently
+  memoryAlphaBatchSize: 5, // Memory Alpha requires conservative batching to avoid rate limiting
 
-  // Timing configuration
-  batchDelayMs: 500, // Delay between processing batches
-  maxBatchWaitMs: 2000, // Maximum time to wait for batch to fill
+  batchDelayMs: 500, // Rate limit spacing between batches
+  maxBatchWaitMs: 2000,
 
-  // Resource optimization
   enableBatching: true,
-  preferBatchingOverSpeed: true, // Prefer fewer API calls over faster completion
+  preferBatchingOverSpeed: true, // Optimize for API quota conservation over speed
 }
 
-/**
- * Create batches of episode IDs for optimized processing.
- * Groups episodes into batches based on configured batch sizes.
- *
- * @param {string[]} episodeIds - Array of episode IDs to batch
- * @param {number} batchSize - Maximum size for each batch
- * @returns {string[][]} Array of batches, each containing episode IDs
- */
 function createEpisodeBatches(episodeIds, batchSize = BATCH_CONFIG.maxBatchSize) {
   const batches = []
 
@@ -337,14 +325,6 @@ function createEpisodeBatches(episodeIds, batchSize = BATCH_CONFIG.maxBatchSize)
   return batches
 }
 
-/**
- * Process a batch of episodes with shared API calls.
- * Reduces network requests by processing multiple episodes together.
- *
- * @param {string[]} episodeBatch - Batch of episode IDs to process
- * @param {object} operationDetails - Operation configuration and sources
- * @returns {Promise<object>} Batch processing results with individual episode statuses
- */
 async function processBatchMetadata(episodeBatch, operationDetails) {
   const results = {
     completed: [],
@@ -354,9 +334,7 @@ async function processBatchMetadata(episodeBatch, operationDetails) {
   }
 
   try {
-    // Check if batching is enabled
     if (!BATCH_CONFIG.enableBatching) {
-      // Fall back to sequential processing
       for (const episodeId of episodeBatch) {
         const result = await processEpisodeMetadata(episodeId, operationDetails)
 
@@ -375,27 +353,20 @@ async function processBatchMetadata(episodeBatch, operationDetails) {
       return results
     }
 
-    // Optimized batch processing
-    // Group by data source for efficient API usage
     const sourceGroups = groupEpisodesBySource(episodeBatch, operationDetails.sources)
 
-    // Process each source group with appropriate batch size
     for (const [source, episodeIds] of Object.entries(sourceGroups)) {
       const sourceBatchSize = getBatchSizeForSource(source)
-
-      // Create sub-batches if needed
       const subBatches = createEpisodeBatches(episodeIds, sourceBatchSize)
 
       for (const subBatch of subBatches) {
         const batchResults = await processBatchBySource(subBatch, source, operationDetails)
 
-        // Merge results
         results.completed.push(...batchResults.completed)
         results.failed.push(...batchResults.failed)
         results.queued.push(...batchResults.queued)
         results.conflicts.push(...batchResults.conflicts)
 
-        // Rate limiting delay between sub-batches
         if (subBatches.length > 1) {
           await new Promise(resolve => setTimeout(resolve, BATCH_CONFIG.batchDelayMs))
         }
@@ -406,7 +377,6 @@ async function processBatchMetadata(episodeBatch, operationDetails) {
   } catch (error) {
     console.error('[VBS SW] Batch processing failed:', error)
 
-    // Mark all episodes as failed
     episodeBatch.forEach(episodeId => {
       results.failed.push({
         episodeId,
@@ -418,23 +388,15 @@ async function processBatchMetadata(episodeBatch, operationDetails) {
   }
 }
 
-/**
- * Group episodes by their primary data source for optimized batch processing.
- *
- * @param {string[]} episodeIds - Episode IDs to group
- * @param {string[]} sources - Available data sources
- * @returns {object} Episodes grouped by source
- */
+// Distribute episodes across data sources using round-robin to balance API load.
+// Production implementation should route based on episode metadata and source capabilities.
 function groupEpisodesBySource(episodeIds, sources) {
   const groups = {}
 
-  // Initialize groups for each source
   sources.forEach(source => {
     groups[source] = []
   })
 
-  // For now, distribute episodes across sources
-  // In production, this would intelligently route based on episode metadata
   episodeIds.forEach((episodeId, index) => {
     const sourceIndex = index % sources.length
     const source = sources[sourceIndex]
@@ -444,12 +406,6 @@ function groupEpisodesBySource(episodeIds, sources) {
   return groups
 }
 
-/**
- * Get optimal batch size for specific data source.
- *
- * @param {string} source - Data source identifier
- * @returns {number} Optimal batch size
- */
 function getBatchSizeForSource(source) {
   switch (source) {
     case 'tmdb':
@@ -461,15 +417,8 @@ function getBatchSizeForSource(source) {
   }
 }
 
-/**
- * Process a batch of episodes from a specific source.
- * Simulates batch API call with proper error handling.
- *
- * @param {string[]} episodeIds - Episodes to process
- * @param {string} source - Data source
- * @param {object} operationDetails - Operation configuration
- * @returns {Promise<object>} Processing results
- */
+// Process batch with conflict resolution and lock management.
+// Uses simulation for testing; production uses actual batch API endpoints.
 async function processBatchBySource(episodeIds, source, operationDetails) {
   const results = {
     completed: [],
@@ -479,47 +428,31 @@ async function processBatchBySource(episodeIds, source, operationDetails) {
   }
 
   try {
-    // Simulate batch API call with delay
-    // In production, this would make actual batch API requests
     const batchDelay = Math.random() * 500 + 300
     await new Promise(resolve => setTimeout(resolve, batchDelay))
 
-    // Process each episode in the batch
-    // With batch APIs, this would be a single request
     for (const episodeId of episodeIds) {
       try {
-        // Check for locks
         if (isEpisodeLocked(episodeId)) {
           results.queued.push(episodeId)
           continue
         }
 
-        // Acquire lock
         if (!acquireEpisodeLock(episodeId, operationDetails.operationId)) {
           results.queued.push(episodeId)
           continue
         }
 
-        // Get existing metadata
         const existingMetadata = await getExistingMetadata(episodeId)
-
-        // Simulate batch metadata enrichment
         const newMetadata = await simulateBatchMetadataEnrichment(episodeId, source)
-
-        // Resolve conflicts
         const resolvedMetadata = await resolveMetadataConflicts(
           episodeId,
           newMetadata,
           existingMetadata,
         )
 
-        // Store metadata
         await storeEpisodeMetadata(episodeId, resolvedMetadata)
-
-        // Update timestamp
         lastUpdateTimestamps.set(episodeId, Date.now())
-
-        // Release lock
         releaseEpisodeLock(episodeId, operationDetails.operationId)
 
         results.completed.push({
@@ -527,7 +460,6 @@ async function processBatchBySource(episodeIds, source, operationDetails) {
           metadata: resolvedMetadata,
         })
 
-        // Track conflicts
         if (resolvedMetadata._conflicts?.length > 0) {
           results.conflicts.push(
             ...resolvedMetadata._conflicts.map(c => ({
@@ -550,7 +482,6 @@ async function processBatchBySource(episodeIds, source, operationDetails) {
   } catch (error) {
     console.error('[VBS SW] Batch source processing failed:', error)
 
-    // Mark all episodes as failed
     episodeIds.forEach(episodeId => {
       releaseEpisodeLock(episodeId, operationDetails.operationId)
       results.failed.push({
@@ -563,16 +494,7 @@ async function processBatchBySource(episodeIds, source, operationDetails) {
   }
 }
 
-/**
- * Simulate batch metadata enrichment for testing.
- * In production, this would call actual batch APIs.
- *
- * @param {string} episodeId - Episode to enrich
- * @param {string} source - Data source
- * @returns {Promise<object>} Enriched metadata
- */
 async function simulateBatchMetadataEnrichment(episodeId, source) {
-  // Simulate minimal processing delay for batch operations
   await new Promise(resolve => setTimeout(resolve, Math.random() * 200 + 100))
 
   return {
@@ -585,9 +507,6 @@ async function simulateBatchMetadataEnrichment(episodeId, source) {
   }
 }
 
-/**
- * Message event handler - communication with main thread.
- */
 globalThis.addEventListener('message', event => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     globalThis.skipWaiting()

@@ -1241,7 +1241,6 @@ export const createMetadataSources = (config: MetadataSourceConfig): MetadataSou
 
   /**
    * Enrich multiple episodes in batch for optimized API usage.
-   * TASK-028: Batch processing reduces network requests and improves efficiency.
    *
    * @param episodeIds Array of episode IDs to enrich
    * @returns Map of episode IDs to enriched metadata (or null if enrichment failed)
@@ -1267,7 +1266,7 @@ export const createMetadataSources = (config: MetadataSourceConfig): MetadataSou
   ): Promise<Map<string, EpisodeMetadata | null>> => {
     const results = new Map<string, EpisodeMetadata | null>()
 
-    // Process episodes in parallel with concurrency limit
+    // Limit to 5 concurrent requests to balance throughput with resource usage and rate limits
     const concurrencyLimit = 5
     const chunks: string[][] = []
 
@@ -1275,14 +1274,12 @@ export const createMetadataSources = (config: MetadataSourceConfig): MetadataSou
       chunks.push(episodeIds.slice(i, i + concurrencyLimit))
     }
 
-    // Process each chunk in parallel
     for (const chunk of chunks) {
       const chunkPromises = chunk.map(async episodeId => {
         try {
           const metadata = await enrichEpisode(episodeId)
           results.set(episodeId, metadata)
 
-          // Emit batch enrichment event
           if (metadata) {
             eventEmitter.emit('metadata-enriched', {
               episodeId,
@@ -1309,7 +1306,7 @@ export const createMetadataSources = (config: MetadataSourceConfig): MetadataSou
 
       await Promise.all(chunkPromises)
 
-      // Rate limiting delay between chunks
+      // 500ms delay between chunks to comply with API rate limits (typical ~2 requests/second)
       if (chunks.length > 1) {
         await new Promise(resolve => setTimeout(resolve, 500))
       }
