@@ -81,6 +81,22 @@ interface InternalMetadataSource {
 }
 
 /**
+ * TMDB crew member structure for type safety.
+ */
+interface TMDBCrewMember {
+  job: string
+  name: string
+}
+
+/**
+ * Memory Alpha page structure for type safety.
+ */
+interface MemoryAlphaPage {
+  title: string
+  extract: string
+}
+
+/**
  * Create a metadata sources manager with comprehensive API integration capabilities.
  * Implements ethical scraping, rate limiting, error resilience, and intelligent caching.
  *
@@ -106,13 +122,11 @@ interface InternalMetadataSource {
  * ```
  */
 export const createMetadataSources = (config: MetadataSourceConfig): MetadataSourceInstance => {
-  // Private state in closure
   const eventEmitter = createEventEmitter<MetadataSourceEvents>()
   const rateLimiters = new Map<string, TokenBucket>()
   const healthStatus = new Map<string, ApiHealthStatus>()
-  const responseCache = new Map<string, {data: any; timestamp: number; expiresAt: number}>()
+  const responseCache = new Map<string, {data: unknown; timestamp: number; expiresAt: number}>()
 
-  // Usage analytics tracking
   const usageAnalytics = {
     requestCounts: new Map<string, number>(),
     responseTimes: new Map<string, number[]>(),
@@ -122,7 +136,6 @@ export const createMetadataSources = (config: MetadataSourceConfig): MetadataSou
     lastResetTime: Date.now(),
   }
 
-  // Configuration with defaults
   const defaultRetryConfig: RetryConfig = {
     maxRetries: 3,
     initialDelayMs: 1000,
@@ -131,10 +144,8 @@ export const createMetadataSources = (config: MetadataSourceConfig): MetadataSou
     jitterMs: 100,
   }
 
-  // Initialize sources with proper configuration
   const sources = new Map<string, InternalMetadataSource>()
 
-  // Memory Alpha source
   if (config.memoryAlpha?.enabled) {
     sources.set('memory-alpha', {
       id: 'memory-alpha',
@@ -148,7 +159,6 @@ export const createMetadataSources = (config: MetadataSourceConfig): MetadataSou
     })
   }
 
-  // TMDB source
   if (config.tmdb?.enabled && config.tmdb.apiKey) {
     sources.set('tmdb', {
       id: 'tmdb',
@@ -164,12 +174,11 @@ export const createMetadataSources = (config: MetadataSourceConfig): MetadataSou
     })
   }
 
-  // TrekCore source (for technical specifications and production details)
   if (config.trekCore?.enabled) {
     sources.set('trekcore', {
       id: 'trekcore',
       name: 'TrekCore',
-      baseUrl: 'https://tos.trekcore.com', // Base URL for TOS episodes, would adapt per series
+      baseUrl: 'https://tos.trekcore.com',
       enabled: config.trekCore.enabled,
       rateLimitConfig: config.trekCore.rateLimitConfig,
       retryConfig: config.trekCore.retryConfig ?? defaultRetryConfig,
@@ -178,7 +187,6 @@ export const createMetadataSources = (config: MetadataSourceConfig): MetadataSou
     })
   }
 
-  // STAPI source (Star Trek API for comprehensive data)
   if (config.stapi?.enabled) {
     sources.set('stapi', {
       id: 'stapi',
@@ -305,10 +313,8 @@ export const createMetadataSources = (config: MetadataSourceConfig): MetadataSou
       current.nextRetryTime = 0
       current.responseTimeMs = responseTime
 
-      // Track response times for analytics
       const responseTimes = usageAnalytics.responseTimes.get(sourceId) || []
       responseTimes.push(responseTime)
-      // Keep only last 100 response times to prevent memory growth
       if (responseTimes.length > 100) {
         responseTimes.shift()
       }
@@ -317,20 +323,13 @@ export const createMetadataSources = (config: MetadataSourceConfig): MetadataSou
       current.consecutiveFailures += 1
       current.responseTimeMs = responseTime
 
-      // Track error counts
       const currentErrors = usageAnalytics.errorCounts.get(sourceId) || 0
       usageAnalytics.errorCounts.set(sourceId, currentErrors + 1)
 
-      // Mark unhealthy after 3 consecutive failures
       if (current.consecutiveFailures >= 3) {
         current.isHealthy = false
-        // Exponential backoff for next retry
         current.nextRetryTime =
-          Date.now() +
-          Math.min(
-            1000 * 2 ** current.consecutiveFailures,
-            300000, // Max 5 minutes
-          )
+          Date.now() + Math.min(1000 * 2 ** current.consecutiveFailures, 300000)
       }
     }
 
@@ -346,7 +345,7 @@ export const createMetadataSources = (config: MetadataSourceConfig): MetadataSou
   /**
    * Check cached response for given request key.
    */
-  const getCachedResponse = (cacheKey: string): any | null => {
+  const getCachedResponse = <T = EpisodeMetadata>(cacheKey: string): T | null => {
     const cached = responseCache.get(cacheKey)
     if (!cached) {
       usageAnalytics.cacheMisses += 1
@@ -360,13 +359,13 @@ export const createMetadataSources = (config: MetadataSourceConfig): MetadataSou
     }
 
     usageAnalytics.cacheHits += 1
-    return cached.data
+    return cached.data as T
   }
 
   /**
    * Cache API response with expiration.
    */
-  const cacheResponse = (cacheKey: string, data: any, ttlMs = 3600000): void => {
+  const cacheResponse = (cacheKey: string, data: EpisodeMetadata, ttlMs = 3600000): void => {
     responseCache.set(cacheKey, {
       data,
       timestamp: Date.now(),
@@ -390,14 +389,12 @@ export const createMetadataSources = (config: MetadataSourceConfig): MetadataSou
         try {
           const startTime = Date.now()
 
-          // Check rate limiting
           if (!canMakeRequest(sourceId)) {
             await waitForRateLimit(sourceId)
           }
 
-          // Make request with timeout
           const controller = new AbortController()
-          const timeoutId = setTimeout(() => controller.abort(), 10000) // 10s timeout
+          const timeoutId = setTimeout(() => controller.abort(), 10000)
 
           const response = await fetch(url, {
             ...options,
@@ -419,12 +416,10 @@ export const createMetadataSources = (config: MetadataSourceConfig): MetadataSou
 
           updateHealthStatus(sourceId, false, 0)
 
-          // Don't retry if error is not retryable
           if (!categorizedError.retryable || attempt === retryConfig.maxRetries) {
             break
           }
 
-          // Calculate delay with exponential backoff and jitter
           const baseDelay = Math.min(
             retryConfig.initialDelayMs * retryConfig.backoffMultiplier ** attempt,
             retryConfig.maxDelayMs,
@@ -458,7 +453,6 @@ export const createMetadataSources = (config: MetadataSourceConfig): MetadataSou
         throw new Error('Memory Alpha source is disabled')
       }
 
-      // Check if source is healthy
       const health = healthStatus.get('memory-alpha')
       if (health && !health.isHealthy && Date.now() < health.nextRetryTime) {
         throw new Error('Memory Alpha is currently unhealthy, skipping request')
@@ -470,19 +464,17 @@ export const createMetadataSources = (config: MetadataSourceConfig): MetadataSou
         return cached
       }
 
-      // Convert episode ID to Memory Alpha format
       const searchTitle = episodeId
         .replaceAll('_', ' ')
         .replace(/s(\d+)/, 'Season $1')
         .replace(/e(\d+)/, 'Episode $1')
 
-      // Respect robots.txt by using official API endpoint
       const searchUrl = new URL(source.baseUrl)
       searchUrl.searchParams.set('action', 'query')
       searchUrl.searchParams.set('format', 'json')
       searchUrl.searchParams.set('list', 'search')
       searchUrl.searchParams.set('srsearch', searchTitle)
-      searchUrl.searchParams.set('origin', '*') // CORS header
+      searchUrl.searchParams.set('origin', '*')
 
       const response = await makeRequest(
         searchUrl.toString(),
@@ -501,7 +493,6 @@ export const createMetadataSources = (config: MetadataSourceConfig): MetadataSou
 
       const pageId = data.query.search[0].pageid
 
-      // Fetch page content
       const contentUrl = new URL(source.baseUrl)
       contentUrl.searchParams.set('action', 'query')
       contentUrl.searchParams.set('format', 'json')
@@ -522,12 +513,10 @@ export const createMetadataSources = (config: MetadataSourceConfig): MetadataSou
       }
       const contentData = await contentResponse.json()
 
-      // Extract episode information from Memory Alpha API response
-      const page = Object.values(contentData.query?.pages || {})[0] as any
-      const extract = page?.extract || ''
-      const pageUrl = `https://memory-alpha.fandom.com/wiki/${encodeURIComponent(page?.title || '')}`
+      const page = Object.values(contentData.query?.pages || {})[0] as MemoryAlphaPage | undefined
+      const extract = page?.extract ?? ''
+      const pageUrl = `https://memory-alpha.fandom.com/wiki/${encodeURIComponent(page?.title ?? '')}`
 
-      // For now, just create basic metadata - could extract more details from content
       const metadata: EpisodeMetadata = {
         episodeId,
         dataSource: 'memory-alpha',
@@ -542,8 +531,7 @@ export const createMetadataSources = (config: MetadataSourceConfig): MetadataSou
         },
       }
 
-      // Cache the result
-      cacheResponse(cacheKey, metadata, 86400000) // 24 hours
+      cacheResponse(cacheKey, metadata, 86400000)
 
       eventEmitter.emit('metadata-enriched', {
         episodeId,
@@ -631,16 +619,15 @@ export const createMetadataSources = (config: MetadataSourceConfig): MetadataSou
       const crew = tmdbData.crew || []
       const guestStars = tmdbData.guest_stars || []
 
-      // Extract director and writer information
-      const directors = crew
-        .filter((member: any) => member.job === 'Director')
-        .map((d: any) => d.name)
-      const writers = crew
+      const directors = (crew as TMDBCrewMember[])
+        .filter(member => member.job === 'Director')
+        .map(d => d.name)
+      const writers = (crew as TMDBCrewMember[])
         .filter(
-          (member: any) =>
+          member =>
             member.job === 'Writer' || member.job === 'Screenplay' || member.job === 'Story',
         )
-        .map((w: any) => w.name)
+        .map(w => w.name)
 
       const metadata: EpisodeMetadata = {
         episodeId,
@@ -663,8 +650,7 @@ export const createMetadataSources = (config: MetadataSourceConfig): MetadataSou
         },
       }
 
-      // Cache the result
-      cacheResponse(cacheKey, metadata, 86400000) // 24 hours
+      cacheResponse(cacheKey, metadata, 86400000)
 
       eventEmitter.emit('metadata-enriched', {
         episodeId,
@@ -1075,6 +1061,13 @@ export const createMetadataSources = (config: MetadataSourceConfig): MetadataSou
    */
   const enrichEpisode = withErrorHandling(
     async (episodeId: string): Promise<EpisodeMetadata | null> => {
+      // Check for cached merged result first
+      const mergedCacheKey = `enriched:${episodeId}`
+      const cachedMerged = getCachedResponse(mergedCacheKey)
+      if (cachedMerged) {
+        return cachedMerged
+      }
+
       const results: EpisodeMetadata[] = []
       const errors: MetadataError[] = []
 
@@ -1126,8 +1119,9 @@ export const createMetadataSources = (config: MetadataSourceConfig): MetadataSou
         return null
       }
 
-      // Use normalization pipeline to merge metadata from multiple sources
       const mergedResult = mergeMetadataSources(results)
+
+      cacheResponse(mergedCacheKey, mergedResult, 86400000)
 
       eventEmitter.emit('enrichment-completed', {
         episodeId,
