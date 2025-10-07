@@ -2913,6 +2913,8 @@ export interface MetadataSourceEvents extends EventMap {
 export interface MetadataSourceInstance {
   /** Enrich episode metadata using multiple sources with intelligent fallback */
   enrichEpisode: (episodeId: string) => Promise<EpisodeMetadata | null>
+  /** Enrich multiple episodes in batch for optimized API usage (TASK-028) */
+  enrichEpisodeBatch: (episodeIds: string[]) => Promise<Map<string, EpisodeMetadata | null>>
   /** Get health status for all sources */
   getHealthStatus: () => Record<string, any>
   /** Get API usage analytics for quota management */

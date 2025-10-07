@@ -2,7 +2,7 @@
 goal: Episode Metadata Enrichment System with Service Worker Background Sync
 version: 1.0
 date_created: 2025-08-12
-last_updated: 2025-08-15
+last_updated: 2025-10-07
 owner: Marcus R. Brown
 status: 'In Progress'
 tags: ['feature', 'metadata', 'service-worker', 'background-sync', 'api-integration', 'cli-tools']
@@ -21,7 +21,7 @@ This plan extends the existing VBS Service Worker to implement a comprehensive e
 - **REQ-003**: Store enriched episode metadata in IndexedDB using current EpisodeTrackerInstance and storage adapter patterns
 - **REQ-004**: Expand StarTrekItem interface to include comprehensive episode metadata (air dates, plot summaries, guest stars, production codes, director/writer credits)
 - **REQ-005**: Implement rate-limited API integrations with proper error handling using established withErrorHandling utilities
-- **REQ-006**: Create CLI scripts for bulk data validation and testing (scripts/validate-episode-data.js)
+- **REQ-006**: Create CLI scripts for bulk data validation and testing (scripts/validate-episode-data.ts)
 - **REQ-007**: Provide debug panels accessible through existing preferences system for content verification and manual refresh
 - **REQ-008**: Respect user preferences for data usage and work offline-first with graceful degradation
 - **REQ-009**: Integrate seamlessly with current episode progress tracking and streaming availability systems
@@ -92,7 +92,7 @@ This plan extends the existing VBS Service Worker to implement a comprehensive e
 | TASK-025 | Create priority-based metadata update queue with episode importance scoring (new episodes first) | ✅ | 2025-08-13 |
 | TASK-026 | Add comprehensive progress tracking for bulk metadata operations with user notifications | ✅ | 2025-08-13 |
 | TASK-027 | Implement conflict resolution for concurrent metadata updates and data consistency guarantees | ✅ | 2025-08-15 |
-| TASK-028 | Create metadata update batching to optimize API usage and reduce network requests | ❌ | |
+| TASK-028 | Create metadata update batching to optimize API usage and reduce network requests | ✅ | 2025-10-07 |
 | TASK-029 | Add user preference integration for metadata sync settings (auto/manual, data limits) | ❌ | |
 | TASK-030 | Implement graceful degradation when background sync is unavailable (older browsers) | ❌ | |
 | TASK-031 | Create cache warming strategies for popular episodes and recently watched content | ❌ | |
@@ -119,7 +119,7 @@ This plan extends the existing VBS Service Worker to implement a comprehensive e
 
 | Task | Description | Completed | Date |
 |------|-------------|-----------|------|
-| TASK-041 | Create `scripts/validate-episode-data.js` CLI script for comprehensive data validation and quality checking | |  |
+| TASK-041 | Create `scripts/validate-episode-data.ts` CLI script for comprehensive data validation and quality checking | |  |
 | TASK-042 | Implement bulk metadata testing tools with automated data integrity verification | |  |
 | TASK-043 | Add data quality metrics and reporting with actionable insights for missing or incorrect metadata | |  |
 | TASK-044 | Create metadata import/export utilities for backup and development seeding | |  |
@@ -145,7 +145,7 @@ This plan extends the existing VBS Service Worker to implement a comprehensive e
 - **DEP-002**: [feature-advanced-visualization-1.md](./feature-advanced-visualization-1.md) must be completed for Service Worker infrastructure and IndexedDB migration
 - **DEP-003**: TMDB API access with proper rate limits (1000+ requests/day for comprehensive Star Trek coverage)
 - **DEP-004**: Memory Alpha access compliance with robots.txt and ethical scraping practices
-- **DEP-005**: Node.js runtime for CLI validation scripts with access to VBS data structures
+- **DEP-005**: Node.js runtime and `tsx` for CLI validation scripts written in TypeScript with access to VBS data structures
 - **DEP-006**: Existing withErrorHandling utilities and generic storage adapters in current codebase
 - **DEP-007**: Star Trek episode identifiers mapping between different data sources (TMDB IDs, Memory Alpha URLs)
 - **DEP-008**: Browser support for advanced Service Worker features (Background Sync API)
@@ -160,8 +160,8 @@ This plan extends the existing VBS Service Worker to implement a comprehensive e
 - **FILE-006**: `src/components/metadata-debug-panel.ts` - Debug interface for metadata management
 - **FILE-007**: `src/components/metadata-preferences.ts` - User controls for metadata sync settings
 - **FILE-008**: `src/utils/metadata-validation.ts` - Data validation and quality checking utilities
-- **FILE-009**: `scripts/validate-episode-data.js` - CLI script for bulk data validation and testing
-- **FILE-010**: `scripts/import-metadata.js` - CLI tool for bulk metadata import and seeding
+- **FILE-009**: `scripts/validate-episode-data.ts` - CLI script for bulk data validation and testing
+- **FILE-010**: `scripts/import-metadata.ts` - CLI tool for bulk metadata import and seeding
 - **FILE-011**: `test/metadata-enrichment.test.ts` - Comprehensive test suite for metadata functionality
 - **FILE-012**: `test/metadata-api-integration.test.ts` - API integration tests with mocking and rate limit testing
 - **FILE-013**: `test/metadata-storage.test.ts` - Storage adapter tests with IndexedDB validation
