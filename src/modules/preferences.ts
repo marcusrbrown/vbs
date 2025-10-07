@@ -32,6 +32,27 @@ const DEFAULT_PREFERENCES: UserPreferences = {
     analyticsEnabled: false,
     crashReportsEnabled: true,
   },
+  metadataSync: {
+    syncMode: 'auto',
+    dataLimits: {
+      maxEpisodesPerSync: 50,
+      maxDailyApiCalls: 1000,
+      maxCacheSizeMB: 100,
+    },
+    networkPreference: 'wifi-only',
+    scheduling: {
+      allowDuringPeakHours: false,
+      minBatteryLevel: 0.2,
+      pauseWhileCharging: false,
+      preferredTimeOfDay: 'anytime',
+    },
+    notifications: {
+      notifyOnCompletion: true,
+      notifyOnErrors: true,
+      notifyOnUpdates: false,
+    },
+    conflictResolution: 'merge-with-priority',
+  },
 }
 
 /**
@@ -86,6 +107,22 @@ const sanitizePreferences = (prefs: UserPreferences): UserPreferences => {
     privacy: {
       ...DEFAULT_PREFERENCES.privacy,
       ...(prefs.privacy || {}),
+    },
+    metadataSync: {
+      ...DEFAULT_PREFERENCES.metadataSync,
+      ...(prefs.metadataSync || {}),
+      dataLimits: {
+        ...DEFAULT_PREFERENCES.metadataSync.dataLimits,
+        ...(prefs.metadataSync?.dataLimits || {}),
+      },
+      scheduling: {
+        ...DEFAULT_PREFERENCES.metadataSync.scheduling,
+        ...(prefs.metadataSync?.scheduling || {}),
+      },
+      notifications: {
+        ...DEFAULT_PREFERENCES.metadataSync.notifications,
+        ...(prefs.metadataSync?.notifications || {}),
+      },
     },
   }
 }
@@ -244,6 +281,111 @@ export const createPreferences = () => {
         accessibilityMode,
         preferences: currentPreferences,
       })
+    },
+
+    /**
+     * Set metadata sync mode (auto, manual, or disabled)
+     * Convenience method for controlling background metadata enrichment
+     */
+    setMetadataSyncMode: (syncMode: UserPreferences['metadataSync']['syncMode']) => {
+      const metadataSync = {...currentPreferences.metadataSync, syncMode}
+      updatePreferences({metadataSync})
+      eventEmitter.emit('metadata-sync-mode-change', {syncMode, preferences: currentPreferences})
+      eventEmitter.emit('metadata-sync-change', {metadataSync, preferences: currentPreferences})
+    },
+
+    /**
+     * Toggle auto sync (convenience for enabling/disabling automatic background sync)
+     * Switches between 'auto' and 'manual' modes
+     */
+    toggleAutoSync: () => {
+      const syncMode: UserPreferences['metadataSync']['syncMode'] =
+        currentPreferences.metadataSync.syncMode === 'auto' ? 'manual' : 'auto'
+      const metadataSync = {...currentPreferences.metadataSync, syncMode}
+      updatePreferences({metadataSync})
+      eventEmitter.emit('metadata-sync-mode-change', {syncMode, preferences: currentPreferences})
+      eventEmitter.emit('metadata-sync-change', {metadataSync, preferences: currentPreferences})
+    },
+
+    /**
+     * Update metadata sync data limits
+     * Allows fine-grained control over API usage and storage
+     */
+    updateMetadataSyncDataLimits: (
+      dataLimits: Partial<UserPreferences['metadataSync']['dataLimits']>,
+    ) => {
+      const metadataSync = {
+        ...currentPreferences.metadataSync,
+        dataLimits: {...currentPreferences.metadataSync.dataLimits, ...dataLimits},
+      }
+      updatePreferences({metadataSync})
+      eventEmitter.emit('metadata-sync-data-limits-change', {
+        dataLimits: metadataSync.dataLimits,
+        preferences: currentPreferences,
+      })
+      eventEmitter.emit('metadata-sync-change', {metadataSync, preferences: currentPreferences})
+    },
+
+    /**
+     * Set metadata sync network preference
+     * Controls whether sync happens on WiFi only, any connection, or manual-only
+     */
+    setMetadataSyncNetworkPreference: (
+      networkPreference: UserPreferences['metadataSync']['networkPreference'],
+    ) => {
+      const metadataSync = {...currentPreferences.metadataSync, networkPreference}
+      updatePreferences({metadataSync})
+      eventEmitter.emit('metadata-sync-network-change', {
+        networkPreference,
+        preferences: currentPreferences,
+      })
+      eventEmitter.emit('metadata-sync-change', {metadataSync, preferences: currentPreferences})
+    },
+
+    /**
+     * Update metadata sync scheduling preferences
+     * Controls when and how background sync operations are scheduled
+     */
+    updateMetadataSyncScheduling: (
+      scheduling: Partial<UserPreferences['metadataSync']['scheduling']>,
+    ) => {
+      const metadataSync = {
+        ...currentPreferences.metadataSync,
+        scheduling: {...currentPreferences.metadataSync.scheduling, ...scheduling},
+      }
+      updatePreferences({metadataSync})
+      eventEmitter.emit('metadata-sync-scheduling-change', {
+        scheduling: metadataSync.scheduling,
+        preferences: currentPreferences,
+      })
+      eventEmitter.emit('metadata-sync-change', {metadataSync, preferences: currentPreferences})
+    },
+
+    /**
+     * Update metadata sync notification preferences
+     * Controls when users are notified about sync operations
+     */
+    updateMetadataSyncNotifications: (
+      notifications: Partial<UserPreferences['metadataSync']['notifications']>,
+    ) => {
+      const metadataSync = {
+        ...currentPreferences.metadataSync,
+        notifications: {...currentPreferences.metadataSync.notifications, ...notifications},
+      }
+      updatePreferences({metadataSync})
+      eventEmitter.emit('metadata-sync-change', {metadataSync, preferences: currentPreferences})
+    },
+
+    /**
+     * Set metadata sync conflict resolution strategy
+     * Determines how conflicts between data sources are resolved
+     */
+    setMetadataSyncConflictResolution: (
+      conflictResolution: UserPreferences['metadataSync']['conflictResolution'],
+    ) => {
+      const metadataSync = {...currentPreferences.metadataSync, conflictResolution}
+      updatePreferences({metadataSync})
+      eventEmitter.emit('metadata-sync-change', {metadataSync, preferences: currentPreferences})
     },
 
     /**

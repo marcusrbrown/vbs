@@ -98,6 +98,27 @@ describe('Preferences', () => {
           analyticsEnabled: true,
           crashReportsEnabled: false,
         },
+        metadataSync: {
+          syncMode: 'manual',
+          dataLimits: {
+            maxEpisodesPerSync: 30,
+            maxDailyApiCalls: 500,
+            maxCacheSizeMB: 80,
+          },
+          networkPreference: 'any-connection',
+          scheduling: {
+            allowDuringPeakHours: true,
+            minBatteryLevel: 0.15,
+            pauseWhileCharging: true,
+            preferredTimeOfDay: 'night-only',
+          },
+          notifications: {
+            notifyOnCompletion: false,
+            notifyOnErrors: false,
+            notifyOnUpdates: true,
+          },
+          conflictResolution: 'latest-wins',
+        },
       }
 
       localStorageMock.getItem.mockReturnValue(JSON.stringify(storedPrefs))
@@ -328,6 +349,27 @@ describe('Preferences', () => {
             analyticsEnabled: true,
             crashReportsEnabled: false,
           },
+          metadataSync: {
+            syncMode: 'auto' as const,
+            dataLimits: {
+              maxEpisodesPerSync: 50,
+              maxDailyApiCalls: 1000,
+              maxCacheSizeMB: 100,
+            },
+            networkPreference: 'wifi-only' as const,
+            scheduling: {
+              allowDuringPeakHours: false,
+              minBatteryLevel: 0.2,
+              pauseWhileCharging: false,
+              preferredTimeOfDay: 'anytime' as const,
+            },
+            notifications: {
+              notifyOnCompletion: true,
+              notifyOnErrors: true,
+              notifyOnUpdates: false,
+            },
+            conflictResolution: 'merge-with-priority' as const,
+          },
         },
       }
 
@@ -398,6 +440,253 @@ describe('Preferences', () => {
 
       expect(Array.isArray(prefs.preferredStreamingServices)).toBe(true)
       expect(prefs.preferredStreamingServices).toEqual([])
+    })
+  })
+
+  describe('Metadata Sync Preferences', () => {
+    beforeEach(() => {
+      preferences.load()
+    })
+
+    it('should have default metadata sync settings', () => {
+      const prefs = preferences.getPreferences()
+
+      expect(prefs.metadataSync).toBeDefined()
+      expect(prefs.metadataSync.syncMode).toBe('auto')
+      expect(prefs.metadataSync.networkPreference).toBe('wifi-only')
+      expect(prefs.metadataSync.dataLimits.maxEpisodesPerSync).toBe(50)
+      expect(prefs.metadataSync.dataLimits.maxDailyApiCalls).toBe(1000)
+      expect(prefs.metadataSync.dataLimits.maxCacheSizeMB).toBe(100)
+      expect(prefs.metadataSync.conflictResolution).toBe('merge-with-priority')
+    })
+
+    it('should have default metadata sync scheduling settings', () => {
+      const prefs = preferences.getPreferences()
+
+      expect(prefs.metadataSync.scheduling).toBeDefined()
+      expect(prefs.metadataSync.scheduling.allowDuringPeakHours).toBe(false)
+      expect(prefs.metadataSync.scheduling.minBatteryLevel).toBe(0.2)
+      expect(prefs.metadataSync.scheduling.pauseWhileCharging).toBe(false)
+      expect(prefs.metadataSync.scheduling.preferredTimeOfDay).toBe('anytime')
+    })
+
+    it('should have default metadata sync notification settings', () => {
+      const prefs = preferences.getPreferences()
+
+      expect(prefs.metadataSync.notifications).toBeDefined()
+      expect(prefs.metadataSync.notifications.notifyOnCompletion).toBe(true)
+      expect(prefs.metadataSync.notifications.notifyOnErrors).toBe(true)
+      expect(prefs.metadataSync.notifications.notifyOnUpdates).toBe(false)
+    })
+
+    it('should set metadata sync mode', () => {
+      const mockListener = vi.fn()
+      preferences.on('metadata-sync-mode-change', mockListener)
+
+      preferences.setMetadataSyncMode('manual')
+
+      const prefs = preferences.getPreferences()
+      expect(prefs.metadataSync.syncMode).toBe('manual')
+      expect(mockListener).toHaveBeenCalledWith({
+        syncMode: 'manual',
+        preferences: expect.any(Object),
+      })
+    })
+
+    it('should toggle auto sync', () => {
+      const mockListener = vi.fn()
+      preferences.on('metadata-sync-mode-change', mockListener)
+
+      // Initially auto
+      expect(preferences.getPreferences().metadataSync.syncMode).toBe('auto')
+
+      // Toggle to manual
+      preferences.toggleAutoSync()
+      expect(preferences.getPreferences().metadataSync.syncMode).toBe('manual')
+      expect(mockListener).toHaveBeenCalledWith({
+        syncMode: 'manual',
+        preferences: expect.any(Object),
+      })
+
+      // Toggle back to auto
+      preferences.toggleAutoSync()
+      expect(preferences.getPreferences().metadataSync.syncMode).toBe('auto')
+    })
+
+    it('should update metadata sync data limits', () => {
+      const mockListener = vi.fn()
+      preferences.on('metadata-sync-data-limits-change', mockListener)
+
+      preferences.updateMetadataSyncDataLimits({
+        maxEpisodesPerSync: 100,
+        maxDailyApiCalls: 2000,
+      })
+
+      const prefs = preferences.getPreferences()
+      expect(prefs.metadataSync.dataLimits.maxEpisodesPerSync).toBe(100)
+      expect(prefs.metadataSync.dataLimits.maxDailyApiCalls).toBe(2000)
+      expect(prefs.metadataSync.dataLimits.maxCacheSizeMB).toBe(100) // Unchanged
+      expect(mockListener).toHaveBeenCalledWith({
+        dataLimits: expect.objectContaining({
+          maxEpisodesPerSync: 100,
+          maxDailyApiCalls: 2000,
+        }),
+        preferences: expect.any(Object),
+      })
+    })
+
+    it('should set metadata sync network preference', () => {
+      const mockListener = vi.fn()
+      preferences.on('metadata-sync-network-change', mockListener)
+
+      preferences.setMetadataSyncNetworkPreference('any-connection')
+
+      const prefs = preferences.getPreferences()
+      expect(prefs.metadataSync.networkPreference).toBe('any-connection')
+      expect(mockListener).toHaveBeenCalledWith({
+        networkPreference: 'any-connection',
+        preferences: expect.any(Object),
+      })
+    })
+
+    it('should update metadata sync scheduling preferences', () => {
+      const mockListener = vi.fn()
+      preferences.on('metadata-sync-scheduling-change', mockListener)
+
+      preferences.updateMetadataSyncScheduling({
+        allowDuringPeakHours: true,
+        minBatteryLevel: 0.3,
+      })
+
+      const prefs = preferences.getPreferences()
+      expect(prefs.metadataSync.scheduling.allowDuringPeakHours).toBe(true)
+      expect(prefs.metadataSync.scheduling.minBatteryLevel).toBe(0.3)
+      expect(prefs.metadataSync.scheduling.pauseWhileCharging).toBe(false) // Unchanged
+      expect(mockListener).toHaveBeenCalledWith({
+        scheduling: expect.objectContaining({
+          allowDuringPeakHours: true,
+          minBatteryLevel: 0.3,
+        }),
+        preferences: expect.any(Object),
+      })
+    })
+
+    it('should update metadata sync notification preferences', () => {
+      preferences.updateMetadataSyncNotifications({
+        notifyOnCompletion: false,
+        notifyOnUpdates: true,
+      })
+
+      const prefs = preferences.getPreferences()
+      expect(prefs.metadataSync.notifications.notifyOnCompletion).toBe(false)
+      expect(prefs.metadataSync.notifications.notifyOnUpdates).toBe(true)
+      expect(prefs.metadataSync.notifications.notifyOnErrors).toBe(true) // Unchanged
+    })
+
+    it('should set metadata sync conflict resolution strategy', () => {
+      preferences.setMetadataSyncConflictResolution('latest-wins')
+
+      const prefs = preferences.getPreferences()
+      expect(prefs.metadataSync.conflictResolution).toBe('latest-wins')
+    })
+
+    it('should emit metadata-sync-change event for all metadata sync updates', () => {
+      const mockListener = vi.fn()
+      preferences.on('metadata-sync-change', mockListener)
+
+      preferences.setMetadataSyncMode('disabled')
+
+      expect(mockListener).toHaveBeenCalledWith({
+        metadataSync: expect.objectContaining({
+          syncMode: 'disabled',
+        }),
+        preferences: expect.any(Object),
+      })
+    })
+
+    it('should sanitize missing metadata sync nested objects', () => {
+      localStorageMock.getItem.mockReturnValue(
+        JSON.stringify({
+          theme: 'dark',
+          compactView: true,
+          accessibilityMode: false,
+          autoPlay: false,
+          showSpoilers: false,
+          preferredStreamingServices: [],
+          language: 'en',
+          notifications: {enabled: true, newEpisodes: true, progressReminders: false},
+          timeline: {showMajorEvents: true, showMinorEvents: false, defaultZoomLevel: 'decade'},
+          privacy: {analyticsEnabled: false, crashReportsEnabled: true},
+          metadataSync: {
+            syncMode: 'manual',
+            // Missing nested objects
+          },
+        }),
+      )
+
+      preferences.load()
+      const prefs = preferences.getPreferences()
+
+      expect(prefs.metadataSync.dataLimits).toBeDefined()
+      expect(prefs.metadataSync.scheduling).toBeDefined()
+      expect(prefs.metadataSync.notifications).toBeDefined()
+      expect(prefs.metadataSync.syncMode).toBe('manual') // Preserved
+    })
+
+    it('should persist metadata sync preferences to storage', () => {
+      preferences.updateMetadataSyncDataLimits({maxEpisodesPerSync: 75})
+
+      expect(localStorageMock.setItem).toHaveBeenCalledWith(
+        'starTrekUserPreferences',
+        expect.stringContaining('"maxEpisodesPerSync":75'),
+      )
+    })
+
+    it('should export metadata sync preferences with backup data', () => {
+      preferences.setMetadataSyncMode('manual')
+
+      const exportData = preferences.export()
+
+      expect(exportData.preferences.metadataSync.syncMode).toBe('manual')
+      expect(exportData.version).toBe('1.0')
+      expect(exportData.timestamp).toBeDefined()
+    })
+
+    it('should import metadata sync preferences from backup data', () => {
+      const importData = {
+        preferences: {
+          ...preferences.getPreferences(),
+          metadataSync: {
+            syncMode: 'disabled' as const,
+            dataLimits: {
+              maxEpisodesPerSync: 25,
+              maxDailyApiCalls: 500,
+              maxCacheSizeMB: 50,
+            },
+            networkPreference: 'manual-only' as const,
+            scheduling: {
+              allowDuringPeakHours: true,
+              minBatteryLevel: 0.4,
+              pauseWhileCharging: true,
+              preferredTimeOfDay: 'night-only' as const,
+            },
+            notifications: {
+              notifyOnCompletion: false,
+              notifyOnErrors: false,
+              notifyOnUpdates: true,
+            },
+            conflictResolution: 'latest-wins' as const,
+          },
+        },
+      }
+
+      preferences.import(importData)
+
+      const prefs = preferences.getPreferences()
+      expect(prefs.metadataSync.syncMode).toBe('disabled')
+      expect(prefs.metadataSync.dataLimits.maxEpisodesPerSync).toBe(25)
+      expect(prefs.metadataSync.networkPreference).toBe('manual-only')
+      expect(prefs.metadataSync.scheduling.preferredTimeOfDay).toBe('night-only')
     })
   })
 })

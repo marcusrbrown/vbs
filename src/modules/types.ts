@@ -1696,6 +1696,44 @@ export interface UserPreferences {
     /** Enable crash report collection */
     crashReportsEnabled: boolean
   }
+  /** Metadata synchronization settings for background enrichment operations */
+  metadataSync: {
+    /** Metadata sync mode: auto (background sync), manual (user-triggered only), or disabled */
+    syncMode: 'auto' | 'manual' | 'disabled'
+    /** Data usage limits for metadata operations */
+    dataLimits: {
+      /** Maximum episodes to sync per batch operation */
+      maxEpisodesPerSync: number
+      /** Maximum daily API calls allowed (0 = unlimited) */
+      maxDailyApiCalls: number
+      /** Maximum storage size for metadata cache in MB */
+      maxCacheSizeMB: number
+    }
+    /** Network preferences for metadata sync operations */
+    networkPreference: 'wifi-only' | 'any-connection' | 'manual-only'
+    /** Scheduling preferences for background sync operations */
+    scheduling: {
+      /** Allow sync during peak hours (6pm-11pm local time) */
+      allowDuringPeakHours: boolean
+      /** Minimum battery level required for sync (0.0-1.0, 0 = disabled) */
+      minBatteryLevel: number
+      /** Pause sync when device is charging */
+      pauseWhileCharging: boolean
+      /** Preferred time of day for sync operations ('anytime', 'night-only', 'day-only') */
+      preferredTimeOfDay: 'anytime' | 'night-only' | 'day-only'
+    }
+    /** Notification preferences for metadata sync operations */
+    notifications: {
+      /** Notify when bulk sync operations complete */
+      notifyOnCompletion: boolean
+      /** Notify when sync operations fail or encounter errors */
+      notifyOnErrors: boolean
+      /** Notify when new metadata becomes available for watched episodes */
+      notifyOnUpdates: boolean
+    }
+    /** Conflict resolution strategy when multiple sources provide different data */
+    conflictResolution: 'latest-wins' | 'merge-with-priority' | 'manual-review'
+  }
 }
 
 /**
@@ -1736,6 +1774,31 @@ export interface PreferencesEvents extends EventMap {
   'preferences-reset': {
     previous: UserPreferences
     current: UserPreferences
+  }
+  /** Fired when metadata sync mode is changed */
+  'metadata-sync-mode-change': {
+    syncMode: UserPreferences['metadataSync']['syncMode']
+    preferences: UserPreferences
+  }
+  /** Fired when metadata sync data limits are updated */
+  'metadata-sync-data-limits-change': {
+    dataLimits: UserPreferences['metadataSync']['dataLimits']
+    preferences: UserPreferences
+  }
+  /** Fired when metadata sync network preference is changed */
+  'metadata-sync-network-change': {
+    networkPreference: UserPreferences['metadataSync']['networkPreference']
+    preferences: UserPreferences
+  }
+  /** Fired when metadata sync scheduling preferences are updated */
+  'metadata-sync-scheduling-change': {
+    scheduling: UserPreferences['metadataSync']['scheduling']
+    preferences: UserPreferences
+  }
+  /** Fired when any metadata sync setting is changed */
+  'metadata-sync-change': {
+    metadataSync: UserPreferences['metadataSync']
+    preferences: UserPreferences
   }
 }
 
@@ -3131,6 +3194,15 @@ export interface MetadataQueueInstance {
   resume: (reason?: string) => void
   /** Update queue configuration */
   updateConfig: (config: Partial<MetadataQueueConfig>) => void
+  /** Apply user preferences to queue configuration */
+  applyUserPreferences: (preferences: {
+    syncMode: 'auto' | 'manual' | 'disabled'
+    dataLimits: {
+      maxEpisodesPerSync: number
+      maxDailyApiCalls: number
+    }
+    networkPreference: 'wifi-only' | 'any-connection' | 'manual-only'
+  }) => void
   /** Clear completed jobs */
   clearCompleted: () => number
   /** Get progress for bulk operations */
