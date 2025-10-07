@@ -68,10 +68,10 @@ const validateStreamingCache = (data: unknown): data is StreamingCache => {
 
   const cache = data as Record<string, unknown>
   return (
-    typeof cache['contentId'] === 'string' &&
-    Array.isArray(cache['availability']) &&
-    typeof cache['cachedAt'] === 'string' &&
-    typeof cache['expiresAt'] === 'string'
+    typeof cache.contentId === 'string' &&
+    Array.isArray(cache.availability) &&
+    typeof cache.cachedAt === 'string' &&
+    typeof cache.expiresAt === 'string'
   )
 }
 
@@ -83,10 +83,10 @@ const validateStreamingPreferences = (data: unknown): data is StreamingPreferenc
 
   const prefs = data as Record<string, unknown>
   return (
-    Array.isArray(prefs['preferredPlatforms']) &&
-    typeof prefs['hideUnavailable'] === 'boolean' &&
-    typeof prefs['location'] === 'object' &&
-    prefs['location'] !== null
+    Array.isArray(prefs.preferredPlatforms) &&
+    typeof prefs.hideUnavailable === 'boolean' &&
+    typeof prefs.location === 'object' &&
+    prefs.location !== null
   )
 }
 
@@ -184,7 +184,7 @@ export const createStreamingApi = (): StreamingApiInstance => {
       validate: (data: unknown): data is RateLimitConfig => {
         if (!data || typeof data !== 'object') return false
         const limit = data as Record<string, unknown>
-        return typeof limit['requestsPerMinute'] === 'number'
+        return typeof limit.requestsPerMinute === 'number'
       },
       fallback: DEFAULT_RATE_LIMIT,
     }),

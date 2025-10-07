@@ -46,11 +46,11 @@ export {storageEventEmitter}
 // Generic Storage Utilities
 
 export interface StorageAdapter<T> {
-  save(key: string, data: T): Promise<void> | void
-  load(key: string): Promise<T | null> | T | null
-  remove(key: string): Promise<void> | void
-  clear(): Promise<void> | void
-  exists(key: string): Promise<boolean> | boolean
+  save: (key: string, data: T) => Promise<void> | void
+  load: (key: string) => Promise<T | null> | T | null
+  remove: (key: string) => Promise<void> | void
+  clear: () => Promise<void> | void
+  exists: (key: string) => Promise<boolean> | boolean
 }
 
 export interface StorageValidationOptions<T> {

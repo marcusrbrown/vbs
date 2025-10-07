@@ -28,46 +28,48 @@ export interface MetadataStorageConfig extends MetadataCache {
  */
 export interface MetadataStorageAdapterInstance {
   /** Store episode metadata with validation and expiration tracking */
-  storeMetadata(episodeId: string, metadata: EpisodeMetadata): Promise<void>
+  storeMetadata: (episodeId: string, metadata: EpisodeMetadata) => Promise<void>
   /** Retrieve episode metadata with freshness validation */
-  getMetadata(episodeId: string): Promise<EpisodeMetadata | null>
+  getMetadata: (episodeId: string) => Promise<EpisodeMetadata | null>
   /** Check if metadata exists and is not expired */
-  hasValidMetadata(episodeId: string): Promise<boolean>
+  hasValidMetadata: (episodeId: string) => Promise<boolean>
   /** Update specific metadata fields without replacing entire record */
-  updateMetadataFields(episodeId: string, fields: Partial<EpisodeMetadata>): Promise<void>
+  updateMetadataFields: (episodeId: string, fields: Partial<EpisodeMetadata>) => Promise<void>
   /** Remove metadata for specific episode */
-  removeMetadata(episodeId: string): Promise<void>
+  removeMetadata: (episodeId: string) => Promise<void>
   /** Get all metadata for bulk operations */
-  getAllMetadata(): Promise<Record<string, EpisodeMetadata>>
+  getAllMetadata: () => Promise<Record<string, EpisodeMetadata>>
   /** Store multiple metadata records in batch */
-  storeBatchMetadata(metadataMap: Record<string, EpisodeMetadata>): Promise<void>
+  storeBatchMetadata: (metadataMap: Record<string, EpisodeMetadata>) => Promise<void>
   /** Clean up expired metadata entries */
-  cleanupExpiredMetadata(): Promise<{removedEntries: number; freedSpace: number}>
+  cleanupExpiredMetadata: () => Promise<{removedEntries: number; freedSpace: number}>
   /** Get storage usage statistics */
-  getStorageStats(): Promise<{totalEntries: number; usedSpace: number; maxQuota: number}>
+  getStorageStats: () => Promise<{totalEntries: number; usedSpace: number; maxQuota: number}>
   /** Validate storage quota and trigger cleanup if needed */
-  validateQuota(): Promise<boolean>
+  validateQuota: () => Promise<boolean>
   /** Clear all metadata storage */
-  clear(): Promise<void>
+  clear: () => Promise<void>
 
   // Generic EventEmitter methods for enhanced type safety
   /** Subscribe to an event with a type-safe listener */
-  on<TEventName extends keyof MetadataStorageEvents>(
+  on: <TEventName extends keyof MetadataStorageEvents>(
     eventName: TEventName,
     listener: (payload: MetadataStorageEvents[TEventName]) => void,
-  ): void
+  ) => void
   /** Unsubscribe from an event */
-  off<TEventName extends keyof MetadataStorageEvents>(
+  off: <TEventName extends keyof MetadataStorageEvents>(
     eventName: TEventName,
     listener: (payload: MetadataStorageEvents[TEventName]) => void,
-  ): void
+  ) => void
   /** Subscribe to an event once (auto-unsubscribe after first emission) */
-  once<TEventName extends keyof MetadataStorageEvents>(
+  once: <TEventName extends keyof MetadataStorageEvents>(
     eventName: TEventName,
     listener: (payload: MetadataStorageEvents[TEventName]) => void,
-  ): void
+  ) => void
   /** Remove all listeners for a specific event or all events */
-  removeAllListeners<TEventName extends keyof MetadataStorageEvents>(eventName?: TEventName): void
+  removeAllListeners: <TEventName extends keyof MetadataStorageEvents>(
+    eventName?: TEventName,
+  ) => void
 }
 
 /**

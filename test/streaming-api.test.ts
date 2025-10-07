@@ -13,7 +13,7 @@ const mockDataStore = new Map<string, any>()
 const createMockRequest = (result: any = null, error: any = null) => ({
   result,
   error,
-  addEventListener: vi.fn((event: string, callback: Function) => {
+  addEventListener: vi.fn((event: string, callback: (event: any) => void) => {
     setTimeout(() => {
       if (event === 'success' && !error) {
         callback({target: {result}})

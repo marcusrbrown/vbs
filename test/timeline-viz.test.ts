@@ -97,7 +97,7 @@ describe('Timeline Visualization', () => {
     globalThis.window = dom.window as any
     globalThis.HTMLElement = dom.window.HTMLElement
     globalThis.SVGElement = dom.window.SVGElement
-    globalThis.Image = dom.window['Image']
+    globalThis.Image = dom.window.Image
     globalThis.XMLSerializer = dom.window.XMLSerializer
     globalThis.URL = dom.window.URL
 

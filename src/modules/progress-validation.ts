@@ -123,16 +123,16 @@ export const isValidEpisodeProgress = (progress: unknown): progress is EpisodePr
   const ep = progress as Record<string, unknown>
 
   return (
-    typeof ep['episodeId'] === 'string' &&
-    typeof ep['seriesId'] === 'string' &&
-    typeof ep['season'] === 'number' &&
-    typeof ep['episode'] === 'number' &&
-    typeof ep['isWatched'] === 'boolean' &&
-    isValidEpisodeId(ep['episodeId']) &&
-    isValidSeriesId(ep['seriesId']) &&
-    ep['season'] > 0 &&
-    ep['episode'] > 0 &&
-    (ep['watchedAt'] === undefined || typeof ep['watchedAt'] === 'string')
+    typeof ep.episodeId === 'string' &&
+    typeof ep.seriesId === 'string' &&
+    typeof ep.season === 'number' &&
+    typeof ep.episode === 'number' &&
+    typeof ep.isWatched === 'boolean' &&
+    isValidEpisodeId(ep.episodeId) &&
+    isValidSeriesId(ep.seriesId) &&
+    ep.season > 0 &&
+    ep.episode > 0 &&
+    (ep.watchedAt === undefined || typeof ep.watchedAt === 'string')
   )
 }
 
@@ -147,24 +147,24 @@ export const isValidSeasonProgress = (progress: unknown): progress is SeasonProg
   const sp = progress as Record<string, unknown>
 
   return (
-    typeof sp['seriesId'] === 'string' &&
-    typeof sp['season'] === 'number' &&
-    typeof sp['totalEpisodes'] === 'number' &&
-    typeof sp['watchedEpisodes'] === 'number' &&
-    typeof sp['total'] === 'number' &&
-    typeof sp['completed'] === 'number' &&
-    typeof sp['percentage'] === 'number' &&
-    Array.isArray(sp['episodeProgress']) &&
-    isValidSeriesId(sp['seriesId']) &&
-    sp['season'] > 0 &&
-    sp['totalEpisodes'] >= 0 &&
-    sp['watchedEpisodes'] >= 0 &&
-    sp['watchedEpisodes'] <= sp['totalEpisodes'] &&
-    sp['total'] === sp['totalEpisodes'] &&
-    sp['completed'] === sp['watchedEpisodes'] &&
-    sp['percentage'] >= 0 &&
-    sp['percentage'] <= 100 &&
-    (sp['episodeProgress'] as unknown[]).every(ep => isValidEpisodeProgress(ep))
+    typeof sp.seriesId === 'string' &&
+    typeof sp.season === 'number' &&
+    typeof sp.totalEpisodes === 'number' &&
+    typeof sp.watchedEpisodes === 'number' &&
+    typeof sp.total === 'number' &&
+    typeof sp.completed === 'number' &&
+    typeof sp.percentage === 'number' &&
+    Array.isArray(sp.episodeProgress) &&
+    isValidSeriesId(sp.seriesId) &&
+    sp.season > 0 &&
+    sp.totalEpisodes >= 0 &&
+    sp.watchedEpisodes >= 0 &&
+    sp.watchedEpisodes <= sp.totalEpisodes &&
+    sp.total === sp.totalEpisodes &&
+    sp.completed === sp.watchedEpisodes &&
+    sp.percentage >= 0 &&
+    sp.percentage <= 100 &&
+    (sp.episodeProgress as unknown[]).every(ep => isValidEpisodeProgress(ep))
   )
 }
 
@@ -268,9 +268,9 @@ export const recoverProgressData = (
       const obj = data as Record<string, unknown>
 
       // Enhanced progress data format
-      if (Array.isArray(obj['episodeProgress'])) {
+      if (Array.isArray(obj.episodeProgress)) {
         const validation = validateEpisodeProgress(
-          obj['episodeProgress'].filter(item => typeof item === 'string'),
+          obj.episodeProgress.filter(item => typeof item === 'string'),
         )
         if (validation.recoveredData) {
           episodeProgress = validation.recoveredData
@@ -279,9 +279,9 @@ export const recoverProgressData = (
         warnings.push(...validation.warnings)
       }
 
-      if (Array.isArray(obj['seasonProgress'])) {
+      if (Array.isArray(obj.seasonProgress)) {
         const validation = validateSeasonProgress(
-          obj['seasonProgress'].filter(item => typeof item === 'string'),
+          obj.seasonProgress.filter(item => typeof item === 'string'),
         )
         if (validation.recoveredData) {
           seasonProgress = validation.recoveredData
@@ -291,9 +291,9 @@ export const recoverProgressData = (
       }
 
       // Legacy progress format
-      if (Array.isArray(obj['progress'])) {
+      if (Array.isArray(obj.progress)) {
         const validation = validateSeasonProgress(
-          obj['progress'].filter(item => typeof item === 'string'),
+          obj.progress.filter(item => typeof item === 'string'),
         )
         if (validation.recoveredData) {
           seasonProgress = validation.recoveredData

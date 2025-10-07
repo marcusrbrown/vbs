@@ -1092,11 +1092,11 @@ export interface StoragePipelineConfig<TInput, TOutput> {
  * Generic storage adapter interface compatible with both sync and async storage
  */
 export interface GenericStorageAdapter<T = unknown> {
-  save(key: string, data: T): Promise<void> | void
-  load(key: string): Promise<T | null> | T | null
-  remove(key: string): Promise<void> | void
-  clear(): Promise<void> | void
-  exists(key: string): Promise<boolean> | boolean
+  save: (key: string, data: T) => Promise<void> | void
+  load: (key: string) => Promise<T | null> | T | null
+  remove: (key: string) => Promise<void> | void
+  clear: () => Promise<void> | void
+  exists: (key: string) => Promise<boolean> | boolean
 }
 
 /**
@@ -2656,7 +2656,7 @@ export function withErrorBoundary<TInput, TOutput>(
 
         // Use fallback if provided
         if (config.fallback) {
-          return await Promise.resolve(config.fallback(input))
+          return Promise.resolve(config.fallback(input))
         }
 
         // Re-throw if no recovery options

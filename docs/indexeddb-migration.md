@@ -18,11 +18,11 @@ The refactored codebase uses a generic `StorageAdapter<T>` interface that allows
 
 ```typescript
 export interface StorageAdapter<T> {
-  save(key: string, data: T): Promise<void> | void
-  load(key: string): Promise<T | null> | T | null
-  remove(key: string): Promise<void> | void
-  clear(): Promise<void> | void
-  exists(key: string): Promise<boolean> | boolean
+  save: (key: string, data: T) => Promise<void> | void
+  load: (key: string) => Promise<T | null> | T | null
+  remove: (key: string) => Promise<void> | void
+  clear: () => Promise<void> | void
+  exists: (key: string) => Promise<boolean> | boolean
 }
 ```
 

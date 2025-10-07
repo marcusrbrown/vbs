@@ -151,7 +151,6 @@ describe('MigrationProgress', () => {
       addEventListener: vi.fn(),
     }
 
-    // eslint-disable-next-line @typescript-eslint/unbound-method
     const createElementMock = document.createElement as ReturnType<typeof vi.fn>
     createElementMock.mockReturnValue(mockModal as any)
 
@@ -159,9 +158,9 @@ describe('MigrationProgress', () => {
 
     expect(createElementMock).toHaveBeenCalledWith('div')
     expect(createElementMock).toHaveBeenCalledWith('style')
-    // eslint-disable-next-line @typescript-eslint/unbound-method
+
     const headAppend = document.head.append as ReturnType<typeof vi.fn>
-    // eslint-disable-next-line @typescript-eslint/unbound-method
+
     const bodyAppend = document.body.append as ReturnType<typeof vi.fn>
     expect(headAppend).toHaveBeenCalled()
     expect(bodyAppend).toHaveBeenCalled()
@@ -237,7 +236,6 @@ describe('MigrationProgress', () => {
       addEventListener: vi.fn(),
     }
 
-    // eslint-disable-next-line @typescript-eslint/unbound-method
     const mockCreateElement = vi.mocked(document.createElement)
     mockCreateElement.mockReturnValue(mockModal as any)
 

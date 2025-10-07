@@ -9,12 +9,12 @@ interface MigrationProgressEvents extends EventMap {
 }
 
 export interface MigrationProgressInstance {
-  show(): void
-  hide(): void
-  updateProgress(step: string, progress: number, message?: string): void
-  showError(message: string): void
-  showSuccess(message: string): void
-  cancel(): void
+  show: () => void
+  hide: () => void
+  updateProgress: (step: string, progress: number, message?: string) => void
+  showError: (message: string) => void
+  showSuccess: (message: string) => void
+  cancel: () => void
   on: EventEmitterInstance<MigrationProgressEvents>['on']
   off: EventEmitterInstance<MigrationProgressEvents>['off']
   once: EventEmitterInstance<MigrationProgressEvents>['once']

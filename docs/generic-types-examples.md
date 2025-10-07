@@ -437,8 +437,8 @@ type CounterParams = FactoryParameters<typeof createCounter>
 
 // Constrain factory function signature
 const createValidModule: FactoryFunction<{
-  init(): void
-  destroy(): void
+  init: () => void
+  destroy: () => void
 }> = () => ({
   init: () => console.log('initialized'),
   destroy: () => console.log('destroyed')
@@ -459,9 +459,9 @@ interface Module {
   name: string
   version: number
   enabled: boolean
-  init(): void
-  start(): void
-  stop(): void
+  init: () => void
+  start: () => void
+  stop: () => void
 }
 
 // Extract only function properties

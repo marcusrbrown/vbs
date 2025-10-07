@@ -10,49 +10,49 @@ export interface EventEmitterInstance<TEventMap extends EventMap> {
   /**
    * Subscribe to an event with a type-safe listener
    */
-  on<TEventName extends keyof TEventMap>(
+  on: <TEventName extends keyof TEventMap>(
     eventName: TEventName,
     listener: EventListener<TEventMap[TEventName]>,
-  ): void
+  ) => void
 
   /**
    * Unsubscribe from an event
    */
-  off<TEventName extends keyof TEventMap>(
+  off: <TEventName extends keyof TEventMap>(
     eventName: TEventName,
     listener: EventListener<TEventMap[TEventName]>,
-  ): void
+  ) => void
 
   /**
    * Emit an event with type-safe payload
    */
-  emit<TEventName extends keyof TEventMap>(
+  emit: <TEventName extends keyof TEventMap>(
     eventName: TEventName,
     payload: TEventMap[TEventName],
-  ): void
+  ) => void
 
   /**
    * Subscribe to an event once (auto-unsubscribe after first emission)
    */
-  once<TEventName extends keyof TEventMap>(
+  once: <TEventName extends keyof TEventMap>(
     eventName: TEventName,
     listener: EventListener<TEventMap[TEventName]>,
-  ): void
+  ) => void
 
   /**
    * Remove all listeners for a specific event or all events
    */
-  removeAllListeners<TEventName extends keyof TEventMap>(eventName?: TEventName): void
+  removeAllListeners: <TEventName extends keyof TEventMap>(eventName?: TEventName) => void
 
   /**
    * Get the number of listeners for a specific event
    */
-  listenerCount<TEventName extends keyof TEventMap>(eventName: TEventName): number
+  listenerCount: <TEventName extends keyof TEventMap>(eventName: TEventName) => number
 
   /**
    * Get all event names that have listeners
    */
-  eventNames(): (keyof TEventMap)[]
+  eventNames: () => (keyof TEventMap)[]
 }
 
 /**

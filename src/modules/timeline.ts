@@ -27,6 +27,49 @@ export const createTimelineRenderer = (
   const LOAD_MORE_BATCH_SIZE = 10
 
   /**
+   * Extract a data attribute value from an element or its closest ancestor.
+   * Handles the common pattern of checking both target.dataset and closest parent.
+   */
+  const getDataAttribute = (target: HTMLElement, attributeName: string): string | undefined => {
+    const datasetKey = attributeName
+      .replaceAll(/^data-/g, '')
+      .replaceAll(/-([a-z])/g, (_, letter) => letter.toUpperCase())
+    const selector = `[${attributeName}]`
+    const closestElement = target.closest(selector) as HTMLElement | null
+    return target.dataset[datasetKey] || closestElement?.dataset[datasetKey]
+  }
+
+  /**
+   * Add click and keyboard event listeners to a button with consistent behavior.
+   * Reduces duplication in event handler setup for interactive elements.
+   */
+  const addButtonListeners = (
+    button: Element,
+    handler: (id: string) => void,
+    attributeName: string,
+  ): void => {
+    button.addEventListener('click', e => {
+      const target = e.target as HTMLElement
+      const id = getDataAttribute(target, attributeName)
+      if (id) {
+        handler(id)
+      }
+    })
+
+    button.addEventListener('keydown', (e: Event) => {
+      const keyEvent = e as KeyboardEvent
+      if (keyEvent.key === 'Enter' || keyEvent.key === ' ') {
+        e.preventDefault()
+        const target = e.target as HTMLElement
+        const id = getDataAttribute(target, attributeName)
+        if (id) {
+          handler(id)
+        }
+      }
+    })
+  }
+
+  /**
    * Handle keyboard navigation within episode lists.
    * Supports arrow keys, space, enter, and bulk operations.
    */
@@ -705,7 +748,7 @@ export const createTimelineRenderer = (
   const createEraElement = (era: StarTrekEra): HTMLDivElement => {
     const eraDiv = document.createElement('div')
     eraDiv.className = 'era'
-    eraDiv.dataset['eraId'] = era.id
+    eraDiv.dataset.eraId = era.id
 
     const eraProgress = calculateEraProgress(era)
     const isExpanded = expandedEras.has(era.id)
@@ -754,10 +797,10 @@ export const createTimelineRenderer = (
     checkboxes.forEach(checkbox => {
       checkbox.addEventListener('change', e => {
         const target = e.target as HTMLInputElement
-        if (target?.dataset['itemId']) {
-          progressTracker.toggleItem(target.dataset['itemId'])
-        } else if (target?.dataset['episodeId']) {
-          progressTracker.toggleItem(target.dataset['episodeId'])
+        if (target?.dataset.itemId) {
+          progressTracker.toggleItem(target.dataset.itemId)
+        } else if (target?.dataset.episodeId) {
+          progressTracker.toggleItem(target.dataset.episodeId)
         }
       })
     })
@@ -765,113 +808,25 @@ export const createTimelineRenderer = (
     // Add event listeners for episode list toggle buttons
     const episodeToggleButtons = eraDiv.querySelectorAll('.episode-toggle-btn')
     episodeToggleButtons.forEach(button => {
-      button.addEventListener('click', e => {
-        const target = e.target as HTMLElement
-        const seriesId =
-          target.dataset['seriesId'] ||
-          target.closest('[data-series-id]')?.getAttribute('data-series-id')
-        if (seriesId) {
-          toggleEpisodeList(seriesId)
-        }
-      })
-
-      // Add keyboard support for episode toggle
-      button.addEventListener('keydown', (e: Event) => {
-        const keyEvent = e as KeyboardEvent
-        if (keyEvent.key === 'Enter' || keyEvent.key === ' ') {
-          e.preventDefault()
-          const target = e.target as HTMLElement
-          const seriesId =
-            target.dataset['seriesId'] ||
-            target.closest('[data-series-id]')?.getAttribute('data-series-id')
-          if (seriesId) {
-            toggleEpisodeList(seriesId)
-          }
-        }
-      })
+      addButtonListeners(button, toggleEpisodeList, 'data-series-id')
     })
 
     // Add event listeners for episode details buttons
     const episodeDetailsButtons = eraDiv.querySelectorAll('.episode-details-btn')
     episodeDetailsButtons.forEach(button => {
-      button.addEventListener('click', e => {
-        const target = e.target as HTMLElement
-        const episodeId =
-          target.dataset['episodeId'] ||
-          target.closest('[data-episode-id]')?.getAttribute('data-episode-id')
-        if (episodeId) {
-          toggleEpisodeDetails(episodeId)
-        }
-      })
-
-      // Add keyboard support for episode details
-      button.addEventListener('keydown', (e: Event) => {
-        const keyEvent = e as KeyboardEvent
-        if (keyEvent.key === 'Enter' || keyEvent.key === ' ') {
-          e.preventDefault()
-          const target = e.target as HTMLElement
-          const episodeId =
-            target.dataset['episodeId'] ||
-            target.closest('[data-episode-id]')?.getAttribute('data-episode-id')
-          if (episodeId) {
-            toggleEpisodeDetails(episodeId)
-          }
-        }
-      })
+      addButtonListeners(button, toggleEpisodeDetails, 'data-episode-id')
     })
 
     // Add event listeners for spoiler toggle buttons
     const spoilerToggleButtons = eraDiv.querySelectorAll('.spoiler-toggle-btn')
     spoilerToggleButtons.forEach(button => {
-      button.addEventListener('click', e => {
-        const target = e.target as HTMLElement
-        const episodeId = target.dataset['episodeId']
-        if (episodeId) {
-          toggleSpoilerContent(episodeId)
-        }
-      })
-
-      // Add keyboard support for spoiler toggle
-      button.addEventListener('keydown', (e: Event) => {
-        const keyEvent = e as KeyboardEvent
-        if (keyEvent.key === 'Enter' || keyEvent.key === ' ') {
-          e.preventDefault()
-          const target = e.target as HTMLElement
-          const episodeId = target.dataset['episodeId']
-          if (episodeId) {
-            toggleSpoilerContent(episodeId)
-          }
-        }
-      })
+      addButtonListeners(button, toggleSpoilerContent, 'data-episode-id')
     })
 
     // Add event listeners for load more episodes buttons
     const loadMoreButtons = eraDiv.querySelectorAll('.load-more-episodes-btn')
     loadMoreButtons.forEach(button => {
-      button.addEventListener('click', e => {
-        const target = e.target as HTMLElement
-        const seriesId =
-          target.dataset['seriesId'] ||
-          target.closest('[data-series-id]')?.getAttribute('data-series-id')
-        if (seriesId) {
-          loadMoreEpisodes(seriesId)
-        }
-      })
-
-      // Add keyboard support for load more episodes
-      button.addEventListener('keydown', (e: Event) => {
-        const keyEvent = e as KeyboardEvent
-        if (keyEvent.key === 'Enter' || keyEvent.key === ' ') {
-          e.preventDefault()
-          const target = e.target as HTMLElement
-          const seriesId =
-            target.dataset['seriesId'] ||
-            target.closest('[data-series-id]')?.getAttribute('data-series-id')
-          if (seriesId) {
-            loadMoreEpisodes(seriesId)
-          }
-        }
-      })
+      addButtonListeners(button, loadMoreEpisodes, 'data-series-id')
     })
 
     // Setup keyboard navigation for episode lists
@@ -922,7 +877,7 @@ export const createTimelineRenderer = (
       tap((eras: Element[]) => {
         eras.forEach(era => {
           const eraElement = era as HTMLElement
-          const eraId = eraElement.dataset['eraId']
+          const eraId = eraElement.dataset.eraId
           if (eraId) {
             expandEra(eraId)
           }
@@ -940,7 +895,7 @@ export const createTimelineRenderer = (
       tap((eras: Element[]) => {
         eras.forEach(era => {
           const eraElement = era as HTMLElement
-          const eraId = eraElement.dataset['eraId']
+          const eraId = eraElement.dataset.eraId
           if (eraId) {
             collapseEra(eraId)
           }
@@ -994,7 +949,7 @@ export const createTimelineRenderer = (
     const items = container.querySelectorAll('.viewing-item')
     items.forEach(item => {
       const itemElement = item as HTMLElement
-      const itemId = itemElement.dataset['itemId']
+      const itemId = itemElement.dataset.itemId
       const checkbox = item.querySelector('input[type="checkbox"]') as HTMLInputElement
 
       if (itemId && checkbox) {
@@ -1008,7 +963,7 @@ export const createTimelineRenderer = (
     const episodes = container.querySelectorAll('.episode-item')
     episodes.forEach(episode => {
       const episodeElement = episode as HTMLElement
-      const episodeId = episodeElement.dataset['episodeId']
+      const episodeId = episodeElement.dataset.episodeId
       const checkbox = episode.querySelector('input[type="checkbox"]') as HTMLInputElement
 
       if (episodeId && checkbox) {
@@ -1033,7 +988,7 @@ export const createTimelineRenderer = (
 
     // Extract content IDs for batch loading
     const contentIds = Array.from(streamingElements)
-      .map(element => (element as HTMLElement).dataset['streamingContentId'])
+      .map(element => (element as HTMLElement).dataset.streamingContentId)
       .filter((id): id is string => id !== null && id !== undefined)
 
     try {

@@ -186,8 +186,8 @@ describe('ThemeSystem', () => {
       themeSystem.initialize()
       themeSystem.setTheme(THEMES.LIGHT)
 
-      expect(mockDocumentElement.dataset['theme']).toBe(THEMES.LIGHT)
-      expect(mockDocumentElement.dataset['vbsTheme']).toBe(THEMES.LIGHT)
+      expect(mockDocumentElement.dataset.theme).toBe(THEMES.LIGHT)
+      expect(mockDocumentElement.dataset.vbsTheme).toBe(THEMES.LIGHT)
     })
 
     it('should emit theme-applied event with properties', () => {

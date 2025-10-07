@@ -253,11 +253,11 @@ VBS includes a comprehensive generic storage system for type-safe data persisten
 ```typescript
 // Generic storage adapter pattern
 interface StorageAdapter<T> {
-  save(key: string, data: T): Promise<void> | void
-  load(key: string): Promise<T | null> | T | null
-  remove(key: string): Promise<void> | void
-  clear(): Promise<void> | void
-  exists(key: string): Promise<boolean> | boolean
+  save: (key: string, data: T) => Promise<void> | void
+  load: (key: string) => Promise<T | null> | T | null
+  remove: (key: string) => Promise<void> | void
+  clear: () => Promise<void> | void
+  exists: (key: string) => Promise<boolean> | boolean
 }
 
 // Type-safe LocalStorage implementation

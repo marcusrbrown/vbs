@@ -2,33 +2,32 @@
   "extends": "@bfra.me/tsconfig",
   "compilerOptions": {
     "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "moduleDetection": "force",
     "useDefineForClassFields": true,
     "module": "ESNext",
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "skipLibCheck": true,
 
     /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
-    "verbatimModuleSyntax": true,
-    "moduleDetection": "force",
-    "noEmit": true,
 
     /* Linting */
     "strict": true,
+    "strictBindCallApply": true,
+    "strictFunctionTypes": true,
+    "exactOptionalPropertyTypes": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
+    "noEmit": true,
+    "verbatimModuleSyntax": true,
     "erasableSyntaxOnly": true,
-    "noFallthroughCasesInSwitch": true,
+    "skipLibCheck": true,
     "noUncheckedSideEffectImports": true,
 
     /* Strict Generic Type Checking */
-    "noStrictGenericChecks": false,
-    "strictFunctionTypes": true,
-    "strictBindCallApply": true,
-    "exactOptionalPropertyTypes": true,
-    "noImplicitReturns": true,
-    "noPropertyAccessFromIndexSignature": true
+    "noStrictGenericChecks": false
   },
   "include": ["**/*"]
 }

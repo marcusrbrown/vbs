@@ -11,10 +11,9 @@ export default defineConfig({
     'viewing-guide.md',
     'public/manifest.json', // PWA manifest, not browser extension
   ],
-  typescript: {
-    tsconfigPath: './tsconfig.json',
-  },
+  typescript: true,
   rules: {
     'no-use-before-define': 'off',
+    '@typescript-eslint/no-use-before-define': 'off',
   },
 })

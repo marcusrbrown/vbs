@@ -45,24 +45,24 @@ export const isValidEpisode = (value: unknown): value is Episode => {
 
   // Validate required fields
   const hasRequiredFields =
-    typeof episode['id'] === 'string' &&
-    typeof episode['title'] === 'string' &&
-    typeof episode['season'] === 'number' &&
-    typeof episode['episode'] === 'number' &&
-    typeof episode['airDate'] === 'string' &&
-    typeof episode['stardate'] === 'string' &&
-    typeof episode['synopsis'] === 'string' &&
-    Array.isArray(episode['plotPoints']) &&
-    Array.isArray(episode['guestStars']) &&
-    Array.isArray(episode['connections'])
+    typeof episode.id === 'string' &&
+    typeof episode.title === 'string' &&
+    typeof episode.season === 'number' &&
+    typeof episode.episode === 'number' &&
+    typeof episode.airDate === 'string' &&
+    typeof episode.stardate === 'string' &&
+    typeof episode.synopsis === 'string' &&
+    Array.isArray(episode.plotPoints) &&
+    Array.isArray(episode.guestStars) &&
+    Array.isArray(episode.connections)
 
   if (!hasRequiredFields) {
     return false
   }
 
   // Validate array contents
-  const plotPoints = episode['plotPoints'] as unknown[]
-  const guestStars = episode['guestStars'] as unknown[]
+  const plotPoints = episode.plotPoints as unknown[]
+  const guestStars = episode.guestStars as unknown[]
 
   const hasValidArrays =
     plotPoints.every((point: unknown) => typeof point === 'string') &&
@@ -73,41 +73,41 @@ export const isValidEpisode = (value: unknown): value is Episode => {
   }
 
   // Validate optional extended metadata fields
-  if (episode['productionCode'] !== undefined && typeof episode['productionCode'] !== 'string') {
+  if (episode.productionCode !== undefined && typeof episode.productionCode !== 'string') {
     return false
   }
 
-  if (episode['director'] !== undefined && !Array.isArray(episode['director'])) {
+  if (episode.director !== undefined && !Array.isArray(episode.director)) {
     return false
   }
 
-  if (episode['director']) {
-    const directors = episode['director'] as unknown[]
+  if (episode.director) {
+    const directors = episode.director as unknown[]
     if (!directors.every((dir: unknown) => typeof dir === 'string')) {
       return false
     }
   }
 
-  if (episode['writer'] !== undefined && !Array.isArray(episode['writer'])) {
+  if (episode.writer !== undefined && !Array.isArray(episode.writer)) {
     return false
   }
 
-  if (episode['writer']) {
-    const writers = episode['writer'] as unknown[]
+  if (episode.writer) {
+    const writers = episode.writer as unknown[]
     if (!writers.every((writer: unknown) => typeof writer === 'string')) {
       return false
     }
   }
 
-  if (episode['memoryAlphaUrl'] !== undefined && typeof episode['memoryAlphaUrl'] !== 'string') {
+  if (episode.memoryAlphaUrl !== undefined && typeof episode.memoryAlphaUrl !== 'string') {
     return false
   }
 
-  if (episode['tmdbId'] !== undefined && typeof episode['tmdbId'] !== 'number') {
+  if (episode.tmdbId !== undefined && typeof episode.tmdbId !== 'number') {
     return false
   }
 
-  if (episode['imdbId'] !== undefined && typeof episode['imdbId'] !== 'string') {
+  if (episode.imdbId !== undefined && typeof episode.imdbId !== 'string') {
     return false
   }
 
@@ -125,32 +125,32 @@ export const isValidEpisodeMetadata = (value: unknown): value is EpisodeMetadata
   const metadata = value as Record<string, unknown>
 
   const hasRequiredFields =
-    typeof metadata['episodeId'] === 'string' &&
-    isValidMetadataSourceType(metadata['dataSource']) &&
-    typeof metadata['lastUpdated'] === 'string' &&
-    typeof metadata['isValidated'] === 'boolean' &&
-    typeof metadata['confidenceScore'] === 'number' &&
-    typeof metadata['version'] === 'string' &&
-    typeof metadata['enrichmentStatus'] === 'string'
+    typeof metadata.episodeId === 'string' &&
+    isValidMetadataSourceType(metadata.dataSource) &&
+    typeof metadata.lastUpdated === 'string' &&
+    typeof metadata.isValidated === 'boolean' &&
+    typeof metadata.confidenceScore === 'number' &&
+    typeof metadata.version === 'string' &&
+    typeof metadata.enrichmentStatus === 'string'
 
   if (!hasRequiredFields) {
     return false
   }
 
   // Validate confidence score range
-  const confidenceScore = metadata['confidenceScore'] as number
+  const confidenceScore = metadata.confidenceScore as number
   if (confidenceScore < 0 || confidenceScore > 1) {
     return false
   }
 
   // Validate enrichment status
   const validStatuses = ['pending', 'partial', 'complete', 'failed']
-  if (!validStatuses.includes(metadata['enrichmentStatus'] as string)) {
+  if (!validStatuses.includes(metadata.enrichmentStatus as string)) {
     return false
   }
 
   // Validate ISO timestamp format for lastUpdated
-  if (!isValidISOTimestamp(metadata['lastUpdated'] as string)) {
+  if (!isValidISOTimestamp(metadata.lastUpdated as string)) {
     return false
   }
 
@@ -168,49 +168,46 @@ export const isValidMetadataSource = (value: unknown): value is MetadataSource =
   const source = value as Record<string, unknown>
 
   const hasRequiredFields =
-    typeof source['name'] === 'string' &&
-    isValidMetadataSourceType(source['type']) &&
-    typeof source['baseUrl'] === 'string' &&
-    typeof source['confidenceLevel'] === 'number' &&
-    typeof source['lastAccessed'] === 'string' &&
-    typeof source['isAvailable'] === 'boolean' &&
-    source['rateLimit'] &&
-    typeof source['rateLimit'] === 'object' &&
-    Array.isArray(source['fields']) &&
-    source['reliability'] &&
-    typeof source['reliability'] === 'object'
+    typeof source.name === 'string' &&
+    isValidMetadataSourceType(source.type) &&
+    typeof source.baseUrl === 'string' &&
+    typeof source.confidenceLevel === 'number' &&
+    typeof source.lastAccessed === 'string' &&
+    typeof source.isAvailable === 'boolean' &&
+    source.rateLimit &&
+    typeof source.rateLimit === 'object' &&
+    Array.isArray(source.fields) &&
+    source.reliability &&
+    typeof source.reliability === 'object'
 
   if (!hasRequiredFields) {
     return false
   }
 
   // Validate confidence level range
-  const confidenceLevel = source['confidenceLevel'] as number
+  const confidenceLevel = source.confidenceLevel as number
   if (confidenceLevel < 0 || confidenceLevel > 1) {
     return false
   }
 
   // Validate rate limit configuration
-  const rateLimit = source['rateLimit'] as Record<string, unknown>
-  if (
-    typeof rateLimit['requestsPerMinute'] !== 'number' ||
-    typeof rateLimit['burstLimit'] !== 'number'
-  ) {
+  const rateLimit = source.rateLimit as Record<string, unknown>
+  if (typeof rateLimit.requestsPerMinute !== 'number' || typeof rateLimit.burstLimit !== 'number') {
     return false
   }
 
   // Validate reliability metrics
-  const reliability = source['reliability'] as Record<string, unknown>
+  const reliability = source.reliability as Record<string, unknown>
   if (
-    typeof reliability['uptime'] !== 'number' ||
-    typeof reliability['accuracy'] !== 'number' ||
-    typeof reliability['latency'] !== 'number'
+    typeof reliability.uptime !== 'number' ||
+    typeof reliability.accuracy !== 'number' ||
+    typeof reliability.latency !== 'number'
   ) {
     return false
   }
 
   // Validate fields array contains only strings
-  const fields = source['fields'] as unknown[]
+  const fields = source.fields as unknown[]
   if (!fields.every((field: unknown) => typeof field === 'string')) {
     return false
   }
