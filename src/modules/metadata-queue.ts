@@ -50,6 +50,13 @@ export const createMetadataQueue = (
   let isPaused = false
   let processingTimer: number | null = null
 
+  // Background sync capability state
+  let syncCapability: import('./types.js').BackgroundSyncCapability = {
+    isAvailable: false,
+    fallbackStrategy: 'immediate',
+    reason: 'not-supported',
+  }
+
   /**
    * Generate unique job ID with timestamp and random component
    */
@@ -373,6 +380,39 @@ export const createMetadataQueue = (
 
     getProgress: (operationId?: string): MetadataProgress[] => {
       return calculateProgress(operationId)
+    },
+
+    getSyncCapability: (): import('./types.js').BackgroundSyncCapability => {
+      return syncCapability
+    },
+
+    updateSyncCapability: (capability: import('./types.js').BackgroundSyncCapability): void => {
+      syncCapability = capability
+      eventEmitter.emit('sync-capability-change', {capability})
+
+      // Adjust queue behavior based on capability
+      if (!capability.isAvailable) {
+        switch (capability.fallbackStrategy) {
+          case 'polling':
+            // Enable polling mode processing
+            if (!isProcessing && !isPaused) {
+              processQueue()
+            }
+            break
+          case 'manual':
+            // Pause automatic processing
+            isPaused = true
+            break
+          case 'disabled':
+            // Stop all processing
+            isPaused = true
+            if (processingTimer) {
+              clearTimeout(processingTimer)
+              processingTimer = null
+            }
+            break
+        }
+      }
     },
 
     // EventEmitter methods
