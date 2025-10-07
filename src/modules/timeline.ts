@@ -27,6 +27,49 @@ export const createTimelineRenderer = (
   const LOAD_MORE_BATCH_SIZE = 10
 
   /**
+   * Extract a data attribute value from an element or its closest ancestor.
+   * Handles the common pattern of checking both target.dataset and closest parent.
+   */
+  const getDataAttribute = (target: HTMLElement, attributeName: string): string | undefined => {
+    const datasetKey = attributeName
+      .replaceAll(/^data-/g, '')
+      .replaceAll(/-([a-z])/g, (_, letter) => letter.toUpperCase())
+    const selector = `[${attributeName}]`
+    const closestElement = target.closest(selector) as HTMLElement | null
+    return target.dataset[datasetKey] || closestElement?.dataset[datasetKey]
+  }
+
+  /**
+   * Add click and keyboard event listeners to a button with consistent behavior.
+   * Reduces duplication in event handler setup for interactive elements.
+   */
+  const addButtonListeners = (
+    button: Element,
+    handler: (id: string) => void,
+    attributeName: string,
+  ): void => {
+    button.addEventListener('click', e => {
+      const target = e.target as HTMLElement
+      const id = getDataAttribute(target, attributeName)
+      if (id) {
+        handler(id)
+      }
+    })
+
+    button.addEventListener('keydown', (e: Event) => {
+      const keyEvent = e as KeyboardEvent
+      if (keyEvent.key === 'Enter' || keyEvent.key === ' ') {
+        e.preventDefault()
+        const target = e.target as HTMLElement
+        const id = getDataAttribute(target, attributeName)
+        if (id) {
+          handler(id)
+        }
+      }
+    })
+  }
+
+  /**
    * Handle keyboard navigation within episode lists.
    * Supports arrow keys, space, enter, and bulk operations.
    */
@@ -765,107 +808,25 @@ export const createTimelineRenderer = (
     // Add event listeners for episode list toggle buttons
     const episodeToggleButtons = eraDiv.querySelectorAll('.episode-toggle-btn')
     episodeToggleButtons.forEach(button => {
-      button.addEventListener('click', e => {
-        const target = e.target as HTMLElement
-        const closestElement = target.closest('[data-series-id]') as HTMLElement | null
-        const seriesId = target.dataset.seriesId || closestElement?.dataset.seriesId
-        if (seriesId) {
-          toggleEpisodeList(seriesId)
-        }
-      })
-
-      // Add keyboard support for episode toggle
-      button.addEventListener('keydown', (e: Event) => {
-        const keyEvent = e as KeyboardEvent
-        if (keyEvent.key === 'Enter' || keyEvent.key === ' ') {
-          e.preventDefault()
-          const target = e.target as HTMLElement
-          const closestElement = target.closest('[data-series-id]') as HTMLElement | null
-          const seriesId = target.dataset.seriesId || closestElement?.dataset.seriesId
-          if (seriesId) {
-            toggleEpisodeList(seriesId)
-          }
-        }
-      })
+      addButtonListeners(button, toggleEpisodeList, 'data-series-id')
     })
 
     // Add event listeners for episode details buttons
     const episodeDetailsButtons = eraDiv.querySelectorAll('.episode-details-btn')
     episodeDetailsButtons.forEach(button => {
-      button.addEventListener('click', e => {
-        const target = e.target as HTMLElement
-        const closestElement = target.closest('[data-episode-id]') as HTMLElement | null
-        const episodeId = target.dataset.episodeId || closestElement?.dataset.episodeId
-        if (episodeId) {
-          toggleEpisodeDetails(episodeId)
-        }
-      })
-
-      // Add keyboard support for episode details
-      button.addEventListener('keydown', (e: Event) => {
-        const keyEvent = e as KeyboardEvent
-        if (keyEvent.key === 'Enter' || keyEvent.key === ' ') {
-          e.preventDefault()
-          const target = e.target as HTMLElement
-          const closestElement = target.closest('[data-episode-id]') as HTMLElement | null
-          const episodeId = target.dataset.episodeId || closestElement?.dataset.episodeId
-          if (episodeId) {
-            toggleEpisodeDetails(episodeId)
-          }
-        }
-      })
+      addButtonListeners(button, toggleEpisodeDetails, 'data-episode-id')
     })
 
     // Add event listeners for spoiler toggle buttons
     const spoilerToggleButtons = eraDiv.querySelectorAll('.spoiler-toggle-btn')
     spoilerToggleButtons.forEach(button => {
-      button.addEventListener('click', e => {
-        const target = e.target as HTMLElement
-        const episodeId = target.dataset.episodeId
-        if (episodeId) {
-          toggleSpoilerContent(episodeId)
-        }
-      })
-
-      // Add keyboard support for spoiler toggle
-      button.addEventListener('keydown', (e: Event) => {
-        const keyEvent = e as KeyboardEvent
-        if (keyEvent.key === 'Enter' || keyEvent.key === ' ') {
-          e.preventDefault()
-          const target = e.target as HTMLElement
-          const episodeId = target.dataset.episodeId
-          if (episodeId) {
-            toggleSpoilerContent(episodeId)
-          }
-        }
-      })
+      addButtonListeners(button, toggleSpoilerContent, 'data-episode-id')
     })
 
     // Add event listeners for load more episodes buttons
     const loadMoreButtons = eraDiv.querySelectorAll('.load-more-episodes-btn')
     loadMoreButtons.forEach(button => {
-      button.addEventListener('click', e => {
-        const target = e.target as HTMLElement
-        const closestElement = target.closest('[data-series-id]') as HTMLElement | null
-        const seriesId = target.dataset.seriesId || closestElement?.dataset.seriesId
-        if (seriesId) {
-          loadMoreEpisodes(seriesId)
-        }
-      })
-
-      // Add keyboard support for load more episodes
-      button.addEventListener('keydown', (e: Event) => {
-        const keyEvent = e as KeyboardEvent
-        if (keyEvent.key === 'Enter' || keyEvent.key === ' ') {
-          e.preventDefault()
-          const target = e.target as HTMLElement
-          const closestElement = target.closest('[data-series-id]') as HTMLElement | null
-          const seriesId = target.dataset.seriesId || closestElement?.dataset.seriesId
-          if (seriesId) {
-            loadMoreEpisodes(seriesId)
-          }
-        }
-      })
+      addButtonListeners(button, loadMoreEpisodes, 'data-series-id')
     })
 
     // Setup keyboard navigation for episode lists
