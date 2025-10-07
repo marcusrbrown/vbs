@@ -3150,6 +3150,29 @@ export interface DeviceCondition {
 }
 
 /**
+ * Background Sync API capability detection result.
+ * Tracks whether native background sync is available and provides fallback strategy.
+ */
+export interface BackgroundSyncCapability {
+  isAvailable: boolean
+  reason?: 'not-supported' | 'permission-denied' | 'service-worker-unavailable' | 'disabled'
+  fallbackStrategy: SyncFallbackStrategy
+  browserInfo?: {
+    userAgent: string
+    platform: string
+  }
+}
+
+/**
+ * Strategy for handling metadata sync when Background Sync API is unavailable.
+ */
+export type SyncFallbackStrategy =
+  | 'immediate' // Execute sync operations immediately when requested
+  | 'polling' // Use periodic polling to check and process pending operations
+  | 'manual' // Require explicit user action to trigger sync
+  | 'disabled' // No automatic sync, metadata enrichment disabled
+
+/**
  * Event map for metadata queue operations.
  */
 export interface MetadataQueueEvents extends EventMap {
@@ -3162,6 +3185,7 @@ export interface MetadataQueueEvents extends EventMap {
   'queue-resumed': {reason: string}
   'progress-update': {progress: MetadataProgress}
   'scheduling-changed': {condition: NetworkCondition | DeviceCondition}
+  'sync-capability-change': {capability: BackgroundSyncCapability}
 }
 
 /**
@@ -3207,6 +3231,10 @@ export interface MetadataQueueInstance {
   clearCompleted: () => number
   /** Get progress for bulk operations */
   getProgress: (operationId?: string) => MetadataProgress[]
+  /** Get current background sync capability status */
+  getSyncCapability: () => BackgroundSyncCapability
+  /** Update sync capability (called when detection changes) */
+  updateSyncCapability: (capability: BackgroundSyncCapability) => void
 
   // EventEmitter methods
   on: <K extends keyof MetadataQueueEvents>(

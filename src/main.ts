@@ -25,7 +25,7 @@ import {createTimelineRenderer} from './modules/timeline.js'
 import './style.css'
 
 /**
- * Register Service Worker for PWA capabilities.
+ * Register Service Worker for PWA capabilities and detect background sync support.
  */
 const registerServiceWorker = async (): Promise<void> => {
   if ('serviceWorker' in navigator) {
@@ -55,11 +55,92 @@ const registerServiceWorker = async (): Promise<void> => {
           })
         }
       })
+
+      // Detect background sync capability (TASK-030)
+      await detectBackgroundSyncSupport(registration)
     } catch (error) {
       console.error('[VBS] Service Worker registration failed:', error)
     }
   } else {
     console.warn('[VBS] Service Workers not supported in this browser')
+  }
+}
+
+/**
+ * Detect Background Sync API support and notify application about capability.
+ * Provides graceful degradation when Background Sync is unavailable (TASK-030).
+ */
+const detectBackgroundSyncSupport = async (
+  registration: ServiceWorkerRegistration,
+): Promise<void> => {
+  try {
+    // Request sync capability from Service Worker
+    const messageChannel = new MessageChannel()
+
+    const capabilityPromise = new Promise<any>(resolve => {
+      messageChannel.port1.addEventListener('message', event => {
+        if (event.data.type === 'SYNC_CAPABILITY') {
+          resolve(event.data.data)
+        }
+      })
+      messageChannel.port1.start()
+    })
+
+    // Send capability request to Service Worker
+    registration.active?.postMessage(
+      {
+        type: 'GET_SYNC_CAPABILITY',
+      },
+      [messageChannel.port2],
+    )
+
+    // Wait for response with timeout
+    const capability = await Promise.race([
+      capabilityPromise,
+      new Promise(resolve =>
+        setTimeout(
+          () =>
+            resolve({
+              isAvailable: false,
+              reason: 'timeout',
+              fallbackStrategy: 'manual',
+            }),
+          5000,
+        ),
+      ),
+    ])
+
+    // Log capability status for debugging
+    if (capability.isAvailable) {
+      console.warn('[VBS] Background Sync API available - automatic metadata enrichment enabled')
+    } else {
+      const fallbackMessages = {
+        immediate: 'using immediate execution fallback',
+        polling: 'using polling-based fallback',
+        manual: 'manual sync only',
+        disabled: 'metadata sync disabled',
+      }
+      const fallbackMsg =
+        fallbackMessages[capability.fallbackStrategy as keyof typeof fallbackMessages] ||
+        'fallback mode'
+      console.warn(
+        `[VBS] Background Sync API unavailable (${capability.reason || 'unknown'}) - ${fallbackMsg}`,
+      )
+    }
+
+    // Listen for sync capability updates from Service Worker
+    navigator.serviceWorker.addEventListener('message', event => {
+      if (event.data.type === 'SYNC_CAPABILITY_UPDATE') {
+        const updatedCapability = event.data.capability
+        if (!updatedCapability.isAvailable) {
+          console.warn(
+            `[VBS] Background Sync capability changed: ${updatedCapability.fallbackStrategy} mode`,
+          )
+        }
+      }
+    })
+  } catch (error) {
+    console.error('[VBS] Failed to detect background sync support:', error)
   }
 }
 

@@ -525,16 +525,29 @@ globalThis.addEventListener('message', event => {
       })
     })
   } else if (event.data && event.data.type === 'START_METADATA_SYNC') {
-    // Start metadata sync operation
+    // Start metadata sync operation with fallback handling
     const {operationId, episodeIds, sources} = event.data.payload || {}
-    startMetadataSync(operationId, episodeIds, sources).then(() => {
+    startMetadataSyncWithFallback(operationId, episodeIds, sources).then(result => {
       if (event.ports[0]) {
         event.ports[0].postMessage({
           type: 'METADATA_SYNC_STARTED',
-          data: {operationId, success: true},
+          data: {
+            operationId: result.operationId,
+            capability: result.capability,
+            success: true,
+          },
         })
       }
     })
+  } else if (event.data && event.data.type === 'GET_SYNC_CAPABILITY') {
+    // Get background sync capability status
+    const capability = detectBackgroundSyncCapability()
+    if (event.ports[0]) {
+      event.ports[0].postMessage({
+        type: 'SYNC_CAPABILITY',
+        data: capability,
+      })
+    }
   } else if (event.data && event.data.type === 'CANCEL_METADATA_SYNC') {
     // Cancel ongoing metadata sync operation
     const {operationId} = event.data.payload || {}
@@ -1335,44 +1348,6 @@ globalThis.addEventListener('notificationclick', event => {
 })
 
 /**
- * Start a metadata sync operation programmatically.
- */
-async function startMetadataSync(operationId, episodeIds, sources) {
-  try {
-    if (!operationId) {
-      operationId = `manual-metadata-sync-${Date.now()}`
-    }
-
-    // Store operation details for processing
-    const operationDetails = {
-      episodeIds: episodeIds || ['sample_episode_1'],
-      sources: sources || ['tmdb', 'memory-alpha'],
-      priority: 1,
-    }
-
-    // Register background sync if available
-    if (globalThis.registration && globalThis.registration.sync) {
-      // Store operation data for background sync
-      activeOperations.set(operationId, {
-        type: 'bulk',
-        details: operationDetails,
-        cancelled: false,
-      })
-
-      await globalThis.registration.sync.register('bulk-metadata-sync')
-    } else {
-      // Fallback to immediate execution
-      await handleBulkMetadataSync({operationId, operationDetails})
-    }
-
-    return operationId
-  } catch (error) {
-    console.error('[VBS SW] Failed to start metadata sync:', error)
-    throw error
-  }
-}
-
-/**
  * Cancel an ongoing metadata sync operation.
  */
 function cancelMetadataSync(operationId) {
@@ -1427,4 +1402,216 @@ function getAllProgress() {
   return Array.from(metadataProgress.values()).filter(
     progress => progress.status === 'running' || progress.status === 'paused',
   )
+}
+
+// ============================================================================
+// BACKGROUND SYNC GRACEFUL DEGRADATION (TASK-030)
+// ============================================================================
+
+/**
+ * Detect Background Sync API availability and determine fallback strategy.
+ * Provides comprehensive capability detection for graceful degradation.
+ */
+function detectBackgroundSyncCapability() {
+  try {
+    const capability = {
+      isAvailable: false,
+      reason: undefined,
+      fallbackStrategy: 'disabled',
+      browserInfo: {
+        userAgent: globalThis.navigator?.userAgent || 'unknown',
+        platform: globalThis.navigator?.platform || 'unknown',
+      },
+    }
+
+    // Check if service worker registration is available
+    if (!globalThis.registration) {
+      capability.reason = 'service-worker-unavailable'
+      capability.fallbackStrategy = 'manual'
+      return capability
+    }
+
+    // Check if Background Sync API is supported
+    if (!('sync' in globalThis.registration)) {
+      capability.reason = 'not-supported'
+      capability.fallbackStrategy = 'polling'
+      return capability
+    }
+
+    // Check if sync is disabled by user/browser policy
+    if (
+      globalThis.registration.sync &&
+      typeof globalThis.registration.sync.register !== 'function'
+    ) {
+      capability.reason = 'disabled'
+      capability.fallbackStrategy = 'manual'
+      console.warn('[VBS SW] Background Sync API is disabled. Manual sync only.')
+      return capability
+    }
+
+    // Background Sync API is available
+    capability.isAvailable = true
+    capability.fallbackStrategy = 'immediate'
+    return capability
+  } catch (error) {
+    console.error('[VBS SW] Error detecting background sync capability:', error)
+    return {
+      isAvailable: false,
+      reason: 'not-supported',
+      fallbackStrategy: 'manual',
+      browserInfo: {
+        userAgent: 'error',
+        platform: 'error',
+      },
+    }
+  }
+}
+
+/**
+ * Enhanced startMetadataSync with comprehensive fallback handling.
+ * Handles graceful degradation when Background Sync API is unavailable.
+ */
+async function startMetadataSyncWithFallback(operationId, episodeIds, sources) {
+  try {
+    const capability = detectBackgroundSyncCapability()
+
+    if (!operationId) {
+      operationId = `metadata-sync-${Date.now()}`
+    }
+
+    const operationDetails = {
+      episodeIds: episodeIds || ['sample_episode_1'],
+      sources: sources || ['tmdb', 'memory-alpha'],
+      priority: 1,
+      syncCapability: capability,
+    }
+
+    activeOperations.set(operationId, {
+      type: 'bulk',
+      details: operationDetails,
+      cancelled: false,
+    })
+
+    // Execute based on capability and fallback strategy
+    if (capability.isAvailable) {
+      // Use native Background Sync API
+      await globalThis.registration.sync.register('bulk-metadata-sync')
+    } else {
+      // Execute fallback strategy
+      switch (capability.fallbackStrategy) {
+        case 'immediate':
+          await handleBulkMetadataSync({operationId, operationDetails})
+          break
+
+        case 'polling':
+          schedulePollingSync(operationId, operationDetails)
+          break
+
+        case 'manual':
+          // Notify client that manual sync is required
+          console.warn(
+            `[VBS SW] Manual sync required for operation ${operationId} - Background Sync unavailable`,
+          )
+          await notifyClientsOfSyncCapability(capability)
+          // Still execute immediately to not block user
+          await handleBulkMetadataSync({operationId, operationDetails})
+          break
+
+        case 'disabled':
+          console.error(
+            `[VBS SW] Metadata sync disabled for operation ${operationId} - Background Sync unavailable`,
+          )
+          await notifyClientsOfSyncCapability(capability)
+          break
+
+        default:
+          console.warn(`[VBS SW] Unknown fallback strategy: ${capability.fallbackStrategy}`)
+          await handleBulkMetadataSync({operationId, operationDetails})
+      }
+    }
+
+    return {operationId, capability}
+  } catch (error) {
+    console.error('[VBS SW] Failed to start metadata sync with fallback:', error)
+    throw error
+  }
+}
+
+/**
+ * Schedule polling-based sync for environments without Background Sync API.
+ * Provides graceful degradation with periodic checking.
+ */
+function schedulePollingSync(operationId, operationDetails) {
+  try {
+    // Use polling interval from operation priority or default (5 minutes)
+    const pollingInterval = operationDetails.priority === 3 ? 60000 : 300000
+    const maxPolls = 12 // Maximum 12 polls (1 hour at 5-minute intervals)
+    let pollCount = 0
+
+    const pollingTimer = setInterval(async () => {
+      try {
+        pollCount++
+
+        // Check if operation was cancelled
+        const operation = activeOperations.get(operationId)
+        if (!operation || operation.cancelled) {
+          clearInterval(pollingTimer)
+          return
+        }
+
+        // Execute metadata sync
+        await handleBulkMetadataSync({operationId, operationDetails})
+
+        // Check if operation completed
+        const progress = metadataProgress.get(operationId)
+        if (progress && progress.status === 'completed') {
+          clearInterval(pollingTimer)
+          return
+        }
+
+        // Stop polling after maximum attempts
+        if (pollCount >= maxPolls) {
+          clearInterval(pollingTimer)
+          console.warn(
+            `[VBS SW] Polling stopped after ${maxPolls} attempts for operation ${operationId}`,
+          )
+        }
+      } catch (error) {
+        console.error('[VBS SW] Error during polling sync:', error)
+      }
+    }, pollingInterval)
+
+    // Store timer reference for cleanup
+    if (!globalThis.pollingTimers) {
+      globalThis.pollingTimers = new Map()
+    }
+    globalThis.pollingTimers.set(operationId, pollingTimer)
+  } catch (error) {
+    console.error('[VBS SW] Failed to schedule polling sync:', error)
+  }
+}
+
+/**
+ * Notify all clients about background sync capability status.
+ * Allows UI to show appropriate messages about sync availability.
+ */
+async function notifyClientsOfSyncCapability(capability) {
+  try {
+    const clients = await globalThis.clients.matchAll({
+      type: 'window',
+      includeUncontrolled: true,
+    })
+
+    const message = {
+      type: 'SYNC_CAPABILITY_UPDATE',
+      capability,
+      timestamp: Date.now(),
+    }
+
+    for (const client of clients) {
+      client.postMessage(message)
+    }
+  } catch (error) {
+    console.error('[VBS SW] Failed to notify clients of sync capability:', error)
+  }
 }
