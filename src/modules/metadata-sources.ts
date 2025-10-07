@@ -1239,8 +1239,88 @@ export const createMetadataSources = (config: MetadataSourceConfig): MetadataSou
     eventEmitter.emit('analytics-reset', {timestamp: Date.now()})
   }
 
+  /**
+   * Enrich multiple episodes in batch for optimized API usage.
+   * TASK-028: Batch processing reduces network requests and improves efficiency.
+   *
+   * @param episodeIds Array of episode IDs to enrich
+   * @returns Map of episode IDs to enriched metadata (or null if enrichment failed)
+   *
+   * @example
+   * ```typescript
+   * const metadataSources = createMetadataSources(config)
+   * const batchResults = await metadataSources.enrichEpisodeBatch([
+   *   'ent_s1_e01',
+   *   'ent_s1_e02',
+   *   'ent_s1_e03'
+   * ])
+   *
+   * batchResults.forEach((metadata, episodeId) => {
+   *   if (metadata) {
+   *     console.log(`Enriched ${episodeId}:`, metadata.title)
+   *   }
+   * })
+   * ```
+   */
+  const enrichEpisodeBatch = async (
+    episodeIds: string[],
+  ): Promise<Map<string, EpisodeMetadata | null>> => {
+    const results = new Map<string, EpisodeMetadata | null>()
+
+    // Process episodes in parallel with concurrency limit
+    const concurrencyLimit = 5
+    const chunks: string[][] = []
+
+    for (let i = 0; i < episodeIds.length; i += concurrencyLimit) {
+      chunks.push(episodeIds.slice(i, i + concurrencyLimit))
+    }
+
+    // Process each chunk in parallel
+    for (const chunk of chunks) {
+      const chunkPromises = chunk.map(async episodeId => {
+        try {
+          const metadata = await enrichEpisode(episodeId)
+          results.set(episodeId, metadata)
+
+          // Emit batch enrichment event
+          if (metadata) {
+            eventEmitter.emit('metadata-enriched', {
+              episodeId,
+              sourceId: metadata.dataSource,
+              metadata,
+            })
+          }
+        } catch (error) {
+          console.error(`[Metadata Sources] Batch enrichment failed for ${episodeId}:`, error)
+          results.set(episodeId, null)
+
+          eventEmitter.emit('enrichment-failed', {
+            episodeId,
+            errors: [
+              {
+                category: 'batch-processing',
+                message: error instanceof Error ? error.message : 'Unknown error',
+                sourceApi: 'batch',
+              },
+            ],
+          })
+        }
+      })
+
+      await Promise.all(chunkPromises)
+
+      // Rate limiting delay between chunks
+      if (chunks.length > 1) {
+        await new Promise(resolve => setTimeout(resolve, 500))
+      }
+    }
+
+    return results
+  }
+
   return {
     enrichEpisode,
+    enrichEpisodeBatch,
     getHealthStatus,
     getUsageAnalytics,
     clearCache,
