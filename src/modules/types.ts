@@ -1269,7 +1269,7 @@ export type FactoryFunction<T = Record<string, any>> = (...args: any[]) => T
  * ```
  */
 export type FactoryUpdate<T> = Partial<{
-  [K in keyof T as T[K] extends Function ? never : K]: T[K]
+  [K in keyof T as T[K] extends (...args: any[]) => any ? never : K]: T[K]
 }>
 
 // ----------------------------------------------------------------------------
@@ -1343,7 +1343,7 @@ export type IsFunction<T> = T extends (...args: any[]) => any ? true : false
  * ```
  */
 export type FunctionProperties<T> = {
-  [K in keyof T as T[K] extends Function ? K : never]: T[K]
+  [K in keyof T as T[K] extends (...args: any[]) => any ? K : never]: T[K]
 }
 
 /**
@@ -1357,7 +1357,7 @@ export type FunctionProperties<T> = {
  * ```
  */
 export type NonFunctionProperties<T> = {
-  [K in keyof T as T[K] extends Function ? never : K]: T[K]
+  [K in keyof T as T[K] extends (...args: any[]) => any ? never : K]: T[K]
 }
 
 /**
@@ -1854,19 +1854,19 @@ export function isEpisode(value: unknown): value is Episode {
   const episode = value as Record<string, unknown>
 
   return (
-    typeof episode['id'] === 'string' &&
-    typeof episode['title'] === 'string' &&
-    typeof episode['season'] === 'number' &&
-    typeof episode['episode'] === 'number' &&
-    typeof episode['airDate'] === 'string' &&
-    typeof episode['stardate'] === 'string' &&
-    typeof episode['synopsis'] === 'string' &&
-    Array.isArray(episode['plotPoints']) &&
-    episode['plotPoints'].every(point => typeof point === 'string') &&
-    Array.isArray(episode['guestStars']) &&
-    episode['guestStars'].every(star => typeof star === 'string') &&
-    Array.isArray(episode['connections']) &&
-    episode['connections'].every(conn => isEpisodeConnection(conn))
+    typeof episode.id === 'string' &&
+    typeof episode.title === 'string' &&
+    typeof episode.season === 'number' &&
+    typeof episode.episode === 'number' &&
+    typeof episode.airDate === 'string' &&
+    typeof episode.stardate === 'string' &&
+    typeof episode.synopsis === 'string' &&
+    Array.isArray(episode.plotPoints) &&
+    episode.plotPoints.every(point => typeof point === 'string') &&
+    Array.isArray(episode.guestStars) &&
+    episode.guestStars.every(star => typeof star === 'string') &&
+    Array.isArray(episode.connections) &&
+    episode.connections.every(conn => isEpisodeConnection(conn))
   )
 }
 
@@ -1886,11 +1886,11 @@ export function isEpisodeConnection(value: unknown): value is EpisodeConnection 
   const validConnectionTypes = ['character', 'event', 'storyline', 'reference']
 
   return (
-    typeof connection['episodeId'] === 'string' &&
-    typeof connection['seriesId'] === 'string' &&
-    typeof connection['connectionType'] === 'string' &&
-    validConnectionTypes.includes(connection['connectionType']) &&
-    typeof connection['description'] === 'string'
+    typeof connection.episodeId === 'string' &&
+    typeof connection.seriesId === 'string' &&
+    typeof connection.connectionType === 'string' &&
+    validConnectionTypes.includes(connection.connectionType) &&
+    typeof connection.description === 'string'
   )
 }
 
@@ -1909,12 +1909,12 @@ export function isEpisodeProgress(value: unknown): value is EpisodeProgress {
   const progress = value as Record<string, unknown>
 
   return (
-    typeof progress['episodeId'] === 'string' &&
-    typeof progress['seriesId'] === 'string' &&
-    typeof progress['season'] === 'number' &&
-    typeof progress['episode'] === 'number' &&
-    typeof progress['isWatched'] === 'boolean' &&
-    (progress['watchedAt'] === undefined || typeof progress['watchedAt'] === 'string')
+    typeof progress.episodeId === 'string' &&
+    typeof progress.seriesId === 'string' &&
+    typeof progress.season === 'number' &&
+    typeof progress.episode === 'number' &&
+    typeof progress.isWatched === 'boolean' &&
+    (progress.watchedAt === undefined || typeof progress.watchedAt === 'string')
   )
 }
 
@@ -1933,15 +1933,15 @@ export function isSeasonProgress(value: unknown): value is SeasonProgress {
   const progress = value as Record<string, unknown>
 
   return (
-    typeof progress['seriesId'] === 'string' &&
-    typeof progress['season'] === 'number' &&
-    typeof progress['total'] === 'number' &&
-    typeof progress['completed'] === 'number' &&
-    typeof progress['percentage'] === 'number' &&
-    typeof progress['totalEpisodes'] === 'number' &&
-    typeof progress['watchedEpisodes'] === 'number' &&
-    Array.isArray(progress['episodeProgress']) &&
-    progress['episodeProgress'].every(ep => isEpisodeProgress(ep))
+    typeof progress.seriesId === 'string' &&
+    typeof progress.season === 'number' &&
+    typeof progress.total === 'number' &&
+    typeof progress.completed === 'number' &&
+    typeof progress.percentage === 'number' &&
+    typeof progress.totalEpisodes === 'number' &&
+    typeof progress.watchedEpisodes === 'number' &&
+    Array.isArray(progress.episodeProgress) &&
+    progress.episodeProgress.every(ep => isEpisodeProgress(ep))
   )
 }
 
@@ -1960,21 +1960,21 @@ export function isStarTrekItemWithEpisodes(value: unknown): value is StarTrekIte
   const item = value as Record<string, unknown>
 
   const baseValidation =
-    typeof item['id'] === 'string' &&
-    typeof item['title'] === 'string' &&
-    typeof item['type'] === 'string' &&
-    typeof item['year'] === 'string' &&
-    typeof item['stardate'] === 'string' &&
-    typeof item['notes'] === 'string' &&
-    (item['episodes'] === undefined || typeof item['episodes'] === 'number')
+    typeof item.id === 'string' &&
+    typeof item.title === 'string' &&
+    typeof item.type === 'string' &&
+    typeof item.year === 'string' &&
+    typeof item.stardate === 'string' &&
+    typeof item.notes === 'string' &&
+    (item.episodes === undefined || typeof item.episodes === 'number')
 
   if (!baseValidation) {
     return false
   }
 
   // Validate episodeData if present
-  if (item['episodeData'] !== undefined) {
-    return Array.isArray(item['episodeData']) && item['episodeData'].every(ep => isEpisode(ep))
+  if (item.episodeData !== undefined) {
+    return Array.isArray(item.episodeData) && item.episodeData.every(ep => isEpisode(ep))
   }
 
   return true

@@ -369,7 +369,7 @@ export const createMetadataJob = (
     episodeId,
     priority,
     type,
-    targetSources: options['targetSources'],
+    targetSources: options.targetSources,
     metadata: options,
   }
 }

@@ -501,12 +501,12 @@ export const isTMDBEpisodeResponse = (value: unknown): value is TMDBEpisodeRespo
   const obj = value as Record<string, unknown>
 
   return (
-    typeof obj['id'] === 'number' &&
-    typeof obj['name'] === 'string' &&
-    typeof obj['episode_number'] === 'number' &&
-    typeof obj['season_number'] === 'number' &&
-    Array.isArray(obj['crew']) &&
-    Array.isArray(obj['guest_stars'])
+    typeof obj.id === 'number' &&
+    typeof obj.name === 'string' &&
+    typeof obj.episode_number === 'number' &&
+    typeof obj.season_number === 'number' &&
+    Array.isArray(obj.crew) &&
+    Array.isArray(obj.guest_stars)
   )
 }
 
@@ -518,11 +518,11 @@ export const isTMDBSeriesResponse = (value: unknown): value is TMDBSeriesRespons
   const obj = value as Record<string, unknown>
 
   return (
-    typeof obj['id'] === 'number' &&
-    typeof obj['name'] === 'string' &&
-    typeof obj['number_of_episodes'] === 'number' &&
-    typeof obj['number_of_seasons'] === 'number' &&
-    Array.isArray(obj['seasons'])
+    typeof obj.id === 'number' &&
+    typeof obj.name === 'string' &&
+    typeof obj.number_of_episodes === 'number' &&
+    typeof obj.number_of_seasons === 'number' &&
+    Array.isArray(obj.seasons)
   )
 }
 
@@ -534,13 +534,13 @@ export const isMemoryAlphaEpisodeData = (value: unknown): value is MemoryAlphaEp
   const obj = value as Record<string, unknown>
 
   return (
-    typeof obj['title'] === 'string' &&
-    typeof obj['series'] === 'string' &&
-    typeof obj['season'] === 'number' &&
-    typeof obj['episode'] === 'number' &&
-    typeof obj['pageUrl'] === 'string' &&
-    Array.isArray(obj['director']) &&
-    Array.isArray(obj['writer'])
+    typeof obj.title === 'string' &&
+    typeof obj.series === 'string' &&
+    typeof obj.season === 'number' &&
+    typeof obj.episode === 'number' &&
+    typeof obj.pageUrl === 'string' &&
+    Array.isArray(obj.director) &&
+    Array.isArray(obj.writer)
   )
 }
 
@@ -552,13 +552,13 @@ export const isIMDBEpisodeData = (value: unknown): value is IMDBEpisodeData => {
   const obj = value as Record<string, unknown>
 
   return (
-    typeof obj['id'] === 'string' &&
-    typeof obj['title'] === 'string' &&
-    typeof obj['season'] === 'number' &&
-    typeof obj['episode'] === 'number' &&
-    Array.isArray(obj['directors']) &&
-    Array.isArray(obj['writers']) &&
-    Array.isArray(obj['cast'])
+    typeof obj.id === 'string' &&
+    typeof obj.title === 'string' &&
+    typeof obj.season === 'number' &&
+    typeof obj.episode === 'number' &&
+    Array.isArray(obj.directors) &&
+    Array.isArray(obj.writers) &&
+    Array.isArray(obj.cast)
   )
 }
 
@@ -570,12 +570,12 @@ export const isTrekCoreEpisodeData = (value: unknown): value is TrekCoreEpisodeD
   const obj = value as Record<string, unknown>
 
   return (
-    typeof obj['id'] === 'string' &&
-    typeof obj['title'] === 'string' &&
-    typeof obj['series'] === 'string' &&
-    typeof obj['season'] === 'number' &&
-    typeof obj['episode'] === 'number' &&
-    typeof obj['pageUrl'] === 'string'
+    typeof obj.id === 'string' &&
+    typeof obj.title === 'string' &&
+    typeof obj.series === 'string' &&
+    typeof obj.season === 'number' &&
+    typeof obj.episode === 'number' &&
+    typeof obj.pageUrl === 'string'
   )
 }
 
@@ -587,9 +587,9 @@ export const isTMDBErrorResponse = (value: unknown): value is TMDBErrorResponse 
   const obj = value as Record<string, unknown>
 
   return (
-    typeof obj['status_code'] === 'number' &&
-    typeof obj['status_message'] === 'string' &&
-    obj['success'] === false
+    typeof obj.status_code === 'number' &&
+    typeof obj.status_message === 'string' &&
+    obj.success === false
   )
 }
 
@@ -601,9 +601,9 @@ export const isUnifiedMetadataResponse = (value: unknown): value is UnifiedMetad
   const obj = value as Record<string, unknown>
 
   return (
-    typeof obj['fetchedAt'] === 'string' &&
-    typeof obj['sources'] === 'object' &&
-    Array.isArray(obj['errors'])
+    typeof obj.fetchedAt === 'string' &&
+    typeof obj.sources === 'object' &&
+    Array.isArray(obj.errors)
   )
 }
 
@@ -618,10 +618,10 @@ export const isAPIResponseWrapper = <T>(
   const obj = value as Record<string, unknown>
 
   return (
-    typeof obj['success'] === 'boolean' &&
-    typeof obj['cached'] === 'boolean' &&
-    typeof obj['timestamp'] === 'string' &&
-    (obj['data'] === null || dataGuard(obj['data']))
+    typeof obj.success === 'boolean' &&
+    typeof obj.cached === 'boolean' &&
+    typeof obj.timestamp === 'string' &&
+    (obj.data === null || dataGuard(obj.data))
   )
 }
 

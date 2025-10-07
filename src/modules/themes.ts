@@ -289,8 +289,8 @@ export const createThemeSystem = (preferences: PreferencesInstance): ThemeSystem
     })
 
     // Set data attribute for theme-specific styling
-    root.dataset['theme'] = theme
-    root.dataset['vbsTheme'] = theme
+    root.dataset.theme = theme
+    root.dataset.vbsTheme = theme
 
     return Object.keys(themeValues)
   }, 'Failed to apply CSS properties')

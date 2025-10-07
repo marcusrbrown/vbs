@@ -195,10 +195,10 @@ export const validateLocationPreferences = (data: unknown): data is LocationPref
   const prefs = data as Record<string, unknown>
 
   return (
-    typeof prefs['region'] === 'string' &&
-    isValidRegion(prefs['region']) &&
-    typeof prefs['allowAutoDetection'] === 'boolean' &&
-    typeof prefs['showOtherRegions'] === 'boolean'
+    typeof prefs.region === 'string' &&
+    isValidRegion(prefs.region) &&
+    typeof prefs.allowAutoDetection === 'boolean' &&
+    typeof prefs.showOtherRegions === 'boolean'
   )
 }
 

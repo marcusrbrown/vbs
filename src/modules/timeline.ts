@@ -705,7 +705,7 @@ export const createTimelineRenderer = (
   const createEraElement = (era: StarTrekEra): HTMLDivElement => {
     const eraDiv = document.createElement('div')
     eraDiv.className = 'era'
-    eraDiv.dataset['eraId'] = era.id
+    eraDiv.dataset.eraId = era.id
 
     const eraProgress = calculateEraProgress(era)
     const isExpanded = expandedEras.has(era.id)
@@ -754,10 +754,10 @@ export const createTimelineRenderer = (
     checkboxes.forEach(checkbox => {
       checkbox.addEventListener('change', e => {
         const target = e.target as HTMLInputElement
-        if (target?.dataset['itemId']) {
-          progressTracker.toggleItem(target.dataset['itemId'])
-        } else if (target?.dataset['episodeId']) {
-          progressTracker.toggleItem(target.dataset['episodeId'])
+        if (target?.dataset.itemId) {
+          progressTracker.toggleItem(target.dataset.itemId)
+        } else if (target?.dataset.episodeId) {
+          progressTracker.toggleItem(target.dataset.episodeId)
         }
       })
     })
@@ -767,8 +767,8 @@ export const createTimelineRenderer = (
     episodeToggleButtons.forEach(button => {
       button.addEventListener('click', e => {
         const target = e.target as HTMLElement
-        const seriesId =
-          target.dataset['seriesId'] || target.closest('[data-series-id]')?.dataset.seriesId
+        const closestElement = target.closest('[data-series-id]') as HTMLElement | null
+        const seriesId = target.dataset.seriesId || closestElement?.dataset.seriesId
         if (seriesId) {
           toggleEpisodeList(seriesId)
         }
@@ -780,8 +780,8 @@ export const createTimelineRenderer = (
         if (keyEvent.key === 'Enter' || keyEvent.key === ' ') {
           e.preventDefault()
           const target = e.target as HTMLElement
-          const seriesId =
-            target.dataset['seriesId'] || target.closest('[data-series-id]')?.dataset.seriesId
+          const closestElement = target.closest('[data-series-id]') as HTMLElement | null
+          const seriesId = target.dataset.seriesId || closestElement?.dataset.seriesId
           if (seriesId) {
             toggleEpisodeList(seriesId)
           }
@@ -794,8 +794,8 @@ export const createTimelineRenderer = (
     episodeDetailsButtons.forEach(button => {
       button.addEventListener('click', e => {
         const target = e.target as HTMLElement
-        const episodeId =
-          target.dataset['episodeId'] || target.closest('[data-episode-id]')?.dataset.episodeId
+        const closestElement = target.closest('[data-episode-id]') as HTMLElement | null
+        const episodeId = target.dataset.episodeId || closestElement?.dataset.episodeId
         if (episodeId) {
           toggleEpisodeDetails(episodeId)
         }
@@ -807,8 +807,8 @@ export const createTimelineRenderer = (
         if (keyEvent.key === 'Enter' || keyEvent.key === ' ') {
           e.preventDefault()
           const target = e.target as HTMLElement
-          const episodeId =
-            target.dataset['episodeId'] || target.closest('[data-episode-id]')?.dataset.episodeId
+          const closestElement = target.closest('[data-episode-id]') as HTMLElement | null
+          const episodeId = target.dataset.episodeId || closestElement?.dataset.episodeId
           if (episodeId) {
             toggleEpisodeDetails(episodeId)
           }
@@ -821,7 +821,7 @@ export const createTimelineRenderer = (
     spoilerToggleButtons.forEach(button => {
       button.addEventListener('click', e => {
         const target = e.target as HTMLElement
-        const episodeId = target.dataset['episodeId']
+        const episodeId = target.dataset.episodeId
         if (episodeId) {
           toggleSpoilerContent(episodeId)
         }
@@ -833,7 +833,7 @@ export const createTimelineRenderer = (
         if (keyEvent.key === 'Enter' || keyEvent.key === ' ') {
           e.preventDefault()
           const target = e.target as HTMLElement
-          const episodeId = target.dataset['episodeId']
+          const episodeId = target.dataset.episodeId
           if (episodeId) {
             toggleSpoilerContent(episodeId)
           }
@@ -846,8 +846,8 @@ export const createTimelineRenderer = (
     loadMoreButtons.forEach(button => {
       button.addEventListener('click', e => {
         const target = e.target as HTMLElement
-        const seriesId =
-          target.dataset['seriesId'] || target.closest('[data-series-id]')?.dataset.seriesId
+        const closestElement = target.closest('[data-series-id]') as HTMLElement | null
+        const seriesId = target.dataset.seriesId || closestElement?.dataset.seriesId
         if (seriesId) {
           loadMoreEpisodes(seriesId)
         }
@@ -859,8 +859,8 @@ export const createTimelineRenderer = (
         if (keyEvent.key === 'Enter' || keyEvent.key === ' ') {
           e.preventDefault()
           const target = e.target as HTMLElement
-          const seriesId =
-            target.dataset['seriesId'] || target.closest('[data-series-id]')?.dataset.seriesId
+          const closestElement = target.closest('[data-series-id]') as HTMLElement | null
+          const seriesId = target.dataset.seriesId || closestElement?.dataset.seriesId
           if (seriesId) {
             loadMoreEpisodes(seriesId)
           }
@@ -916,7 +916,7 @@ export const createTimelineRenderer = (
       tap((eras: Element[]) => {
         eras.forEach(era => {
           const eraElement = era as HTMLElement
-          const eraId = eraElement.dataset['eraId']
+          const eraId = eraElement.dataset.eraId
           if (eraId) {
             expandEra(eraId)
           }
@@ -934,7 +934,7 @@ export const createTimelineRenderer = (
       tap((eras: Element[]) => {
         eras.forEach(era => {
           const eraElement = era as HTMLElement
-          const eraId = eraElement.dataset['eraId']
+          const eraId = eraElement.dataset.eraId
           if (eraId) {
             collapseEra(eraId)
           }
@@ -988,7 +988,7 @@ export const createTimelineRenderer = (
     const items = container.querySelectorAll('.viewing-item')
     items.forEach(item => {
       const itemElement = item as HTMLElement
-      const itemId = itemElement.dataset['itemId']
+      const itemId = itemElement.dataset.itemId
       const checkbox = item.querySelector('input[type="checkbox"]') as HTMLInputElement
 
       if (itemId && checkbox) {
@@ -1002,7 +1002,7 @@ export const createTimelineRenderer = (
     const episodes = container.querySelectorAll('.episode-item')
     episodes.forEach(episode => {
       const episodeElement = episode as HTMLElement
-      const episodeId = episodeElement.dataset['episodeId']
+      const episodeId = episodeElement.dataset.episodeId
       const checkbox = episode.querySelector('input[type="checkbox"]') as HTMLInputElement
 
       if (episodeId && checkbox) {
@@ -1027,7 +1027,7 @@ export const createTimelineRenderer = (
 
     // Extract content IDs for batch loading
     const contentIds = Array.from(streamingElements)
-      .map(element => (element as HTMLElement).dataset['streamingContentId'])
+      .map(element => (element as HTMLElement).dataset.streamingContentId)
       .filter((id): id is string => id !== null && id !== undefined)
 
     try {

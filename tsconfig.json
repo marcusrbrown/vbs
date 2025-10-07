@@ -17,18 +17,17 @@
     "strictFunctionTypes": true,
     "exactOptionalPropertyTypes": true,
     "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
     "noUnusedLocals": true,
-    "skipLibCheck": true,
     "noUnusedParameters": true,
     "noEmit": true,
     "verbatimModuleSyntax": true,
     "erasableSyntaxOnly": true,
+    "skipLibCheck": true,
     "noUncheckedSideEffectImports": true,
 
     /* Strict Generic Type Checking */
-    "noStrictGenericChecks": false,
-    "noImplicitReturns": true,
-    "noPropertyAccessFromIndexSignature": true
+    "noStrictGenericChecks": false
   },
   "include": ["**/*"]
 }

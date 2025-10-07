@@ -251,13 +251,16 @@ describe('Generic Utility Types Library', () => {
     })
 
     it('should create union of callback keys with CallbackKeys', () => {
-      interface EventMap {
+      type TestCallbacks = Record<
+        'click' | 'hover' | 'focus',
+        ((...args: any[]) => void) | (() => void)
+      > & {
         click: (x: number, y: number) => void
         hover: (element: HTMLElement) => void
         focus: () => void
       }
 
-      type EventNames = CallbackKeys<EventMap>
+      type EventNames = CallbackKeys<TestCallbacks>
 
       expectTypeOf<EventNames>().toEqualTypeOf<'click' | 'hover' | 'focus'>()
     })

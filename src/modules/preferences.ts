@@ -51,7 +51,7 @@ const validatePreferences = (data: unknown): data is UserPreferences => {
 
   // Validate theme values
   const validThemes = ['light', 'dark', 'auto']
-  if (typeof prefs['theme'] !== 'string' || !validThemes.includes(prefs['theme'])) return false
+  if (typeof prefs.theme !== 'string' || !validThemes.includes(prefs.theme)) return false
 
   // Validate boolean fields
   const booleanFields = ['compactView', 'accessibilityMode', 'autoPlay', 'showSpoilers']

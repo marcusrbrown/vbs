@@ -80,8 +80,8 @@ describe('MetadataSources', () => {
       expect(result).toBeTruthy()
       expect(result?.dataSource).toBe('memory-alpha')
       expect(result?.enrichmentStatus).toBe('complete')
-      expect(result?.fieldValidation?.['synopsis']?.isValid).toBe(true)
-      expect(result?.fieldValidation?.['memoryAlphaUrl']?.isValid).toBe(true)
+      expect(result?.fieldValidation?.synopsis?.isValid).toBe(true)
+      expect(result?.fieldValidation?.memoryAlphaUrl?.isValid).toBe(true)
     })
 
     it('should handle Memory Alpha API failures gracefully', async () => {
@@ -149,11 +149,11 @@ describe('MetadataSources', () => {
       expect(result).toBeTruthy()
       expect(result?.dataSource).toBe('tmdb')
       expect(result?.enrichmentStatus).toBe('complete')
-      expect(result?.fieldValidation?.['airDate']?.isValid).toBe(true)
-      expect(result?.fieldValidation?.['productionCode']?.isValid).toBe(true)
-      expect(result?.fieldValidation?.['tmdbId']?.isValid).toBe(true)
-      expect(result?.fieldValidation?.['director']?.isValid).toBe(true)
-      expect(result?.fieldValidation?.['writer']?.isValid).toBe(true)
+      expect(result?.fieldValidation?.airDate?.isValid).toBe(true)
+      expect(result?.fieldValidation?.productionCode?.isValid).toBe(true)
+      expect(result?.fieldValidation?.tmdbId?.isValid).toBe(true)
+      expect(result?.fieldValidation?.director?.isValid).toBe(true)
+      expect(result?.fieldValidation?.writer?.isValid).toBe(true)
     })
 
     it('should handle TMDB API failures gracefully', async () => {
