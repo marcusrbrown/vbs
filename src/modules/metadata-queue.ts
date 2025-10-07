@@ -331,6 +331,35 @@ export const createMetadataQueue = (
       Object.assign(queueConfig, newConfig)
     },
 
+    applyUserPreferences: (preferences): void => {
+      const updatedConfig: Partial<MetadataQueueConfig> = {}
+
+      // Apply sync mode - pause queue if disabled, enable if auto
+      if (preferences.syncMode === 'disabled') {
+        isPaused = true
+      } else if (preferences.syncMode === 'auto') {
+        isPaused = false
+      }
+
+      // Apply data limits
+      updatedConfig.maxConcurrentJobs = Math.min(
+        preferences.dataLimits.maxEpisodesPerSync,
+        queueConfig.maxConcurrentJobs,
+      )
+
+      // Apply network preference
+      if (preferences.networkPreference === 'wifi-only') {
+        updatedConfig.networkPreference = 'wifi-only'
+      } else if (preferences.networkPreference === 'any-connection') {
+        updatedConfig.networkPreference = 'any'
+      } else if (preferences.networkPreference === 'manual-only') {
+        updatedConfig.networkPreference = 'wifi-only' // Conservative default
+        isPaused = true // Pause automatic processing for manual-only mode
+      }
+
+      Object.assign(queueConfig, updatedConfig)
+    },
+
     clearCompleted: (): number => {
       let clearedCount = 0
       jobs.forEach((job, jobId) => {

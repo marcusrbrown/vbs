@@ -173,6 +173,16 @@ export interface MetadataSchedulerInstance {
   getSchedulingConfig: () => SchedulingConfig
   /** Update scheduling configuration */
   updateSchedulingConfig: (newConfig: Partial<SchedulingConfig>) => void
+  /** Apply user preferences to scheduling configuration */
+  applyUserPreferences: (preferences: {
+    networkPreference: 'wifi-only' | 'any-connection' | 'manual-only'
+    scheduling: {
+      allowDuringPeakHours: boolean
+      minBatteryLevel: number
+      pauseWhileCharging: boolean
+      preferredTimeOfDay: 'anytime' | 'night-only' | 'day-only'
+    }
+  }) => void
   /** Calculate optimal delay for next sync */
   getOptimalSyncDelay: () => number
   /** Check if sync should be allowed now */
@@ -258,6 +268,18 @@ export const createMetadataScheduler = (
 
     updateSchedulingConfig: (newConfig: Partial<SchedulingConfig>) => {
       currentConfig = {...currentConfig, ...newConfig}
+      eventEmitter.emit('schedule-update', {config: currentConfig})
+    },
+
+    applyUserPreferences: preferences => {
+      const updatedConfig: Partial<SchedulingConfig> = {
+        preferWiFi: preferences.networkPreference === 'wifi-only',
+        avoidPeakHours: !preferences.scheduling.allowDuringPeakHours,
+        lowBatteryThreshold: preferences.scheduling.minBatteryLevel,
+        pauseWhileCharging: preferences.scheduling.pauseWhileCharging,
+      }
+
+      currentConfig = {...currentConfig, ...updatedConfig}
       eventEmitter.emit('schedule-update', {config: currentConfig})
     },
 
