@@ -1,8 +1,18 @@
 # GitHub Copilot Instructions for VBS
 
+> **Purpose**: Guide AI coding agents in contributing to VBS following established architectural patterns, security practices, and code quality standards.
+
+## Quick Reference
+
+**Architecture**: Functional factory patterns with closures | **Testing**: Vitest with factory instantiation | **Style**: TypeScript strict mode with single quotes | **Build**: Vite with `/vbs/` base path
+
+**Key Principles**: Type safety · Functional composition · Generic EventEmitters · No `this` binding · Closure-based state
+
 ## Project Overview
 
 VBS (View By Stardate) is a local-first Star Trek chronological viewing guide built with TypeScript, Vite, and vanilla DOM APIs. The app tracks viewing progress across 7 chronological eras spanning 22nd-32nd centuries using browser LocalStorage, with planned migration to IndexedDB for enhanced capabilities.
+
+**Core Features**: Episode progress tracking · Timeline visualization (D3.js) · Metadata enrichment (Memory Alpha, TMDB) · Theme system · Streaming integration
 
 ## Architecture Pattern
 
@@ -609,18 +619,31 @@ it('should handle errors in composition chains', () => {
 
 ## Code Style Specifics
 
+### Required Patterns
 - **Single quotes** for all string literals
-- **Optional chaining** (`?.`) and nullish coalescing (`??`) everywhere
-- **Explicit return types** on public methods
-- **Avoid `any`** - use `unknown` with type guards instead
+- **Optional chaining** (`?.`) and nullish coalescing (`??`) for safe property access
+- **Explicit return types** on all public methods and exported functions
 - **Generic constraints**: Use `<T extends SomeType>` for type-safe factory functions
-- **EventEmitter pattern**: Provide modern EventEmitter methods for enhanced type safety
-- **Error handling**: Always handle async operations with meaningful error messages
-- **Type-safe events**: Use generic EventEmitter with defined event maps (`ProgressTrackerEvents`, `SearchFilterEvents`, etc.)
-- **Functional composition**: Use `pipe()` for left-to-right data flow, `compose()` for mathematical composition
-- **Reusable predicates**: Create curried functions with `curry()` for partial application patterns
-- **Side effects**: Use `tap()` for logging/debugging without breaking composition chains
-- **Error boundaries**: Wrap risky operations with `compositionErrorBoundary()` or `tryCatch()`
+- **Type-safe events**: Use generic EventEmitter with defined event maps (`ProgressTrackerEvents`, `SearchFilterEvents`)
+- **Functional composition**: Use `pipe()` for left-to-right data flow, `curry()` for reusable predicates
+- **Error boundaries**: Wrap async operations with `withErrorHandling()` or `withSyncErrorHandling()`
+
+### Anti-Patterns to Avoid
+- ❌ **Never use `any`** - use `unknown` with type guards or proper types
+- ❌ **No class-based patterns** - use functional factories with closures instead
+- ❌ **No `this` binding** - rely on closure scope for state management
+- ❌ **No hardcoded credentials** - use runtime configuration for API keys
+- ❌ **No inline styles** - use CSS custom properties and theme system
+- ❌ **No direct DOM manipulation outside components** - use component factories
+- ❌ **No synchronous localStorage writes in loops** - batch operations
+- ❌ **No missing cleanup** - all components must provide `destroy()` method
+
+### Accessibility Requirements
+- ✅ **Semantic HTML**: Use appropriate ARIA labels and roles
+- ✅ **Keyboard navigation**: Ensure all interactive elements are keyboard accessible
+- ✅ **Screen reader support**: Provide meaningful `aria-label` and `aria-describedby` attributes
+- ✅ **Focus management**: Implement visible focus indicators with `:focus-visible`
+- ✅ **Color contrast**: Maintain WCAG AA standards (4.5:1 for normal text)
 
 ## LocalStorage Schema
 
@@ -660,6 +683,18 @@ interface ProgressExportData {
 
 **Functional composition patterns**: Use `pipe()` for intuitive left-to-right data flow, `curry()` for reusable predicates, and VBS-specific pipeline builders (`createSearchPipeline`, `createProgressPipeline`) for complex transformations.
 
+**Metadata enrichment pipelines**: Combine multiple sources with conflict resolution and quality validation using functional composition:
+
+```typescript
+const enrichedMetadata = await pipe(
+  episodeId,
+  (id) => metadataSources.fetchFromAllSources(id),
+  (responses) => conflictResolution.resolveAll(responses),
+  (resolved) => metadataQuality.validateAndScore(resolved),
+  tap((metadata) => metadataStorage.cacheWithTTL(metadata))
+)
+```
+
 ## Extension Points
 
 When adding features, consider these integration points:
@@ -669,29 +704,15 @@ When adding features, consider these integration points:
 - **New export formats**: Add handlers in `storage.ts` alongside existing JSON export
 - **Timeline visualization**: The factory functions are designed for extension with chart libraries
 - **Episode metadata**: Add new fields to `Episode` interface for enhanced episode tracking
+- **Metadata sources**: Add new API integrations in `metadata-sources.ts` following existing token bucket rate limiting pattern
+- **Conflict resolution strategies**: Extend `conflict-resolution.ts` with new resolution strategies for specific field types
+- **Metadata storage**: Customize caching policies and TTL values in `metadata-storage.ts` for different data types
+- **Queue job types**: Add new metadata operation types beyond `enrich`, `refresh`, `validate`, `cache-warm` in `metadata-queue.ts`
 - **Migration strategies**: Extend `migration.ts` with new version handlers for schema evolution
 - **Validation rules**: Add new validation patterns in `progress-validation.ts` for data integrity
 - **Spoiler management**: Extend spoiler-safe filtering with new content classification levels
 - **Composition pipelines**: Create new pipeline builders using `createPipeline()` for domain-specific transformations
 - **Debug utilities**: Use `debugTap()`, `perfTap()`, and `createDebugPipe()` for development and troubleshooting
-
-## Planned Major Features
-
-VBS has comprehensive implementation plans for major feature expansions:
-
-### Episode-Level Tracking (Implemented)
-- ✅ Individual episode progress with hierarchical tracking (episode → season → series → era)
-- ✅ Episode management with advanced filtering, search, and spoiler-safe content
-- ✅ Data migration system with version management and backup capabilities
-- ✅ Progress validation and error recovery utilities
-- 🚧 Episode metadata expansion: Enhanced plot points, guest stars, and cross-references
-
-### Advanced Features (Planned)
-- **Interactive Timeline**: D3.js chronological visualization with zoom/pan ✅ **Implemented**
-- **User Preferences**: Dark/light themes, compact view, accessibility settings ✅ **Implemented**
-- **Streaming Integration**: Paramount+/Netflix availability via APIs ✅ **Implemented**
-- **Local-First Architecture**: Service Workers + IndexedDB replacing LocalStorage
-- **PWA Capabilities**: Offline support, app installation, background sync
 
 ### Integration Guidelines for New Features
 - Extend existing factory functions rather than creating new architectures
