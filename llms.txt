@@ -28,12 +28,20 @@ The architecture emphasizes type safety through advanced TypeScript generics, ge
 - [Episodes Manager](src/modules/episodes.ts): Episode management factory with functional composition utilities integration
 - [Progress Validation](src/modules/progress-validation.ts): Validation and error recovery utilities for episode progress data integrity
 - [Migration Utilities](src/modules/migration.ts): Data migration system for version upgrades and schema evolution
+- [Conflict Resolution](src/modules/conflict-resolution.ts): Utilities for handling data conflicts during synchronization and merges
 - [Search Filter](src/modules/search.ts): Real-time search and filtering factory with type-safe events
 - [Timeline Renderer](src/modules/timeline.ts): Era-based timeline rendering with dependency injection
 - [Timeline Visualization](src/modules/timeline-viz.ts): Interactive timeline visualization system with D3.js integration
 - [User Preferences](src/modules/preferences.ts): Settings management for themes, display options, and user configurations
 - [Theme System](src/modules/themes.ts): Dark/light theme management with CSS custom properties and auto-detection
 - [Streaming API](src/modules/streaming-api.ts): Integration utilities for streaming service availability and content discovery
+- [Metadata Sources](src/modules/metadata-sources.ts): External API integration for episode metadata enrichment
+- [Metadata Storage](src/modules/metadata-storage.ts): Persistent storage layer for cached episode metadata
+- [Metadata Queue](src/modules/metadata-queue.ts): Request queue management for metadata fetching operations
+- [Metadata Scheduler](src/modules/metadata-scheduler.ts): Background scheduling system for metadata updates
+- [Metadata Quality](src/modules/metadata-quality.ts): Quality validation and confidence scoring for metadata
+- [External API Types](src/modules/external-api-types.ts): TypeScript types for external metadata provider APIs
+- [Metadata Sources Config](src/data/metadata-sources-config.ts): Configuration for metadata provider endpoints and rate limits
 - [Version Manager](src/modules/version-manager.ts): Application version management and feature compatibility tracking
 - [Storage Utilities](src/modules/storage.ts): Generic storage adapters with validation and export/import functionality
 - [Type Definitions](src/modules/types.ts): Comprehensive TypeScript interfaces and utility types
@@ -61,9 +69,13 @@ The architecture emphasizes type safety through advanced TypeScript generics, ge
 
 - [Feature Prompts](.ai/notes/feature-prompts.md): Collection of detailed feature development prompts and implementation ideas
 - [Episode Tracking Feature Plan](.ai/plan/feature-episode-tracking-1.md): Detailed specification for individual episode progress tracking
+- [Episode Metadata Enrichment Plan](.ai/plan/feature-episode-metadata-enrichment-1.md): Technical specification for external metadata integration and enrichment
 - [Advanced Visualization Plan](.ai/plan/feature-advanced-visualization-1.md): Technical roadmap for D3.js timeline visualization features
+- [Responsive UI Testing Plan](.ai/plan/feature-responsive-ui-testing-1.md): Strategy for cross-device and accessibility testing automation
 - [Functional Composition Plan](.ai/plan/feature-functional-composition-1.md): Architecture specification for functional programming utilities
 - [Git Pre-commit Hooks Plan](.ai/plan/process-git-precommit-hooks-1.md): Implementation plan for automated code quality enforcement
+- [Production Readiness Infrastructure](.ai/plan/infrastructure-production-readiness-1.md): Comprehensive plan for production deployment readiness
+- [ESLint Remediation Refactor](.ai/plan/refactor-eslint-remediation-1.md): Plan for upgrading and fixing ESLint configuration issues
 - [Generic Types Refactor Plan](.ai/plan/refactor-generic-types-1.md): Specification for enhanced type safety through generic TypeScript patterns
 - [Functional Factory Refactor Plan](.ai/plan/refactor-modules-functional-1.md): Migration plan from class-based to functional factory architecture
 
