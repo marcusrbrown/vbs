@@ -12,8 +12,12 @@ const EPISODE_DATA_CACHE_NAME = `${CACHE_PREFIX}-episodes-v${CACHE_VERSION}`
 // ============================================================================
 
 /**
- * Simple logging system for Service Worker metadata operations.
+ * Simple generic logging system for Service Worker operations.
+ * Simplified IIFE implementation suitable for Service Worker environment.
  * Tracks success rates, error patterns, and performance metrics.
+ *
+ * This is a lightweight version of the main logger (src/modules/logger.ts)
+ * optimized for the Service Worker execution context.
  */
 const metadataLogger = (() => {
   const logs = []

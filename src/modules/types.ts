@@ -3467,10 +3467,10 @@ export interface LogEntry {
 }
 
 /**
- * Metadata operation metrics for monitoring system health and performance.
- * Tracks success rates, error patterns, and performance characteristics.
+ * Operation metrics for monitoring system health and performance.
+ * Tracks success rates, error patterns, and performance characteristics across any domain.
  */
-export interface MetadataOperationMetrics {
+export interface OperationMetrics {
   /** Total operations attempted */
   totalOperations: number
   /** Successful operations */
@@ -3545,7 +3545,7 @@ export interface LoggerEvents extends EventMap {
   }
   /** Emitted when metrics are calculated */
   'metrics-updated': {
-    metrics: MetadataOperationMetrics
+    metrics: OperationMetrics
   }
   /** Emitted when log storage exceeds threshold */
   'storage-warning': {
@@ -3561,10 +3561,10 @@ export interface LoggerEvents extends EventMap {
 }
 
 /**
- * Public API interface for MetadataLogger factory instances.
- * Provides comprehensive logging and monitoring capabilities for metadata operations.
+ * Public API interface for Logger factory instances.
+ * Provides comprehensive logging and monitoring capabilities for any domain.
  */
-export interface MetadataLoggerInstance {
+export interface LoggerInstance {
   /** Log debug message (lowest severity) */
   debug: (message: string, context?: LogEntry['context']) => void
   /** Log informational message */
@@ -3586,7 +3586,7 @@ export interface MetadataLoggerInstance {
   }) => LogEntry[]
 
   /** Get current operation metrics */
-  getMetrics: () => MetadataOperationMetrics
+  getMetrics: () => OperationMetrics
 
   /** Clear all log entries */
   clearLogs: (reason?: 'manual' | 'retention' | 'storage-limit') => number
@@ -3611,3 +3611,13 @@ export interface MetadataLoggerInstance {
   off: <K extends keyof LoggerEvents>(event: K, listener: (data: LoggerEvents[K]) => void) => void
   once: <K extends keyof LoggerEvents>(event: K, listener: (data: LoggerEvents[K]) => void) => void
 }
+
+/**
+ * @deprecated Use LoggerInstance instead. Kept for backward compatibility.
+ */
+export type MetadataLoggerInstance = LoggerInstance
+
+/**
+ * @deprecated Use OperationMetrics instead. Kept for backward compatibility.
+ */
+export type MetadataOperationMetrics = OperationMetrics

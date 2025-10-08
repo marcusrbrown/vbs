@@ -1,23 +1,28 @@
 /**
- * Metadata Logger Module
+ * Logger Module
  *
- * Provides comprehensive logging and monitoring capabilities for metadata operations.
+ * Provides comprehensive logging and monitoring capabilities for any application domain.
  * Implements configurable log levels, filtering, persistence, and performance metrics tracking
  * following VBS functional factory architecture.
+ *
+ * This is a generic, reusable logging utility that can be used across different modules
+ * (metadata operations, user actions, API calls, etc.) with domain-specific configuration.
  */
 
 import type {
   LogEntry,
   LoggerConfig,
   LoggerEvents,
+  LoggerInstance,
   LogLevel,
-  MetadataLoggerInstance,
-  MetadataOperationMetrics,
+  OperationMetrics,
 } from './types.js'
 import {createEventEmitter} from './events.js'
 
 /**
  * Default logger configuration with production-ready settings.
+ * These defaults are suitable for general application logging but can be customized
+ * for specific use cases (e.g., metadata sync, user interactions, API monitoring).
  */
 const DEFAULT_LOGGER_CONFIG: LoggerConfig = {
   minLevel: 'info',
@@ -34,6 +39,7 @@ const DEFAULT_LOGGER_CONFIG: LoggerConfig = {
 
 /**
  * Log level hierarchy for severity comparison.
+ * Used internally to filter logs based on minimum level configuration.
  */
 const LOG_LEVEL_HIERARCHY: Record<LogLevel, number> = {
   debug: 0,
@@ -44,15 +50,38 @@ const LOG_LEVEL_HIERARCHY: Record<LogLevel, number> = {
 }
 
 /**
- * Factory function to create a metadata logger instance.
+ * Factory function to create a logger instance.
  * Manages comprehensive logging with configurable levels, filtering, and metrics.
  *
- * @param config - Optional logger configuration
- * @returns MetadataLoggerInstance with full logging capabilities
+ * This logger is domain-agnostic and can be used for any type of logging:
+ * - Metadata sync operations
+ * - User interactions
+ * - API calls and responses
+ * - Service Worker events
+ * - Performance monitoring
+ * - Error tracking
+ *
+ * @param config - Optional logger configuration to override defaults
+ * @returns LoggerInstance with full logging capabilities
+ *
+ * @example
+ * ```typescript
+ * // Create a logger for metadata operations
+ * const metadataLogger = createLogger({
+ *   minLevel: 'info',
+ *   enabledCategories: ['metadata', 'api'],
+ *   consoleOutput: true,
+ * })
+ *
+ * // Create a logger for user interactions
+ * const userLogger = createLogger({
+ *   minLevel: 'debug',
+ *   enabledCategories: ['user'],
+ *   persistLogs: true,
+ * })
+ * ```
  */
-export const createMetadataLogger = (
-  config: Partial<LoggerConfig> = {},
-): MetadataLoggerInstance => {
+export const createLogger = (config: Partial<LoggerConfig> = {}): LoggerInstance => {
   const loggerConfig: LoggerConfig = {...DEFAULT_LOGGER_CONFIG, ...config}
   const eventEmitter = createEventEmitter<LoggerEvents>()
 
@@ -66,7 +95,7 @@ export const createMetadataLogger = (
   const sourceCounts: Map<string, number> = new Map()
 
   /**
-   * Generate unique log entry ID.
+   * Generate unique log entry ID with timestamp and counter.
    */
   const generateLogId = (): string => {
     entryCounter += 1
@@ -75,6 +104,7 @@ export const createMetadataLogger = (
 
   /**
    * Check if log level should be captured based on configuration.
+   * Filters by both severity level and category.
    */
   const shouldCapture = (level: LogLevel, category?: LogEntry['category']): boolean => {
     const levelMeetsThreshold =
@@ -89,6 +119,7 @@ export const createMetadataLogger = (
 
   /**
    * Get environment information for log entries.
+   * Captures browser, platform, and execution context details.
    */
   const getEnvironmentInfo = (): LogEntry['environment'] => {
     if (!loggerConfig.includeEnvironment) {
@@ -104,11 +135,12 @@ export const createMetadataLogger = (
 
   /**
    * Output log entry to console if configured.
+   * Uses appropriate console method based on log level.
    */
   const outputToConsole = (entry: LogEntry): void => {
     if (!loggerConfig.consoleOutput) return
 
-    const prefix = `[VBS Metadata ${entry.level.toUpperCase()}]`
+    const prefix = `[VBS ${entry.category.toUpperCase()} ${entry.level.toUpperCase()}]`
     const message = `${prefix} ${entry.message}`
 
     switch (entry.level) {
@@ -128,6 +160,7 @@ export const createMetadataLogger = (
 
   /**
    * Track operation metrics from log entry context.
+   * Updates timing statistics and error categorization.
    */
   const trackMetrics = (entry: LogEntry): void => {
     if (!loggerConfig.enableMetrics) return
@@ -153,6 +186,7 @@ export const createMetadataLogger = (
 
   /**
    * Cleanup old log entries based on retention policy.
+   * Removes entries older than configured retention period.
    */
   const cleanupOldLogs = (): number => {
     const now = Date.now()
@@ -179,7 +213,8 @@ export const createMetadataLogger = (
   }
 
   /**
-   * Enforce maximum log entries limit.
+   * Enforce maximum log entries limit to prevent memory bloat.
+   * Removes oldest entries when limit is exceeded.
    */
   const enforceMaxEntries = (): number => {
     if (logs.length <= loggerConfig.maxEntries) {
@@ -192,7 +227,8 @@ export const createMetadataLogger = (
   }
 
   /**
-   * Create a log entry with full context.
+   * Create a log entry with full context, environment, and metadata.
+   * Automatically captures stack traces for errors when configured.
    */
   const createLogEntry = (
     level: LogLevel,
@@ -232,6 +268,7 @@ export const createMetadataLogger = (
 
   /**
    * Core logging function with full processing pipeline.
+   * Handles filtering, storage, metrics tracking, and event emission.
    */
   const log = (
     level: LogLevel,
@@ -283,20 +320,20 @@ export const createMetadataLogger = (
 
   /**
    * Calculate current operation metrics from tracked data.
+   * Provides success rates, timing percentiles, and error categorization.
    */
-  const calculateMetrics = (): MetadataOperationMetrics => {
+  const calculateMetrics = (): OperationMetrics => {
     const now = Date.now()
     const windowStart = now - loggerConfig.metricsWindowMs
 
     const recentLogs = logs.filter(entry => new Date(entry.timestamp).getTime() >= windowStart)
 
-    const successfulOps = recentLogs.filter(
-      entry => entry.level === 'info' && entry.category === 'metadata',
-    ).length
+    // Count successful operations (info level logs in the configured categories)
+    const successfulOps = recentLogs.filter(entry => entry.level === 'info').length
 
+    // Count failed operations (error and critical level logs)
     const failedOps = recentLogs.filter(
-      entry =>
-        (entry.level === 'error' || entry.level === 'critical') && entry.category === 'metadata',
+      entry => entry.level === 'error' || entry.level === 'critical',
     ).length
 
     const totalOps = successfulOps + failedOps
@@ -327,13 +364,13 @@ export const createMetadataLogger = (
       maxDurationMs: sortedTimings.length > 0 ? (sortedTimings.at(-1) ?? 0) : 0,
       p95DurationMs: sortedTimings.length > 0 ? (sortedTimings[p95Index] ?? 0) : 0,
       errorsByCategory,
-      operationsBySource: operationsBySource as MetadataOperationMetrics['operationsBySource'],
+      operationsBySource: operationsBySource as OperationMetrics['operationsBySource'],
       timeWindowMs: loggerConfig.metricsWindowMs,
       calculatedAt: new Date().toISOString(),
     }
   }
 
-  // Public API implementation
+  // Public API implementation - domain-agnostic logging methods
   const debug = (message: string, context?: LogEntry['context']): void => {
     const category = (context?.category ?? 'metadata') as LogEntry['category']
     log('debug', category, message, context)
@@ -393,7 +430,7 @@ export const createMetadataLogger = (
     return filtered
   }
 
-  const getMetrics = (): MetadataOperationMetrics => {
+  const getMetrics = (): OperationMetrics => {
     const metrics = calculateMetrics()
     eventEmitter.emit('metrics-updated', {metrics})
     return metrics

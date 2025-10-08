@@ -1,19 +1,19 @@
 /**
- * Metadata Logger Tests
+ * Logger Tests
  *
- * Comprehensive test suite for the metadata logging and monitoring system.
+ * Comprehensive test suite for the generic logging and monitoring system.
  * Tests all logging levels, filtering, metrics calculation, and event emissions.
  */
 
-import type {MetadataLoggerInstance} from '../src/modules/types.js'
+import type {LoggerInstance} from '../src/modules/types.js'
 import {beforeEach, describe, expect, it, vi} from 'vitest'
-import {createMetadataLogger} from '../src/modules/metadata-logger.js'
+import {createLogger} from '../src/modules/logger.js'
 
-describe('Metadata Logger', () => {
-  let logger: MetadataLoggerInstance
+describe('Logger', () => {
+  let logger: LoggerInstance
 
   beforeEach(() => {
-    logger = createMetadataLogger()
+    logger = createLogger()
   })
 
   describe('Basic Logging', () => {
@@ -27,7 +27,7 @@ describe('Metadata Logger', () => {
     })
 
     it('should log debug messages when debug level enabled', () => {
-      const debugLogger = createMetadataLogger({minLevel: 'debug'})
+      const debugLogger = createLogger({minLevel: 'debug'})
       debugLogger.debug('Test debug message', {operationId: 'test-op-1'})
 
       const logs = debugLogger.getLogs()
@@ -269,7 +269,7 @@ describe('Metadata Logger', () => {
 
   describe('Configuration', () => {
     it('should respect minimum log level', () => {
-      const filteredLogger = createMetadataLogger({minLevel: 'warn'})
+      const filteredLogger = createLogger({minLevel: 'warn'})
 
       filteredLogger.debug('Debug message')
       filteredLogger.info('Info message')
@@ -284,7 +284,7 @@ describe('Metadata Logger', () => {
     })
 
     it('should respect category filtering', () => {
-      const categoryLogger = createMetadataLogger({
+      const categoryLogger = createLogger({
         enabledCategories: ['metadata'],
       })
 
@@ -297,7 +297,7 @@ describe('Metadata Logger', () => {
     })
 
     it('should enforce maximum log entries', () => {
-      const limitedLogger = createMetadataLogger({maxEntries: 10})
+      const limitedLogger = createLogger({maxEntries: 10})
 
       // Add 20 log entries
       for (let i = 0; i < 20; i++) {

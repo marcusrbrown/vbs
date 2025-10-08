@@ -28,6 +28,7 @@ The project uses **functional factory patterns** with closures for state managem
 - `createTimelineRenderer`: Factory rendering era-based timeline with dependency injection
 - `createElementsManager`: Factory for DOM element caching and management
 - `createEventEmitter<T>`: Generic EventEmitter factory with type-safe event handling
+- `createLogger`: Generic logging utility with configurable levels, filtering, metrics, and persistence
 - `storage.ts`: Generic storage utilities with EventEmitter notifications (`StorageEvents`)
 - `migration.ts`: Data migration utilities for schema evolution and version management
 - `progress-validation.ts`: Validation and error recovery for progress data integrity
@@ -184,9 +185,10 @@ VBS implements a comprehensive generic type system that enhances the functional 
 ### Core Generic Patterns
 
 - **Generic EventEmitter**: `createEventEmitter<TEventMap>()` for type-safe events with full listener management
+- **Generic Logger**: `createLogger(config)` for domain-agnostic logging with configurable levels, filtering, and metrics
 - **Generic Storage**: `StorageAdapter<T>` with validation and fallback options
 - **Utility Types**: 25+ types for factory functions, deep transformations, and constraints
-- **Event Maps**: All modules use `EventMap` interface (`ProgressTrackerEvents`, `SearchFilterEvents`, `StorageEvents`)
+- **Event Maps**: All modules use `EventMap` interface (`ProgressTrackerEvents`, `SearchFilterEvents`, `StorageEvents`, `LoggerEvents`)
 - **Error Handling**: `withErrorHandling()` and `withSyncErrorHandling()` utilities for consistent error boundaries
 
 ### Key Implementation Details
@@ -196,6 +198,15 @@ VBS implements a comprehensive generic type system that enhances the functional 
 const eventEmitter = createEventEmitter<ProgressTrackerEvents>()
 eventEmitter.emit('item-toggle', { itemId: 'tos_s1', isWatched: true })
 eventEmitter.once('progress-update', (data) => console.log('One-time listener'))
+
+// Generic logger for any domain (metadata, user actions, API calls, etc.)
+const metadataLogger = createLogger({
+  minLevel: 'info',
+  enabledCategories: ['metadata', 'api'],
+  enableMetrics: true,
+})
+metadataLogger.info('Operation complete', { durationMs: 123, episodeId: 'tos_s1_e1' })
+const metrics = metadataLogger.getMetrics() // Success rates, p95 latency, etc.
 
 // Generic storage with validation
 const storage = createStorage(new LocalStorageAdapter<string[]>({ validate: isStringArray }))
