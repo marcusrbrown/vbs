@@ -3250,3 +3250,165 @@ export interface MetadataQueueInstance {
     listener: (data: MetadataQueueEvents[K]) => void,
   ) => void
 }
+
+// ============================================================================
+// TASK-031: Cache Warming Types
+// ============================================================================
+
+/**
+ * Cache warming strategy type for different warming scenarios.
+ */
+export type WarmingStrategy =
+  | 'popular-episodes' // Series/season premieres, pilot episodes
+  | 'recently-watched' // Episodes recently watched by user
+  | 'sequential-prediction' // Next N episodes based on viewing pattern
+  | 'era-based' // Episodes from user's preferred eras
+  | 'new-content' // Newly added episodes to the catalog
+  | 'manual' // User-initiated warming
+
+/**
+ * Cache warming configuration with user-controllable settings.
+ */
+export interface CacheWarmingConfig {
+  /** Enable/disable automatic cache warming */
+  enabled: boolean
+  /** Number of episodes to warm ahead for sequential viewing */
+  lookAheadCount: number
+  /** Maximum episodes to warm in a single batch */
+  maxBatchSize: number
+  /** Priority for warming jobs (higher = more important) */
+  defaultPriority: number
+  /** Strategies to enable for automatic warming */
+  enabledStrategies: WarmingStrategy[]
+  /** Minimum time between warming operations (ms) */
+  minWarmingInterval: number
+  /** Whether to warm popular episodes on app initialization */
+  warmPopularOnInit: boolean
+}
+
+/**
+ * Cache warming job details for tracking warming operations.
+ */
+export interface CacheWarmingJob {
+  /** Unique job identifier */
+  jobId: string
+  /** Episode ID to warm */
+  episodeId: string
+  /** Warming strategy used */
+  strategy: WarmingStrategy
+  /** Priority level (higher = more important) */
+  priority: number
+  /** Creation timestamp */
+  createdAt: string
+  /** Reason for warming (for debugging/analytics) */
+  reason?: string
+}
+
+/**
+ * Cache warming statistics for monitoring and optimization.
+ */
+export interface CacheWarmingStats {
+  /** Total episodes warmed since initialization */
+  totalWarmed: number
+  /** Successful warming operations */
+  successfulWarming: number
+  /** Failed warming operations */
+  failedWarming: number
+  /** Cache hit rate after warming */
+  cacheHitRate: number
+  /** Average warming time (ms) */
+  avgWarmingTime: number
+  /** Last warming operation timestamp */
+  lastWarmingAt: string | null
+  /** Warming operations by strategy */
+  warmingByStrategy: Record<WarmingStrategy, number>
+}
+
+/**
+ * Event map for cache warming events with type-safe data payloads.
+ */
+export interface CacheWarmingEvents extends EventMap {
+  /** Emitted when cache warming job is created and queued */
+  'warming-started': {
+    job: CacheWarmingJob
+    episodeCount: number
+  }
+  /** Emitted when warming job successfully completes */
+  'warming-completed': {
+    job: CacheWarmingJob
+    duration: number
+  }
+  /** Emitted when warming job fails */
+  'warming-failed': {
+    job: CacheWarmingJob
+    error: string
+  }
+  /** Emitted when popular episodes are detected and queued */
+  'popular-episodes-detected': {
+    episodeIds: string[]
+    count: number
+  }
+  /** Emitted when recently watched episodes trigger warming */
+  'recently-watched-detected': {
+    episodeId: string
+    nextEpisodeIds: string[]
+  }
+  /** Emitted when sequential viewing pattern is detected */
+  'sequential-pattern-detected': {
+    seriesId: string
+    currentEpisode: string
+    predictedEpisodes: string[]
+  }
+  /** Emitted when new content is detected for warming */
+  'new-content-detected': {
+    episodeIds: string[]
+    addedAt: string
+  }
+  /** Emitted when cache warming statistics are updated */
+  'stats-updated': {
+    stats: CacheWarmingStats
+  }
+}
+
+/**
+ * Public API interface for CacheWarming factory instances.
+ * Follows VBS functional factory architecture with closure-based state management.
+ */
+export interface CacheWarmingInstance {
+  /** Warm popular episodes (series/season premieres, key episodes) */
+  warmPopularEpisodes: () => Promise<string[]>
+  /** Warm episodes based on recently watched content */
+  warmRecentlyWatched: (episodeId: string) => Promise<string[]>
+  /** Warm next N episodes for sequential viewing pattern */
+  warmSequentialEpisodes: (episodeId: string, count?: number) => Promise<string[]>
+  /** Warm episodes from specific era */
+  warmEraEpisodes: (eraId: string, limit?: number) => Promise<string[]>
+  /** Warm newly added content */
+  warmNewContent: (episodeIds: string[]) => Promise<string[]>
+  /** Manually warm specific episode */
+  warmEpisode: (episodeId: string, priority?: number) => Promise<boolean>
+  /** Update cache warming configuration */
+  updateConfig: (config: Partial<CacheWarmingConfig>) => void
+  /** Get current cache warming statistics */
+  getStats: () => CacheWarmingStats
+  /** Reset cache warming statistics */
+  resetStats: () => void
+  /** Check if episode is in warming queue */
+  isWarmingQueued: (episodeId: string) => boolean
+  /** Cancel warming job for specific episode */
+  cancelWarming: (episodeId: string) => boolean
+
+  // EventEmitter methods for type-safe event handling
+  on: <K extends keyof CacheWarmingEvents>(
+    event: K,
+    listener: (data: CacheWarmingEvents[K]) => void,
+  ) => void
+  off: <K extends keyof CacheWarmingEvents>(
+    event: K,
+    listener: (data: CacheWarmingEvents[K]) => void,
+  ) => void
+  once: <K extends keyof CacheWarmingEvents>(
+    event: K,
+    listener: (data: CacheWarmingEvents[K]) => void,
+  ) => void
+}
