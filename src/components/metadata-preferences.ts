@@ -72,9 +72,6 @@ export const createMetadataPreferences = (
 
   const eventEmitter = createEventEmitter<MetadataPreferencesEvents>()
 
-  /**
-   * Available metadata sources for user selection.
-   */
   const AVAILABLE_SOURCES: {id: MetadataSourceType; name: string}[] = [
     {id: 'memory-alpha', name: 'Memory Alpha'},
     {id: 'tmdb', name: 'The Movie Database'},
@@ -82,9 +79,6 @@ export const createMetadataPreferences = (
     {id: 'stapi', name: 'Star Trek API'},
   ]
 
-  /**
-   * Available series for bulk refresh operations.
-   */
   const AVAILABLE_SERIES = [
     {id: 'ent', name: 'Enterprise', episodeCount: 98},
     {id: 'tos', name: 'Original Series', episodeCount: 79},
@@ -95,9 +89,6 @@ export const createMetadataPreferences = (
     {id: 'pic', name: 'Picard', episodeCount: 30},
   ]
 
-  /**
-   * Create single episode refresh section HTML.
-   */
   const createSingleRefreshSection = (): string => {
     const sourceOptions = AVAILABLE_SOURCES.map(
       source => `<option value="${source.id}">${source.name}</option>`,
@@ -150,9 +141,6 @@ export const createMetadataPreferences = (
     `
   }
 
-  /**
-   * Create bulk refresh operations section HTML.
-   */
   const createBulkRefreshSection = (): string => {
     const seriesOptions = AVAILABLE_SERIES.map(
       series =>
@@ -212,9 +200,6 @@ export const createMetadataPreferences = (
     `
   }
 
-  /**
-   * Create progress indicator section HTML.
-   */
   const createProgressSection = (): string => {
     return `
       <div class="progress-container hidden" data-progress-container role="status" aria-live="polite">
@@ -247,9 +232,6 @@ export const createMetadataPreferences = (
     `
   }
 
-  /**
-   * Create feedback message section HTML.
-   */
   const createFeedbackSection = (): string => {
     return `
       <div class="feedback-container hidden" data-feedback-container role="alert" aria-live="assertive">
@@ -258,9 +240,6 @@ export const createMetadataPreferences = (
     `
   }
 
-  /**
-   * Show progress indicator with current operation details.
-   */
   const showProgress = (): void => {
     if (!elements.progressContainer) return
 
@@ -268,9 +247,6 @@ export const createMetadataPreferences = (
     elements.progressContainer.classList.add('visible')
   }
 
-  /**
-   * Hide progress indicator.
-   */
   const hideProgress = (): void => {
     if (!elements.progressContainer) return
 
@@ -278,9 +254,6 @@ export const createMetadataPreferences = (
     elements.progressContainer.classList.add('hidden')
   }
 
-  /**
-   * Update progress indicator with current values.
-   */
   const updateProgress = (current: number, total: number, success: number, fail: number): void => {
     if (!elements.progressBar || !elements.progressText) return
 
@@ -308,9 +281,6 @@ export const createMetadataPreferences = (
     }
   }
 
-  /**
-   * Show feedback message to user.
-   */
   const showFeedback = (message: string, type: 'success' | 'error' | 'info'): void => {
     if (!elements.feedbackContainer) return
 
@@ -340,9 +310,6 @@ export const createMetadataPreferences = (
     }, 5000)
   }
 
-  /**
-   * Handle single episode refresh.
-   */
   const handleSingleRefresh = withSyncErrorHandling(async (): Promise<void> => {
     if (isRefreshing || !elements.episodeIdInput) return
 
@@ -397,9 +364,6 @@ export const createMetadataPreferences = (
     }
   }, 'Failed to refresh episode metadata')
 
-  /**
-   * Handle series bulk refresh.
-   */
   const handleSeriesRefresh = withSyncErrorHandling(async (): Promise<void> => {
     if (isRefreshing || !selectedSeriesId) return
 
@@ -470,9 +434,6 @@ export const createMetadataPreferences = (
     }
   }, 'Failed to refresh series metadata')
 
-  /**
-   * Handle refresh all episodes.
-   */
   const handleRefreshAll = withSyncErrorHandling(async (): Promise<void> => {
     if (isRefreshing) return
 
@@ -547,9 +508,6 @@ export const createMetadataPreferences = (
     }
   }, 'Failed to refresh all metadata')
 
-  /**
-   * Cancel ongoing bulk operation.
-   */
   const handleCancel = (): void => {
     if (currentOperation === 'bulk') {
       isRefreshing = false
@@ -558,10 +516,7 @@ export const createMetadataPreferences = (
     }
   }
 
-  /**
-   * Generate episode IDs for a series.
-   * This is a simplified implementation - real implementation would query actual episode data.
-   */
+  // Simplified implementation - real implementation would query actual episode data
   const generateSeriesEpisodeIds = (seriesId: string, episodeCount: number): string[] => {
     const episodeIds: string[] = []
     let currentEpisode = 1
@@ -580,9 +535,6 @@ export const createMetadataPreferences = (
     return episodeIds
   }
 
-  /**
-   * Setup event listeners for all interactive elements.
-   */
   const setupEventListeners = (): void => {
     if (!elements.form) return
 
@@ -630,9 +582,6 @@ export const createMetadataPreferences = (
     })
   }
 
-  /**
-   * Render the metadata preferences UI.
-   */
   const render = (): void => {
     container.innerHTML = `
       <div class="metadata-preferences-container">
@@ -679,16 +628,10 @@ export const createMetadataPreferences = (
     setupEventListeners()
   }
 
-  /**
-   * Update component with new configuration.
-   */
   const update = (): void => {
     render()
   }
 
-  /**
-   * Destroy the component and cleanup resources.
-   */
   const destroy = (): void => {
     isRefreshing = false
     currentOperation = null
