@@ -2379,6 +2379,206 @@ export interface TimelineControlsEvents extends EventMap {
 }
 
 /**
+ * Metadata debug panel event map for type-safe event handling.
+ * Defines events emitted by the metadata debug panel component.
+ */
+export interface MetadataDebugPanelEvents extends EventMap {
+  /** Fired when manual metadata refresh is triggered */
+  'refresh-requested': {episodeId?: string; source?: MetadataSourceType}
+  /** Fired when bulk refresh operation is started */
+  'bulk-refresh-started': {episodeIds: string[]; totalCount: number}
+  /** Fired when bulk refresh operation completes */
+  'bulk-refresh-completed': {successCount: number; failCount: number; duration: number}
+  /** Fired when bulk refresh is cancelled by user */
+  'bulk-refresh-cancelled': {processedCount: number; remainingCount: number}
+  /** Fired when debug panel is opened/closed */
+  'panel-visibility-changed': {isVisible: boolean}
+  /** Fired when cache is cleared */
+  'cache-cleared': {clearedEntries: number; freedSpace: number}
+  /** Fired when data source is toggled on/off */
+  'source-toggled': {source: MetadataSourceType; enabled: boolean}
+}
+
+/**
+ * Metadata debug panel instance interface for functional factory pattern.
+ * Provides comprehensive debugging capabilities for metadata enrichment system.
+ */
+export interface MetadataDebugPanelInstance {
+  /** Render the debug panel UI into the container */
+  render: () => void
+  /** Show the debug panel */
+  show: () => void
+  /** Hide the debug panel */
+  hide: () => void
+  /** Toggle visibility of the debug panel */
+  toggle: () => void
+  /** Update debug panel with latest data */
+  update: (data?: Partial<MetadataDebugPanelData>) => void
+  /** Refresh metadata for specific episode */
+  refreshEpisode: (episodeId: string, source?: MetadataSourceType) => Promise<void>
+  /** Trigger bulk metadata refresh */
+  refreshBulk: (episodeIds: string[]) => Promise<void>
+  /** Cancel ongoing bulk operation */
+  cancelBulkOperation: () => void
+  /** Clear metadata cache */
+  clearCache: () => Promise<void>
+  /** Export debug information as JSON */
+  exportDebugInfo: () => string
+  /** Destroy the component and cleanup resources */
+  destroy: () => void
+
+  // Generic EventEmitter methods for type-safe event handling
+  on: <TEventName extends keyof MetadataDebugPanelEvents>(
+    eventName: TEventName,
+    listener: (payload: MetadataDebugPanelEvents[TEventName]) => void,
+  ) => void
+  off: <TEventName extends keyof MetadataDebugPanelEvents>(
+    eventName: TEventName,
+    listener: (payload: MetadataDebugPanelEvents[TEventName]) => void,
+  ) => void
+  once: <TEventName extends keyof MetadataDebugPanelEvents>(
+    eventName: TEventName,
+    listener: (payload: MetadataDebugPanelEvents[TEventName]) => void,
+  ) => void
+  removeAllListeners: <TEventName extends keyof MetadataDebugPanelEvents>(
+    eventName?: TEventName,
+  ) => void
+}
+
+/**
+ * Data structure for metadata debug panel visualization.
+ * Contains comprehensive information about data sources, quality, and sync status.
+ */
+export interface MetadataDebugPanelData {
+  /** Data source status and health information */
+  sources: MetadataSourceStatus[]
+  /** Overall metadata quality metrics */
+  qualityMetrics: MetadataQualityMetrics
+  /** Current sync operation status */
+  syncStatus: MetadataSyncStatus
+  /** Storage usage statistics */
+  storageStats: {
+    totalEntries: number
+    usedSpace: number
+    maxQuota: number
+    percentUsed: number
+  }
+  /** Recent metadata operations log */
+  recentOperations: MetadataOperationLog[]
+}
+
+/**
+ * Status information for individual metadata source.
+ */
+export interface MetadataSourceStatus {
+  /** Source identifier */
+  id: MetadataSourceType
+  /** Display name */
+  name: string
+  /** Whether source is currently enabled */
+  enabled: boolean
+  /** Whether source is healthy and accessible */
+  isHealthy: boolean
+  /** Source reliability metrics */
+  reliability: {
+    uptime: number
+    accuracy: number
+    latency: number
+  }
+  /** Recent request statistics */
+  stats: {
+    totalRequests: number
+    successfulRequests: number
+    failedRequests: number
+    averageLatency: number
+  }
+  /** Last successful access timestamp */
+  lastAccessed: string | null
+  /** Error information if unhealthy */
+  error?: {
+    message: string
+    category: string
+    timestamp: string
+  }
+}
+
+/**
+ * Overall metadata quality metrics for visualization.
+ */
+export interface MetadataQualityMetrics {
+  /** Total episodes with metadata */
+  totalEpisodes: number
+  /** Episodes with complete metadata */
+  completeMetadata: number
+  /** Episodes with partial metadata */
+  partialMetadata: number
+  /** Episodes with no metadata */
+  noMetadata: number
+  /** Average metadata completeness (0-1) */
+  averageCompleteness: number
+  /** Average confidence score across all metadata */
+  averageConfidence: number
+  /** Metadata freshness distribution */
+  freshness: {
+    fresh: number // < 7 days old
+    stale: number // 7-30 days old
+    expired: number // > 30 days old
+  }
+}
+
+/**
+ * Current metadata sync operation status.
+ */
+export interface MetadataSyncStatus {
+  /** Whether sync is currently active */
+  isActive: boolean
+  /** Current operation type */
+  operationType?: 'enrich' | 'refresh' | 'validate' | 'cache-warm'
+  /** Progress information for active operation */
+  progress?: {
+    totalJobs: number
+    completedJobs: number
+    failedJobs: number
+    currentJob?: string
+    percentComplete: number
+  }
+  /** Queue statistics */
+  queueStats: {
+    pendingJobs: number
+    inProgressJobs: number
+    failedJobs: number
+  }
+  /** Estimated time to completion */
+  estimatedCompletion?: string
+  /** Whether operation can be cancelled */
+  cancellable: boolean
+}
+
+/**
+ * Log entry for metadata operations for debugging.
+ */
+export interface MetadataOperationLog {
+  /** Unique log entry ID */
+  id: string
+  /** Timestamp of operation */
+  timestamp: string
+  /** Operation type */
+  type: 'enrich' | 'refresh' | 'validate' | 'cache-clear' | 'source-toggle'
+  /** Operation status */
+  status: 'success' | 'failed' | 'cancelled'
+  /** Episode ID if applicable */
+  episodeId?: string
+  /** Data source if applicable */
+  source?: MetadataSourceType
+  /** Duration in milliseconds */
+  duration?: number
+  /** Error message if failed */
+  error?: string
+  /** Additional details */
+  details?: Record<string, any>
+}
+
+/**
  * Timeline export configuration options.
  * Used for generating PNG/SVG files for sharing progress.
  */
