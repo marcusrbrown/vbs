@@ -577,6 +577,26 @@ globalThis.addEventListener('message', event => {
         data: allProgress,
       })
     }
+  } else if (event.data && event.data.type === 'START_CACHE_WARMING') {
+    // Start cache warming operation (TASK-031)
+    const {strategy, episodeIds, priority} = event.data.payload || {}
+    handleCacheWarming({strategy, episodeIds, priority}).then(result => {
+      if (event.ports[0]) {
+        event.ports[0].postMessage({
+          type: 'CACHE_WARMING_STARTED',
+          data: result,
+        })
+      }
+    })
+  } else if (event.data && event.data.type === 'GET_WARMING_STATS') {
+    // Get cache warming statistics (TASK-031)
+    const stats = getCacheWarmingStats()
+    if (event.ports[0]) {
+      event.ports[0].postMessage({
+        type: 'WARMING_STATS',
+        data: stats,
+      })
+    }
   }
 })
 
@@ -1613,5 +1633,136 @@ async function notifyClientsOfSyncCapability(capability) {
     }
   } catch (error) {
     console.error('[VBS SW] Failed to notify clients of sync capability:', error)
+  }
+}
+
+// ============================================================================
+// TASK-031: Cache Warming for Popular and Recently Watched Episodes
+// ============================================================================
+
+/**
+ * Cache warming state - track warming jobs and statistics.
+ */
+const warmingJobs = new Map()
+const warmingStats = {
+  totalWarmed: 0,
+  successfulWarming: 0,
+  failedWarming: 0,
+  lastWarmingAt: null,
+}
+
+/**
+ * Handle cache warming request from main application.
+ * Processes warming jobs for popular episodes, recently watched content, etc.
+ *
+ * @param {object} data - Warming request data
+ * @param {string} data.strategy - Warming strategy (popular-episodes, recently-watched, etc.)
+ * @param {string[]} data.episodeIds - Episode IDs to warm
+ * @param {number} data.priority - Priority level for warming jobs
+ * @returns {Promise<object>} Warming operation result
+ */
+async function handleCacheWarming(data) {
+  const {strategy, episodeIds, priority = 2} = data
+  const warmingId = `warming_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
+
+  try {
+    const results = {
+      warmingId,
+      strategy,
+      totalEpisodes: episodeIds.length,
+      warmedEpisodes: 0,
+      failedEpisodes: 0,
+      startedAt: new Date().toISOString(),
+    }
+
+    // Process each episode for warming
+    for (const episodeId of episodeIds) {
+      try {
+        // Check if metadata already exists in cache
+        const cached = await getExistingMetadata(episodeId)
+
+        if (cached == null) {
+          // Queue metadata enrichment for this episode
+          const job = {
+            episodeId,
+            priority,
+            type: 'cache-warm',
+            metadata: {
+              warmingStrategy: strategy,
+              warmingId,
+            },
+          }
+
+          warmingJobs.set(episodeId, {
+            ...job,
+            queuedAt: new Date().toISOString(),
+          })
+
+          // Enrich metadata (this would normally be done via metadata queue)
+          const metadata = await simulateBatchMetadataEnrichment(episodeId, 'tmdb')
+          await storeEpisodeMetadata(episodeId, metadata)
+
+          results.warmedEpisodes += 1
+          warmingStats.successfulWarming += 1
+        } else {
+          // Already warmed
+          results.warmedEpisodes += 1
+        }
+      } catch (error) {
+        console.error(`[VBS SW] Failed to warm episode ${episodeId}:`, error)
+        results.failedEpisodes += 1
+        warmingStats.failedWarming += 1
+      }
+    }
+
+    results.completedAt = new Date().toISOString()
+    warmingStats.totalWarmed += results.warmedEpisodes
+    warmingStats.lastWarmingAt = results.completedAt
+
+    // Notify clients of warming completion
+    await notifyClientsOfWarmingComplete(results)
+
+    return results
+  } catch (error) {
+    console.error('[VBS SW] Cache warming failed:', error)
+    throw error
+  }
+}
+
+/**
+ * Notify clients about cache warming completion.
+ *
+ * @param {object} results - Warming operation results
+ */
+async function notifyClientsOfWarmingComplete(results) {
+  try {
+    const clients = await globalThis.clients.matchAll({
+      type: 'window',
+      includeUncontrolled: true,
+    })
+
+    const message = {
+      type: 'CACHE_WARMING_COMPLETE',
+      data: results,
+      timestamp: Date.now(),
+    }
+
+    for (const client of clients) {
+      client.postMessage(message)
+    }
+  } catch (error) {
+    console.error('[VBS SW] Failed to notify clients of warming completion:', error)
+  }
+}
+
+/**
+ * Get cache warming statistics.
+ *
+ * @returns {object} Warming statistics
+ */
+function getCacheWarmingStats() {
+  return {
+    ...warmingStats,
+    activeWarmingJobs: warmingJobs.size,
   }
 }
