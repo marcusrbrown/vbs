@@ -83,12 +83,8 @@ export const createMetadataDebugPanel = (
     cancelOperationButton?: HTMLButtonElement
   } = {}
 
-  // Generic EventEmitter for type-safe event handling
   const eventEmitter = createEventEmitter<MetadataDebugPanelEvents>()
 
-  /**
-   * Format bytes to human-readable string
-   */
   const formatBytes = (bytes: number): string => {
     if (bytes === 0) return '0 Bytes'
     const k = 1024
@@ -97,9 +93,6 @@ export const createMetadataDebugPanel = (
     return `${Math.round((bytes / k ** i) * 100) / 100} ${sizes[i]}`
   }
 
-  /**
-   * Format timestamp to relative time string
-   */
   const formatRelativeTime = (timestamp: string | null): string => {
     if (!timestamp) return 'Never'
 
@@ -118,9 +111,6 @@ export const createMetadataDebugPanel = (
     return `${seconds}s ago`
   }
 
-  /**
-   * Render data source status visualization
-   */
   const renderDataSources = (
     sourcesContainer: HTMLElement,
     sources: MetadataDebugPanelData['sources'],
@@ -199,7 +189,6 @@ export const createMetadataDebugPanel = (
       </div>
     `
 
-    // Attach event listeners for source toggles
     sourcesContainer.querySelectorAll<HTMLInputElement>('input[data-source]').forEach(toggle => {
       toggle.addEventListener('change', e => {
         const target = e.target as HTMLInputElement
@@ -213,9 +202,6 @@ export const createMetadataDebugPanel = (
     })
   }
 
-  /**
-   * Render metadata quality metrics visualization
-   */
   const renderQualityMetrics = (
     metricsContainer: HTMLElement,
     metrics: MetadataDebugPanelData['qualityMetrics'],
@@ -286,9 +272,6 @@ export const createMetadataDebugPanel = (
     `
   }
 
-  /**
-   * Render sync status visualization
-   */
   const renderSyncStatus = (
     statusContainer: HTMLElement,
     status: MetadataDebugPanelData['syncStatus'],
@@ -353,7 +336,6 @@ export const createMetadataDebugPanel = (
       </div>
     `
 
-    // Attach cancel button listener if present
     const cancelButton = statusContainer.querySelector<HTMLButtonElement>('[data-cancel-operation]')
     if (cancelButton) {
       cancelButton.addEventListener('click', () => {
@@ -364,9 +346,6 @@ export const createMetadataDebugPanel = (
     }
   }
 
-  /**
-   * Render storage statistics
-   */
   const renderStorageStats = (
     statsContainer: HTMLElement,
     stats: MetadataDebugPanelData['storageStats'],
@@ -399,9 +378,6 @@ export const createMetadataDebugPanel = (
     `
   }
 
-  /**
-   * Render recent operations log
-   */
   const renderOperationsLog = (
     logContainer: HTMLElement,
     operations: MetadataDebugPanelData['recentOperations'],
@@ -445,9 +421,6 @@ export const createMetadataDebugPanel = (
     `
   }
 
-  /**
-   * Render the complete debug panel UI
-   */
   const render = (): void => {
     if (!currentData) {
       container.innerHTML = '<div class="metadata-debug-panel loading">Loading debug panel...</div>'
@@ -487,7 +460,6 @@ export const createMetadataDebugPanel = (
 
     container.innerHTML = panelHTML
 
-    // Cache DOM elements
     const panel = container.querySelector<HTMLElement>('.metadata-debug-panel')
     const sourcesContainer = container.querySelector<HTMLElement>('[data-sources]')
     const qualityMetricsContainer = container.querySelector<HTMLElement>('[data-quality-metrics]')
@@ -510,7 +482,6 @@ export const createMetadataDebugPanel = (
     if (exportButton) elements.exportButton = exportButton
     if (closeButton) elements.closeButton = closeButton
 
-    // Render individual sections
     if (elements.sourcesContainer) {
       renderDataSources(elements.sourcesContainer, currentData.sources)
     }
@@ -527,18 +498,13 @@ export const createMetadataDebugPanel = (
       renderOperationsLog(elements.operationsLogContainer, currentData.recentOperations)
     }
 
-    // Attach event listeners
     attachEventListeners()
   }
 
-  /**
-   * Attach event listeners to interactive elements
-   */
   const attachEventListeners = (): void => {
     if (elements.refreshAllButton) {
       elements.refreshAllButton.addEventListener('click', () => {
         withSyncErrorHandling(async () => {
-          // Trigger bulk refresh - implementation will depend on available episode data
           eventEmitter.emit('bulk-refresh-started', {episodeIds: [], totalCount: 0})
         }, 'Failed to start bulk refresh')()
       })
@@ -574,9 +540,6 @@ export const createMetadataDebugPanel = (
     }
   }
 
-  /**
-   * Show the debug panel
-   */
   const show = (): void => {
     isVisible = true
     if (elements.panel) {
@@ -586,9 +549,6 @@ export const createMetadataDebugPanel = (
     eventEmitter.emit('panel-visibility-changed', {isVisible: true})
   }
 
-  /**
-   * Hide the debug panel
-   */
   const hide = (): void => {
     isVisible = false
     if (elements.panel) {
@@ -598,9 +558,6 @@ export const createMetadataDebugPanel = (
     eventEmitter.emit('panel-visibility-changed', {isVisible: false})
   }
 
-  /**
-   * Toggle visibility of the debug panel
-   */
   const toggle = (): void => {
     if (isVisible) {
       hide()
@@ -609,9 +566,6 @@ export const createMetadataDebugPanel = (
     }
   }
 
-  /**
-   * Update debug panel with latest data
-   */
   const update = (data?: Partial<MetadataDebugPanelData>): void => {
     if (data) {
       currentData = currentData ? {...currentData, ...data} : (data as MetadataDebugPanelData)
@@ -619,9 +573,6 @@ export const createMetadataDebugPanel = (
     render()
   }
 
-  /**
-   * Refresh metadata for specific episode
-   */
   const refreshEpisode = async (episodeId: string, source?: MetadataSourceType): Promise<void> => {
     eventEmitter.emit('refresh-requested', {
       episodeId,
@@ -630,9 +581,6 @@ export const createMetadataDebugPanel = (
     await metadataSources.enrichEpisode(episodeId)
   }
 
-  /**
-   * Trigger bulk metadata refresh
-   */
   const refreshBulk = async (episodeIds: string[]): Promise<void> => {
     bulkOperationCancelled = false
     activeRefreshController = new AbortController()
@@ -670,9 +618,6 @@ export const createMetadataDebugPanel = (
     }
   }
 
-  /**
-   * Cancel ongoing bulk operation
-   */
   const cancelBulkOperation = (): void => {
     bulkOperationCancelled = true
     if (activeRefreshController) {
@@ -681,9 +626,6 @@ export const createMetadataDebugPanel = (
     }
   }
 
-  /**
-   * Clear metadata cache
-   */
   const clearCache = async (): Promise<void> => {
     const result = await metadataStorage.cleanupExpiredMetadata()
     eventEmitter.emit('cache-cleared', {
@@ -693,9 +635,6 @@ export const createMetadataDebugPanel = (
     await metadataSources.clearCache()
   }
 
-  /**
-   * Export debug information as JSON
-   */
   const exportDebugInfo = (): string => {
     const debugInfo = {
       timestamp: new Date().toISOString(),
@@ -706,16 +645,11 @@ export const createMetadataDebugPanel = (
     return JSON.stringify(debugInfo, null, 2)
   }
 
-  /**
-   * Destroy the component and cleanup resources
-   */
   const destroy = (): void => {
     cancelBulkOperation()
     eventEmitter.removeAllListeners()
     container.innerHTML = ''
   }
-
-  // Public API
   return {
     render,
     show,
