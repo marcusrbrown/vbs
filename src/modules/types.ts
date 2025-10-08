@@ -2579,6 +2579,86 @@ export interface MetadataOperationLog {
 }
 
 /**
+ * Metadata preferences component configuration.
+ * Used to initialize the metadata refresh controls UI component.
+ */
+export interface MetadataPreferencesConfig {
+  /** Container element for the preferences UI */
+  container: HTMLElement
+  /** Metadata debug panel instance for refresh operations */
+  debugPanel: MetadataDebugPanelInstance
+  /** Preferences instance for accessing user settings (imported from preferences.ts) */
+  preferences: any
+}
+
+/**
+ * Metadata preferences event map for type-safe event handling.
+ * Defines events emitted by the metadata preferences component.
+ */
+export interface MetadataPreferencesEvents extends EventMap {
+  /** Fired when single episode refresh is initiated */
+  'refresh-started': {episodeId: string; source?: MetadataSourceType}
+  /** Fired when single episode refresh completes */
+  'refresh-completed': {
+    episodeId: string
+    source?: MetadataSourceType
+    success: boolean
+    error?: string
+  }
+  /** Fired when bulk refresh operation starts */
+  'bulk-refresh-started': {episodeIds: string[]; totalCount: number; seriesId?: string}
+  /** Fired when bulk refresh operation completes */
+  'bulk-refresh-completed': {
+    successCount: number
+    failCount: number
+    duration: number
+    seriesId?: string
+  }
+  /** Fired when bulk refresh is cancelled by user */
+  'bulk-refresh-cancelled': {processedCount: number; remainingCount: number}
+  /** Fired when progress indicator is shown/hidden */
+  'progress-visibility-changed': {isVisible: boolean}
+  /** Fired when feedback message is displayed */
+  'feedback-shown': {message: string; type: 'success' | 'error' | 'info'}
+}
+
+/**
+ * Metadata preferences instance interface for functional factory pattern.
+ * Provides comprehensive manual refresh controls with progress tracking and cancellation.
+ */
+export interface MetadataPreferencesInstance {
+  /** Render the metadata preferences UI into the container */
+  render: () => void
+  /** Update the component with new configuration */
+  update: () => void
+  /** Show progress indicator */
+  showProgress: () => void
+  /** Hide progress indicator */
+  hideProgress: () => void
+  /** Show feedback message to user */
+  showFeedback: (message: string, type: 'success' | 'error' | 'info') => void
+  /** Destroy the component and cleanup resources */
+  destroy: () => void
+
+  // Generic EventEmitter methods for type-safe event handling
+  on: <TEventName extends keyof MetadataPreferencesEvents>(
+    eventName: TEventName,
+    listener: (payload: MetadataPreferencesEvents[TEventName]) => void,
+  ) => void
+  off: <TEventName extends keyof MetadataPreferencesEvents>(
+    eventName: TEventName,
+    listener: (payload: MetadataPreferencesEvents[TEventName]) => void,
+  ) => void
+  once: <TEventName extends keyof MetadataPreferencesEvents>(
+    eventName: TEventName,
+    listener: (payload: MetadataPreferencesEvents[TEventName]) => void,
+  ) => void
+  removeAllListeners: <TEventName extends keyof MetadataPreferencesEvents>(
+    eventName?: TEventName,
+  ) => void
+}
+
+/**
  * Timeline export configuration options.
  * Used for generating PNG/SVG files for sharing progress.
  */
