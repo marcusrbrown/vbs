@@ -3412,3 +3412,212 @@ export interface CacheWarmingInstance {
     listener: (data: CacheWarmingEvents[K]) => void,
   ) => void
 }
+
+// ============================================================================
+// TASK-032: Metadata Logging and Monitoring Types
+// ============================================================================
+
+/**
+ * Log levels for metadata operations with semantic meaning.
+ * Follows standard logging conventions for severity hierarchy.
+ */
+export type LogLevel = 'debug' | 'info' | 'warn' | 'error' | 'critical'
+
+/**
+ * Log entry structure for comprehensive metadata operation tracking.
+ * Captures all relevant context for debugging and performance analysis.
+ */
+export interface LogEntry {
+  /** Unique identifier for this log entry */
+  id: string
+  /** ISO timestamp of when log was created */
+  timestamp: string
+  /** Severity level of the log entry */
+  level: LogLevel
+  /** Log category for filtering and organization */
+  category: 'metadata' | 'sync' | 'queue' | 'cache' | 'api' | 'performance' | 'error'
+  /** Primary log message */
+  message: string
+  /** Additional contextual data */
+  context?: {
+    /** Operation ID for tracking related logs */
+    operationId?: string
+    /** Episode ID if operation relates to specific episode */
+    episodeId?: string
+    /** Data source if operation involves external API */
+    source?: MetadataSourceType
+    /** Duration in milliseconds for performance tracking */
+    durationMs?: number
+    /** Error object if log relates to failure */
+    error?: {
+      name: string
+      message: string
+      stack?: string
+      category?: string
+    }
+    /** Additional custom properties */
+    [key: string]: unknown
+  }
+  /** User agent and environment information */
+  environment?: {
+    userAgent?: string
+    platform?: string
+    serviceWorker?: boolean
+  }
+}
+
+/**
+ * Operation metrics for monitoring system health and performance.
+ * Tracks success rates, error patterns, and performance characteristics across any domain.
+ */
+export interface OperationMetrics {
+  /** Total operations attempted */
+  totalOperations: number
+  /** Successful operations */
+  successfulOperations: number
+  /** Failed operations */
+  failedOperations: number
+  /** Success rate (0.0 to 1.0) */
+  successRate: number
+  /** Average operation duration in milliseconds */
+  averageDurationMs: number
+  /** Minimum operation duration in milliseconds */
+  minDurationMs: number
+  /** Maximum operation duration in milliseconds */
+  maxDurationMs: number
+  /** 95th percentile duration in milliseconds */
+  p95DurationMs: number
+  /** Error breakdown by category */
+  errorsByCategory: Record<string, number>
+  /** Operations by data source */
+  operationsBySource: Record<MetadataSourceType, number>
+  /** Time window for metrics calculation */
+  timeWindowMs: number
+  /** Timestamp of metrics calculation */
+  calculatedAt: string
+}
+
+/**
+ * Logger configuration with flexible filtering and persistence options.
+ * Allows fine-grained control over what gets logged and how.
+ */
+export interface LoggerConfig {
+  /** Minimum log level to capture (filters out lower severity) */
+  minLevel: LogLevel
+  /** Maximum number of log entries to store in memory */
+  maxEntries: number
+  /** Categories to include (empty = all categories) */
+  enabledCategories: ('metadata' | 'sync' | 'queue' | 'cache' | 'api' | 'performance' | 'error')[]
+  /** Whether to persist logs to IndexedDB */
+  persistLogs: boolean
+  /** Whether to output logs to console */
+  consoleOutput: boolean
+  /** Whether to include environment information */
+  includeEnvironment: boolean
+  /** Whether to capture stack traces for errors */
+  captureStackTraces: boolean
+  /** Time-to-live for persisted logs in milliseconds */
+  logRetentionMs: number
+  /** Enable performance metrics calculation */
+  enableMetrics: boolean
+  /** Metrics calculation window in milliseconds */
+  metricsWindowMs: number
+}
+
+/**
+ * Event map for logger events with type-safe data payloads.
+ * Enables reactive monitoring of logging system activity.
+ */
+export interface LoggerEvents extends EventMap {
+  /** Emitted when new log entry is created */
+  'log-created': {
+    entry: LogEntry
+  }
+  /** Emitted when error is logged (for alerting) */
+  'error-logged': {
+    entry: LogEntry
+    errorCount: number
+  }
+  /** Emitted when critical error is logged (requires immediate attention) */
+  'critical-error': {
+    entry: LogEntry
+    operationId?: string
+  }
+  /** Emitted when metrics are calculated */
+  'metrics-updated': {
+    metrics: OperationMetrics
+  }
+  /** Emitted when log storage exceeds threshold */
+  'storage-warning': {
+    currentEntries: number
+    maxEntries: number
+    oldestEntryAge: number
+  }
+  /** Emitted when logs are cleared */
+  'logs-cleared': {
+    clearedCount: number
+    reason: 'manual' | 'retention' | 'storage-limit'
+  }
+}
+
+/**
+ * Public API interface for Logger factory instances.
+ * Provides comprehensive logging and monitoring capabilities for any domain.
+ */
+export interface LoggerInstance {
+  /** Log debug message (lowest severity) */
+  debug: (message: string, context?: LogEntry['context']) => void
+  /** Log informational message */
+  info: (message: string, context?: LogEntry['context']) => void
+  /** Log warning message */
+  warn: (message: string, context?: LogEntry['context']) => void
+  /** Log error message */
+  error: (message: string, context?: LogEntry['context']) => void
+  /** Log critical error requiring immediate attention */
+  critical: (message: string, context?: LogEntry['context']) => void
+
+  /** Get all log entries with optional filtering */
+  getLogs: (filter?: {
+    level?: LogLevel
+    category?: LogEntry['category']
+    startTime?: string
+    endTime?: string
+    operationId?: string
+  }) => LogEntry[]
+
+  /** Get current operation metrics */
+  getMetrics: () => OperationMetrics
+
+  /** Clear all log entries */
+  clearLogs: (reason?: 'manual' | 'retention' | 'storage-limit') => number
+
+  /** Update logger configuration */
+  updateConfig: (config: Partial<LoggerConfig>) => void
+
+  /** Export logs as JSON for debugging */
+  exportLogs: () => string
+
+  /** Get logger statistics */
+  getStats: () => {
+    totalEntries: number
+    entriesByLevel: Record<LogLevel, number>
+    entriesByCategory: Record<string, number>
+    oldestEntry: string | null
+    newestEntry: string | null
+  }
+
+  // EventEmitter methods for type-safe event handling
+  on: <K extends keyof LoggerEvents>(event: K, listener: (data: LoggerEvents[K]) => void) => void
+  off: <K extends keyof LoggerEvents>(event: K, listener: (data: LoggerEvents[K]) => void) => void
+  once: <K extends keyof LoggerEvents>(event: K, listener: (data: LoggerEvents[K]) => void) => void
+}
+
+/**
+ * @deprecated Use LoggerInstance instead. Kept for backward compatibility.
+ */
+export type MetadataLoggerInstance = LoggerInstance
+
+/**
+ * @deprecated Use OperationMetrics instead. Kept for backward compatibility.
+ */
+export type MetadataOperationMetrics = OperationMetrics

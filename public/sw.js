@@ -7,6 +7,101 @@ const STATIC_CACHE_NAME = `${CACHE_PREFIX}-static-v${CACHE_VERSION}`
 const DYNAMIC_CACHE_NAME = `${CACHE_PREFIX}-dynamic-v${CACHE_VERSION}`
 const EPISODE_DATA_CACHE_NAME = `${CACHE_PREFIX}-episodes-v${CACHE_VERSION}`
 
+// ============================================================================
+// TASK-032: Metadata Logging and Monitoring System
+// ============================================================================
+
+/**
+ * Simple generic logging system for Service Worker operations.
+ * Simplified IIFE implementation suitable for Service Worker environment.
+ * Tracks success rates, error patterns, and performance metrics.
+ *
+ * This is a lightweight version of the main logger (src/modules/logger.ts)
+ * optimized for the Service Worker execution context.
+ */
+const metadataLogger = (() => {
+  const logs = []
+  const MAX_LOGS = 500
+  const metrics = {
+    totalOperations: 0,
+    successfulOperations: 0,
+    failedOperations: 0,
+    operationTimings: [],
+  }
+
+  const log = (level, category, message, context = {}) => {
+    const entry = {
+      id: `log_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+      timestamp: new Date().toISOString(),
+      level,
+      category,
+      message,
+      context,
+    }
+
+    logs.push(entry)
+
+    if (logs.length > MAX_LOGS) {
+      logs.shift()
+    }
+
+    if (context.durationMs != null) {
+      metrics.operationTimings.push(context.durationMs)
+      if (metrics.operationTimings.length > 1000) {
+        metrics.operationTimings.shift()
+      }
+    }
+
+    if (level === 'error' || level === 'critical') {
+      metrics.failedOperations += 1
+    } else if (level === 'info' && category === 'metadata') {
+      metrics.successfulOperations += 1
+    }
+
+    metrics.totalOperations += 1
+
+    if (level === 'error' || level === 'critical') {
+      console.error(`[VBS SW ${level.toUpperCase()}] ${message}`, context)
+    } else if (level === 'warn') {
+      console.warn(`[VBS SW WARN] ${message}`, context)
+    }
+
+    return entry
+  }
+
+  return {
+    debug: (message, context) => log('debug', 'metadata', message, context),
+    info: (message, context) => log('info', 'metadata', message, context),
+    warn: (message, context) => log('warn', 'metadata', message, context),
+    error: (message, context) => log('error', 'error', message, context),
+    critical: (message, context) => log('critical', 'error', message, context),
+    getLogs: () => [...logs],
+    getMetrics: () => {
+      const timings = metrics.operationTimings.sort((a, b) => a - b)
+      const p95Index = Math.floor(timings.length * 0.95)
+
+      return {
+        totalOperations: metrics.totalOperations,
+        successfulOperations: metrics.successfulOperations,
+        failedOperations: metrics.failedOperations,
+        successRate:
+          metrics.totalOperations > 0 ? metrics.successfulOperations / metrics.totalOperations : 0,
+        averageDurationMs:
+          timings.length > 0 ? timings.reduce((sum, val) => sum + val, 0) / timings.length : 0,
+        minDurationMs: timings.length > 0 ? timings[0] : 0,
+        maxDurationMs: timings.length > 0 ? timings.at(-1) : 0,
+        p95DurationMs: timings.length > 0 ? timings[p95Index] : 0,
+        calculatedAt: new Date().toISOString(),
+      }
+    },
+    clearLogs: () => {
+      const count = logs.length
+      logs.length = 0
+      return count
+    },
+  }
+})()
+
 // App shell resources to cache immediately
 const APP_SHELL_RESOURCES = [
   '/vbs/',
@@ -597,6 +692,33 @@ globalThis.addEventListener('message', event => {
         data: stats,
       })
     }
+  } else if (event.data && event.data.type === 'GET_LOGGER_METRICS') {
+    // Get metadata logger metrics (TASK-032)
+    const metrics = metadataLogger.getMetrics()
+    if (event.ports[0]) {
+      event.ports[0].postMessage({
+        type: 'LOGGER_METRICS',
+        data: metrics,
+      })
+    }
+  } else if (event.data && event.data.type === 'GET_LOGGER_LOGS') {
+    // Get metadata logger logs (TASK-032)
+    const logs = metadataLogger.getLogs()
+    if (event.ports[0]) {
+      event.ports[0].postMessage({
+        type: 'LOGGER_LOGS',
+        data: logs,
+      })
+    }
+  } else if (event.data && event.data.type === 'CLEAR_LOGGER_LOGS') {
+    // Clear metadata logger logs (TASK-032)
+    const count = metadataLogger.clearLogs()
+    if (event.ports[0]) {
+      event.ports[0].postMessage({
+        type: 'LOGGER_LOGS_CLEARED',
+        data: {clearedCount: count},
+      })
+    }
   }
 })
 
@@ -1015,8 +1137,15 @@ function arraysEqual(a, b) {
  * Handle metadata sync background operations.
  */
 async function handleMetadataSync(event) {
+  const startTime = Date.now()
+  const operationId = `metadata-sync-${Date.now()}`
+
   try {
-    const operationId = `metadata-sync-${Date.now()}`
+    metadataLogger.info('Metadata sync operation started', {
+      category: 'sync',
+      operationId,
+      eventTag: event.tag,
+    })
 
     // Initialize progress tracking
     const progress = {
@@ -1060,6 +1189,15 @@ async function handleMetadataSync(event) {
 
     metadataProgress.set(operationId, progress)
 
+    // Log successful completion with timing
+    const durationMs = Date.now() - startTime
+    metadataLogger.info('Metadata sync operation completed', {
+      category: 'sync',
+      operationId,
+      durationMs,
+      status: progress.status,
+    })
+
     // Notify clients of completion
     await notifyClientsOfProgress(progress)
 
@@ -1069,6 +1207,17 @@ async function handleMetadataSync(event) {
       activeOperations.delete(operationId)
     }, 5000) // Keep for 5 seconds for client consumption
   } catch (error) {
+    const durationMs = Date.now() - startTime
+    metadataLogger.error('Metadata sync operation failed', {
+      category: 'sync',
+      operationId,
+      durationMs,
+      error: {
+        name: error.name,
+        message: error.message,
+        stack: error.stack,
+      },
+    })
     console.error('[VBS SW] Metadata sync failed:', error)
 
     // Update progress with error
@@ -1092,9 +1241,9 @@ async function handleMetadataSync(event) {
  * Handle bulk metadata sync operations with comprehensive progress tracking.
  */
 async function handleBulkMetadataSync(event) {
-  try {
-    const operationId = `bulk-metadata-sync-${Date.now()}`
+  const operationId = `bulk-metadata-sync-${Date.now()}`
 
+  try {
     // Get operation details from IndexedDB or default
     const operationDetails = (await getStoredOperationDetails(operationId)) || {
       episodeIds: ['sample_episode_1', 'sample_episode_2', 'sample_episode_3'],
@@ -1103,6 +1252,13 @@ async function handleBulkMetadataSync(event) {
     }
 
     const totalJobs = operationDetails.episodeIds.length
+
+    metadataLogger.info('Bulk metadata sync started', {
+      category: 'sync',
+      operationId,
+      episodeCount: totalJobs,
+      sources: operationDetails.sources.join(','),
+    })
 
     // Initialize progress tracking
     const progress = {
