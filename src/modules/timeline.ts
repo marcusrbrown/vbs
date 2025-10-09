@@ -8,9 +8,11 @@ import type {
   StreamingApiInstance,
   TimelineRendererInstance,
 } from './types.js'
+import {createMetadataQualityIndicator} from '../components/metadata-quality-indicator.js'
 import {createStreamingIndicators} from '../components/streaming-indicators.js'
 import {curry, pipe, tap} from '../utils/composition.js'
 import {calculateSeasonProgress} from './progress.js'
+import '../components/metadata-quality-indicator.css'
 
 export const createTimelineRenderer = (
   container: HTMLElement,
@@ -448,6 +450,7 @@ export const createTimelineRenderer = (
   /**
    * Create HTML element for an individual episode within a season.
    * Supports episode-level progress tracking with spoiler-safe content display.
+   * Includes metadata quality indicators showing completeness and freshness.
    */
   const createEpisodeElement = (episode: Episode, seriesId: string): string => {
     const isWatched = progressTracker.isWatched(episode.id)
@@ -456,6 +459,15 @@ export const createTimelineRenderer = (
       month: 'short',
       day: 'numeric',
     })
+
+    // Create metadata quality indicator
+    const qualityIndicator = createMetadataQualityIndicator({
+      episodeId: episode.id,
+      displayMode: 'badge',
+      showTooltips: true,
+      interactive: false,
+    })
+    const qualityIndicatorHTML = qualityIndicator.renderHTML()
 
     return `
       <div class="episode-item ${isWatched ? 'watched' : ''}"
@@ -475,6 +487,7 @@ export const createTimelineRenderer = (
           <div class="episode-header">
             <span class="episode-number">S${episode.season}E${String(episode.episode).padStart(2, '0')}</span>
             <h4 class="episode-title" id="episode-title-${episode.id}">${episode.title}</h4>
+            ${qualityIndicatorHTML}
             <button class="episode-details-btn"
                     data-episode-id="${episode.id}"
                     aria-label="Show details for ${episode.title}"

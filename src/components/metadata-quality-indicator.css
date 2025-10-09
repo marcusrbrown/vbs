@@ -1,0 +1,371 @@
+/* ===========================================================================
+   Metadata Quality Indicator Component Styles
+   ===========================================================================
+
+   Visual indicators for episode metadata quality in lists.
+   Displays completeness level and freshness with accessible badges.
+
+   Features:
+   - Completeness badges (none/basic/detailed/comprehensive)
+   - Freshness indicators (fresh/stale/outdated)
+   - Enrichment status spinner
+   - Interactive mode with hover effects
+   - Tooltips for additional context
+   - Theme integration with CSS custom properties
+   - Responsive design (mobile/tablet/desktop)
+   - Accessibility (WCAG AA contrast, screen reader support)
+   - Dark mode support
+   =========================================================================== */
+
+/* ---------------------------------------------------------------------------
+   Container Styles
+   --------------------------------------------------------------------------- */
+
+.metadata-quality-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--vbs-spacing-xs, 0.25rem);
+  vertical-align: middle;
+  user-select: none;
+}
+
+.metadata-quality-indicator--detailed {
+  gap: var(--vbs-spacing-sm, 0.5rem);
+}
+
+.metadata-quality-indicator--interactive {
+  cursor: pointer;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.metadata-quality-indicator--interactive:hover {
+  opacity: 0.8;
+}
+
+.metadata-quality-indicator--interactive:focus-visible {
+  outline: 2px solid var(--vbs-color-primary, #5c7cfa);
+  outline-offset: 2px;
+  border-radius: var(--vbs-border-radius-sm, 4px);
+}
+
+/* ---------------------------------------------------------------------------
+   Badge Base Styles
+   --------------------------------------------------------------------------- */
+
+.metadata-quality-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.125rem 0.375rem;
+  border-radius: var(--vbs-border-radius-full, 9999px);
+  font-size: var(--vbs-font-size-xs, 0.75rem);
+  font-weight: var(--vbs-font-weight-medium, 500);
+  line-height: 1.2;
+  white-space: nowrap;
+  transition: all 0.2s ease-in-out;
+}
+
+.metadata-quality-badge__icon {
+  display: inline-block;
+  font-size: var(--vbs-font-size-sm, 0.875rem);
+  line-height: 1;
+}
+
+.metadata-quality-badge__label {
+  display: inline-block;
+  font-size: var(--vbs-font-size-xs, 0.75rem);
+  line-height: 1;
+}
+
+/* ---------------------------------------------------------------------------
+   Completeness Badge Variants
+   --------------------------------------------------------------------------- */
+
+.metadata-quality-badge--completeness {
+  border: 1px solid transparent;
+}
+
+/* None - Gray (no data) */
+.metadata-quality-badge--none {
+  background-color: var(--vbs-bg-secondary, #f1f3f5);
+  color: var(--vbs-text-secondary, #868e96);
+  border-color: var(--vbs-border-color, #dee2e6);
+}
+
+/* Basic - Blue (minimal data) */
+.metadata-quality-badge--basic {
+  background-color: #d0ebff;
+  color: #1971c2;
+  border-color: #74c0fc;
+}
+
+/* Detailed - Green (good data) */
+.metadata-quality-badge--detailed {
+  background-color: #b2f2bb;
+  color: #2f9e44;
+  border-color: #51cf66;
+}
+
+/* Comprehensive - Dark Green (complete data) */
+.metadata-quality-badge--comprehensive {
+  background-color: #51cf66;
+  color: #ffffff;
+  border-color: #2f9e44;
+}
+
+/* ---------------------------------------------------------------------------
+   Freshness Badge Variants
+   --------------------------------------------------------------------------- */
+
+.metadata-quality-badge--freshness {
+  border: 1px solid transparent;
+}
+
+/* Fresh - Green checkmark */
+.metadata-quality-badge--fresh {
+  background-color: #d3f9d8;
+  color: #2b8a3e;
+  border-color: #69db7c;
+}
+
+/* Stale - Yellow warning */
+.metadata-quality-badge--stale {
+  background-color: #fff3bf;
+  color: #e67700;
+  border-color: #ffd43b;
+}
+
+/* Outdated - Red X */
+.metadata-quality-badge--outdated {
+  background-color: #ffe3e3;
+  color: #c92a2a;
+  border-color: #ffa8a8;
+}
+
+/* ---------------------------------------------------------------------------
+   Enrichment Status Badge (Spinner)
+   --------------------------------------------------------------------------- */
+
+.metadata-quality-badge--enriching {
+  background-color: var(--vbs-bg-primary, #ffffff);
+  color: var(--vbs-color-primary, #5c7cfa);
+  border: 1px solid var(--vbs-color-primary, #5c7cfa);
+}
+
+.metadata-quality-badge__spinner {
+  display: inline-block;
+  animation: metadata-quality-spin 1s linear infinite;
+}
+
+@keyframes metadata-quality-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .metadata-quality-badge__spinner {
+    animation: none;
+  }
+
+  .metadata-quality-badge--enriching {
+    /* Use pulsing opacity instead of spinning */
+    animation: metadata-quality-pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes metadata-quality-pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.6;
+    }
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Dark Mode Support
+   --------------------------------------------------------------------------- */
+
+@media (prefers-color-scheme: dark) {
+  /* None - Dark gray */
+  .metadata-quality-badge--none {
+    background-color: #2c2e33;
+    color: #909296;
+    border-color: #373a40;
+  }
+
+  /* Basic - Dark blue */
+  .metadata-quality-badge--basic {
+    background-color: #1c4566;
+    color: #74c0fc;
+    border-color: #1971c2;
+  }
+
+  /* Detailed - Dark green */
+  .metadata-quality-badge--detailed {
+    background-color: #1b5e20;
+    color: #8ce99a;
+    border-color: #2f9e44;
+  }
+
+  /* Comprehensive - Bright green (maintain high contrast) */
+  .metadata-quality-badge--comprehensive {
+    background-color: #2f9e44;
+    color: #ffffff;
+    border-color: #51cf66;
+  }
+
+  /* Fresh - Dark green */
+  .metadata-quality-badge--fresh {
+    background-color: #1b5e20;
+    color: #8ce99a;
+    border-color: #37b24d;
+  }
+
+  /* Stale - Dark yellow */
+  .metadata-quality-badge--stale {
+    background-color: #5c4d00;
+    color: #ffd43b;
+    border-color: #fab005;
+  }
+
+  /* Outdated - Dark red */
+  .metadata-quality-badge--outdated {
+    background-color: #7d1a1a;
+    color: #ffa8a8;
+    border-color: #f03e3e;
+  }
+
+  /* Enriching - Dark theme adjustment */
+  .metadata-quality-badge--enriching {
+    background-color: #1a1b1e;
+    color: #74c0fc;
+    border-color: #5c7cfa;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Responsive Design
+   --------------------------------------------------------------------------- */
+
+/* Mobile - Slightly smaller badges */
+@media (max-width: 767px) {
+  .metadata-quality-badge {
+    padding: 0.0625rem 0.25rem;
+    font-size: var(--vbs-font-size-2xs, 0.6875rem);
+  }
+
+  .metadata-quality-badge__icon {
+    font-size: var(--vbs-font-size-xs, 0.75rem);
+  }
+
+  .metadata-quality-badge__label {
+    font-size: var(--vbs-font-size-2xs, 0.6875rem);
+  }
+
+  .metadata-quality-indicator--detailed .metadata-quality-badge__label {
+    /* Hide labels on very small screens to save space */
+    display: none;
+  }
+}
+
+/* Tablet and up - Full size badges */
+@media (min-width: 768px) {
+  .metadata-quality-badge {
+    padding: 0.125rem 0.5rem;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Accessibility Enhancements
+   --------------------------------------------------------------------------- */
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .metadata-quality-badge {
+    border-width: 2px;
+    font-weight: var(--vbs-font-weight-semibold, 600);
+  }
+
+  .metadata-quality-badge--none {
+    border-color: currentColor;
+  }
+
+  .metadata-quality-badge--basic,
+  .metadata-quality-badge--detailed,
+  .metadata-quality-badge--comprehensive {
+    border-color: currentColor;
+  }
+
+  .metadata-quality-badge--fresh,
+  .metadata-quality-badge--stale,
+  .metadata-quality-badge--outdated {
+    border-color: currentColor;
+  }
+}
+
+/* Screen reader only text (for additional context) */
+.metadata-quality-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* ---------------------------------------------------------------------------
+   Print Styles
+   --------------------------------------------------------------------------- */
+
+@media print {
+  .metadata-quality-indicator {
+    /* Ensure badges are visible in print */
+    print-color-adjust: exact;
+  }
+
+  .metadata-quality-badge--enriching {
+    /* Hide enrichment spinner in print */
+    display: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Tooltip Enhancement (Optional - if custom tooltips are used)
+   --------------------------------------------------------------------------- */
+
+.metadata-quality-indicator[title] {
+  /* Browser will handle native tooltips */
+  cursor: help;
+}
+
+/* ---------------------------------------------------------------------------
+   Integration with Episode Lists
+   --------------------------------------------------------------------------- */
+
+/* When used in episode items */
+.episode-item .metadata-quality-indicator {
+  margin-left: var(--vbs-spacing-sm, 0.5rem);
+  vertical-align: middle;
+}
+
+.episode-header .metadata-quality-indicator {
+  margin-left: auto;
+}
+
+/* Ensure proper spacing in compact episode lists */
+.episode-list--compact .metadata-quality-indicator {
+  gap: 0.125rem;
+}
+
+.episode-list--compact .metadata-quality-badge {
+  padding: 0.0625rem 0.25rem;
+}
