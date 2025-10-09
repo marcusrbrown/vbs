@@ -2877,6 +2877,13 @@ export interface SettingsManagerInstance {
   toggle: () => Promise<void>
   /** Cleanup event listeners, component instances, and DOM references */
   destroy: () => void
+  /** Get error metrics for monitoring and debugging */
+  getErrorMetrics: () => {
+    totalErrors: number
+    errorsByCategory: Record<string, number>
+    lastError: {name: string; message: string; timestamp: string | null} | null
+    initRetryCount: number
+  }
 
   // Generic EventEmitter methods for type-safe event handling
   on: <TEventName extends keyof SettingsManagerEvents>(
@@ -4044,7 +4051,16 @@ export interface LoggerConfig {
   /** Maximum number of log entries to store in memory */
   maxEntries: number
   /** Categories to include (empty = all categories) */
-  enabledCategories: ('metadata' | 'sync' | 'queue' | 'cache' | 'api' | 'performance' | 'error')[]
+  enabledCategories: (
+    | 'metadata'
+    | 'sync'
+    | 'queue'
+    | 'cache'
+    | 'api'
+    | 'performance'
+    | 'error'
+    | 'settings'
+  )[]
   /** Whether to persist logs to IndexedDB */
   persistLogs: boolean
   /** Whether to output logs to console */
