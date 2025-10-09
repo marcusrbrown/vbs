@@ -2836,6 +2836,85 @@ export interface MetadataUsageControlsInstance {
   ) => void
 }
 
+// ============================================================================
+// SETTINGS MANAGER TYPES
+// ============================================================================
+
+/**
+ * Settings manager event map for type-safe event handling.
+ * Defines lifecycle events emitted by the settings manager during modal operations.
+ */
+export interface SettingsManagerEvents extends EventMap {
+  /** Fired when settings modal is opened */
+  'settings-open': {timestamp: string}
+  /** Fired when settings modal is closed */
+  'settings-close': {timestamp: string}
+  /** Fired when error occurs during settings operations */
+  'settings-error': {
+    error: Error
+    operation: string
+    context: string
+    timestamp: string
+  }
+  /** Fired when settings components have finished rendering */
+  'settings-render-complete': {
+    componentsInitialized: string[]
+    duration: number
+    timestamp: string
+  }
+}
+
+/**
+ * Settings manager instance interface for functional factory pattern.
+ * Manages settings modal lifecycle, component initialization, and error handling.
+ */
+export interface SettingsManagerInstance {
+  /** Open settings modal and initialize components if needed */
+  show: () => Promise<void>
+  /** Close settings modal */
+  hide: () => void
+  /** Toggle settings modal visibility */
+  toggle: () => Promise<void>
+  /** Cleanup event listeners, component instances, and DOM references */
+  destroy: () => void
+
+  // Generic EventEmitter methods for type-safe event handling
+  on: <TEventName extends keyof SettingsManagerEvents>(
+    eventName: TEventName,
+    listener: (payload: SettingsManagerEvents[TEventName]) => void,
+  ) => void
+  off: <TEventName extends keyof SettingsManagerEvents>(
+    eventName: TEventName,
+    listener: (payload: SettingsManagerEvents[TEventName]) => void,
+  ) => void
+  once: <TEventName extends keyof SettingsManagerEvents>(
+    eventName: TEventName,
+    listener: (payload: SettingsManagerEvents[TEventName]) => void,
+  ) => void
+  removeAllListeners: <TEventName extends keyof SettingsManagerEvents>(
+    eventName?: TEventName,
+  ) => void
+}
+
+/**
+ * Configuration for settings manager factory.
+ * Provides dependencies and DOM references for settings system.
+ */
+export interface SettingsManagerConfig {
+  /** Settings modal container element */
+  modalElement: HTMLElement
+  /** Settings modal close button */
+  closeButton: HTMLElement
+  /** Container for settings content/components */
+  contentContainer: HTMLElement
+  /** Metadata debug panel instance */
+  debugPanel: MetadataDebugPanelInstance
+  /** Preferences instance */
+  preferences: PreferencesInstance
+  /** Function to get current usage statistics */
+  getUsageStats: () => MetadataUsageStatistics | Promise<MetadataUsageStatistics>
+}
+
 /**
  * Timeline export configuration options.
  * Used for generating PNG/SVG files for sharing progress.
