@@ -65,8 +65,9 @@ export const createSettingsManager = (config: SettingsManagerConfig): SettingsMa
 
   const logger = createLogger({
     minLevel: 'info',
-    enabledCategories: ['metadata'],
+    enabledCategories: ['settings'],
     consoleOutput: true,
+    enableMetrics: true,
   })
 
   const eventEmitter = createEventEmitter<SettingsManagerEvents>()
@@ -77,9 +78,124 @@ export const createSettingsManager = (config: SettingsManagerConfig): SettingsMa
   let preferencesInstance: MetadataPreferencesInstance | null = null
   let cleanupHandlers: (() => void)[] = []
 
+  // Error metrics tracking (closure-based state)
+  const errorMetrics = {
+    totalErrors: 0,
+    errorsByCategory: {
+      'component-initialization': 0,
+      'render-failure': 0,
+      'preferences-load': 0,
+      'storage-error': 0,
+      'dom-manipulation': 0,
+      unknown: 0,
+    } as Record<string, number>,
+    lastError: null as Error | null,
+    lastErrorTimestamp: null as string | null,
+  }
+
+  // Initialize count for tracking retry attempts
+  let initRetryCount = 0
+  const MAX_INIT_RETRIES = 3
+
   /**
-   * Initialize settings components with error handling.
+   * Categorize errors for metrics and recovery strategies.
+   * Maps error types to specific error categories for better tracking and handling.
+   */
+  const categorizeError = (error: Error, context: string): string => {
+    const errorMessage = error.message.toLowerCase()
+    const contextLower = context.toLowerCase()
+
+    if (contextLower.includes('component') || contextLower.includes('initialization')) {
+      return 'component-initialization'
+    } else if (contextLower.includes('render') || errorMessage.includes('render')) {
+      return 'render-failure'
+    } else if (
+      contextLower.includes('preferences') ||
+      contextLower.includes('load') ||
+      errorMessage.includes('preferences')
+    ) {
+      return 'preferences-load'
+    } else if (
+      contextLower.includes('storage') ||
+      errorMessage.includes('storage') ||
+      errorMessage.includes('quota')
+    ) {
+      return 'storage-error'
+    } else if (contextLower.includes('dom') || errorMessage.includes('dom')) {
+      return 'dom-manipulation'
+    }
+    return 'unknown'
+  }
+
+  /**
+   * Show user-friendly error notification.
+   * Uses CSS classes with theme system custom properties for consistent styling.
+   */
+  const showErrorNotification = (message: string, category: string): void => {
+    const feedbackEl = document.createElement('div')
+    feedbackEl.className = 'vbs-settings-error-notification'
+    feedbackEl.setAttribute('role', 'alert')
+    feedbackEl.setAttribute('aria-live', 'assertive')
+
+    const categoryMarkup =
+      category === 'unknown'
+        ? ''
+        : `<small class="vbs-settings-error-notification-category">Category: ${category}</small>`
+
+    feedbackEl.innerHTML = `
+      <div class="vbs-settings-error-notification-content">
+        <span class="vbs-settings-error-notification-icon">⚠️</span>
+        <div>
+          <strong class="vbs-settings-error-notification-title">Settings Error</strong>
+          <p class="vbs-settings-error-notification-message">${message}</p>
+          ${categoryMarkup}
+        </div>
+      </div>
+    `
+
+    document.body.append(feedbackEl)
+
+    setTimeout(() => {
+      feedbackEl.classList.add('vbs-settings-error-notification-exit')
+      setTimeout(() => {
+        feedbackEl.remove()
+      }, 300)
+    }, 5000)
+  }
+
+  /**
+   * Track error occurrence and emit metrics event.
+   * Maintains closure-based error metrics for monitoring and debugging.
+   */
+  const trackError = (error: Error, operation: string, context: string): void => {
+    const category = categorizeError(error, context)
+
+    errorMetrics.totalErrors++
+    errorMetrics.errorsByCategory[category] = (errorMetrics.errorsByCategory[category] || 0) + 1
+    errorMetrics.lastError = error
+    errorMetrics.lastErrorTimestamp = new Date().toISOString()
+
+    logger.error(`Settings error in ${operation}`, {
+      category,
+      errorName: error.name,
+      errorMessage: error.message,
+      context,
+      totalErrors: errorMetrics.totalErrors,
+      categoryCount: errorMetrics.errorsByCategory[category],
+      ...(error.stack ? {stack: error.stack} : {}),
+    })
+  }
+
+  /**
+   * Initialize settings components with error handling and retry logic.
    * Uses lazy initialization to defer component creation until modal is first opened.
+   * Implements graceful degradation: individual component failures don't block others.
+   *
+   * Error Recovery Strategies:
+   * - Retry initialization up to MAX_INIT_RETRIES times on transient failures
+   * - Individual component failures don't prevent other components from loading
+   * - Fallback to minimal UI showing error message if all components fail
+   * - Preserve user data even when initialization fails
    */
   const initializeComponents = withErrorHandling(async (): Promise<void> => {
     if (isInitialized) {
@@ -88,11 +204,16 @@ export const createSettingsManager = (config: SettingsManagerConfig): SettingsMa
 
     const startTime = performance.now()
     const initializedComponents: string[] = []
+    const failedComponents: {name: string; error: Error}[] = []
 
-    logger.info('Initializing settings components')
+    logger.info('Initializing settings components', {
+      retryAttempt: initRetryCount,
+      maxRetries: MAX_INIT_RETRIES,
+    })
 
-    try {
-      if (!usageControlsInstance) {
+    // Initialize usage controls with individual error handling (graceful degradation)
+    if (!usageControlsInstance) {
+      try {
         usageControlsInstance = createMetadataUsageControls({
           container: contentContainer,
           preferences,
@@ -100,9 +221,22 @@ export const createSettingsManager = (config: SettingsManagerConfig): SettingsMa
         })
         usageControlsInstance.render()
         initializedComponents.push('usage-controls')
-      }
+        logger.info('Usage controls initialized successfully')
+      } catch (error) {
+        const err = error instanceof Error ? error : new Error(String(error))
+        failedComponents.push({name: 'usage-controls', error: err})
+        trackError(err, 'component-initialization', 'Usage controls initialization failed')
 
-      if (!preferencesInstance) {
+        // Continue with other components despite failure
+        logger.warn('Usage controls failed to initialize, continuing with other components', {
+          errorMessage: err.message,
+        })
+      }
+    }
+
+    // Initialize preferences with individual error handling (graceful degradation)
+    if (!preferencesInstance) {
+      try {
         preferencesInstance = createMetadataPreferences({
           container: contentContainer,
           debugPanel,
@@ -110,10 +244,97 @@ export const createSettingsManager = (config: SettingsManagerConfig): SettingsMa
         })
         preferencesInstance.render()
         initializedComponents.push('preferences')
+        logger.info('Preferences initialized successfully')
+      } catch (error) {
+        const err = error instanceof Error ? error : new Error(String(error))
+        failedComponents.push({name: 'preferences', error: err})
+        trackError(err, 'component-initialization', 'Preferences initialization failed')
+
+        // Continue despite failure
+        logger.warn('Preferences failed to initialize', {
+          errorMessage: err.message,
+        })
+      }
+    }
+
+    const duration = performance.now() - startTime
+
+    // Handle complete initialization failure with retry logic
+    if (initializedComponents.length === 0 && failedComponents.length > 0) {
+      const retryableErrors = failedComponents.filter(
+        f => f.error.message.includes('Network') || f.error.message.includes('timeout'),
+      )
+
+      // Retry on transient failures
+      if (retryableErrors.length > 0 && initRetryCount < MAX_INIT_RETRIES) {
+        initRetryCount++
+        logger.warn('All components failed, retrying initialization', {
+          attempt: initRetryCount,
+          maxRetries: MAX_INIT_RETRIES,
+          failedComponents: failedComponents.map(f => f.name),
+        })
+
+        // Wait briefly before retry with exponential backoff
+        await new Promise(resolve => setTimeout(resolve, 500 * initRetryCount))
+        await initializeComponents()
+        return
       }
 
-      const duration = performance.now() - startTime
+      // All retries exhausted or non-retryable errors - show fallback UI
+      const errorMessage = `Failed to load settings: ${failedComponents.map(f => f.name).join(', ')}`
+      showErrorNotification(
+        `${errorMessage}. Some settings may be unavailable. Try refreshing the page.`,
+        'component-initialization',
+      )
+
+      const firstError = failedComponents[0]
+      if (firstError) {
+        eventEmitter.emit('settings-error', {
+          error: firstError.error,
+          operation: 'component-initialization',
+          context: `All settings components failed to initialize after ${initRetryCount} retries`,
+          timestamp: new Date().toISOString(),
+        })
+      }
+
+      // Render minimal fallback UI
+      contentContainer.innerHTML = `
+        <div class="vbs-settings-error-fallback">
+          <h3 class="vbs-settings-error-fallback-title">⚠️ Settings Unavailable</h3>
+          <p class="vbs-settings-error-fallback-message">Unable to load settings components. Please try:</p>
+          <ul class="vbs-settings-error-fallback-list">
+            <li>Refreshing the page</li>
+            <li>Clearing browser cache</li>
+            <li>Checking your internet connection</li>
+          </ul>
+          <p class="vbs-settings-error-fallback-note">
+            Your preferences and progress data are preserved.
+          </p>
+        </div>
+      `
+
+      // Mark as "initialized" to prevent retry loops
       isInitialized = true
+      return
+    }
+
+    // Partial success - some components initialized
+    if (initializedComponents.length > 0) {
+      isInitialized = true
+
+      if (failedComponents.length > 0) {
+        // Show warning for partial failure
+        const failedNames = failedComponents.map(f => f.name).join(', ')
+        showErrorNotification(
+          `Some settings components failed to load: ${failedNames}. Other settings are available.`,
+          'component-initialization',
+        )
+
+        logger.warn('Partial settings initialization', {
+          initialized: initializedComponents,
+          failed: failedComponents.map(f => ({name: f.name, error: f.error.message})),
+        })
+      }
 
       eventEmitter.emit('settings-render-complete', {
         componentsInitialized: initializedComponents,
@@ -121,37 +342,22 @@ export const createSettingsManager = (config: SettingsManagerConfig): SettingsMa
         timestamp: new Date().toISOString(),
       })
 
-      logger.info('Settings components initialized successfully', {
+      logger.info('Settings components initialized', {
         duration,
         components: initializedComponents,
+        failedComponents: failedComponents.length,
       })
-    } catch (error) {
-      const err = error instanceof Error ? error : new Error(String(error))
-      logger.error('Failed to initialize settings components', {
-        error: {
-          name: err.name,
-          message: err.message,
-          ...(err.stack ? {stack: err.stack} : {}),
-        },
-      })
-
-      eventEmitter.emit('settings-error', {
-        error: err,
-        operation: 'component-initialization',
-        context: 'Settings components failed to initialize',
-        timestamp: new Date().toISOString(),
-      })
-
-      throw err
     }
   }, 'settings-component-initialization')
 
   /**
    * Show settings modal and initialize components if needed.
+   *
    * Error handling wrapper prevents modal failures from breaking the application.
+   * Implements user-friendly error notifications when initialization fails.
    */
   const show = async (): Promise<void> => {
-    const safeShow = withErrorHandling(async (): Promise<void> => {
+    try {
       logger.info('Opening settings modal')
 
       await initializeComponents()
@@ -162,9 +368,27 @@ export const createSettingsManager = (config: SettingsManagerConfig): SettingsMa
       eventEmitter.emit('settings-open', {
         timestamp: new Date().toISOString(),
       })
-    }, 'settings-modal-show')
+    } catch (error) {
+      const err = error instanceof Error ? error : new Error(String(error))
+      trackError(err, 'settings-modal-show', 'Failed to open settings modal')
 
-    await safeShow()
+      eventEmitter.emit('settings-error', {
+        error: err,
+        operation: 'settings-modal-show',
+        context: 'Settings modal failed to open',
+        timestamp: new Date().toISOString(),
+      })
+
+      showErrorNotification(
+        'Unable to open settings. Please try again or refresh the page.',
+        categorizeError(err, 'settings-modal-show'),
+      )
+
+      logger.error('Failed to show settings modal', {
+        errorMessage: err.message,
+        errorName: err.name,
+      })
+    }
   }
 
   /**
@@ -271,6 +495,34 @@ export const createSettingsManager = (config: SettingsManagerConfig): SettingsMa
   }
   registerEventHandler(window, 'beforeunload', handleBeforeUnload)
 
+  /**
+   * Get error metrics for monitoring and debugging.
+   * Provides insights into error frequency, categories, and recent failures.
+   *
+   * @returns Object containing error metrics and statistics
+   *
+   * @example
+   * ```typescript
+   * const metrics = settingsManager.getErrorMetrics()
+   * console.log(`Total errors: ${metrics.totalErrors}`)
+   * console.log(`Component init errors: ${metrics.errorsByCategory['component-initialization']}`)
+   * ```
+   */
+  const getErrorMetrics = () => {
+    return {
+      totalErrors: errorMetrics.totalErrors,
+      errorsByCategory: {...errorMetrics.errorsByCategory},
+      lastError: errorMetrics.lastError
+        ? {
+            name: errorMetrics.lastError.name,
+            message: errorMetrics.lastError.message,
+            timestamp: errorMetrics.lastErrorTimestamp,
+          }
+        : null,
+      initRetryCount,
+    }
+  }
+
   logger.info('Settings manager created')
 
   // Return public API
@@ -279,6 +531,7 @@ export const createSettingsManager = (config: SettingsManagerConfig): SettingsMa
     hide,
     toggle,
     destroy,
+    getErrorMetrics,
     on: eventEmitter.on.bind(eventEmitter),
     off: eventEmitter.off.bind(eventEmitter),
     once: eventEmitter.once.bind(eventEmitter),
