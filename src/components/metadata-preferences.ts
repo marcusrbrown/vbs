@@ -25,9 +25,11 @@ import type {
   MetadataPreferencesEvents,
   MetadataPreferencesInstance,
   MetadataSourceType,
+  MetadataUsageControlsInstance,
 } from '../modules/types.js'
 import {withSyncErrorHandling} from '../modules/error-handler.js'
 import {createEventEmitter} from '../modules/events.js'
+import {createMetadataUsageControls} from './metadata-usage-controls.js'
 
 /**
  * Create a metadata preferences component instance.
@@ -51,6 +53,7 @@ export const createMetadataPreferences = (
     failCount: number
   } | null = null
   let selectedSeriesId: string | null = null
+  let usageControls: MetadataUsageControlsInstance | null = null
 
   // DOM elements cache
   const elements: {
@@ -68,6 +71,7 @@ export const createMetadataPreferences = (
     progressText?: HTMLElement
     cancelButton?: HTMLButtonElement
     feedbackContainer?: HTMLElement
+    usageControlsContainer?: HTMLElement
   } = {}
 
   const eventEmitter = createEventEmitter<MetadataPreferencesEvents>()
@@ -586,8 +590,8 @@ export const createMetadataPreferences = (
     container.innerHTML = `
       <div class="metadata-preferences-container">
         <div class="preferences-header">
-          <h2>Metadata Refresh Controls</h2>
-          <p>Manually refresh episode metadata with real-time progress tracking and cancellation support.</p>
+          <h2>Metadata Management</h2>
+          <p>Manage metadata refresh operations, data usage quotas, and monitor API consumption.</p>
         </div>
 
         <form class="metadata-preferences-form">
@@ -595,6 +599,10 @@ export const createMetadataPreferences = (
           ${createBulkRefreshSection()}
           ${createProgressSection()}
           ${createFeedbackSection()}
+
+          <div class="metadata-preferences-section" data-usage-controls-section>
+            <div data-usage-controls-container></div>
+          </div>
         </form>
       </div>
     `
@@ -624,8 +632,46 @@ export const createMetadataPreferences = (
     elements.progressText = container.querySelector('[data-progress-text]') as HTMLElement
     elements.cancelButton = container.querySelector('[data-cancel-button]') as HTMLButtonElement
     elements.feedbackContainer = container.querySelector('[data-feedback-container]') as HTMLElement
+    elements.usageControlsContainer = container.querySelector(
+      '[data-usage-controls-container]',
+    ) as HTMLElement
 
     setupEventListeners()
+    initializeUsageControls()
+  }
+
+  const initializeUsageControls = (): void => {
+    if (!elements.usageControlsContainer || !_preferences) return
+
+    // Clean up existing instance if any
+    if (usageControls) {
+      usageControls.destroy()
+    }
+
+    // Create and render usage controls component
+    usageControls = createMetadataUsageControls({
+      container: elements.usageControlsContainer,
+      preferences: _preferences,
+      getUsageStats: () => _preferences.getUsageStatistics(),
+      onQuotasUpdate: dataLimits => {
+        eventEmitter.emit('quotas-updated', {dataLimits})
+      },
+    })
+
+    usageControls.render()
+
+    // Wire up usage controls events to metadata preferences events
+    usageControls.on('quota-warning', data => {
+      eventEmitter.emit('quota-warning', data)
+    })
+
+    usageControls.on('quota-exceeded', data => {
+      eventEmitter.emit('quota-exceeded', data)
+    })
+
+    usageControls.on('cache-cleared', data => {
+      eventEmitter.emit('cache-cleared', data)
+    })
   }
 
   const update = (): void => {
@@ -636,6 +682,13 @@ export const createMetadataPreferences = (
     isRefreshing = false
     currentOperation = null
     progressData = null
+
+    // Clean up usage controls
+    if (usageControls) {
+      usageControls.destroy()
+      usageControls = null
+    }
+
     eventEmitter.removeAllListeners()
     container.innerHTML = ''
   }
