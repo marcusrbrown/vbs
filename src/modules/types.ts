@@ -4079,3 +4079,123 @@ export type MetadataLoggerInstance = LoggerInstance
  * @deprecated Use OperationMetrics instead. Kept for backward compatibility.
  */
 export type MetadataOperationMetrics = OperationMetrics
+
+// ============================================================================
+// Metadata Quality Indicator Types
+// ============================================================================
+
+/**
+ * Metadata completeness levels for quality indicators.
+ * Represents the level of detail available for episode metadata.
+ *
+ * - none: No metadata available
+ * - basic: Only essential fields (title, air date, synopsis)
+ * - detailed: Includes plot points, guest stars, production details
+ * - comprehensive: Complete metadata from all sources with validation
+ */
+export type MetadataCompletenessLevel = 'none' | 'basic' | 'detailed' | 'comprehensive'
+
+/**
+ * Metadata freshness states for quality indicators.
+ * Represents how recent the metadata was last updated.
+ *
+ * - fresh: Updated within last 7 days
+ * - stale: Updated 7-30 days ago
+ * - outdated: Updated more than 30 days ago or never updated
+ */
+export type MetadataFreshnessState = 'fresh' | 'stale' | 'outdated'
+
+/**
+ * Quality indicator display data for a single episode.
+ * Contains computed quality metrics for visual display.
+ */
+export interface EpisodeQualityIndicator {
+  /** Episode ID this indicator belongs to */
+  episodeId: string
+  /** Metadata completeness level */
+  completeness: MetadataCompletenessLevel
+  /** Metadata freshness state */
+  freshness: MetadataFreshnessState
+  /** Completeness score (0-100) */
+  completenessScore: number
+  /** Confidence score from metadata (0-100) */
+  confidenceScore: number
+  /** Last update timestamp (ISO string) */
+  lastUpdated: string | null
+  /** Whether metadata is currently being enriched */
+  isEnriching: boolean
+  /** Available metadata sources */
+  availableSources: MetadataSourceType[]
+}
+
+/**
+ * Configuration for metadata quality indicator component.
+ */
+export interface MetadataQualityIndicatorConfig {
+  /** Episode ID to display indicator for */
+  episodeId: string
+  /** Optional metadata to display (if available) */
+  metadata?: EpisodeMetadata
+  /** Display mode: 'badge' (small icon badge) or 'detailed' (expanded info) */
+  displayMode?: 'badge' | 'detailed'
+  /** Whether to show tooltips on hover */
+  showTooltips?: boolean
+  /** Whether to allow click-through to metadata details */
+  interactive?: boolean
+}
+
+/**
+ * Event types for metadata quality indicator component.
+ */
+export interface MetadataQualityIndicatorEvents extends EventMap {
+  /** Fired when indicator is clicked (if interactive) */
+  'indicator-clicked': {
+    episodeId: string
+    completeness: MetadataCompletenessLevel
+    freshness: MetadataFreshnessState
+  }
+  /** Fired when quality data is updated */
+  'quality-updated': {
+    episodeId: string
+    indicator: EpisodeQualityIndicator
+  }
+  /** Fired when enrichment status changes */
+  'enrichment-status-changed': {
+    episodeId: string
+    isEnriching: boolean
+  }
+}
+
+/**
+ * Metadata quality indicator instance interface for functional factory pattern.
+ * Provides visual indicators for metadata quality in episode lists.
+ */
+export interface MetadataQualityIndicatorInstance {
+  /** Generate HTML for the quality indicator */
+  renderHTML: () => string
+  /** Update indicator with new metadata */
+  update: (metadata: EpisodeMetadata) => void
+  /** Set enrichment status */
+  setEnrichmentStatus: (isEnriching: boolean) => void
+  /** Get current quality indicator data */
+  getIndicator: () => EpisodeQualityIndicator
+  /** Destroy the component and cleanup resources */
+  destroy: () => void
+
+  // Generic EventEmitter methods for type-safe event handling
+  on: <TEventName extends keyof MetadataQualityIndicatorEvents>(
+    eventName: TEventName,
+    listener: (payload: MetadataQualityIndicatorEvents[TEventName]) => void,
+  ) => void
+  off: <TEventName extends keyof MetadataQualityIndicatorEvents>(
+    eventName: TEventName,
+    listener: (payload: MetadataQualityIndicatorEvents[TEventName]) => void,
+  ) => void
+  once: <TEventName extends keyof MetadataQualityIndicatorEvents>(
+    eventName: TEventName,
+    listener: (payload: MetadataQualityIndicatorEvents[TEventName]) => void,
+  ) => void
+  removeAllListeners: <TEventName extends keyof MetadataQualityIndicatorEvents>(
+    eventName?: TEventName,
+  ) => void
+}

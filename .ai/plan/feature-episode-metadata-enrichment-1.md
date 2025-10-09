@@ -107,7 +107,7 @@ This plan extends the existing VBS Service Worker to implement a comprehensive e
 | TASK-033 | Create metadata debug panel in existing preferences system with data source visualization | ✅ | 2025-10-07 |
 | TASK-034 | Add manual metadata refresh controls with progress indicators and cancellation support | ✅ | 2025-10-07 |
 | TASK-035 | Implement data usage controls and quotas in user preferences with clear usage statistics | ✅ | 2025-10-08 |
-| TASK-036 | Create metadata quality indicators in episode lists showing data completeness and freshness | |  |
+| TASK-036 | Create metadata quality indicators in episode lists showing data completeness and freshness | ✅ | 2025-10-08 |
 | TASK-037 | Add metadata source attribution and confidence scores in episode detail views | |  |
 | TASK-038 | Implement bulk metadata operations UI (refresh series, validate all data) | |  |
 | TASK-039 | Create metadata sync status indicators with clear user feedback on background operations | |  |
