@@ -6,12 +6,21 @@ import type {
   SearchFilterInstance,
   TimelineRendererInstance,
 } from './modules/types.js'
+import {createMetadataDebugPanel} from './components/metadata-debug-panel.js'
+import {createMetadataPreferences} from './components/metadata-preferences.js'
 import {createEpisodeManager} from './modules/episodes.js'
 import {
   initializeGlobalErrorHandling,
   withErrorHandling,
   withSyncErrorHandling,
 } from './modules/error-handler.js'
+import {createMetadataQueue} from './modules/metadata-queue.js'
+import {createMetadataSources} from './modules/metadata-sources.js'
+import {
+  createDefaultMetadataStorageConfig,
+  createMetadataStorageAdapter,
+} from './modules/metadata-storage.js'
+import {createPreferences} from './modules/preferences.js'
 import {createProgressTracker} from './modules/progress.js'
 import {createSearchFilter} from './modules/search.js'
 import {
@@ -164,6 +173,10 @@ export const createElementsManager = () => {
     clearEpisodeSearchBtn: HTMLButtonElement | null
     resetEpisodeFiltersBtn: HTMLButtonElement | null
     episodeFilterStatus: HTMLElement | null
+    settingsButton: HTMLButtonElement | null
+    settingsModal: HTMLElement | null
+    closeSettingsButton: HTMLButtonElement | null
+    settingsModalBody: HTMLElement | null
   } = {
     container: null,
     searchInput: null,
@@ -182,6 +195,10 @@ export const createElementsManager = () => {
     clearEpisodeSearchBtn: null,
     resetEpisodeFiltersBtn: null,
     episodeFilterStatus: null,
+    settingsButton: null,
+    settingsModal: null,
+    closeSettingsButton: null,
+    settingsModalBody: null,
   }
 
   return {
@@ -204,6 +221,10 @@ export const createElementsManager = () => {
         clearEpisodeSearchBtn: document.querySelector('#clearEpisodeSearch'),
         resetEpisodeFiltersBtn: document.querySelector('#resetEpisodeFilters'),
         episodeFilterStatus: document.querySelector('#episodeFilterStatus'),
+        settingsButton: document.querySelector('#settingsButton'),
+        settingsModal: document.querySelector('#settingsModal'),
+        closeSettingsButton: document.querySelector('#closeSettingsButton'),
+        settingsModalBody: document.querySelector('#settingsModalBody'),
       }
 
       if (!elements.container) {
@@ -387,6 +408,40 @@ export const createEventHandlers = (
       handleImportProgress(e).catch(console.error)
     })
 
+    // Settings modal
+    elements.settingsButton?.addEventListener('click', () => {
+      const modal = elements.settingsModal
+      if (modal) {
+        modal.style.display = 'flex'
+      }
+    })
+
+    elements.closeSettingsButton?.addEventListener('click', () => {
+      const modal = elements.settingsModal
+      if (modal) {
+        modal.style.display = 'none'
+      }
+    })
+
+    // Close modal when clicking outside the content
+    elements.settingsModal?.addEventListener('click', e => {
+      const modal = elements.settingsModal
+      if (e.target === modal && modal) {
+        modal.style.display = 'none'
+      }
+    })
+
+    // Close modal on Escape key
+    document.addEventListener('keydown', e => {
+      if (
+        e.key === 'Escape' &&
+        elements.settingsModal &&
+        elements.settingsModal.style.display === 'flex'
+      ) {
+        elements.settingsModal.style.display = 'none'
+      }
+    })
+
     // Progress tracker callbacks with improved type safety
     progressTracker.on('item-toggle', (_data: ProgressTrackerEvents['item-toggle']) => {
       saveProgress(progressTracker.getWatchedItems()).catch(console.error)
@@ -486,6 +541,47 @@ export const createStarTrekViewingGuide = () => {
       )
 
       eventHandlers.setupEventListeners()
+
+      // Initialize preferences and metadata usage controls
+      const elements = elementsManager.get()
+      if (elements.settingsModalBody) {
+        const preferences = createPreferences()
+
+        // Create metadata sources and storage
+        const metadataSources = createMetadataSources({
+          trekCore: {
+            enabled: true,
+            rateLimitConfig: {
+              requestsPerSecond: 1,
+              burstSize: 5,
+            },
+          },
+        })
+        const metadataStorageConfig = createDefaultMetadataStorageConfig()
+        const metadataStorage = createMetadataStorageAdapter(metadataStorageConfig)
+        const metadataQueue = createMetadataQueue()
+
+        const debugPanelContainer = document.createElement('div')
+        debugPanelContainer.id = 'metadataDebugPanel'
+
+        const metadataDebugPanel = createMetadataDebugPanel({
+          container: debugPanelContainer,
+          metadataSources,
+          metadataStorage,
+          metadataQueue,
+        })
+
+        // Create metadata preferences component
+        const metadataPreferencesContainer = document.createElement('div')
+        metadataPreferencesContainer.id = 'metadataPreferences'
+        elements.settingsModalBody.append(metadataPreferencesContainer)
+
+        createMetadataPreferences({
+          container: metadataPreferencesContainer,
+          debugPanel: metadataDebugPanel,
+          preferences,
+        })
+      }
 
       // Initialize global error handling
       initializeGlobalErrorHandling()

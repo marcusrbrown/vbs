@@ -102,6 +102,20 @@
                 <input type="file" id="importProgress" accept=".json" style="display: none;"
                        aria-label="Import progress file">
                 <button id="importButton" aria-label="Import progress from file">Import Progress</button>
+                <button id="settingsButton" aria-label="Open settings">Settings</button>
+            </div>
+        </div>
+
+        <!-- Settings Modal -->
+        <div id="settingsModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="settingsModalTitle" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="settingsModalTitle">Settings</h2>
+                    <button id="closeSettingsButton" class="close-button" aria-label="Close settings">×</button>
+                </div>
+                <div class="modal-body" id="settingsModalBody">
+                    <!-- Metadata preferences component will be rendered here -->
+                </div>
             </div>
         </div>
 

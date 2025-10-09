@@ -2,6 +2,8 @@
 // DOMAIN-SPECIFIC TYPES AND INTERFACES
 // ============================================================================
 
+import type {PreferencesInstance} from './preferences.js'
+
 /**
  * Core data types for Star Trek viewing guide content and user interactions.
  * These interfaces define the structure of Star Trek content, progress tracking,
@@ -2588,7 +2590,7 @@ export interface MetadataPreferencesConfig {
   /** Metadata debug panel instance for refresh operations */
   debugPanel: MetadataDebugPanelInstance
   /** Preferences instance for accessing user settings (imported from preferences.ts) */
-  preferences: any
+  preferences: PreferencesInstance
 }
 
 /**
@@ -2654,6 +2656,182 @@ export interface MetadataPreferencesInstance {
     listener: (payload: MetadataPreferencesEvents[TEventName]) => void,
   ) => void
   removeAllListeners: <TEventName extends keyof MetadataPreferencesEvents>(
+    eventName?: TEventName,
+  ) => void
+}
+
+/**
+ * Metadata usage statistics tracking and display.
+ * Tracks API calls, bandwidth usage, and cache storage for data usage monitoring.
+ */
+export interface MetadataUsageStatistics {
+  /** API call statistics */
+  apiCalls: {
+    /** Total API calls made today */
+    today: number
+    /** Total API calls made this week */
+    thisWeek: number
+    /** Total API calls made this month */
+    thisMonth: number
+    /** Total lifetime API calls */
+    lifetime: number
+    /** Breakdown by source */
+    bySource: Record<MetadataSourceType, number>
+  }
+  /** Bandwidth usage statistics in bytes */
+  bandwidth: {
+    /** Bandwidth used today (bytes) */
+    today: number
+    /** Bandwidth used this week (bytes) */
+    thisWeek: number
+    /** Bandwidth used this month (bytes) */
+    thisMonth: number
+    /** Total lifetime bandwidth (bytes) */
+    lifetime: number
+  }
+  /** Cache storage statistics */
+  storage: {
+    /** Current cache size in bytes */
+    currentSize: number
+    /** Maximum allowed cache size in bytes */
+    maxSize: number
+    /** Percentage of quota used (0-100) */
+    percentUsed: number
+    /** Number of cached episodes */
+    episodeCount: number
+  }
+  /** Quota status and limits */
+  quotas: {
+    /** Daily API call quota */
+    dailyApiCalls: {
+      used: number
+      limit: number
+      percentUsed: number
+      resetTime: string
+    }
+    /** Cache storage quota */
+    cacheStorage: {
+      used: number
+      limit: number
+      percentUsed: number
+    }
+  }
+  /** Last statistics update timestamp */
+  lastUpdated: string
+}
+
+/**
+ * Metadata usage tracking configuration and state.
+ * Used for persisting usage tracking data between sessions.
+ */
+export interface MetadataUsageTracking {
+  /** Daily usage records (keyed by YYYY-MM-DD) */
+  dailyRecords: Record<
+    string,
+    {
+      apiCalls: number
+      bandwidth: number
+      bySource: Record<MetadataSourceType, number>
+    }
+  >
+  /** Total lifetime statistics */
+  lifetime: {
+    apiCalls: number
+    bandwidth: number
+    episodesEnriched: number
+  }
+  /** Last reset timestamp for daily quotas */
+  lastDailyReset: string
+}
+
+/**
+ * Metadata usage controls component configuration.
+ * Used to initialize the data usage controls UI component.
+ */
+export interface MetadataUsageControlsConfig {
+  /** Container element for the usage controls UI */
+  container: HTMLElement
+  /** Preferences instance for accessing and updating user settings */
+  preferences: PreferencesInstance
+  /** Function to get current usage statistics */
+  getUsageStats: () => MetadataUsageStatistics | Promise<MetadataUsageStatistics>
+  /** Optional callback when quotas are updated */
+  onQuotasUpdate?: (limits: UserPreferences['metadataSync']['dataLimits']) => void
+}
+
+/**
+ * Metadata usage controls event map for type-safe event handling.
+ * Defines events emitted by the metadata usage controls component.
+ */
+export interface MetadataUsageControlsEvents extends EventMap {
+  /** Fired when data limits/quotas are updated */
+  'quotas-updated': {
+    dataLimits: UserPreferences['metadataSync']['dataLimits']
+    preferences: UserPreferences
+  }
+  /** Fired when usage statistics are refreshed */
+  'usage-refreshed': {
+    statistics: MetadataUsageStatistics
+    timestamp: string
+  }
+  /** Fired when cache is cleared by user */
+  'cache-cleared': {
+    previousSize: number
+    freedSpace: number
+  }
+  /** Fired when usage export is requested */
+  'usage-exported': {
+    format: 'json' | 'csv'
+    filename: string
+  }
+  /** Fired when quota warning threshold is reached */
+  'quota-warning': {
+    type: 'api-calls' | 'storage'
+    percentUsed: number
+    limit: number
+  }
+  /** Fired when quota limit is exceeded */
+  'quota-exceeded': {
+    type: 'api-calls' | 'storage'
+    used: number
+    limit: number
+  }
+}
+
+/**
+ * Metadata usage controls instance interface for functional factory pattern.
+ * Provides comprehensive data usage monitoring and quota management capabilities.
+ */
+export interface MetadataUsageControlsInstance {
+  /** Render the usage controls UI into the container */
+  render: () => void
+  /** Update the component with latest usage statistics */
+  update: (stats?: MetadataUsageStatistics) => Promise<void>
+  /** Refresh usage statistics from storage */
+  refreshStats: () => Promise<void>
+  /** Clear metadata cache and free storage */
+  clearCache: () => Promise<void>
+  /** Export usage statistics as JSON */
+  exportStats: (format: 'json' | 'csv') => void
+  /** Show feedback message to user */
+  showFeedback: (message: string, type: 'success' | 'error' | 'info' | 'warning') => void
+  /** Destroy the component and cleanup resources */
+  destroy: () => void
+
+  // Generic EventEmitter methods for type-safe event handling
+  on: <TEventName extends keyof MetadataUsageControlsEvents>(
+    eventName: TEventName,
+    listener: (payload: MetadataUsageControlsEvents[TEventName]) => void,
+  ) => void
+  off: <TEventName extends keyof MetadataUsageControlsEvents>(
+    eventName: TEventName,
+    listener: (payload: MetadataUsageControlsEvents[TEventName]) => void,
+  ) => void
+  once: <TEventName extends keyof MetadataUsageControlsEvents>(
+    eventName: TEventName,
+    listener: (payload: MetadataUsageControlsEvents[TEventName]) => void,
+  ) => void
+  removeAllListeners: <TEventName extends keyof MetadataUsageControlsEvents>(
     eventName?: TEventName,
   ) => void
 }

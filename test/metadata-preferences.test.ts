@@ -66,6 +66,55 @@ describe('createMetadataPreferences', () => {
       update: vi.fn(),
       on: vi.fn(),
       off: vi.fn(),
+      getPreferences: vi.fn().mockReturnValue({
+        metadataSync: {
+          dataLimits: {
+            dailyApiCalls: 1000,
+            dailyBandwidth: 10485760,
+            monthlyApiCalls: 30000,
+            cacheStorage: 5242880,
+          },
+        },
+      }),
+      getUsageStatistics: vi.fn().mockReturnValue({
+        totalApiCalls: 250,
+        totalBytesTransferred: 1024000,
+        successfulCalls: 240,
+        failedCalls: 10,
+        averageResponseTime: 150,
+        apiCalls: {
+          today: 250,
+          thisWeek: 1200,
+          thisMonth: 4500,
+          lifetime: 15000,
+          bySource: {
+            'memory-alpha': 100,
+            tmdb: 80,
+            trekcore: 50,
+            stapi: 20,
+          },
+        },
+        bandwidth: {
+          today: 1024000,
+          thisWeek: 5120000,
+          thisMonth: 20480000,
+          lifetime: 102400000,
+        },
+        storage: {
+          currentSize: 512000,
+          maxSize: 5242880,
+          percentUsed: 10,
+          episodeCount: 125,
+        },
+        quotas: {
+          dailyApiCalls: {used: 250, limit: 1000},
+          dailyBandwidth: {used: 1024000, limit: 10485760},
+          monthlyApiCalls: {used: 2500, limit: 30000},
+          cacheStorage: {used: 512000, limit: 5242880},
+        },
+        lastUpdated: new Date().toISOString(),
+      }),
+      updateUsageStatistics: vi.fn(),
     }
   })
 
@@ -105,7 +154,7 @@ describe('createMetadataPreferences', () => {
       preferences: mockPreferences,
     })
 
-    expect(container.innerHTML).toContain('Metadata Refresh Controls')
+    expect(container.innerHTML).toContain('Metadata Management')
     expect(container.innerHTML).toContain('Manual Episode Refresh')
     expect(container.innerHTML).toContain('Bulk Refresh Operations')
   })

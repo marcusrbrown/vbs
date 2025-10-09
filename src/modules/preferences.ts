@@ -1,10 +1,11 @@
-import type {PreferencesEvents, UserPreferences} from './types.js'
+import type {MetadataUsageStatistics, PreferencesEvents, UserPreferences} from './types.js'
 import {withSyncErrorHandling} from './error-handler.js'
 import {createEventEmitter} from './events.js'
 import {createStorage, LocalStorageAdapter} from './storage.js'
 
-// Storage key for user preferences
+// Storage keys for user preferences and usage tracking
 const PREFERENCES_KEY = 'starTrekUserPreferences'
+const USAGE_STATS_KEY = 'metadataUsageStats'
 
 /**
  * Default user preferences configuration
@@ -169,6 +170,21 @@ export const createPreferences = () => {
       validate: validatePreferences,
       sanitize: sanitizePreferences,
       fallback: DEFAULT_PREFERENCES,
+    }),
+  )
+
+  // Create separate storage adapter for usage statistics
+  const usageStatsStorage = createStorage(
+    new LocalStorageAdapter<MetadataUsageStatistics | null>({
+      validate: (data: unknown): data is MetadataUsageStatistics | null => {
+        if (data === null) return true
+        if (!data || typeof data !== 'object') return false
+        const stats = data as Record<string, unknown>
+        return (
+          'apiCalls' in stats && 'bandwidth' in stats && 'storage' in stats && 'quotas' in stats
+        )
+      },
+      fallback: null,
     }),
   )
 
@@ -424,6 +440,117 @@ export const createPreferences = () => {
 
       const imported = sanitizePreferences(exportData.preferences)
       return updatePreferences(imported)
+    },
+
+    /**
+     * Get current metadata usage statistics
+     * Calculates usage stats from stored data and user preferences
+     * Returns data structure matching MetadataUsageStatistics interface
+     */
+    getUsageStatistics: (): MetadataUsageStatistics => {
+      const stored = usageStatsStorage.load(USAGE_STATS_KEY)
+
+      // Handle sync storage adapter (LocalStorage is synchronous)
+      if (stored && typeof stored === 'object' && 'then' in stored) {
+        throw new Error('Async storage adapter not supported in sync getUsageStatistics operation')
+      }
+
+      const limits = currentPreferences.metadataSync.dataLimits
+
+      // Calculate reset time (midnight UTC tomorrow)
+      const now = new Date()
+      const tomorrow = new Date(now)
+      tomorrow.setUTCDate(tomorrow.getUTCDate() + 1)
+      tomorrow.setUTCHours(0, 0, 0, 0)
+
+      // Default stats structure
+      const defaultStats: MetadataUsageStatistics = {
+        apiCalls: {
+          today: 0,
+          thisWeek: 0,
+          thisMonth: 0,
+          lifetime: 0,
+          bySource: {
+            'memory-alpha': 0,
+            tmdb: 0,
+            trekcore: 0,
+            imdb: 0,
+            'startrek-com': 0,
+            stapi: 0,
+            manual: 0,
+          },
+        },
+        bandwidth: {
+          today: 0,
+          thisWeek: 0,
+          thisMonth: 0,
+          lifetime: 0,
+        },
+        storage: {
+          currentSize: 0,
+          maxSize: limits.maxCacheSizeMB * 1024 * 1024,
+          percentUsed: 0,
+          episodeCount: 0,
+        },
+        quotas: {
+          dailyApiCalls: {
+            used: 0,
+            limit: limits.maxDailyApiCalls,
+            percentUsed: 0,
+            resetTime: tomorrow.toISOString(),
+          },
+          cacheStorage: {
+            used: 0,
+            limit: limits.maxCacheSizeMB * 1024 * 1024,
+            percentUsed: 0,
+          },
+        },
+        lastUpdated: new Date().toISOString(),
+      }
+
+      // Return stored stats if available, otherwise return defaults
+      return stored ?? defaultStats
+    },
+
+    /**
+     * Update metadata usage statistics
+     * Stores updated statistics for persistence between sessions
+     */
+    updateUsageStatistics: (stats: Partial<MetadataUsageStatistics>) => {
+      const stored = usageStatsStorage.load(USAGE_STATS_KEY)
+
+      // Handle sync storage adapter
+      if (stored && typeof stored === 'object' && 'then' in stored) {
+        throw new Error(
+          'Async storage adapter not supported in sync updateUsageStatistics operation',
+        )
+      }
+
+      const limits = currentPreferences.metadataSync.dataLimits
+
+      // Merge stored stats with updates
+      const updatedStats: MetadataUsageStatistics = {
+        ...(stored ?? ({} as MetadataUsageStatistics)),
+        ...stats,
+        // Ensure quotas reflect current preferences
+        quotas: {
+          ...(stored?.quotas ?? {}),
+          ...(stats.quotas ?? {}),
+          dailyApiCalls: {
+            ...(stored?.quotas?.dailyApiCalls ?? {}),
+            limit: limits.maxDailyApiCalls,
+            ...(stats.quotas?.dailyApiCalls ?? {}),
+          },
+          cacheStorage: {
+            ...(stored?.quotas?.cacheStorage ?? {}),
+            limit: limits.maxCacheSizeMB * 1024 * 1024,
+            ...(stats.quotas?.cacheStorage ?? {}),
+          },
+        },
+        lastUpdated: new Date().toISOString(),
+      } as MetadataUsageStatistics
+
+      usageStatsStorage.save(USAGE_STATS_KEY, updatedStats)
     },
 
     /**
