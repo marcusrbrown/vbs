@@ -1,5 +1,6 @@
 import type {
   Episode,
+  EpisodeMetadata,
   EraProgress,
   OverallProgress,
   ProgressTrackerInstance,
@@ -9,10 +10,12 @@ import type {
   TimelineRendererInstance,
 } from './types.js'
 import {createMetadataQualityIndicator} from '../components/metadata-quality-indicator.js'
+import {createMetadataSourceAttribution} from '../components/metadata-source-attribution.js'
 import {createStreamingIndicators} from '../components/streaming-indicators.js'
 import {curry, pipe, tap} from '../utils/composition.js'
 import {calculateSeasonProgress} from './progress.js'
 import '../components/metadata-quality-indicator.css'
+import '../components/metadata-source-attribution.css'
 
 export const createTimelineRenderer = (
   container: HTMLElement,
@@ -346,12 +349,35 @@ export const createTimelineRenderer = (
 
   /**
    * Create detailed episode information content with progressive disclosure for spoiler-safe viewing.
-   * Displays plot points, guest stars, and cross-series connections with accessibility support.
+   * Displays plot points, guest stars, cross-series connections, and metadata source attribution with accessibility support.
    */
   const createEpisodeDetailsContent = (episode: Episode): string => {
     const hasPlotPoints = episode.plotPoints && episode.plotPoints.length > 0
     const hasGuestStars = episode.guestStars && episode.guestStars.length > 0
     const hasConnections = episode.connections && episode.connections.length > 0
+
+    // Create metadata source attribution (placeholder until metadata storage is integrated)
+    const mockMetadata: EpisodeMetadata | undefined = episode.tmdbId
+      ? {
+          episodeId: episode.id,
+          dataSource: 'tmdb',
+          lastUpdated: new Date().toISOString(),
+          isValidated: true,
+          confidenceScore: 0.85,
+          version: '1.0',
+          enrichmentStatus: 'complete',
+        }
+      : undefined
+
+    const attribution = createMetadataSourceAttribution({
+      episodeId: episode.id,
+      ...(mockMetadata ? {metadata: mockMetadata} : {}),
+      displayMode: 'detailed',
+      showFieldAttribution: false,
+      showConflicts: false,
+      interactive: false,
+    })
+    const attributionHTML = attribution.renderHTML()
 
     return `
       <div class="episode-details-content">
@@ -442,6 +468,8 @@ export const createTimelineRenderer = (
           `
               : ''
           }
+
+          ${attributionHTML}
         </div>
       </div>
     `

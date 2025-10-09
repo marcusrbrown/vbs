@@ -4199,3 +4199,75 @@ export interface MetadataQualityIndicatorInstance {
     eventName?: TEventName,
   ) => void
 }
+
+/**
+ * Configuration for metadata source attribution component.
+ * Displays data source information and confidence scores in episode detail views.
+ */
+export interface MetadataSourceAttributionConfig {
+  /** Episode ID to display attribution for */
+  episodeId: string
+  /** Optional metadata to display (if available) */
+  metadata?: EpisodeMetadata
+  /** Display mode: 'compact' (minimal info) or 'detailed' (full attribution) */
+  displayMode?: 'compact' | 'detailed'
+  /** Whether to show field-level attribution (which source provided which field) */
+  showFieldAttribution?: boolean
+  /** Whether to show conflict resolution information */
+  showConflicts?: boolean
+  /** Whether to make the component interactive (clickable for details) */
+  interactive?: boolean
+}
+
+/**
+ * Event types for metadata source attribution component.
+ */
+export interface MetadataSourceAttributionEvents extends EventMap {
+  /** Fired when metadata is updated */
+  'attribution-updated': {
+    episodeId: string
+    metadata: EpisodeMetadata
+  }
+  /** Fired when user clicks attribution for more details */
+  'attribution-clicked': {
+    episodeId: string
+    source: MetadataSourceType
+  }
+  /** Fired when user views conflict resolution details */
+  'conflicts-viewed': {
+    episodeId: string
+    conflicts: ConflictResolutionRecord[]
+  }
+}
+
+/**
+ * Metadata source attribution instance interface for functional factory pattern.
+ * Provides source attribution and confidence score display for episode metadata.
+ */
+export interface MetadataSourceAttributionInstance {
+  /** Render the attribution as HTML string */
+  renderHTML: () => string
+  /** Update attribution with new metadata */
+  updateMetadata: (metadata: EpisodeMetadata) => void
+  /** Get current metadata */
+  getMetadata: () => EpisodeMetadata | undefined
+  /** Destroy the component and cleanup resources */
+  destroy: () => void
+
+  // Generic EventEmitter methods for type-safe event handling
+  on: <TEventName extends keyof MetadataSourceAttributionEvents>(
+    eventName: TEventName,
+    listener: (payload: MetadataSourceAttributionEvents[TEventName]) => void,
+  ) => void
+  off: <TEventName extends keyof MetadataSourceAttributionEvents>(
+    eventName: TEventName,
+    listener: (payload: MetadataSourceAttributionEvents[TEventName]) => void,
+  ) => void
+  once: <TEventName extends keyof MetadataSourceAttributionEvents>(
+    eventName: TEventName,
+    listener: (payload: MetadataSourceAttributionEvents[TEventName]) => void,
+  ) => void
+  removeAllListeners: <TEventName extends keyof MetadataSourceAttributionEvents>(
+    eventName?: TEventName,
+  ) => void
+}

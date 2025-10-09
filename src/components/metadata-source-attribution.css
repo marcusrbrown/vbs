@@ -1,0 +1,491 @@
+/**
+ * Metadata Source Attribution Component Styles
+ *
+ * Provides styling for metadata source attribution display in episode detail views,
+ * showing data source information, confidence scores, and field-level attribution.
+ *
+ * Features:
+ * - VBS theme integration with CSS custom properties
+ * - Responsive design for mobile, tablet, and desktop
+ * - Accessibility support (WCAG AA compliance, keyboard navigation, screen readers)
+ * - Dark mode support via prefers-color-scheme
+ * - Reduced motion support for animations
+ * - Print optimization
+ */
+
+/* Base attribution container */
+.metadata-source-attribution {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--vbs-border-color, rgba(255, 255, 255, 0.1));
+  border-radius: 6px;
+  font-size: 0.85rem;
+  color: var(--vbs-text-secondary, #a0a0a0);
+  transition: background-color 0.2s ease;
+}
+
+/* Compact mode (minimal information) */
+.metadata-source-attribution--compact {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+}
+
+/* Interactive mode (clickable) */
+.metadata-source-attribution--interactive {
+  cursor: pointer;
+  user-select: none;
+}
+
+.metadata-source-attribution--interactive:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--vbs-color-accent, #ffa500);
+}
+
+.metadata-source-attribution--interactive:focus {
+  outline: 2px solid var(--vbs-color-accent, #ffa500);
+  outline-offset: 2px;
+}
+
+.metadata-source-attribution--interactive:focus-visible {
+  outline: 2px solid var(--vbs-color-accent, #ffa500);
+  outline-offset: 2px;
+}
+
+/* No data state */
+.metadata-source-attribution--no-data {
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+  font-style: italic;
+  color: var(--vbs-text-tertiary, #707070);
+}
+
+.attribution-no-data {
+  display: inline-block;
+  text-align: center;
+}
+
+/* Attribution header */
+.attribution-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--vbs-border-color, rgba(255, 255, 255, 0.1));
+}
+
+.attribution-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--vbs-color-accent, #ffa500);
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Enrichment status badge */
+.attribution-status {
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.attribution-status--pending {
+  background: rgba(255, 165, 0, 0.2);
+  color: var(--vbs-color-warning, #ffa500);
+}
+
+.attribution-status--partial {
+  background: rgba(255, 255, 0, 0.2);
+  color: var(--vbs-color-caution, #ffeb3b);
+}
+
+.attribution-status--complete {
+  background: rgba(16, 185, 129, 0.2);
+  color: var(--vbs-color-success, #10b981);
+}
+
+.attribution-status--failed {
+  background: rgba(239, 68, 68, 0.2);
+  color: var(--vbs-color-error, #ef4444);
+}
+
+/* Compact mode elements */
+.attribution-source {
+  font-weight: 600;
+  color: var(--vbs-text-primary, #ffffff);
+}
+
+.attribution-updated {
+  color: var(--vbs-text-tertiary, #707070);
+  font-size: 0.8rem;
+  margin-left: auto;
+}
+
+/* Confidence score */
+.attribution-confidence {
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+.attribution-confidence--high {
+  background: rgba(16, 185, 129, 0.2);
+  color: var(--vbs-color-success, #10b981);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+}
+
+.attribution-confidence--medium {
+  background: rgba(255, 165, 0, 0.2);
+  color: var(--vbs-color-warning, #ffa500);
+  border: 1px solid rgba(255, 165, 0, 0.4);
+}
+
+.attribution-confidence--low {
+  background: rgba(239, 68, 68, 0.2);
+  color: var(--vbs-color-error, #ef4444);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+}
+
+/* Detailed mode primary information */
+.attribution-primary {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 4px;
+}
+
+.attribution-primary-source,
+.attribution-primary-confidence,
+.attribution-primary-validation,
+.attribution-primary-updated {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.attribution-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--vbs-text-tertiary, #707070);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.attribution-value {
+  font-size: 0.85rem;
+  color: var(--vbs-text-primary, #ffffff);
+  font-weight: 500;
+}
+
+/* Validation status */
+.attribution-validation {
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: inline-block;
+  width: fit-content;
+}
+
+.attribution-validation--validated {
+  background: rgba(16, 185, 129, 0.2);
+  color: var(--vbs-color-success, #10b981);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+}
+
+.attribution-validation--unvalidated {
+  background: rgba(107, 114, 128, 0.2);
+  color: var(--vbs-text-tertiary, #707070);
+  border: 1px solid rgba(107, 114, 128, 0.4);
+}
+
+/* Field attribution section */
+.field-attribution-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 4px;
+}
+
+.attribution-subsection-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--vbs-color-secondary, #61b3ff);
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.field-attribution-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.field-attribution-item {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-left: 3px solid var(--vbs-color-secondary, #61b3ff);
+  border-radius: 0 4px 4px 0;
+  font-size: 0.8rem;
+}
+
+.field-attribution-source {
+  font-weight: 600;
+  color: var(--vbs-text-primary, #ffffff);
+  min-width: 120px;
+}
+
+.field-attribution-fields {
+  color: var(--vbs-text-secondary, #a0a0a0);
+  flex: 1;
+}
+
+/* Conflicts section */
+.conflicts-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: rgba(255, 165, 0, 0.05);
+  border: 1px solid rgba(255, 165, 0, 0.2);
+  border-radius: 4px;
+}
+
+.conflicts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.conflict-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 4px;
+}
+
+.conflict-field {
+  font-weight: 600;
+  color: var(--vbs-text-primary, #ffffff);
+  font-size: 0.8rem;
+}
+
+.conflict-details {
+  display: flex;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+}
+
+.conflict-strategy {
+  color: var(--vbs-color-warning, #ffa500);
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.conflict-count {
+  color: var(--vbs-text-tertiary, #707070);
+}
+
+/* Version information */
+.attribution-version {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 4px;
+  font-size: 0.75rem;
+}
+
+.attribution-version-label {
+  color: var(--vbs-text-tertiary, #707070);
+  font-weight: 500;
+}
+
+.attribution-version-value {
+  color: var(--vbs-text-secondary, #a0a0a0);
+  font-family: 'Courier New', monospace;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .metadata-source-attribution {
+    background: rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+
+  .metadata-source-attribution--interactive:hover {
+    background: rgba(0, 0, 0, 0.5);
+  }
+
+  .attribution-primary {
+    background: rgba(0, 0, 0, 0.2);
+  }
+
+  .field-attribution-section,
+  .field-attribution-item {
+    background: rgba(0, 0, 0, 0.2);
+  }
+
+  .conflicts-section {
+    background: rgba(255, 165, 0, 0.1);
+    border-color: rgba(255, 165, 0, 0.3);
+  }
+
+  .conflict-item {
+    background: rgba(0, 0, 0, 0.3);
+  }
+
+  .attribution-version {
+    background: rgba(0, 0, 0, 0.2);
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .metadata-source-attribution,
+  .metadata-source-attribution--interactive:hover {
+    transition: none;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .metadata-source-attribution {
+    border-width: 2px;
+  }
+
+  .attribution-confidence,
+  .attribution-validation,
+  .attribution-status {
+    border-width: 2px;
+  }
+
+  .field-attribution-item {
+    border-left-width: 4px;
+  }
+
+  .conflicts-section {
+    border-width: 2px;
+  }
+}
+
+/* Tablet breakpoint (portrait) */
+@media (max-width: 768px) {
+  .attribution-primary {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .metadata-source-attribution--compact {
+    flex-wrap: wrap;
+  }
+
+  .attribution-updated {
+    margin-left: 0;
+    width: 100%;
+  }
+}
+
+/* Mobile breakpoint */
+@media (max-width: 480px) {
+  .metadata-source-attribution {
+    font-size: 0.8rem;
+    padding: 0.6rem;
+  }
+
+  .metadata-source-attribution--compact {
+    padding: 0.4rem 0.6rem;
+  }
+
+  .attribution-title {
+    font-size: 0.8rem;
+  }
+
+  .attribution-subsection-title {
+    font-size: 0.75rem;
+  }
+
+  .attribution-primary {
+    padding: 0.5rem;
+    gap: 0.5rem;
+  }
+
+  .field-attribution-item {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .field-attribution-source {
+    min-width: auto;
+  }
+
+  .conflict-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .conflict-details {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+/* Print optimization */
+@media print {
+  .metadata-source-attribution {
+    page-break-inside: avoid;
+    border: 1px solid #000;
+    background: transparent;
+  }
+
+  .metadata-source-attribution--interactive {
+    cursor: default;
+  }
+
+  .attribution-confidence--high {
+    border-color: #10b981;
+    color: #10b981;
+  }
+
+  .attribution-confidence--medium {
+    border-color: #ffa500;
+    color: #ffa500;
+  }
+
+  .attribution-confidence--low {
+    border-color: #ef4444;
+    color: #ef4444;
+  }
+
+  .attribution-status,
+  .attribution-validation {
+    border: 1px solid #000;
+  }
+
+  .conflicts-section {
+    border-color: #ffa500;
+  }
+}
