@@ -2,6 +2,8 @@
 
 /* Component Imports */
 @import url('./components/streaming-indicators.css');
+@import url('./components/metadata-usage-controls.css');
+@import url('./components/metadata-preferences.css');
 @import url('./modules/settings-manager.css');
 
 :root {
