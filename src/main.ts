@@ -4,10 +4,10 @@ import type {
   ProgressTrackerInstance,
   SearchFilterEvents,
   SearchFilterInstance,
+  SettingsManagerInstance,
   TimelineRendererInstance,
 } from './modules/types.js'
 import {createMetadataDebugPanel} from './components/metadata-debug-panel.js'
-import {createMetadataPreferences} from './components/metadata-preferences.js'
 import {createEpisodeManager} from './modules/episodes.js'
 import {
   initializeGlobalErrorHandling,
@@ -23,6 +23,7 @@ import {
 import {createPreferences} from './modules/preferences.js'
 import {createProgressTracker} from './modules/progress.js'
 import {createSearchFilter} from './modules/search.js'
+import {createSettingsManager} from './modules/settings-manager.js'
 import {
   exportProgress,
   importProgressFromFile,
@@ -32,6 +33,19 @@ import {
 import {createStreamingApi} from './modules/streaming-api.js'
 import {createTimelineRenderer} from './modules/timeline.js'
 import './style.css'
+
+/**
+ * Main Application Module
+ *
+ * Coordinates all VBS application modules and components following functional factory patterns.
+ * Manages application lifecycle, settings, progress tracking, and timeline rendering.
+ *
+ * Architecture:
+ * - Settings management is delegated to `createSettingsManager` for better maintainability
+ * - Event handlers are centralized in `createEventHandlers` factory
+ * - All modules follow closure-based state management patterns
+ * - Proper cleanup registered via `destroy()` method
+ */
 
 /**
  * Register Service Worker for PWA capabilities and detect background sync support.
@@ -243,6 +257,7 @@ export const createEventHandlers = (
   episodeManager: EpisodeManagerInstance,
   timelineRenderer: TimelineRendererInstance | null,
   elementsManager: ReturnType<typeof createElementsManager>,
+  settingsManager: SettingsManagerInstance | null = null,
 ) => {
   const handleResetProgress = withSyncErrorHandling((): void => {
     // eslint-disable-next-line no-alert
@@ -408,39 +423,12 @@ export const createEventHandlers = (
       handleImportProgress(e).catch(console.error)
     })
 
-    // Settings modal
-    elements.settingsButton?.addEventListener('click', () => {
-      const modal = elements.settingsModal
-      if (modal) {
-        modal.style.display = 'flex'
-      }
-    })
-
-    elements.closeSettingsButton?.addEventListener('click', () => {
-      const modal = elements.settingsModal
-      if (modal) {
-        modal.style.display = 'none'
-      }
-    })
-
-    // Close modal when clicking outside the content
-    elements.settingsModal?.addEventListener('click', e => {
-      const modal = elements.settingsModal
-      if (e.target === modal && modal) {
-        modal.style.display = 'none'
-      }
-    })
-
-    // Close modal on Escape key
-    document.addEventListener('keydown', e => {
-      if (
-        e.key === 'Escape' &&
-        elements.settingsModal &&
-        elements.settingsModal.style.display === 'flex'
-      ) {
-        elements.settingsModal.style.display = 'none'
-      }
-    })
+    // Settings modal - delegated to settings manager
+    if (settingsManager) {
+      elements.settingsButton?.addEventListener('click', () => {
+        settingsManager.show().catch(console.error)
+      })
+    }
 
     // Progress tracker callbacks with improved type safety
     progressTracker.on('item-toggle', (_data: ProgressTrackerEvents['item-toggle']) => {
@@ -490,7 +478,30 @@ export const createEventHandlers = (
   }
 }
 
-// Factory function to create the main application
+/**
+ * Factory function to create the main Star Trek Viewing Guide application.
+ *
+ * Coordinates all application modules including progress tracking, search, episodes,
+ * streaming API, timeline rendering, and settings management. Follows VBS functional
+ * factory architecture with closure-based state management.
+ *
+ * Settings Management:
+ * The settings system is now delegated to `createSettingsManager` which handles:
+ * - Modal lifecycle (show/hide/toggle)
+ * - Component initialization (preferences, usage controls, debug panel)
+ * - Error handling and recovery
+ * - Proper cleanup on page unload
+ *
+ * @returns Application instance with init, destroy, and module accessor methods
+ *
+ * @example
+ * ```typescript
+ * const app = createStarTrekViewingGuide()
+ * app.init() // Initialize application
+ * // ... user interaction ...
+ * app.destroy() // Cleanup on shutdown
+ * ```
+ */
 export const createStarTrekViewingGuide = () => {
   // Create module instances
   const progressTracker = createProgressTracker()
@@ -498,6 +509,7 @@ export const createStarTrekViewingGuide = () => {
   const episodeManager = createEpisodeManager()
   const streamingApi = createStreamingApi()
   let timelineRenderer: TimelineRendererInstance | null = null
+  let settingsManager: SettingsManagerInstance | null = null
 
   // Create managers
   const elementsManager = createElementsManager()
@@ -531,20 +543,9 @@ export const createStarTrekViewingGuide = () => {
       await loadInitialData()
       await render()
 
-      // Create event handlers after timeline renderer is initialized
-      const eventHandlers = createEventHandlers(
-        progressTracker,
-        searchFilter,
-        episodeManager,
-        timelineRenderer,
-        elementsManager,
-      )
-
-      eventHandlers.setupEventListeners()
-
-      // Initialize preferences and metadata usage controls
+      // Initialize settings manager with preferences and metadata controls before event handlers
       const elements = elementsManager.get()
-      if (elements.settingsModalBody) {
+      if (elements.settingsModal && elements.closeSettingsButton && elements.settingsModalBody) {
         const preferences = createPreferences()
 
         // Create metadata sources and storage
@@ -571,17 +572,40 @@ export const createStarTrekViewingGuide = () => {
           metadataQueue,
         })
 
-        // Create metadata preferences component
-        const metadataPreferencesContainer = document.createElement('div')
-        metadataPreferencesContainer.id = 'metadataPreferences'
-        elements.settingsModalBody.append(metadataPreferencesContainer)
-
-        createMetadataPreferences({
-          container: metadataPreferencesContainer,
+        // Create settings manager with all dependencies
+        settingsManager = createSettingsManager({
+          modalElement: elements.settingsModal,
+          closeButton: elements.closeSettingsButton,
+          contentContainer: elements.settingsModalBody,
           debugPanel: metadataDebugPanel,
           preferences,
+          getUsageStats: () => preferences.getUsageStatistics(),
+        })
+
+        // Listen for settings lifecycle events for logging and analytics
+        settingsManager.on('settings-error', ({error, operation}) => {
+          console.error(`[VBS] Settings error in ${operation}:`, error)
+        })
+      } else {
+        // Log warning when settings UI cannot be initialized
+        console.warn('[VBS] Settings modal elements not found - settings UI disabled', {
+          hasModal: !!elements.settingsModal,
+          hasCloseButton: !!elements.closeSettingsButton,
+          hasBody: !!elements.settingsModalBody,
         })
       }
+
+      // Create event handlers after settings manager is initialized
+      const eventHandlers = createEventHandlers(
+        progressTracker,
+        searchFilter,
+        episodeManager,
+        timelineRenderer,
+        elementsManager,
+        settingsManager,
+      )
+
+      eventHandlers.setupEventListeners()
 
       // Initialize global error handling
       initializeGlobalErrorHandling()
@@ -609,8 +633,17 @@ export const createStarTrekViewingGuide = () => {
     }
   }
 
+  /**
+   * Cleanup application resources.
+   * Calls destroy() on all initialized managers and components.
+   */
+  const destroy = (): void => {
+    settingsManager?.destroy()
+  }
+
   return {
     init,
+    destroy,
     progressTracker,
     searchFilter,
     timelineRenderer: () => timelineRenderer,
