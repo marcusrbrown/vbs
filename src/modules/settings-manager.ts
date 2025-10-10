@@ -36,11 +36,32 @@ import {createLogger} from './logger.js'
  * Factory function to create a settings manager instance.
  * Manages settings modal lifecycle, component initialization, and error handling.
  *
+ * **Lifecycle Management:**
+ * - Lazy initialization: Components are created only when modal is first opened
+ * - Automatic cleanup: window.beforeunload handler ensures proper resource cleanup
+ * - Idempotent destroy: Safe to call destroy() multiple times
+ *
+ * **Cleanup Behavior:**
+ * The settings manager automatically registers a window.beforeunload handler
+ * that calls destroy() to ensure proper cleanup when the page unloads. Manual
+ * cleanup is also supported via the destroy() method.
+ *
+ * Resources cleaned up during destroy():
+ * - Component instances (usage controls, preferences)
+ * - Event listeners (click, keyboard, window events)
+ * - EventEmitter listeners
+ * - Closure state (initialization flags, component references)
+ *
+ * **Error Handling:**
+ * All async operations are wrapped with error boundaries. Individual component
+ * failures don't prevent other components from loading (graceful degradation).
+ *
  * @param config - Configuration with dependencies and DOM references
  * @returns SettingsManagerInstance with full API
  *
  * @example
  * ```typescript
+ * // Create settings manager with dependencies
  * const settingsManager = createSettingsManager({
  *   modalElement: document.querySelector('#settingsModal'),
  *   closeButton: document.querySelector('#closeSettingsButton'),
@@ -50,13 +71,24 @@ import {createLogger} from './logger.js'
  *   getUsageStats: () => metadataStorage.getUsageStatistics()
  * })
  *
- * // Open settings modal
+ * // Open settings modal (lazy initialization happens here)
  * await settingsManager.show()
  *
  * // Listen for lifecycle events
  * settingsManager.on('settings-error', ({ error, operation }) => {
  *   console.error(`Settings error in ${operation}:`, error)
  * })
+ *
+ * // Manual cleanup (optional, automatic on beforeunload)
+ * settingsManager.destroy()
+ * ```
+ *
+ * @example
+ * ```typescript
+ * // Cleanup metrics monitoring
+ * settingsManager.destroy()
+ * const metrics = settingsManager.getErrorMetrics()
+ * console.log(`Cleanup completed: ${metrics.initRetryCount} retries`)
  * ```
  */
 export const createSettingsManager = (config: SettingsManagerConfig): SettingsManagerInstance => {
@@ -420,22 +452,85 @@ export const createSettingsManager = (config: SettingsManagerConfig): SettingsMa
   /**
    * Cleanup event listeners and component instances.
    * Idempotent design allows safe repeated calls.
+   *
+   * Cleanup process includes:
+   * - Component instance destruction (usage controls, preferences)
+   * - Event listener removal (click, keyboard, window events)
+   * - DOM reference clearing
+   * - State reset (initialization flags, visibility state)
+   * - EventEmitter cleanup
+   *
+   * Metrics tracked:
+   * - Cleanup duration
+   * - Number of resources freed (event listeners, component instances)
+   * - Cleanup success/failure status
+   *
+   * @example
+   * ```typescript
+   * // Proper cleanup on application shutdown
+   * window.addEventListener('beforeunload', () => {
+   *   settingsManager.destroy()
+   * })
+   *
+   * // Manual cleanup when removing settings UI
+   * removeSettingsUI()
+   * settingsManager.destroy()
+   *
+   * // Safe to call multiple times (idempotent)
+   * settingsManager.destroy()
+   * settingsManager.destroy() // No-op, safe
+   * ```
    */
   const destroy = withSyncErrorHandling((): void => {
+    const cleanupStartTime = performance.now()
+    let componentsDestroyed = 0
+    let eventListenersRemoved = 0
+    let cleanupErrors = 0
+
+    logger.info('Starting settings manager cleanup', {
+      componentsToCleanup: [
+        usageControlsInstance ? 'usage-controls' : null,
+        preferencesInstance ? 'preferences' : null,
+      ].filter(Boolean),
+      eventListeners: cleanupHandlers.length,
+    })
+
     if (usageControlsInstance) {
-      usageControlsInstance.destroy()
-      usageControlsInstance = null
+      try {
+        usageControlsInstance.destroy()
+        usageControlsInstance = null
+        componentsDestroyed++
+        logger.info('Usage controls instance destroyed')
+      } catch (error) {
+        cleanupErrors++
+        const err = error instanceof Error ? error : new Error(String(error))
+        logger.error('Failed to destroy usage controls', {
+          error: {name: err.name, message: err.message},
+        })
+      }
     }
 
     if (preferencesInstance) {
-      preferencesInstance.destroy()
-      preferencesInstance = null
+      try {
+        preferencesInstance.destroy()
+        preferencesInstance = null
+        componentsDestroyed++
+        logger.info('Preferences instance destroyed')
+      } catch (error) {
+        cleanupErrors++
+        const err = error instanceof Error ? error : new Error(String(error))
+        logger.error('Failed to destroy preferences', {
+          error: {name: err.name, message: err.message},
+        })
+      }
     }
 
     cleanupHandlers.forEach(handler => {
       try {
         handler()
+        eventListenersRemoved++
       } catch (error) {
+        cleanupErrors++
         const err = error instanceof Error ? error : new Error(String(error))
         logger.error('Cleanup handler failed', {
           error: {
@@ -453,12 +548,50 @@ export const createSettingsManager = (config: SettingsManagerConfig): SettingsMa
 
     eventEmitter.removeAllListeners()
 
-    logger.info('Settings manager destroyed')
+    const cleanupDuration = performance.now() - cleanupStartTime
+
+    logger.info('Settings manager destroyed', {
+      cleanupMetrics: {
+        duration: `${cleanupDuration.toFixed(2)}ms`,
+        componentsDestroyed,
+        eventListenersRemoved,
+        cleanupErrors,
+        success: cleanupErrors === 0,
+      },
+    })
   }, 'settings-manager-destroy')
 
   /**
-   * Register event handlers with cleanup tracking.
-   * Cleanup handlers are automatically invoked during destroy().
+   * Register event handlers with automatic cleanup tracking.
+   *
+   * All event listeners registered through this function are automatically
+   * removed during destroy() to prevent memory leaks. This is the preferred
+   * way to add event listeners within the settings manager.
+   *
+   * Cleanup handlers are stored in closure state and invoked in FIFO order
+   * during destroy() execution.
+   *
+   * @param target - EventTarget to attach listener to (Element, Document, Window, etc.)
+   * @param eventName - Event name to listen for ('click', 'keydown', 'beforeunload', etc.)
+   * @param handler - Event handler function to execute
+   *
+   * @example
+   * ```typescript
+   * // Register button click handler with automatic cleanup
+   * registerEventHandler(closeButton, 'click', () => {
+   *   settingsManager.hide()
+   * })
+   *
+   * // Register keyboard handler
+   * registerEventHandler(document, 'keydown', (e: Event) => {
+   *   if (e instanceof KeyboardEvent && e.key === 'Escape') {
+   *     settingsManager.hide()
+   *   }
+   * })
+   *
+   * // All listeners automatically removed on destroy()
+   * settingsManager.destroy() // Cleanup happens here
+   * ```
    */
   const registerEventHandler = <E extends EventTarget>(
     target: E,

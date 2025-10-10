@@ -105,12 +105,12 @@ export const createMetadataUsageControls = (
    */
   const createUsageOverview = (stats: MetadataUsageStatistics): string => {
     const apiCallsPercent = calculatePercentage(
-      stats.quotas.dailyApiCalls.used,
-      stats.quotas.dailyApiCalls.limit,
+      stats.quotas?.dailyApiCalls?.used ?? 0,
+      stats.quotas?.dailyApiCalls?.limit ?? 0,
     )
     const storagePercent = calculatePercentage(
-      stats.quotas.cacheStorage.used,
-      stats.quotas.cacheStorage.limit,
+      stats.quotas?.cacheStorage?.used ?? 0,
+      stats.quotas?.cacheStorage?.limit ?? 0,
     )
 
     return `
@@ -121,7 +121,7 @@ export const createMetadataUsageControls = (
             <div class="card-icon">📊</div>
             <div class="card-content">
               <div class="card-label">API Calls Today</div>
-              <div class="card-value">${formatNumber(stats.quotas.dailyApiCalls.used)} / ${formatNumber(stats.quotas.dailyApiCalls.limit)}</div>
+              <div class="card-value">${formatNumber(stats.quotas?.dailyApiCalls?.used ?? 0)} / ${formatNumber(stats.quotas?.dailyApiCalls?.limit ?? 0)}</div>
               <div class="card-percentage">${apiCallsPercent}% used</div>
               <div class="card-status">${getQuotaStatusMessage(apiCallsPercent)}</div>
             </div>
@@ -131,7 +131,7 @@ export const createMetadataUsageControls = (
             <div class="card-icon">💾</div>
             <div class="card-content">
               <div class="card-label">Cache Storage</div>
-              <div class="card-value">${formatBytes(stats.quotas.cacheStorage.used)} / ${formatBytes(stats.quotas.cacheStorage.limit)}</div>
+              <div class="card-value">${formatBytes(stats.quotas?.cacheStorage?.used ?? 0)} / ${formatBytes(stats.quotas?.cacheStorage?.limit ?? 0)}</div>
               <div class="card-percentage">${storagePercent}% used</div>
               <div class="card-status">${getQuotaStatusMessage(storagePercent)}</div>
             </div>
@@ -141,7 +141,7 @@ export const createMetadataUsageControls = (
             <div class="card-icon">🎯</div>
             <div class="card-content">
               <div class="card-label">Episodes Enriched</div>
-              <div class="card-value">${formatNumber(stats.storage.episodeCount)}</div>
+              <div class="card-value">${formatNumber(stats.storage?.episodeCount ?? 0)}</div>
               <div class="card-percentage">Cached metadata</div>
               <div class="card-status">Available offline</div>
             </div>
@@ -151,7 +151,7 @@ export const createMetadataUsageControls = (
             <div class="card-icon">📈</div>
             <div class="card-content">
               <div class="card-label">Total Bandwidth</div>
-              <div class="card-value">${formatBytes(stats.bandwidth.thisMonth)}</div>
+              <div class="card-value">${formatBytes(stats.bandwidth?.thisMonth ?? 0)}</div>
               <div class="card-percentage">This month</div>
               <div class="card-status">Network usage</div>
             </div>
@@ -165,9 +165,9 @@ export const createMetadataUsageControls = (
    * Create detailed API call statistics section
    */
   const createApiCallStats = (stats: MetadataUsageStatistics): string => {
-    const sourceEntries = Object.entries(stats.apiCalls.bySource)
+    const sourceEntries = Object.entries(stats.apiCalls?.bySource ?? {})
       .map(([source, calls]) => {
-        const percent = calculatePercentage(calls, stats.apiCalls.today)
+        const percent = calculatePercentage(calls, stats.apiCalls?.today ?? 0)
         return `
           <div class="stats-bar">
             <div class="stats-bar-label">${source}</div>
@@ -186,19 +186,19 @@ export const createMetadataUsageControls = (
         <div class="stats-grid">
           <div class="stat-item">
             <div class="stat-label">Today</div>
-            <div class="stat-value">${formatNumber(stats.apiCalls.today)}</div>
+            <div class="stat-value">${formatNumber(stats.apiCalls?.today ?? 0)}</div>
           </div>
           <div class="stat-item">
             <div class="stat-label">This Week</div>
-            <div class="stat-value">${formatNumber(stats.apiCalls.thisWeek)}</div>
+            <div class="stat-value">${formatNumber(stats.apiCalls?.thisWeek ?? 0)}</div>
           </div>
           <div class="stat-item">
             <div class="stat-label">This Month</div>
-            <div class="stat-value">${formatNumber(stats.apiCalls.thisMonth)}</div>
+            <div class="stat-value">${formatNumber(stats.apiCalls?.thisMonth ?? 0)}</div>
           </div>
           <div class="stat-item">
             <div class="stat-label">Lifetime</div>
-            <div class="stat-value">${formatNumber(stats.apiCalls.lifetime)}</div>
+            <div class="stat-value">${formatNumber(stats.apiCalls?.lifetime ?? 0)}</div>
           </div>
         </div>
         <div class="stats-breakdown">
@@ -219,19 +219,19 @@ export const createMetadataUsageControls = (
         <div class="stats-grid">
           <div class="stat-item">
             <div class="stat-label">Today</div>
-            <div class="stat-value">${formatBytes(stats.bandwidth.today)}</div>
+            <div class="stat-value">${formatBytes(stats.bandwidth?.today ?? 0)}</div>
           </div>
           <div class="stat-item">
             <div class="stat-label">This Week</div>
-            <div class="stat-value">${formatBytes(stats.bandwidth.thisWeek)}</div>
+            <div class="stat-value">${formatBytes(stats.bandwidth?.thisWeek ?? 0)}</div>
           </div>
           <div class="stat-item">
             <div class="stat-label">This Month</div>
-            <div class="stat-value">${formatBytes(stats.bandwidth.thisMonth)}</div>
+            <div class="stat-value">${formatBytes(stats.bandwidth?.thisMonth ?? 0)}</div>
           </div>
           <div class="stat-item">
             <div class="stat-label">Lifetime</div>
-            <div class="stat-value">${formatBytes(stats.bandwidth.lifetime)}</div>
+            <div class="stat-value">${formatBytes(stats.bandwidth?.lifetime ?? 0)}</div>
           </div>
         </div>
       </div>
@@ -329,7 +329,7 @@ export const createMetadataUsageControls = (
    * Create cache management section
    */
   const createCacheManagement = (stats: MetadataUsageStatistics): string => {
-    const storagePercent = stats.storage.percentUsed
+    const storagePercent = stats.storage?.percentUsed ?? 0
 
     return `
       <div class="cache-management">
@@ -337,11 +337,11 @@ export const createMetadataUsageControls = (
         <div class="cache-stats">
           <div class="cache-stat-item">
             <div class="cache-stat-label">Current Cache Size</div>
-            <div class="cache-stat-value">${formatBytes(stats.storage.currentSize)}</div>
+            <div class="cache-stat-value">${formatBytes(stats.storage?.currentSize ?? 0)}</div>
           </div>
           <div class="cache-stat-item">
             <div class="cache-stat-label">Cached Episodes</div>
-            <div class="cache-stat-value">${formatNumber(stats.storage.episodeCount)}</div>
+            <div class="cache-stat-value">${formatNumber(stats.storage?.episodeCount ?? 0)}</div>
           </div>
           <div class="cache-stat-item">
             <div class="cache-stat-label">Storage Used</div>
@@ -362,7 +362,7 @@ export const createMetadataUsageControls = (
             ></div>
           </div>
           <div class="cache-progress-label">
-            ${formatBytes(stats.storage.currentSize)} / ${formatBytes(stats.storage.maxSize)}
+            ${formatBytes(stats.storage?.currentSize ?? 0)} / ${formatBytes(stats.storage?.maxSize ?? 0)}
           </div>
         </div>
 
@@ -407,7 +407,7 @@ export const createMetadataUsageControls = (
    * Create quota reset warning section
    */
   const createQuotaResetInfo = (stats: MetadataUsageStatistics): string => {
-    const resetTime = new Date(stats.quotas.dailyApiCalls.resetTime)
+    const resetTime = new Date(stats.quotas?.dailyApiCalls?.resetTime ?? Date.now())
     const now = new Date()
     const hoursUntilReset = Math.ceil((resetTime.getTime() - now.getTime()) / (1000 * 60 * 60))
 
@@ -471,34 +471,34 @@ export const createMetadataUsageControls = (
    */
   const checkQuotaWarnings = (stats: MetadataUsageStatistics): void => {
     // Check API call quota
-    const apiPercent = stats.quotas.dailyApiCalls.percentUsed
+    const apiPercent = stats.quotas?.dailyApiCalls?.percentUsed ?? 0
     if (apiPercent >= 90 && apiPercent < 100) {
       eventEmitter.emit('quota-warning', {
         type: 'api-calls',
         percentUsed: apiPercent,
-        limit: stats.quotas.dailyApiCalls.limit,
+        limit: stats.quotas?.dailyApiCalls?.limit ?? 0,
       })
     } else if (apiPercent >= 100) {
       eventEmitter.emit('quota-exceeded', {
         type: 'api-calls',
-        used: stats.quotas.dailyApiCalls.used,
-        limit: stats.quotas.dailyApiCalls.limit,
+        used: stats.quotas?.dailyApiCalls?.used ?? 0,
+        limit: stats.quotas?.dailyApiCalls?.limit ?? 0,
       })
     }
 
     // Check storage quota
-    const storagePercent = stats.quotas.cacheStorage.percentUsed
+    const storagePercent = stats.quotas?.cacheStorage?.percentUsed ?? 0
     if (storagePercent >= 90 && storagePercent < 100) {
       eventEmitter.emit('quota-warning', {
         type: 'storage',
         percentUsed: storagePercent,
-        limit: stats.quotas.cacheStorage.limit,
+        limit: stats.quotas?.cacheStorage?.limit ?? 0,
       })
     } else if (storagePercent >= 100) {
       eventEmitter.emit('quota-exceeded', {
         type: 'storage',
-        used: stats.quotas.cacheStorage.used,
-        limit: stats.quotas.cacheStorage.limit,
+        used: stats.quotas?.cacheStorage?.used ?? 0,
+        limit: stats.quotas?.cacheStorage?.limit ?? 0,
       })
     }
   }
@@ -641,17 +641,17 @@ export const createMetadataUsageControls = (
     try {
       const csvRows = [
         ['Metric', 'Value'],
-        ['API Calls Today', currentStats.apiCalls.today.toString()],
-        ['API Calls This Week', currentStats.apiCalls.thisWeek.toString()],
-        ['API Calls This Month', currentStats.apiCalls.thisMonth.toString()],
-        ['API Calls Lifetime', currentStats.apiCalls.lifetime.toString()],
-        ['Bandwidth Today (bytes)', currentStats.bandwidth.today.toString()],
-        ['Bandwidth This Week (bytes)', currentStats.bandwidth.thisWeek.toString()],
-        ['Bandwidth This Month (bytes)', currentStats.bandwidth.thisMonth.toString()],
-        ['Bandwidth Lifetime (bytes)', currentStats.bandwidth.lifetime.toString()],
-        ['Cache Size (bytes)', currentStats.storage.currentSize.toString()],
-        ['Cached Episodes', currentStats.storage.episodeCount.toString()],
-        ['Storage Percent Used', currentStats.storage.percentUsed.toString()],
+        ['API Calls Today', (currentStats.apiCalls?.today ?? 0).toString()],
+        ['API Calls This Week', (currentStats.apiCalls?.thisWeek ?? 0).toString()],
+        ['API Calls This Month', (currentStats.apiCalls?.thisMonth ?? 0).toString()],
+        ['API Calls Lifetime', (currentStats.apiCalls?.lifetime ?? 0).toString()],
+        ['Bandwidth Today (bytes)', (currentStats.bandwidth?.today ?? 0).toString()],
+        ['Bandwidth This Week (bytes)', (currentStats.bandwidth?.thisWeek ?? 0).toString()],
+        ['Bandwidth This Month (bytes)', (currentStats.bandwidth?.thisMonth ?? 0).toString()],
+        ['Bandwidth Lifetime (bytes)', (currentStats.bandwidth?.lifetime ?? 0).toString()],
+        ['Cache Size (bytes)', (currentStats.storage?.currentSize ?? 0).toString()],
+        ['Cached Episodes', (currentStats.storage?.episodeCount ?? 0).toString()],
+        ['Storage Percent Used', (currentStats.storage?.percentUsed ?? 0).toString()],
       ]
 
       const csvContent = csvRows.map(row => row.join(',')).join('\n')
