@@ -61,6 +61,7 @@ describe('MetadataUsageControls', () => {
 
     // Create mock preferences instance
     mockPreferences = {
+      getExpertMode: vi.fn().mockReturnValue(true), // Default to expert mode enabled for tests
       getPreferences: vi.fn().mockReturnValue({
         metadataSync: {
           dataLimits: {
@@ -492,6 +493,166 @@ describe('MetadataUsageControls', () => {
       await controls.refreshStats()
 
       expect(asyncGetStats).toHaveBeenCalled()
+
+      controls.destroy()
+    })
+  })
+
+  describe('Progressive Disclosure with Expert Mode', () => {
+    it('should hide detailed API stats when expert mode is disabled', async () => {
+      mockPreferences.getExpertMode = vi.fn().mockReturnValue(false)
+
+      const controls = createMetadataUsageControls({
+        container,
+        preferences: mockPreferences,
+        getUsageStats: mockGetUsageStats,
+      })
+
+      await controls.render()
+
+      const apiStatsSection = container.querySelector('.usage-section')
+      expect(apiStatsSection).toBeNull()
+
+      controls.destroy()
+    })
+
+    it('should hide bandwidth statistics when expert mode is disabled', async () => {
+      mockPreferences.getExpertMode = vi.fn().mockReturnValue(false)
+
+      const controls = createMetadataUsageControls({
+        container,
+        preferences: mockPreferences,
+        getUsageStats: mockGetUsageStats,
+      })
+
+      await controls.render()
+
+      const bandwidthSection = Array.from(container.querySelectorAll('.usage-section')).find(el =>
+        el.textContent?.includes('Bandwidth Usage'),
+      )
+      expect(bandwidthSection).toBeUndefined()
+
+      controls.destroy()
+    })
+
+    it('should show expert mode notice for quota controls when disabled', async () => {
+      mockPreferences.getExpertMode = vi.fn().mockReturnValue(false)
+
+      const controls = createMetadataUsageControls({
+        container,
+        preferences: mockPreferences,
+        getUsageStats: mockGetUsageStats,
+      })
+
+      await controls.render()
+
+      const quotaControls = container.querySelector('.quota-controls')
+      expect(quotaControls).toBeDefined()
+
+      const noticeText = quotaControls?.textContent ?? ''
+      expect(noticeText).toContain('Enable Expert Mode')
+      expect(noticeText).toContain('quota configuration')
+
+      controls.destroy()
+    })
+
+    it('should show expert mode notice for cache management when disabled', async () => {
+      mockPreferences.getExpertMode = vi.fn().mockReturnValue(false)
+
+      const controls = createMetadataUsageControls({
+        container,
+        preferences: mockPreferences,
+        getUsageStats: mockGetUsageStats,
+      })
+
+      await controls.render()
+
+      const cacheManagement = container.querySelector('.cache-management')
+      expect(cacheManagement).toBeDefined()
+
+      const noticeText = cacheManagement?.textContent ?? ''
+      expect(noticeText).toContain('Enable Expert Mode')
+      expect(noticeText).toContain('cache management')
+
+      controls.destroy()
+    })
+
+    it('should show expert mode notice for export section when disabled', async () => {
+      mockPreferences.getExpertMode = vi.fn().mockReturnValue(false)
+
+      const controls = createMetadataUsageControls({
+        container,
+        preferences: mockPreferences,
+        getUsageStats: mockGetUsageStats,
+      })
+
+      await controls.render()
+
+      const exportSection = container.querySelector('.export-section')
+      expect(exportSection).toBeDefined()
+
+      const noticeText = exportSection?.textContent ?? ''
+      expect(noticeText).toContain('Enable Expert Mode')
+      expect(noticeText).toContain('export usage statistics')
+
+      controls.destroy()
+    })
+
+    it('should show all features when expert mode is enabled', async () => {
+      mockPreferences.getExpertMode = vi.fn().mockReturnValue(true)
+
+      const controls = createMetadataUsageControls({
+        container,
+        preferences: mockPreferences,
+        getUsageStats: mockGetUsageStats,
+      })
+
+      await controls.render()
+
+      // Detailed API stats should be visible
+      const apiSection = Array.from(container.querySelectorAll('.usage-section')).find(el =>
+        el.textContent?.includes('API Calls by Source'),
+      )
+      expect(apiSection).toBeDefined()
+
+      // Bandwidth section should be visible
+      const bandwidthSection = Array.from(container.querySelectorAll('.usage-section')).find(el =>
+        el.textContent?.includes('Bandwidth Usage'),
+      )
+      expect(bandwidthSection).toBeDefined()
+
+      // Quota controls should be functional (not just a notice)
+      const quotaInputs = container.querySelectorAll('[data-quota-input]')
+      expect(quotaInputs.length).toBeGreaterThan(0)
+
+      // Cache clear button should be present
+      const clearCacheButton = container.querySelector('[data-clear-cache]')
+      expect(clearCacheButton).toBeDefined()
+
+      // Export buttons should be present
+      const exportButtons = container.querySelectorAll('[data-export-json], [data-export-csv]')
+      expect(exportButtons.length).toBe(2)
+
+      controls.destroy()
+    })
+
+    it('should still show usage overview cards when expert mode is disabled', async () => {
+      mockPreferences.getExpertMode = vi.fn().mockReturnValue(false)
+
+      const controls = createMetadataUsageControls({
+        container,
+        preferences: mockPreferences,
+        getUsageStats: mockGetUsageStats,
+      })
+
+      await controls.render()
+
+      // Usage overview should always be visible
+      const usageOverview = container.querySelector('.usage-overview')
+      expect(usageOverview).toBeDefined()
+
+      const overviewCards = container.querySelectorAll('.overview-card')
+      expect(overviewCards.length).toBe(4) // API calls, storage, episodes, bandwidth cards
 
       controls.destroy()
     })

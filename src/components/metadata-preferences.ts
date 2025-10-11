@@ -42,7 +42,7 @@ import {createMetadataUsageControls} from './metadata-usage-controls.js'
 export const createMetadataPreferences = (
   config: MetadataPreferencesConfig,
 ): MetadataPreferencesInstance => {
-  const {container, debugPanel, preferences: _preferences} = config
+  const {container, debugPanel, preferences} = config
 
   // Private state managed via closure variables
   let isRefreshing = false
@@ -94,6 +94,19 @@ export const createMetadataPreferences = (
   } = {}
 
   const eventEmitter = createEventEmitter<MetadataPreferencesEvents>()
+
+  const isExpertMode = (): boolean => {
+    return preferences.getExpertMode()
+  }
+
+  const createExpertModeNotice = (message: string): string => {
+    return `
+      <div class="expert-mode-notice" role="status">
+        <span class="notice-icon">🔒</span>
+        <span class="notice-text">${message}</span>
+      </div>
+    `
+  }
 
   const AVAILABLE_SOURCES: {id: MetadataSourceType; name: string}[] = [
     {id: 'memory-alpha', name: 'Memory Alpha'},
@@ -165,6 +178,7 @@ export const createMetadataPreferences = (
   }
 
   const createBulkRefreshSection = (): string => {
+    const expertMode = isExpertMode()
     const seriesOptions = AVAILABLE_SERIES.map(
       series =>
         `<option value="${series.id}">${series.name} (${series.episodeCount} episodes)</option>`,
@@ -204,6 +218,9 @@ export const createMetadataPreferences = (
             <span class="btn-text">Refresh Series</span>
           </button>
 
+          ${
+            expertMode
+              ? `
           <button
             type="button"
             class="btn-tertiary"
@@ -213,6 +230,11 @@ export const createMetadataPreferences = (
             <span class="btn-icon">🌐</span>
             <span class="btn-text">Refresh All Episodes</span>
           </button>
+          `
+              : createExpertModeNotice(
+                  'Enable Expert Mode in preferences to access "Refresh All Episodes" feature',
+                )
+          }
 
           <p class="warning-message" role="alert">
             ⚠️ Bulk operations may consume significant API quota and take several minutes to complete.
@@ -224,6 +246,17 @@ export const createMetadataPreferences = (
   }
 
   const createBulkValidationSection = (): string => {
+    const expertMode = isExpertMode()
+
+    if (!expertMode) {
+      return `
+        <div class="metadata-preferences-section expert-mode-section" data-bulk-validation-section>
+          <h3>Data Validation Operations</h3>
+          ${createExpertModeNotice('Enable Expert Mode in preferences to access advanced data validation features')}
+        </div>
+      `
+    }
+
     const seriesOptions = AVAILABLE_SERIES.map(
       series =>
         `<option value="${series.id}">${series.name} (${series.episodeCount} episodes)</option>`,
@@ -283,6 +316,13 @@ export const createMetadataPreferences = (
   }
 
   const createValidationResultsSection = (): string => {
+    const expertMode = isExpertMode()
+
+    // Validation results only visible in expert mode
+    if (!expertMode) {
+      return ''
+    }
+
     return `
       <div class="validation-results-container hidden" data-validation-results-container role="region" aria-labelledby="validation-results-heading">
         <h3 id="validation-results-heading">Validation Results</h3>
@@ -1032,6 +1072,8 @@ export const createMetadataPreferences = (
   }
 
   const render = (): void => {
+    const expertMode = isExpertMode()
+
     container.innerHTML = `
       <div class="metadata-preferences-container">
         <div class="preferences-header">
@@ -1047,9 +1089,23 @@ export const createMetadataPreferences = (
           ${createValidationResultsSection()}
           ${createFeedbackSection()}
 
+          ${
+            expertMode
+              ? `
           <div class="metadata-preferences-section" data-usage-controls-section>
             <div data-usage-controls-container></div>
           </div>
+          `
+              : `
+          <div class="metadata-preferences-section expert-mode-section">
+            <h3>Data Usage & Quotas</h3>
+            <div class="expert-mode-notice" role="status">
+              <span class="notice-icon">🔒</span>
+              <span class="notice-text">Enable Expert Mode in preferences to access detailed usage statistics and quota management</span>
+            </div>
+          </div>
+          `
+          }
         </form>
       </div>
     `
@@ -1099,11 +1155,15 @@ export const createMetadataPreferences = (
     ) as HTMLElement
 
     setupEventListeners()
-    initializeUsageControls()
+
+    // Only initialize usage controls if in expert mode
+    if (isExpertMode()) {
+      initializeUsageControls()
+    }
   }
 
   const initializeUsageControls = (): void => {
-    if (!elements.usageControlsContainer || !_preferences) return
+    if (!elements.usageControlsContainer || !preferences) return
 
     // Clean up existing instance if any
     if (usageControls) {
@@ -1113,8 +1173,8 @@ export const createMetadataPreferences = (
     // Create and render usage controls component
     usageControls = createMetadataUsageControls({
       container: elements.usageControlsContainer,
-      preferences: _preferences,
-      getUsageStats: () => _preferences.getUsageStatistics(),
+      preferences,
+      getUsageStats: () => preferences.getUsageStatistics(),
       onQuotasUpdate: dataLimits => {
         eventEmitter.emit('quotas-updated', {dataLimits})
       },
