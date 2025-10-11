@@ -422,6 +422,110 @@ interface StarTrekItem {
 
 **Critical**: Item IDs must be unique across all eras for progress tracking. When adding content, follow existing ID patterns.
 
+## CLI Scripts & Utilities
+
+VBS includes CLI scripts in `scripts/` for data validation, metadata management, and code generation.
+
+### Shared CLI Utilities (`scripts/lib/cli-utils.ts`)
+
+Reusable utilities for building command-line tools:
+
+```typescript
+import {
+  loadEnv,
+  parseBooleanFlag,
+  parseStringValue,
+  parseNumericValue,
+  validateRequiredOptions,
+  showHelpAndExit,
+  showErrorAndExit,
+  createProgressIndicator,
+  formatTable,
+  EXIT_CODES
+} from './lib/cli-utils.js'
+
+// Environment loading (always call first in scripts)
+loadEnv()  // Silent by default
+loadEnv({verbose: true})  // Log loading status
+loadEnv({required: true})  // Exit if .env missing
+
+// Argument parsing
+const verbose = parseBooleanFlag(args, '--verbose')
+const series = parseStringValue(args, '--series')
+const season = parseNumericValue(args, '--season')
+
+// Validation
+validateRequiredOptions({series, season}, ['series'])  // Throws if missing
+
+// Exit codes
+process.exit(EXIT_CODES.SUCCESS)  // 0
+process.exit(EXIT_CODES.VALIDATION_ERROR)  // 1
+process.exit(EXIT_CODES.INVALID_ARGUMENTS)  // 3
+```
+
+### Script Development Pattern
+
+```typescript
+import {loadEnv} from './lib/cli-utils.js'
+
+// Load environment variables first
+loadEnv()
+
+// Parse arguments
+const options = parseArguments()
+
+// Main execution
+async function main(): Promise<void> {
+  try {
+    // Script logic
+  } catch (error: Error) {
+    console.error('Fatal error:', error.message)
+    process.exit(EXIT_CODES.FATAL_ERROR)
+  }
+}
+
+main().catch((error: Error) => {
+  console.error('Unhandled error:', error.message)
+  process.exit(EXIT_CODES.FATAL_ERROR)
+})
+```
+
+### Metadata Source Configuration
+
+Scripts use `scripts/lib/source-config.ts` for consistent API initialization:
+
+```typescript
+import {
+  initializeMetadataSources,
+  logMetadataSourceStatus,
+  checkMetadataAvailability
+} from './lib/source-config.js'
+
+// Initialize with automatic credential detection
+const metadataSources = initializeMetadataSources()
+
+// Log which sources are available
+logMetadataSourceStatus()
+// Output:
+//   TMDB: ✓ Available
+//   Memory Alpha: ✓ Available
+//   TrekCore: ✓ Available
+//   STAPI: ✓ Available
+
+// Check availability programmatically
+const availability = checkMetadataAvailability()
+if (availability.tmdb) {
+  // Use TMDB features
+}
+```
+
+**Key Patterns:**
+- Always call `loadEnv()` before accessing `process.env`
+- Use `EXIT_CODES` constants for consistent exit codes
+- Gracefully handle missing API credentials with fallbacks
+- Use `console.error()` for status messages (keeps stdout clean for JSON output)
+- Implement `--help` flag using `showHelpAndExit()`
+
 ## Component System Data Flow
 
 VBS components follow a unidirectional data flow pattern with event-driven updates:
@@ -497,6 +601,45 @@ const migrationState = getMigrationState()
 ```
 
 ## Development Workflow
+
+### Environment Configuration
+
+VBS uses **dotenv** for managing API credentials and configuration in development:
+
+```bash
+# Setup environment (first time only)
+cp .env.example .env
+# Edit .env with your API keys (TMDB_API_KEY, etc.)
+```
+
+**Environment Variables:**
+- `TMDB_API_KEY` - The Movie Database API key (optional, enables enhanced metadata)
+- See `docs/environment-variables.md` for complete documentation
+
+**Loading in Scripts:**
+```typescript
+import {loadEnv} from './lib/cli-utils.js'
+
+// Load .env file at script start (optional, silent if missing)
+loadEnv()
+
+// Or with verbose logging
+loadEnv({verbose: true})
+
+// Or require .env file (exit if missing)
+loadEnv({required: true})
+
+// Access environment variables
+const tmdbKey = process.env.TMDB_API_KEY
+```
+
+**Key Patterns:**
+- Scripts automatically load `.env` via `loadEnv()` utility
+- Graceful fallback when credentials missing (metadata sources work without API keys)
+- `.env` files excluded from git (never commit credentials)
+- Use `<API_KEY>` placeholders in examples and documentation
+
+### Package Manager Commands
 
 ```bash
 pnpm dev           # Vite dev server (port 3000)
@@ -583,6 +726,38 @@ describe('ProgressTracker', () => {
 ```
 
 **Mock LocalStorage** for storage tests. **CRITICAL**: Import modules using `.js` extensions (TypeScript ES modules) - this is required for proper module resolution. Test factory functions, not classes. Always test both successful operations and event emissions. Use `vi.fn()` for mocking event listeners and async operations.
+
+### Environment Variable Testing
+
+Test code that depends on environment variables with proper isolation:
+
+```typescript
+import {afterEach, beforeEach, describe, expect, it} from 'vitest'
+
+describe('API Integration', () => {
+  let originalEnv: NodeJS.ProcessEnv
+
+  beforeEach(() => {
+    originalEnv = {...process.env}
+  })
+
+  afterEach(() => {
+    process.env = originalEnv
+  })
+
+  it('should use TMDB when API key is configured', () => {
+    process.env.TMDB_API_KEY = 'test-key-123'
+    // Test with credentials
+  })
+
+  it('should fallback when API key is missing', () => {
+    delete process.env.TMDB_API_KEY
+    // Test graceful fallback
+  })
+})
+```
+
+**Key patterns**: Save/restore `process.env` in before/after hooks, test both with and without credentials, verify graceful fallbacks.
 
 ### Episode Management & Validation Testing
 
@@ -706,7 +881,16 @@ it('should handle errors in composition chains', () => {
 ## Code Style Specifics
 
 ### Required Patterns
-- **CRITICAL: `.js` extensions**: Always use `.js` extensions in imports (TypeScript ES modules) - `import { createProgressTracker } from './progress.js'`
+- **CRITICAL: `.js` extensions in imports**: TypeScript ES modules require `.js` extensions for proper module resolution
+  ```typescript
+  // ✅ CORRECT - Always use .js extension
+  import {createProgressTracker} from './progress.js'
+  import {loadEnv} from '../lib/cli-utils.js'
+
+  // ❌ WRONG - Missing .js extension will cause runtime errors
+  import {createProgressTracker} from './progress'
+  import {loadEnv} from '../lib/cli-utils'
+  ```
 - **Single quotes** for all string literals
 - **Optional chaining** (`?.`) and nullish coalescing (`??`) for safe property access
 - **Explicit return types** on all public methods and exported functions

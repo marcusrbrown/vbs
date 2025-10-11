@@ -3,7 +3,7 @@
  */
 
 import process from 'node:process'
-import {beforeEach, describe, expect, it, vi} from 'vitest'
+import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {
   createProgressIndicator,
   EXIT_CODES,
@@ -270,6 +270,43 @@ describe('CLI Utilities', () => {
       expect(EXIT_CODES.QUALITY_THRESHOLD_NOT_MET).toBe(2)
       expect(EXIT_CODES.INVALID_ARGUMENTS).toBe(3)
       expect(EXIT_CODES.FATAL_ERROR).toBe(4)
+    })
+  })
+
+  describe('loadEnv', () => {
+    let originalEnv: NodeJS.ProcessEnv
+
+    beforeEach(() => {
+      originalEnv = {...process.env}
+    })
+
+    afterEach(() => {
+      process.env = originalEnv
+      vi.restoreAllMocks()
+    })
+
+    it('should load environment variables without error when .env exists', async () => {
+      const {loadEnv} = await import('../../../scripts/lib/cli-utils.js')
+      const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never)
+      loadEnv()
+      expect(exitSpy).not.toHaveBeenCalled()
+      exitSpy.mockRestore()
+    })
+
+    it('should log success message in verbose mode', async () => {
+      const {loadEnv} = await import('../../../scripts/lib/cli-utils.js')
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      loadEnv({verbose: true})
+      expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('Loading environment'))
+      errorSpy.mockRestore()
+    })
+
+    it('should handle default options correctly', async () => {
+      const {loadEnv} = await import('../../../scripts/lib/cli-utils.js')
+      const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never)
+      loadEnv()
+      expect(exitSpy).not.toHaveBeenCalled()
+      exitSpy.mockRestore()
     })
   })
 })
