@@ -29,6 +29,7 @@ import type {
 } from '../modules/types.js'
 import {withSyncErrorHandling} from '../modules/error-handler.js'
 import {createEventEmitter} from '../modules/events.js'
+import {validateEpisodeWithReporting} from '../utils/metadata-validation.js'
 import {createMetadataUsageControls} from './metadata-usage-controls.js'
 
 /**
@@ -45,14 +46,27 @@ export const createMetadataPreferences = (
 
   // Private state managed via closure variables
   let isRefreshing = false
-  let currentOperation: 'single' | 'bulk' | null = null
+  let isValidating = false
+  let currentOperation: 'single' | 'bulk' | 'validation' | null = null
   let progressData: {
     current: number
     total: number
     successCount: number
     failCount: number
   } | null = null
+
+  interface ValidationData {
+    totalCount: number
+    validCount: number
+    invalidCount: number
+    warningCount: number
+    errors: {episodeId: string; field: string; message: string}[]
+    warnings: {episodeId: string; field: string; message: string; suggestion?: string}[]
+  }
+
+  let validationData: ValidationData | null = null
   let selectedSeriesId: string | null = null
+  let selectedValidationSeriesId: string | null = null
   let usageControls: MetadataUsageControlsInstance | null = null
 
   // DOM elements cache
@@ -60,16 +74,21 @@ export const createMetadataPreferences = (
     form?: HTMLFormElement
     singleRefreshSection?: HTMLElement
     bulkRefreshSection?: HTMLElement
+    bulkValidationSection?: HTMLElement
     episodeIdInput?: HTMLInputElement
     sourceSelect?: HTMLSelectElement
     refreshButton?: HTMLButtonElement
     refreshSeriesSelect?: HTMLSelectElement
     refreshSeriesButton?: HTMLButtonElement
     refreshAllButton?: HTMLButtonElement
+    validationSeriesSelect?: HTMLSelectElement
+    validateSeriesButton?: HTMLButtonElement
+    validateAllButton?: HTMLButtonElement
     progressContainer?: HTMLElement
     progressBar?: HTMLElement
     progressText?: HTMLElement
     cancelButton?: HTMLButtonElement
+    validationResultsContainer?: HTMLElement
     feedbackContainer?: HTMLElement
     usageControlsContainer?: HTMLElement
   } = {}
@@ -204,16 +223,89 @@ export const createMetadataPreferences = (
     `
   }
 
+  const createBulkValidationSection = (): string => {
+    const seriesOptions = AVAILABLE_SERIES.map(
+      series =>
+        `<option value="${series.id}">${series.name} (${series.episodeCount} episodes)</option>`,
+    ).join('')
+
+    return `
+      <div class="metadata-preferences-section" data-bulk-validation-section>
+        <h3>Data Validation Operations</h3>
+        <p class="section-description">
+          Validate metadata quality and identify missing or incorrect data across episodes.
+        </p>
+
+        <div class="bulk-validation-controls">
+          <div class="form-group">
+            <label for="validation-series-select">Select Series to Validate:</label>
+            <select
+              id="validation-series-select"
+              data-validation-series-select
+              aria-describedby="validation-series-help"
+            >
+              <option value="">Choose a series...</option>
+              ${seriesOptions}
+            </select>
+            <small id="validation-series-help" class="form-help">
+              Validate all episodes within a specific series
+            </small>
+          </div>
+
+          <button
+            type="button"
+            class="btn-secondary"
+            data-validate-series-button
+            disabled
+            aria-label="Validate all episodes in selected series"
+          >
+            <span class="btn-icon">✓</span>
+            <span class="btn-text">Validate Series</span>
+          </button>
+
+          <button
+            type="button"
+            class="btn-tertiary"
+            data-validate-all-button
+            aria-label="Validate all episodes across all series"
+          >
+            <span class="btn-icon">🔍</span>
+            <span class="btn-text">Validate All Data</span>
+          </button>
+
+          <p class="info-message" role="status">
+            ℹ️ Validation checks data quality, identifies missing fields, and detects inconsistencies.
+            This operation does not modify any data.
+          </p>
+        </div>
+      </div>
+    `
+  }
+
+  const createValidationResultsSection = (): string => {
+    return `
+      <div class="validation-results-container hidden" data-validation-results-container role="region" aria-labelledby="validation-results-heading">
+        <h3 id="validation-results-heading">Validation Results</h3>
+        <div class="validation-summary" data-validation-summary>
+          <!-- Summary will be injected here -->
+        </div>
+        <div class="validation-details" data-validation-details>
+          <!-- Detailed results will be injected here -->
+        </div>
+      </div>
+    `
+  }
+
   const createProgressSection = (): string => {
     return `
       <div class="progress-container hidden" data-progress-container role="status" aria-live="polite">
         <div class="progress-header">
-          <h4>Refresh in Progress</h4>
+          <h4>Operation in Progress</h4>
           <button
             type="button"
             class="btn-cancel"
             data-cancel-button
-            aria-label="Cancel refresh operation"
+            aria-label="Cancel operation"
           >
             <span class="btn-icon">✕</span>
             <span class="btn-text">Cancel</span>
@@ -517,10 +609,29 @@ export const createMetadataPreferences = (
       isRefreshing = false
       debugPanel.cancelBulkOperation()
       showFeedback('Cancelling operation...', 'info')
+    } else if (currentOperation === 'validation') {
+      isValidating = false
+      showFeedback('Cancelling validation...', 'info')
     }
   }
 
-  // Simplified implementation - real implementation would query actual episode data
+  // Mock episode data generator for validation testing
+  // Real implementation will fetch actual episode metadata from storage
+  const createMockEpisodeForValidation = (episodeId: string) => ({
+    id: episodeId,
+    title: 'Mock Episode',
+    season: 1,
+    episode: 1,
+    airDate: '2024-01-01',
+    stardate: 'None',
+    synopsis: 'Mock synopsis for validation testing',
+    plotPoints: ['Plot point 1'],
+    guestStars: [],
+    connections: [],
+  })
+
+  // Generate episode IDs for a series
+  // Temporary helper - real implementation will query actual episode data
   const generateSeriesEpisodeIds = (seriesId: string, episodeCount: number): string[] => {
     const episodeIds: string[] = []
     let currentEpisode = 1
@@ -537,6 +648,324 @@ export const createMetadataPreferences = (
     }
 
     return episodeIds
+  }
+
+  const handleValidateSeries = withSyncErrorHandling(async (): Promise<void> => {
+    if (isValidating || !selectedValidationSeriesId) return
+
+    const series = AVAILABLE_SERIES.find(s => s.id === selectedValidationSeriesId)
+    if (!series) return
+
+    isValidating = true
+    currentOperation = 'validation'
+
+    const episodeIds = generateSeriesEpisodeIds(series.id, series.episodeCount)
+
+    try {
+      showProgress()
+      updateProgress(0, episodeIds.length, 0, 0)
+
+      eventEmitter.emit('bulk-validation-started', {
+        seriesId: series.id,
+        episodeIds,
+        totalCount: episodeIds.length,
+      })
+
+      validationData = {
+        totalCount: episodeIds.length,
+        validCount: 0,
+        invalidCount: 0,
+        warningCount: 0,
+        errors: [],
+        warnings: [],
+      }
+
+      for (let i = 0; i < episodeIds.length; i++) {
+        if (!isValidating) {
+          showFeedback('Validation operation cancelled', 'info')
+          eventEmitter.emit('bulk-validation-cancelled', {
+            processedCount: i,
+            remainingCount: episodeIds.length - i,
+          })
+          return
+        }
+
+        const episodeId = episodeIds[i]
+        if (!episodeId) continue
+
+        const mockEpisodeData = createMockEpisodeForValidation(episodeId)
+        const validationResult = validateEpisodeWithReporting(mockEpisodeData)
+
+        if (validationResult.isValid) {
+          validationData.validCount++
+        } else {
+          validationData.invalidCount++
+        }
+
+        validationResult.errors.forEach(error => {
+          if (!validationData) return
+          validationData.errors.push({
+            episodeId,
+            field: error.field,
+            message: error.message,
+          })
+        })
+
+        validationResult.warnings.forEach(warning => {
+          if (!validationData) return
+          validationData.warningCount++
+          const warningEntry: {
+            episodeId: string
+            field: string
+            message: string
+            suggestion?: string
+          } = {
+            episodeId,
+            field: warning.field,
+            message: warning.message,
+          }
+          if (warning.suggestion) {
+            warningEntry.suggestion = warning.suggestion
+          }
+          validationData.warnings.push(warningEntry)
+        })
+
+        if (!validationData) continue
+        updateProgress(
+          i + 1,
+          episodeIds.length,
+          validationData.validCount,
+          validationData.invalidCount,
+        )
+      }
+
+      displayValidationResults(validationData)
+
+      const message = `Series validation completed: ${validationData.validCount} valid, ${validationData.invalidCount} invalid, ${validationData.warningCount} warnings`
+      showFeedback(message, validationData.invalidCount === 0 ? 'success' : 'info')
+
+      eventEmitter.emit('bulk-validation-completed', {
+        seriesId: series.id,
+        totalCount: validationData.totalCount,
+        validCount: validationData.validCount,
+        invalidCount: validationData.invalidCount,
+        warningCount: validationData.warningCount,
+        duration: 0,
+      })
+    } catch (error) {
+      showFeedback(
+        `Series validation failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        'error',
+      )
+    } finally {
+      isValidating = false
+      currentOperation = null
+      setTimeout(hideProgress, 2000)
+    }
+  }, 'Failed to validate series metadata')
+
+  const handleValidateAll = withSyncErrorHandling(async (): Promise<void> => {
+    if (isValidating) return
+
+    // eslint-disable-next-line no-alert
+    const confirmed = globalThis.confirm(
+      'This will validate metadata for all episodes across all series. This operation checks data quality without making any changes. Continue?',
+    )
+
+    if (!confirmed) return
+
+    isValidating = true
+    currentOperation = 'validation'
+
+    const allEpisodeIds = AVAILABLE_SERIES.flatMap(series =>
+      generateSeriesEpisodeIds(series.id, series.episodeCount),
+    )
+
+    try {
+      showProgress()
+      updateProgress(0, allEpisodeIds.length, 0, 0)
+
+      eventEmitter.emit('bulk-validation-started', {
+        episodeIds: allEpisodeIds,
+        totalCount: allEpisodeIds.length,
+      })
+
+      validationData = {
+        totalCount: allEpisodeIds.length,
+        validCount: 0,
+        invalidCount: 0,
+        warningCount: 0,
+        errors: [],
+        warnings: [],
+      }
+
+      for (let i = 0; i < allEpisodeIds.length; i++) {
+        if (!isValidating) {
+          showFeedback('Validation operation cancelled', 'info')
+          eventEmitter.emit('bulk-validation-cancelled', {
+            processedCount: i,
+            remainingCount: allEpisodeIds.length - i,
+          })
+          return
+        }
+
+        const episodeId = allEpisodeIds[i]
+        if (!episodeId) continue
+
+        const mockEpisodeData = createMockEpisodeForValidation(episodeId)
+        const validationResult = validateEpisodeWithReporting(mockEpisodeData)
+
+        if (validationResult.isValid) {
+          validationData.validCount++
+        } else {
+          validationData.invalidCount++
+        }
+
+        validationResult.errors.forEach(error => {
+          if (!validationData) return
+          validationData.errors.push({
+            episodeId,
+            field: error.field,
+            message: error.message,
+          })
+        })
+
+        validationResult.warnings.forEach(warning => {
+          if (!validationData) return
+          validationData.warningCount++
+          const warningEntry: {
+            episodeId: string
+            field: string
+            message: string
+            suggestion?: string
+          } = {
+            episodeId,
+            field: warning.field,
+            message: warning.message,
+          }
+          if (warning.suggestion) {
+            warningEntry.suggestion = warning.suggestion
+          }
+          validationData.warnings.push(warningEntry)
+        })
+
+        if (!validationData) continue
+        updateProgress(
+          i + 1,
+          allEpisodeIds.length,
+          validationData.validCount,
+          validationData.invalidCount,
+        )
+      }
+
+      displayValidationResults(validationData)
+
+      const message = `Full validation completed: ${validationData.validCount} valid, ${validationData.invalidCount} invalid, ${validationData.warningCount} warnings`
+      showFeedback(message, validationData.invalidCount === 0 ? 'success' : 'info')
+
+      eventEmitter.emit('bulk-validation-completed', {
+        totalCount: validationData.totalCount,
+        validCount: validationData.validCount,
+        invalidCount: validationData.invalidCount,
+        warningCount: validationData.warningCount,
+        duration: 0,
+      })
+    } catch (error) {
+      showFeedback(
+        `Full validation failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        'error',
+      )
+    } finally {
+      isValidating = false
+      currentOperation = null
+      setTimeout(hideProgress, 2000)
+    }
+  }, 'Failed to validate all metadata')
+
+  const displayValidationResults = (data: ValidationData): void => {
+    if (!elements.validationResultsContainer) return
+
+    const resultsContainer = elements.validationResultsContainer
+    resultsContainer.classList.remove('hidden')
+
+    const summaryEl = resultsContainer.querySelector('[data-validation-summary]')
+    if (summaryEl) {
+      summaryEl.innerHTML = `
+        <div class="validation-summary-stats">
+          <div class="stat-item stat-total">
+            <span class="stat-label">Total Episodes:</span>
+            <span class="stat-value">${data.totalCount}</span>
+          </div>
+          <div class="stat-item stat-valid">
+            <span class="stat-label">Valid:</span>
+            <span class="stat-value">${data.validCount}</span>
+          </div>
+          <div class="stat-item stat-invalid">
+            <span class="stat-label">Invalid:</span>
+            <span class="stat-value">${data.invalidCount}</span>
+          </div>
+          <div class="stat-item stat-warnings">
+            <span class="stat-label">Warnings:</span>
+            <span class="stat-value">${data.warningCount}</span>
+          </div>
+        </div>
+      `
+    }
+
+    const detailsEl = resultsContainer.querySelector('[data-validation-details]')
+    if (detailsEl) {
+      let detailsHTML = ''
+
+      if (data.errors.length > 0) {
+        detailsHTML += `
+          <div class="validation-errors">
+            <h4>Errors (${data.errors.length})</h4>
+            <ul class="validation-list">
+              ${data.errors
+                .slice(0, 20)
+                .map(
+                  error => `
+                <li class="validation-item validation-error">
+                  <strong>${error.episodeId}</strong> - ${error.field}: ${error.message}
+                </li>
+              `,
+                )
+                .join('')}
+              ${data.errors.length > 20 ? `<li class="validation-item">... and ${data.errors.length - 20} more errors</li>` : ''}
+            </ul>
+          </div>
+        `
+      }
+
+      if (data.warnings.length > 0) {
+        detailsHTML += `
+          <div class="validation-warnings">
+            <h4>Warnings (${data.warnings.length})</h4>
+            <ul class="validation-list">
+              ${data.warnings
+                .slice(0, 20)
+                .map(
+                  warning => `
+                <li class="validation-item validation-warning">
+                  <strong>${warning.episodeId}</strong> - ${warning.field}: ${warning.message}
+                  ${warning.suggestion ? `<br><em>Suggestion: ${warning.suggestion}</em>` : ''}
+                </li>
+              `,
+                )
+                .join('')}
+              ${data.warnings.length > 20 ? `<li class="validation-item">... and ${data.warnings.length - 20} more warnings</li>` : ''}
+            </ul>
+          </div>
+        `
+      }
+
+      if (data.errors.length === 0 && data.warnings.length === 0) {
+        detailsHTML =
+          '<p class="validation-success">✅ All episodes passed validation with no errors or warnings.</p>'
+      }
+
+      detailsEl.innerHTML = detailsHTML
+    }
   }
 
   const setupEventListeners = (): void => {
@@ -560,6 +989,22 @@ export const createMetadataPreferences = (
 
     // Refresh all
     elements.refreshAllButton?.addEventListener('click', handleRefreshAll)
+
+    // Validation series selection
+    elements.validationSeriesSelect?.addEventListener('change', event => {
+      const select = event.target as HTMLSelectElement
+      selectedValidationSeriesId = select.value || null
+
+      if (elements.validateSeriesButton) {
+        elements.validateSeriesButton.disabled = !selectedValidationSeriesId
+      }
+    })
+
+    // Series validation
+    elements.validateSeriesButton?.addEventListener('click', handleValidateSeries)
+
+    // Validate all
+    elements.validateAllButton?.addEventListener('click', handleValidateAll)
 
     // Cancel operation
     elements.cancelButton?.addEventListener('click', handleCancel)
@@ -597,7 +1042,9 @@ export const createMetadataPreferences = (
         <form class="metadata-preferences-form">
           ${createSingleRefreshSection()}
           ${createBulkRefreshSection()}
+          ${createBulkValidationSection()}
           ${createProgressSection()}
+          ${createValidationResultsSection()}
           ${createFeedbackSection()}
 
           <div class="metadata-preferences-section" data-usage-controls-section>
@@ -627,10 +1074,25 @@ export const createMetadataPreferences = (
     elements.refreshAllButton = container.querySelector(
       '[data-refresh-all-button]',
     ) as HTMLButtonElement
+    elements.bulkValidationSection = container.querySelector(
+      '[data-bulk-validation-section]',
+    ) as HTMLElement
+    elements.validationSeriesSelect = container.querySelector(
+      '[data-validation-series-select]',
+    ) as HTMLSelectElement
+    elements.validateSeriesButton = container.querySelector(
+      '[data-validate-series-button]',
+    ) as HTMLButtonElement
+    elements.validateAllButton = container.querySelector(
+      '[data-validate-all-button]',
+    ) as HTMLButtonElement
     elements.progressContainer = container.querySelector('[data-progress-container]') as HTMLElement
     elements.progressBar = container.querySelector('[data-progress-bar]') as HTMLElement
     elements.progressText = container.querySelector('[data-progress-text]') as HTMLElement
     elements.cancelButton = container.querySelector('[data-cancel-button]') as HTMLButtonElement
+    elements.validationResultsContainer = container.querySelector(
+      '[data-validation-results-container]',
+    ) as HTMLElement
     elements.feedbackContainer = container.querySelector('[data-feedback-container]') as HTMLElement
     elements.usageControlsContainer = container.querySelector(
       '[data-usage-controls-container]',

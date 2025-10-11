@@ -2618,6 +2618,19 @@ export interface MetadataPreferencesEvents extends EventMap {
   }
   /** Fired when bulk refresh is cancelled by user */
   'bulk-refresh-cancelled': {processedCount: number; remainingCount: number}
+  /** Fired when bulk validation operation starts */
+  'bulk-validation-started': {episodeIds: string[]; totalCount: number; seriesId?: string}
+  /** Fired when bulk validation operation completes */
+  'bulk-validation-completed': {
+    totalCount: number
+    validCount: number
+    invalidCount: number
+    warningCount: number
+    duration: number
+    seriesId?: string
+  }
+  /** Fired when bulk validation is cancelled by user */
+  'bulk-validation-cancelled': {processedCount: number; remainingCount: number}
   /** Fired when progress indicator is shown/hidden */
   'progress-visibility-changed': {isVisible: boolean}
   /** Fired when feedback message is displayed */
