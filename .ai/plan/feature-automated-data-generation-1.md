@@ -77,7 +77,7 @@ This plan implements an automated system to fetch series, movie, and episode dat
 | TASK-011 | Create `scripts/generate-star-trek-data.ts` with CLI argument parsing (--mode, --series, --dry-run, --output, --validate) and environment variable loading | ✅ | 2025-10-11 |
 | TASK-012 | Implement data fetching pipeline using existing `createMetadataSources()` factory with all available sources | ✅ | 2025-10-11 |
 | TASK-013 | Create series discovery logic to fetch complete lists of Star Trek series from TMDB and Memory Alpha | ✅ | 2025-10-11 |
-| TASK-014 | Implement season/episode enumeration for each discovered series with comprehensive metadata collection | | |
+| TASK-014 | Implement season/episode enumeration for each discovered series with comprehensive metadata collection | ✅ | 2025-10-11 |
 | TASK-015 | Add movie discovery and metadata fetching (theatrical releases, TV movies, special presentations) | | |
 | TASK-016 | Create data normalization pipeline using composition utilities to standardize formats across sources | | |
 | TASK-017 | Implement era classification logic to group content chronologically (Enterprise Era, TOS Era, TNG Era, etc.) | | |
