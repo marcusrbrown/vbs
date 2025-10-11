@@ -21,6 +21,7 @@
  */
 
 import type {MetadataStorageAdapterInstance} from '../modules/metadata-storage.js'
+import type {PreferencesInstance} from '../modules/preferences.js'
 import type {
   MetadataDebugPanelData,
   MetadataDebugPanelEvents,
@@ -44,10 +45,10 @@ export interface MetadataDebugPanelConfig {
   metadataStorage: MetadataStorageAdapterInstance
   /** Metadata queue instance for sync operations */
   metadataQueue: MetadataQueueInstance
+  /** Preferences instance for expert mode state */
+  preferences: PreferencesInstance
   /** Initial visibility state */
   initiallyVisible?: boolean
-  /** Enable expert mode features */
-  expertMode?: boolean
 }
 
 /**
@@ -60,15 +61,19 @@ export interface MetadataDebugPanelConfig {
 export const createMetadataDebugPanel = (
   config: MetadataDebugPanelConfig,
 ): MetadataDebugPanelInstance => {
-  const {container, metadataSources, metadataStorage, initiallyVisible = false} = config
+  const {
+    container,
+    metadataSources,
+    metadataStorage,
+    preferences,
+    initiallyVisible = false,
+  } = config
 
-  // Private state managed via closure variables
   let isVisible = initiallyVisible
   let currentData: MetadataDebugPanelData | null = null
   let bulkOperationCancelled = false
   let activeRefreshController: AbortController | null = null
 
-  // DOM elements cache
   const elements: {
     panel?: HTMLElement
     sourcesContainer?: HTMLElement
@@ -427,21 +432,30 @@ export const createMetadataDebugPanel = (
       return
     }
 
-    // Create main panel structure
+    const isExpertMode = preferences.getExpertMode()
+
+    const expertModeButtons = isExpertMode
+      ? `
+            <button class="btn-clear-cache" data-clear-cache aria-label="Clear metadata cache">
+              🗑️ Clear Cache
+            </button>
+            <button class="btn-export" data-export aria-label="Export debug information">
+              � Export
+            </button>`
+      : ''
+
+    const operationsLogSection = isExpertMode
+      ? '<div class="debug-section" data-operations-log></div>'
+      : ''
+
     const panelHTML = `
       <div class="metadata-debug-panel ${isVisible ? 'visible' : 'hidden'}">
         <div class="debug-panel-header">
           <h2>Metadata Debug Panel</h2>
           <div class="header-actions">
             <button class="btn-refresh-all" data-refresh-all aria-label="Refresh all metadata">
-              🔄 Refresh All
-            </button>
-            <button class="btn-clear-cache" data-clear-cache aria-label="Clear metadata cache">
-              🗑️ Clear Cache
-            </button>
-            <button class="btn-export" data-export aria-label="Export debug information">
-              📥 Export
-            </button>
+              � Refresh All
+            </button>${expertModeButtons}
             <button class="btn-close" data-close aria-label="Close debug panel">
               ✕
             </button>
@@ -452,8 +466,7 @@ export const createMetadataDebugPanel = (
           <div class="debug-section" data-sources></div>
           <div class="debug-section" data-quality-metrics></div>
           <div class="debug-section" data-sync-status></div>
-          <div class="debug-section" data-storage-stats></div>
-          <div class="debug-section" data-operations-log></div>
+          <div class="debug-section" data-storage-stats></div>${operationsLogSection}
         </div>
       </div>
     `

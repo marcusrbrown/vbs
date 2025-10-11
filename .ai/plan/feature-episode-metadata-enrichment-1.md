@@ -111,7 +111,7 @@ This plan extends the existing VBS Service Worker to implement a comprehensive e
 | TASK-037 | Add metadata source attribution and confidence scores in episode detail views | ✅ | 2025-10-08 |
 | TASK-038 | Implement bulk metadata operations UI (refresh series, validate all data) | ✅ | 2025-10-10 |
 | TASK-039 | Create metadata sync status indicators with clear user feedback on background operations | ✅ | 2025-10-11 |
-| TASK-040 | Add expert mode toggles for advanced metadata management and troubleshooting | |  |
+| TASK-040 | Add expert mode toggles for advanced metadata management and troubleshooting | ✅ | 2025-10-11 |
 
 ### Implementation Phase 5: Development Tools & Validation
 

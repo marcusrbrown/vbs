@@ -573,6 +573,7 @@ export const createStarTrekViewingGuide = () => {
           metadataSources,
           metadataStorage,
           metadataQueue,
+          preferences,
         })
 
         // Create settings manager with all dependencies

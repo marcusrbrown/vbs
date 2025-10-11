@@ -19,6 +19,7 @@ const DEFAULT_PREFERENCES: UserPreferences = {
   showSpoilers: false,
   preferredStreamingServices: [],
   language: 'en',
+  expertMode: false,
   notifications: {
     enabled: true,
     newEpisodes: true,
@@ -402,6 +403,21 @@ export const createPreferences = () => {
       const metadataSync = {...currentPreferences.metadataSync, conflictResolution}
       updatePreferences({metadataSync})
       eventEmitter.emit('metadata-sync-change', {metadataSync, preferences: currentPreferences})
+    },
+
+    /**
+     * Get current expert mode setting
+     * Expert mode reveals advanced metadata management and troubleshooting features
+     */
+    getExpertMode: () => currentPreferences.expertMode,
+
+    /**
+     * Set expert mode for advanced features
+     * Expert mode reveals detailed metadata management, debugging panels, and advanced controls
+     */
+    setExpertMode: (enabled: boolean) => {
+      updatePreferences({expertMode: enabled})
+      eventEmitter.emit('expert-mode-changed', {enabled})
     },
 
     /**

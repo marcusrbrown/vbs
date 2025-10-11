@@ -4,6 +4,7 @@
  */
 
 import type {MetadataStorageAdapterInstance} from '../src/modules/metadata-storage.js'
+import type {PreferencesInstance} from '../src/modules/preferences.js'
 import type {
   MetadataDebugPanelData,
   MetadataQueueInstance,
@@ -18,6 +19,7 @@ describe('createMetadataDebugPanel', () => {
   let mockMetadataSources: MetadataSourceInstance
   let mockMetadataStorage: MetadataStorageAdapterInstance
   let mockMetadataQueue: MetadataQueueInstance
+  let mockPreferences: PreferencesInstance
 
   beforeEach(() => {
     // Set up DOM environment
@@ -92,6 +94,12 @@ describe('createMetadataDebugPanel', () => {
       off: vi.fn(),
       once: vi.fn(),
     }
+
+    // Mock preferences
+    mockPreferences = {
+      getExpertMode: vi.fn().mockReturnValue(false),
+      setExpertMode: vi.fn(),
+    } as unknown as PreferencesInstance
   })
 
   it('should create debug panel instance with factory function', () => {
@@ -100,6 +108,7 @@ describe('createMetadataDebugPanel', () => {
       metadataSources: mockMetadataSources,
       metadataStorage: mockMetadataStorage,
       metadataQueue: mockMetadataQueue,
+      preferences: mockPreferences,
     })
 
     expect(debugPanel).toBeDefined()
@@ -122,6 +131,7 @@ describe('createMetadataDebugPanel', () => {
       metadataSources: mockMetadataSources,
       metadataStorage: mockMetadataStorage,
       metadataQueue: mockMetadataQueue,
+      preferences: mockPreferences,
     })
 
     expect(typeof debugPanel.on).toBe('function')
@@ -136,6 +146,7 @@ describe('createMetadataDebugPanel', () => {
       metadataSources: mockMetadataSources,
       metadataStorage: mockMetadataStorage,
       metadataQueue: mockMetadataQueue,
+      preferences: mockPreferences,
     })
 
     debugPanel.render()
@@ -149,6 +160,7 @@ describe('createMetadataDebugPanel', () => {
       metadataSources: mockMetadataSources,
       metadataStorage: mockMetadataStorage,
       metadataQueue: mockMetadataQueue,
+      preferences: mockPreferences,
     })
 
     const mockData: MetadataDebugPanelData = {
@@ -201,6 +213,7 @@ describe('createMetadataDebugPanel', () => {
       metadataSources: mockMetadataSources,
       metadataStorage: mockMetadataStorage,
       metadataQueue: mockMetadataQueue,
+      preferences: mockPreferences,
     })
 
     const visibilityListener = vi.fn()
@@ -219,6 +232,7 @@ describe('createMetadataDebugPanel', () => {
       metadataSources: mockMetadataSources,
       metadataStorage: mockMetadataStorage,
       metadataQueue: mockMetadataQueue,
+      preferences: mockPreferences,
     })
 
     const refreshListener = vi.fn()
@@ -236,6 +250,7 @@ describe('createMetadataDebugPanel', () => {
       metadataSources: mockMetadataSources,
       metadataStorage: mockMetadataStorage,
       metadataQueue: mockMetadataQueue,
+      preferences: mockPreferences,
     })
 
     const bulkStartListener = vi.fn()
@@ -268,6 +283,7 @@ describe('createMetadataDebugPanel', () => {
       metadataSources: mockMetadataSources,
       metadataStorage: mockMetadataStorage,
       metadataQueue: mockMetadataQueue,
+      preferences: mockPreferences,
     })
 
     const cancelListener = vi.fn()
@@ -293,6 +309,7 @@ describe('createMetadataDebugPanel', () => {
       metadataSources: mockMetadataSources,
       metadataStorage: mockMetadataStorage,
       metadataQueue: mockMetadataQueue,
+      preferences: mockPreferences,
     })
 
     const cacheListener = vi.fn()
@@ -316,6 +333,7 @@ describe('createMetadataDebugPanel', () => {
       metadataSources: mockMetadataSources,
       metadataStorage: mockMetadataStorage,
       metadataQueue: mockMetadataQueue,
+      preferences: mockPreferences,
     })
 
     const mockData: MetadataDebugPanelData = {
@@ -355,6 +373,7 @@ describe('createMetadataDebugPanel', () => {
       metadataSources: mockMetadataSources,
       metadataStorage: mockMetadataStorage,
       metadataQueue: mockMetadataQueue,
+      preferences: mockPreferences,
       initiallyVisible: false,
     })
 
@@ -396,6 +415,7 @@ describe('createMetadataDebugPanel', () => {
       metadataSources: mockMetadataSources,
       metadataStorage: mockMetadataStorage,
       metadataQueue: mockMetadataQueue,
+      preferences: mockPreferences,
     })
 
     const onceListener = vi.fn()
@@ -413,6 +433,7 @@ describe('createMetadataDebugPanel', () => {
       metadataSources: mockMetadataSources,
       metadataStorage: mockMetadataStorage,
       metadataQueue: mockMetadataQueue,
+      preferences: mockPreferences,
     })
 
     const mockData: MetadataDebugPanelData = {
@@ -448,6 +469,7 @@ describe('createMetadataDebugPanel', () => {
       metadataSources: mockMetadataSources,
       metadataStorage: mockMetadataStorage,
       metadataQueue: mockMetadataQueue,
+      preferences: mockPreferences,
     })
 
     const sourceToggleListener = vi.fn()

@@ -81,6 +81,8 @@ describe('SettingsManager', () => {
       setTheme: vi.fn(),
       toggleCompactView: vi.fn(),
       toggleAccessibilityMode: vi.fn(),
+      getExpertMode: vi.fn(() => false),
+      setExpertMode: vi.fn(),
       setMetadataSyncMode: vi.fn(),
       toggleAutoSync: vi.fn(),
       updateMetadataSyncDataLimits: vi.fn(),
