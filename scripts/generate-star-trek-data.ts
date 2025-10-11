@@ -224,6 +224,86 @@ interface EnrichedSeriesData {
   seasons: EnrichedSeasonData[]
 }
 
+/**
+ * TMDB movie search result structure.
+ */
+interface TMDBMovieSearchResult {
+  page: number
+  results: {
+    id: number
+    title: string
+    original_title: string
+    release_date: string
+    overview: string
+  }[]
+  total_pages: number
+  total_results: number
+}
+
+/**
+ * TMDB movie details response structure.
+ */
+interface TMDBMovieDetails {
+  id: number
+  title: string
+  original_title: string
+  release_date: string
+  overview: string
+  runtime: number | null
+  budget: number
+  revenue: number
+  vote_average: number
+  vote_count: number
+  status: string
+}
+
+/**
+ * TMDB movie credits response structure.
+ */
+interface TMDBMovieCredits {
+  id: number
+  cast: {
+    id: number
+    name: string
+    character: string
+    order: number
+  }[]
+  crew: {
+    id: number
+    name: string
+    job: string
+    department: string
+  }[]
+}
+
+/**
+ * Enriched movie data combining TMDB metadata.
+ */
+interface EnrichedMovieData {
+  /** Movie ID in VBS format (e.g., 'tmp', 'twok') */
+  movieId: string
+  /** TMDB movie ID */
+  tmdbId: number
+  /** Movie title */
+  title: string
+  /** Release date (YYYY-MM-DD format) */
+  releaseDate: string
+  /** Movie overview/synopsis */
+  overview: string
+  /** Runtime in minutes */
+  runtime: number | null
+  /** Director name(s) */
+  director?: string | undefined
+  /** Writer name(s) */
+  writer?: string | undefined
+  /** Lead cast members */
+  cast?: string[] | undefined
+  /** TMDB vote average */
+  voteAverage?: number | undefined
+  /** TMDB vote count */
+  voteCount?: number | undefined
+}
+
 interface GenerateDataOptions extends BaseCLIOptions {
   mode: 'full' | 'incremental'
   series?: string | undefined
@@ -308,6 +388,57 @@ const STAR_TREK_SERIES = [
   'Star Trek: Prodigy',
   'Star Trek: Strange New Worlds',
 ] as const
+
+/**
+ * Known Star Trek movies with their titles for discovery via TMDB search.
+ * Includes theatrical releases, TV movies, and special presentations.
+ */
+const STAR_TREK_MOVIES = [
+  'Star Trek: The Motion Picture',
+  'Star Trek II: The Wrath of Khan',
+  'Star Trek III: The Search for Spock',
+  'Star Trek IV: The Voyage Home',
+  'Star Trek V: The Final Frontier',
+  'Star Trek VI: The Undiscovered Country',
+  'Star Trek: Generations',
+  'Star Trek: First Contact',
+  'Star Trek: Insurrection',
+  'Star Trek: Nemesis',
+  'Star Trek',
+  'Star Trek Into Darkness',
+  'Star Trek Beyond',
+] as const
+
+/**
+ * Movie ID mapping for generating VBS-compatible identifiers.
+ * Maps normalized movie titles to short IDs used throughout VBS.
+ */
+const MOVIE_ID_MAP: Record<string, string> = {
+  'the motion picture': 'tmp',
+  'ii: the wrath of khan': 'twok',
+  'the wrath of khan': 'twok',
+  'iii: the search for spock': 'tsfs',
+  'the search for spock': 'tsfs',
+  'iv: the voyage home': 'tvh',
+  'the voyage home': 'tvh',
+  'v: the final frontier': 'tff',
+  'the final frontier': 'tff',
+  'vi: the undiscovered country': 'tuc',
+  'the undiscovered country': 'tuc',
+  generations: 'gen',
+  'first contact': 'fc',
+  insurrection: 'ins',
+  nemesis: 'nem',
+  'star trek': 'st2009',
+  'into darkness': 'stid',
+  beyond: 'stb',
+} as const
+
+/**
+ * Rate limiting delay between TMDB API requests (milliseconds).
+ * TMDB quota: 40 requests per 10 seconds, so 250ms = 4 req/s is safe.
+ */
+const TMDB_RATE_LIMIT_MS = 250
 
 /**
  * Fetch series details from TMDB by series ID.
@@ -407,6 +538,234 @@ const searchSeries = async (
     logger.error('Failed to search for series', {seriesName, error: errorDetails})
     return null
   }
+}
+
+/**
+ * Search TMDB for a specific Star Trek movie by title.
+ * Uses modern TMDB API authentication with Bearer token (API Read Access Token).
+ */
+const searchMovie = async (
+  movieTitle: string,
+  logger: ReturnType<typeof createLogger>,
+): Promise<number | null> => {
+  const apiKey = process.env.TMDB_API_KEY
+  if (!apiKey) {
+    return null
+  }
+
+  const url = `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(movieTitle)}`
+  const headers = {
+    Authorization: `Bearer ${apiKey}`,
+    'Content-Type': 'application/json',
+  }
+
+  try {
+    const response = await fetch(url, {headers})
+    if (!response.ok) {
+      logger.error('TMDB search error', {movieTitle, status: response.status})
+      return null
+    }
+
+    const data = (await response.json()) as TMDBMovieSearchResult
+
+    const match = data.results.find(
+      (result: TMDBMovieSearchResult['results'][number]) =>
+        result.title.toLowerCase().includes('star trek') &&
+        (result.title
+          .toLowerCase()
+          .includes(movieTitle.toLowerCase().replace('star trek', '').trim()) ||
+          movieTitle.toLowerCase().includes(result.title.toLowerCase())),
+    )
+
+    if (match) {
+      logger.info(`Found movie: ${match.title} (ID: ${match.id})`)
+    }
+
+    return match?.id ?? null
+  } catch (error: unknown) {
+    const errorDetails = {
+      name: error instanceof Error ? error.name : 'UnknownError',
+      message: error instanceof Error ? error.message : String(error),
+    }
+    logger.error('Failed to search for movie', {movieTitle, error: errorDetails})
+    return null
+  }
+}
+
+/**
+ * Fetch movie details from TMDB by movie ID.
+ * Uses modern TMDB API authentication with Bearer token (API Read Access Token).
+ */
+const fetchMovieDetails = async (
+  movieId: number,
+  logger: ReturnType<typeof createLogger>,
+): Promise<TMDBMovieDetails | null> => {
+  const apiKey = process.env.TMDB_API_KEY
+  if (!apiKey) {
+    return null
+  }
+
+  const url = `https://api.themoviedb.org/3/movie/${movieId}`
+  const headers = {
+    Authorization: `Bearer ${apiKey}`,
+    'Content-Type': 'application/json',
+  }
+
+  try {
+    const response = await fetch(url, {headers})
+    if (!response.ok) {
+      logger.error('TMDB API error for movie', {
+        status: response.status,
+        movieId,
+      })
+      return null
+    }
+
+    const data = (await response.json()) as TMDBMovieDetails
+    return data
+  } catch (error: unknown) {
+    const errorDetails = {
+      name: error instanceof Error ? error.name : 'UnknownError',
+      message: error instanceof Error ? error.message : String(error),
+    }
+    logger.error('Failed to fetch movie details', {movieId, error: errorDetails})
+    return null
+  }
+}
+
+/**
+ * Fetch movie credits (cast and crew) from TMDB.
+ * Extracts director, writer, and lead cast information.
+ */
+const fetchMovieCredits = async (
+  movieId: number,
+  logger: ReturnType<typeof createLogger>,
+): Promise<TMDBMovieCredits | null> => {
+  const apiKey = process.env.TMDB_API_KEY
+  if (!apiKey) {
+    return null
+  }
+
+  const url = `https://api.themoviedb.org/3/movie/${movieId}/credits`
+  const headers = {
+    Authorization: `Bearer ${apiKey}`,
+    'Content-Type': 'application/json',
+  }
+
+  try {
+    const response = await fetch(url, {headers})
+    if (!response.ok) {
+      logger.error('TMDB API error for movie credits', {
+        status: response.status,
+        movieId,
+      })
+      return null
+    }
+
+    const data = (await response.json()) as TMDBMovieCredits
+    return data
+  } catch (error: unknown) {
+    const errorDetails = {
+      name: error instanceof Error ? error.name : 'UnknownError',
+      message: error instanceof Error ? error.message : String(error),
+    }
+    logger.error('Failed to fetch movie credits', {movieId, error: errorDetails})
+    return null
+  }
+}
+
+/**
+ * Generate VBS movie ID from movie title.
+ * Examples: "Star Trek: The Motion Picture" → "tmp", "Star Trek II: The Wrath of Khan" → "twok"
+ */
+const generateMovieId = (movieTitle: string): string => {
+  const normalized = movieTitle
+    .toLowerCase()
+    .replace(/^star trek:?\s*/i, '')
+    .trim()
+
+  return MOVIE_ID_MAP[normalized] ?? normalized.replaceAll(/\s+/g, '').slice(0, 6)
+}
+
+/**
+ * Transform TMDB movie data to VBS format with crew information.
+ * Extracts director, writers, and top cast members from TMDB credits.
+ */
+const enrichMovieData = (
+  movieTitle: string,
+  tmdbMovie: TMDBMovieDetails,
+  tmdbCredits: TMDBMovieCredits | null,
+): EnrichedMovieData => {
+  const directors =
+    tmdbCredits?.crew.filter(crew => crew.job === 'Director').map(crew => crew.name) ?? []
+  const writers =
+    tmdbCredits?.crew
+      .filter(crew => crew.job === 'Writer' || crew.job === 'Screenplay')
+      .map(crew => crew.name) ?? []
+  const leadCast = tmdbCredits?.cast.slice(0, 5).map(actor => actor.name) ?? []
+
+  return {
+    movieId: generateMovieId(movieTitle),
+    tmdbId: tmdbMovie.id,
+    title: tmdbMovie.title,
+    releaseDate: tmdbMovie.release_date,
+    overview: tmdbMovie.overview,
+    runtime: tmdbMovie.runtime,
+    director: directors.length > 0 ? directors.join(', ') : undefined,
+    writer: writers.length > 0 ? writers.join(', ') : undefined,
+    cast: leadCast.length > 0 ? leadCast : undefined,
+    voteAverage: tmdbMovie.vote_average > 0 ? tmdbMovie.vote_average : undefined,
+    voteCount: tmdbMovie.vote_count > 0 ? tmdbMovie.vote_count : undefined,
+  }
+}
+
+/**
+ * Discover Star Trek movies from TMDB by searching predefined movie list.
+ * Rate limits requests to respect TMDB quota (40 req/10s).
+ */
+const discoverStarTrekMovies = async (
+  logger: ReturnType<typeof createLogger>,
+): Promise<EnrichedMovieData[]> => {
+  logger.info('Starting Star Trek movie discovery')
+
+  if (!process.env.TMDB_API_KEY) {
+    logger.warn('TMDB_API_KEY not configured - movie discovery skipped')
+    return []
+  }
+
+  const discovered: EnrichedMovieData[] = []
+
+  logger.info(`Searching for ${STAR_TREK_MOVIES.length} Star Trek movies`)
+
+  for (const movieTitle of STAR_TREK_MOVIES) {
+    await new Promise(resolve => setTimeout(resolve, TMDB_RATE_LIMIT_MS))
+
+    const movieId = await searchMovie(movieTitle, logger)
+    if (!movieId) {
+      logger.warn(`Movie not found: ${movieTitle}`)
+      continue
+    }
+
+    const movieDetails = await fetchMovieDetails(movieId, logger)
+    if (!movieDetails) {
+      logger.warn(`Failed to fetch details for movie ID ${movieId}`)
+      continue
+    }
+
+    await new Promise(resolve => setTimeout(resolve, TMDB_RATE_LIMIT_MS))
+
+    const movieCredits = await fetchMovieCredits(movieId, logger)
+
+    const enrichedMovie = enrichMovieData(movieTitle, movieDetails, movieCredits)
+    discovered.push(enrichedMovie)
+
+    logger.info(
+      `Discovered movie: ${enrichedMovie.title} (${enrichedMovie.releaseDate?.slice(0, 4) ?? 'unknown year'})`,
+    )
+  }
+
+  logger.info(`Movie discovery complete: Found ${discovered.length} movies`)
+  return discovered
 }
 
 /**
@@ -598,7 +957,7 @@ const enumerateSeriesEpisodes = async (
         logger.warn(`Failed to fetch episode details for S${seasonNum}E${episode.episode_number}`)
       }
 
-      await new Promise<void>((resolve: () => void) => setTimeout(resolve, 250))
+      await new Promise<void>((resolve: () => void) => setTimeout(resolve, TMDB_RATE_LIMIT_MS))
     }
 
     enrichedSeasons.push({
@@ -610,7 +969,7 @@ const enumerateSeriesEpisodes = async (
       episodes: enrichedEpisodes,
     })
 
-    await new Promise<void>((resolve: () => void) => setTimeout(resolve, 500))
+    await new Promise<void>((resolve: () => void) => setTimeout(resolve, TMDB_RATE_LIMIT_MS * 2))
   }
 
   logger.info(
@@ -673,7 +1032,7 @@ const discoverStarTrekSeries = async (
       )
     }
 
-    await new Promise<void>((resolve: () => void) => setTimeout(resolve, 250))
+    await new Promise<void>((resolve: () => void) => setTimeout(resolve, TMDB_RATE_LIMIT_MS))
   }
 
   logger.info(`Discovery complete: Found ${discovered.length} series`)
@@ -770,8 +1129,11 @@ const main = async (): Promise<void> => {
       ),
     })
 
-    // TASK-015: Movie discovery (implementation follows)
-    logger.debug('Movie discovery will be implemented next')
+    logger.info('Starting movie discovery')
+    const discoveredMovies = await discoverStarTrekMovies(logger)
+    logger.info(`Movie discovery complete: ${discoveredMovies.length} movies found`, {
+      movies: discoveredMovies.map(m => `${m.title} (${m.releaseDate?.slice(0, 4) ?? 'unknown'})`),
+    })
 
     // TASK-016: Data normalization (implementation follows)
     logger.debug('Data normalization pipeline will be implemented next')
