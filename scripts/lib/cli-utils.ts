@@ -134,12 +134,12 @@ export const createProgressIndicator = (total: number, itemName: string) => {
     update: (increment = 1): void => {
       current += increment
       const percentage = Math.round((current / total) * 100)
-      if (process.stderr.isTTY) {
+      if (process.stderr.isTTY === true) {
         process.stderr.write(`\rProcessing ${itemName}: ${current}/${total} (${percentage}%)`)
       }
     },
     complete: (): void => {
-      if (process.stderr.isTTY) {
+      if (process.stderr.isTTY === true) {
         process.stderr.write('\n')
       }
       console.error(`Completed processing ${total} ${itemName}`)

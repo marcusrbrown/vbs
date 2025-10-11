@@ -108,7 +108,7 @@ export const enrichEpisodeWithFallback = async (
   try {
     return await metadataSources.enrichEpisode(episode.id)
   } catch (error) {
-    if (process.stderr.isTTY) {
+    if (process.stderr.isTTY === true) {
       console.error(
         `Warning: Failed to enrich episode ${episode.id}, using fallback data:`,
         error instanceof Error ? error.message : String(error),

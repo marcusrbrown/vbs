@@ -64,9 +64,9 @@ This plan implements an automated system to fetch series, movie, and episode dat
 | TASK-005 | Create `scripts/lib/code-generation.ts` with TypeScript AST generation utilities for creating properly formatted code | ✅ | 2025-10-11 |
 | TASK-006 | Extract metadata source configuration helpers into `scripts/lib/source-config.ts` for consistent API initialization | ✅ | 2025-10-11 |
 | TASK-007 | Refactor `validate-episode-data.ts` to use new shared utilities and verify functionality is preserved | ✅ | 2025-10-11 |
-| TASK-008 | Create comprehensive tests for all shared utilities in `test/scripts/lib/` directory | | |
-| TASK-009 | Update TypeScript paths configuration to support script-level imports if necessary | | |
-| TASK-010 | Document shared utilities with JSDoc comments explaining usage patterns and examples | | |
+| TASK-008 | Create comprehensive tests for all shared utilities in `test/scripts/lib/` directory | ✅ | 2025-10-11 |
+| TASK-009 | Update TypeScript paths configuration to support script-level imports if necessary | ✅ | 2025-10-11 |
+| TASK-010 | Document shared utilities with JSDoc comments explaining usage patterns and examples | ✅ | 2025-10-11 |
 
 ### Implementation Phase 2: Data Generation Core
 
