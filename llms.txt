@@ -17,6 +17,8 @@ The architecture emphasizes type safety through advanced TypeScript generics, ge
 - [Generic Types Examples](docs/generic-types-examples.md): Comprehensive examples of the generic TypeScript system with EventEmitters and storage utilities
 - [Composition Examples](docs/composition-examples.md): Real-world functional composition patterns and utilities usage throughout VBS
 - [IndexedDB Migration Plan](docs/indexeddb-migration.md): Technical specification for planned migration from LocalStorage to IndexedDB
+- [Metadata Storage Integration](docs/metadata-storage-integration.md): Architecture and implementation details for metadata enrichment and caching systems
+- [Settings Architecture](docs/settings-architecture.md): Design specification for user preferences and settings management system
 
 ## Core Implementation
 
@@ -29,10 +31,12 @@ The architecture emphasizes type safety through advanced TypeScript generics, ge
 - [Progress Validation](src/modules/progress-validation.ts): Validation and error recovery utilities for episode progress data integrity
 - [Migration Utilities](src/modules/migration.ts): Data migration system for version upgrades and schema evolution
 - [Conflict Resolution](src/modules/conflict-resolution.ts): Utilities for handling data conflicts during synchronization and merges
+- [Cache Warming](src/modules/cache-warming.ts): Proactive caching utilities for metadata and content preloading
 - [Search Filter](src/modules/search.ts): Real-time search and filtering factory with type-safe events
 - [Timeline Renderer](src/modules/timeline.ts): Era-based timeline rendering with dependency injection
 - [Timeline Visualization](src/modules/timeline-viz.ts): Interactive timeline visualization system with D3.js integration
 - [User Preferences](src/modules/preferences.ts): Settings management for themes, display options, and user configurations
+- [Settings Manager](src/modules/settings-manager.ts): Centralized settings coordination with validation, persistence, and UI synchronization
 - [Theme System](src/modules/themes.ts): Dark/light theme management with CSS custom properties and auto-detection
 - [Streaming API](src/modules/streaming-api.ts): Integration utilities for streaming service availability and content discovery
 - [Metadata Sources](src/modules/metadata-sources.ts): External API integration for episode metadata enrichment
@@ -46,8 +50,13 @@ The architecture emphasizes type safety through advanced TypeScript generics, ge
 - [Storage Utilities](src/modules/storage.ts): Generic storage adapters with validation and export/import functionality
 - [Type Definitions](src/modules/types.ts): Comprehensive TypeScript interfaces and utility types
 - [Event System](src/modules/events.ts): Generic EventEmitter factory for type-safe inter-module communication
+- [Logger](src/modules/logger.ts): Configurable logging system with levels, filtering, metrics, and persistence capabilities
 - [Error Handler](src/modules/error-handler.ts): Centralized error management, logging, and user-friendly error reporting
 - [Composition Utilities](src/utils/composition.ts): Functional composition utilities with pipe(), compose(), curry(), and tap() functions
+- [Download Utilities](src/utils/download.ts): Client-side file download helpers for data export and backup operations
+- [Geographic Utilities](src/utils/geographic.ts): Location-based utilities for regional content availability and localization
+- [Metadata Validation](src/utils/metadata-validation.ts): Validation schemas and utilities for metadata quality assurance
+- [Utility Index](src/utils/index.ts): Centralized exports for all utility functions and helpers
 
 ## Components
 
@@ -55,6 +64,13 @@ The architecture emphasizes type safety through advanced TypeScript generics, ge
 - [Streaming Indicators](src/components/streaming-indicators.ts): UI components showing streaming service availability
 - [Streaming Preferences](src/components/streaming-preferences.ts): User interface for streaming service preference configuration
 - [Timeline Controls](src/components/timeline-controls.ts): Interactive controls for timeline navigation and filtering
+- [Metadata Debug Panel](src/components/metadata-debug-panel.ts): Developer tool for inspecting and debugging metadata operations
+- [Metadata Expert Mode](src/components/metadata-expert-mode.ts): Advanced metadata management interface for power users
+- [Metadata Preferences](src/components/metadata-preferences.ts): User interface for configuring metadata enrichment preferences
+- [Metadata Quality Indicator](src/components/metadata-quality-indicator.ts): Visual indicator for metadata completeness and quality scores
+- [Metadata Source Attribution](src/components/metadata-source-attribution.ts): Display component for metadata source attribution and licensing
+- [Metadata Sync Status](src/components/metadata-sync-status.ts): Real-time synchronization status indicator for metadata operations
+- [Metadata Usage Controls](src/components/metadata-usage-controls.ts): UI controls for managing metadata fetching and caching behavior
 - [Component Styles](src/components/): CSS files for component styling and responsive design patterns
 
 ## Configuration & Development
@@ -71,6 +87,7 @@ The architecture emphasizes type safety through advanced TypeScript generics, ge
 - [Episode Tracking Feature Plan](.ai/plan/feature-episode-tracking-1.md): Detailed specification for individual episode progress tracking
 - [Episode Metadata Enrichment Plan](.ai/plan/feature-episode-metadata-enrichment-1.md): Technical specification for external metadata integration and enrichment
 - [Advanced Visualization Plan](.ai/plan/feature-advanced-visualization-1.md): Technical roadmap for D3.js timeline visualization features
+- [Automated Data Generation Plan](.ai/plan/feature-automated-data-generation-1.md): Strategy for automated generation and validation of Star Trek episode data
 - [Responsive UI Testing Plan](.ai/plan/feature-responsive-ui-testing-1.md): Strategy for cross-device and accessibility testing automation
 - [Functional Composition Plan](.ai/plan/feature-functional-composition-1.md): Architecture specification for functional programming utilities
 - [Git Pre-commit Hooks Plan](.ai/plan/process-git-precommit-hooks-1.md): Implementation plan for automated code quality enforcement
@@ -78,6 +95,7 @@ The architecture emphasizes type safety through advanced TypeScript generics, ge
 - [ESLint Remediation Refactor](.ai/plan/refactor-eslint-remediation-1.md): Plan for upgrading and fixing ESLint configuration issues
 - [Generic Types Refactor Plan](.ai/plan/refactor-generic-types-1.md): Specification for enhanced type safety through generic TypeScript patterns
 - [Functional Factory Refactor Plan](.ai/plan/refactor-modules-functional-1.md): Migration plan from class-based to functional factory architecture
+- [Settings Management Refactor](.ai/plan/refactor-settings-management-1.md): Plan for consolidating and modernizing user settings and preferences architecture
 
 ## Optional
 
