@@ -2796,6 +2796,16 @@ export interface MetadataUsageControlsEvents extends EventMap {
     used: number
     limit: number
   }
+  /** Fired when usage statistics fail to load */
+  'stats-load-failed': {
+    timestamp: string
+    error: string
+  }
+  /** Fired when preferences fail to load */
+  'preferences-load-failed': {
+    timestamp: string
+    error: string
+  }
 }
 
 /**

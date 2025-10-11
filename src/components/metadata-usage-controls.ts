@@ -1,4 +1,5 @@
 import type {
+  MetadataSourceType,
   MetadataUsageControlsConfig,
   MetadataUsageControlsEvents,
   MetadataUsageControlsInstance,
@@ -92,12 +93,52 @@ export const createMetadataUsageControls = (
   const eventEmitter = createEventEmitter<MetadataUsageControlsEvents>()
 
   /**
-   * Load current usage statistics
+   * Load current usage statistics with error handling
    */
   const loadStats = async (): Promise<MetadataUsageStatistics> => {
-    const stats = getUsageStats()
-    currentStats = stats instanceof Promise ? await stats : stats
-    return currentStats
+    try {
+      const stats = getUsageStats()
+      currentStats = stats instanceof Promise ? await stats : stats
+      return currentStats
+    } catch (error) {
+      // Return safe defaults when stats loading fails
+      const now = new Date().toISOString()
+      const fallbackStats: MetadataUsageStatistics = {
+        apiCalls: {
+          today: 0,
+          thisWeek: 0,
+          thisMonth: 0,
+          lifetime: 0,
+          bySource: {} as Record<MetadataSourceType, number>,
+        },
+        bandwidth: {
+          today: 0,
+          thisWeek: 0,
+          thisMonth: 0,
+          lifetime: 0,
+        },
+        storage: {
+          currentSize: 0,
+          maxSize: 104857600, // 100MB default
+          percentUsed: 0,
+          episodeCount: 0,
+        },
+        quotas: {
+          dailyApiCalls: {used: 0, limit: 1000, percentUsed: 0, resetTime: now},
+          cacheStorage: {used: 0, limit: 104857600, percentUsed: 0},
+        },
+        lastUpdated: now,
+      }
+      currentStats = fallbackStats
+
+      // Emit error event for monitoring
+      eventEmitter.emit('stats-load-failed', {
+        timestamp: now,
+        error: error instanceof Error ? error.message : String(error),
+      })
+
+      return fallbackStats
+    }
   }
 
   /**
@@ -242,8 +283,22 @@ export const createMetadataUsageControls = (
    * Create quota management controls section
    */
   const createQuotaControls = (): string => {
-    const prefs = preferences.getPreferences()
-    const limits = prefs.metadataSync.dataLimits
+    let limits
+    try {
+      const prefs = preferences.getPreferences()
+      limits = prefs.metadataSync.dataLimits
+    } catch (error) {
+      // Use safe defaults when preferences unavailable
+      eventEmitter.emit('preferences-load-failed', {
+        timestamp: new Date().toISOString(),
+        error: error instanceof Error ? error.message : String(error),
+      })
+      limits = {
+        maxDailyApiCalls: 1000,
+        maxEpisodesPerSync: 50,
+        maxCacheSizeMB: 100,
+      }
+    }
 
     return `
       <div class="quota-controls">
