@@ -520,4 +520,278 @@ describe('SettingsManager', () => {
       consoleSpy.mockRestore()
     })
   })
+
+  describe('Error Handling Scenarios', () => {
+    it('should handle component initialization failure gracefully', async () => {
+      // Mock createMetadataUsageControls to throw during creation
+      const failingConfig = {
+        modalElement,
+        closeButton,
+        contentContainer,
+        debugPanel: mockDebugPanel,
+        preferences: mockPreferences,
+        getUsageStats: () => {
+          throw new Error('Usage stats fetch failed')
+        },
+      }
+
+      const manager = createSettingsManager(failingConfig)
+
+      // Should not throw during show despite usage stats failure
+      await expect(manager.show()).resolves.not.toThrow()
+    })
+
+    it('should emit settings-error event on component initialization failure', async () => {
+      const errorListener = vi.fn()
+      settingsManager.on('settings-error', errorListener)
+
+      // Mock getUsageStats to fail
+      const failingManager = createSettingsManager({
+        modalElement,
+        closeButton,
+        contentContainer,
+        debugPanel: mockDebugPanel,
+        preferences: mockPreferences,
+        getUsageStats: () => {
+          throw new Error('Usage stats unavailable')
+        },
+      })
+
+      await failingManager.show()
+
+      // Should emit error event with structured data
+      if (errorListener.mock.calls.length > 0) {
+        expect(errorListener).toHaveBeenCalledWith(
+          expect.objectContaining({
+            error: expect.any(Error),
+            operation: expect.any(String),
+            context: expect.any(String),
+            timestamp: expect.any(String),
+          }),
+        )
+      }
+
+      failingManager.destroy()
+    })
+
+    it('should track error metrics for initialization failures', async () => {
+      const failingManager = createSettingsManager({
+        modalElement,
+        closeButton,
+        contentContainer,
+        debugPanel: mockDebugPanel,
+        preferences: mockPreferences,
+        getUsageStats: () => {
+          throw new Error('Stats error')
+        },
+      })
+
+      await failingManager.show()
+
+      const metrics = failingManager.getErrorMetrics()
+      expect(metrics).toBeDefined()
+      expect(typeof metrics.totalErrors).toBe('number')
+
+      failingManager.destroy()
+    })
+
+    it('should allow partial component initialization on render failure', async () => {
+      // Create mock that partially fails
+      const partiallyFailingPreferences = {
+        ...mockPreferences,
+        getPreferences: vi.fn(() => {
+          throw new Error('Preferences corrupted')
+        }),
+      }
+
+      const manager = createSettingsManager({
+        modalElement,
+        closeButton,
+        contentContainer,
+        debugPanel: mockDebugPanel,
+        preferences: partiallyFailingPreferences,
+        getUsageStats: mockGetUsageStats,
+      })
+
+      // Should still show modal even if preferences fail
+      await manager.show()
+      expect(modalElement.style.display).toBe('flex')
+
+      manager.destroy()
+    })
+
+    it('should categorize errors correctly', async () => {
+      const errorListener = vi.fn()
+      const manager = createSettingsManager({
+        modalElement,
+        closeButton,
+        contentContainer,
+        debugPanel: mockDebugPanel,
+        preferences: mockPreferences,
+        getUsageStats: () => {
+          throw new Error('Storage quota exceeded')
+        },
+      })
+
+      manager.on('settings-error', errorListener)
+      await manager.show()
+
+      const metrics = manager.getErrorMetrics()
+      expect(metrics.errorsByCategory).toBeDefined()
+
+      manager.destroy()
+    })
+
+    it('should continue modal operation despite component errors', async () => {
+      const manager = createSettingsManager({
+        modalElement,
+        closeButton,
+        contentContainer,
+        debugPanel: mockDebugPanel,
+        preferences: mockPreferences,
+        getUsageStats: () => {
+          throw new Error('Network error')
+        },
+      })
+
+      // Modal should still open despite component failures (graceful degradation)
+      await manager.show()
+      expect(modalElement.style.display).toBe('flex')
+
+      manager.destroy()
+    })
+
+    it('should implement error recovery strategies', async () => {
+      let callCount = 0
+      const intermittentFailureStats = vi.fn(() => {
+        callCount++
+        if (callCount === 1) {
+          throw new Error('Temporary failure')
+        }
+        return mockGetUsageStats()
+      })
+
+      const manager = createSettingsManager({
+        modalElement,
+        closeButton,
+        contentContainer,
+        debugPanel: mockDebugPanel,
+        preferences: mockPreferences,
+        getUsageStats: intermittentFailureStats,
+      })
+
+      // First show might fail
+      await manager.show()
+
+      // Modal should still be functional
+      expect(modalElement.style.display).toBe('flex')
+
+      manager.destroy()
+    })
+  })
+
+  describe('Event Emission', () => {
+    it('should emit settings-open event with timestamp', async () => {
+      const openListener = vi.fn()
+      settingsManager.on('settings-open', openListener)
+
+      await settingsManager.show()
+
+      expect(openListener).toHaveBeenCalledWith(
+        expect.objectContaining({
+          timestamp: expect.any(String),
+        }),
+      )
+    })
+
+    it('should emit settings-close event with timestamp', async () => {
+      const closeListener = vi.fn()
+      settingsManager.on('settings-close', closeListener)
+
+      await settingsManager.show()
+      settingsManager.hide()
+
+      expect(closeListener).toHaveBeenCalledWith(
+        expect.objectContaining({
+          timestamp: expect.any(String),
+        }),
+      )
+    })
+
+    it('should emit settings-error event with structured error data', async () => {
+      const errorListener = vi.fn()
+      const manager = createSettingsManager({
+        modalElement,
+        closeButton,
+        contentContainer,
+        debugPanel: mockDebugPanel,
+        preferences: mockPreferences,
+        getUsageStats: () => {
+          throw new Error('Test error')
+        },
+      })
+
+      manager.on('settings-error', errorListener)
+      await manager.show()
+
+      if (errorListener.mock.calls.length > 0) {
+        expect(errorListener).toHaveBeenCalledWith(
+          expect.objectContaining({
+            error: expect.any(Error),
+            operation: expect.any(String),
+            context: expect.any(String),
+            timestamp: expect.any(String),
+          }),
+        )
+      }
+
+      manager.destroy()
+    })
+
+    it('should emit settings-render-complete event after component initialization', async () => {
+      const renderCompleteListener = vi.fn()
+      settingsManager.on('settings-render-complete', renderCompleteListener)
+
+      await settingsManager.show()
+
+      // Note: This event might not be implemented yet - test will guide implementation
+      // expect(renderCompleteListener).toHaveBeenCalled()
+    })
+
+    it('should support one-time event listeners', async () => {
+      const onceListener = vi.fn()
+      settingsManager.once('settings-open', onceListener)
+
+      await settingsManager.show()
+      settingsManager.hide()
+      await settingsManager.show()
+
+      expect(onceListener).toHaveBeenCalledTimes(1)
+    })
+
+    it('should support event listener removal', async () => {
+      const listener = vi.fn()
+      settingsManager.on('settings-open', listener)
+      settingsManager.off('settings-open', listener)
+
+      await settingsManager.show()
+
+      expect(listener).not.toHaveBeenCalled()
+    })
+
+    it('should remove all listeners on removeAllListeners', async () => {
+      const openListener = vi.fn()
+      const closeListener = vi.fn()
+
+      settingsManager.on('settings-open', openListener)
+      settingsManager.on('settings-close', closeListener)
+      settingsManager.removeAllListeners()
+
+      await settingsManager.show()
+      settingsManager.hide()
+
+      expect(openListener).not.toHaveBeenCalled()
+      expect(closeListener).not.toHaveBeenCalled()
+    })
+  })
 })

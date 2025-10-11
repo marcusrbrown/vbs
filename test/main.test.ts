@@ -129,6 +129,25 @@ vi.mock('../src/modules/streaming-api.js', () => ({
   }),
 }))
 
+vi.mock('../src/modules/settings-manager.js', () => ({
+  createSettingsManager: () => ({
+    show: vi.fn(async () => {}),
+    hide: vi.fn(),
+    toggle: vi.fn(async () => {}),
+    destroy: vi.fn(),
+    getErrorMetrics: vi.fn(() => ({
+      totalErrors: 0,
+      errorsByCategory: {},
+      lastError: null,
+      initRetryCount: 0,
+    })),
+    on: vi.fn(),
+    off: vi.fn(),
+    once: vi.fn(),
+    removeAllListeners: vi.fn(),
+  }),
+}))
+
 describe('Main Application', () => {
   let dom: JSDOM
 
