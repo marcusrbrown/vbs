@@ -104,6 +104,126 @@ interface TMDBSeriesDetails {
   }[]
 }
 
+/**
+ * TMDB season details response structure.
+ */
+interface TMDBSeasonDetails {
+  id: number
+  name: string
+  overview: string
+  season_number: number
+  air_date: string
+  episode_count: number
+  episodes: {
+    id: number
+    name: string
+    overview: string
+    episode_number: number
+    season_number: number
+    air_date: string
+    runtime: number | null
+    still_path: string | null
+    vote_average: number
+    vote_count: number
+  }[]
+}
+
+/**
+ * TMDB episode details response structure with crew information.
+ */
+interface TMDBEpisodeDetails {
+  id: number
+  name: string
+  overview: string
+  episode_number: number
+  season_number: number
+  air_date: string
+  runtime: number | null
+  still_path: string | null
+  vote_average: number
+  vote_count: number
+  crew: {
+    id: number
+    name: string
+    job: string
+    department: string
+  }[]
+  guest_stars: {
+    id: number
+    name: string
+    character: string
+    order: number
+  }[]
+}
+
+/**
+ * Enriched episode data combining TMDB and other metadata sources.
+ */
+interface EnrichedEpisodeData {
+  /** Episode ID in VBS format (e.g., 'tos_s1_e01') */
+  episodeId: string
+  /** TMDB episode ID */
+  tmdbId: number
+  /** Episode title */
+  title: string
+  /** Season number */
+  season: number
+  /** Episode number within season */
+  episode: number
+  /** Air date (YYYY-MM-DD format) */
+  airDate: string
+  /** Episode overview/synopsis */
+  overview: string
+  /** Runtime in minutes */
+  runtime: number | null
+  /** Director name(s) */
+  director?: string | undefined
+  /** Writer name(s) */
+  writer?: string | undefined
+  /** Guest stars */
+  guestStars?: string[] | undefined
+  /** TMDB vote average */
+  voteAverage?: number | undefined
+  /** TMDB vote count */
+  voteCount?: number | undefined
+}
+
+/**
+ * Enriched season data with all episodes.
+ */
+interface EnrichedSeasonData {
+  /** Season number */
+  seasonNumber: number
+  /** Season name */
+  name: string
+  /** Season overview */
+  overview: string
+  /** Season air date */
+  airDate: string
+  /** Episode count */
+  episodeCount: number
+  /** All episodes in season */
+  episodes: EnrichedEpisodeData[]
+}
+
+/**
+ * Complete series data with all seasons and episodes.
+ */
+interface EnrichedSeriesData {
+  /** TMDB series ID */
+  seriesId: number
+  /** Series name */
+  name: string
+  /** Series overview */
+  overview: string
+  /** First air date */
+  firstAirDate: string
+  /** Series status */
+  status: string
+  /** All seasons */
+  seasons: EnrichedSeasonData[]
+}
+
 interface GenerateDataOptions extends BaseCLIOptions {
   mode: 'full' | 'incremental'
   series?: string | undefined
@@ -290,8 +410,227 @@ const searchSeries = async (
 }
 
 /**
- * Discover Star Trek series from TMDB.
- * TASK-013: Series discovery logic implementation.
+ * Fetch season details from TMDB including episode list.
+ * Uses Bearer token authentication for TMDB API v3.
+ */
+const fetchSeasonDetails = async (
+  seriesId: number,
+  seasonNumber: number,
+  logger: ReturnType<typeof createLogger>,
+): Promise<TMDBSeasonDetails | null> => {
+  const apiKey = process.env.TMDB_API_KEY
+  if (!apiKey) {
+    logger.warn('TMDB_API_KEY not configured, skipping season details fetch')
+    return null
+  }
+
+  const url = `https://api.themoviedb.org/3/tv/${seriesId}/season/${seasonNumber}`
+  const headers = {
+    Authorization: `Bearer ${apiKey}`,
+    'Content-Type': 'application/json',
+  }
+
+  try {
+    const response = await fetch(url, {headers})
+    if (!response.ok) {
+      logger.error('TMDB API error for season', {
+        status: response.status,
+        seriesId,
+        seasonNumber,
+      })
+      return null
+    }
+
+    const data = (await response.json()) as TMDBSeasonDetails
+    return data
+  } catch (error: unknown) {
+    const errorDetails = {
+      name: error instanceof Error ? error.name : 'UnknownError',
+      message: error instanceof Error ? error.message : String(error),
+    }
+    logger.error('Failed to fetch season details', {seriesId, seasonNumber, error: errorDetails})
+    return null
+  }
+}
+
+/**
+ * Fetch episode details from TMDB with crew and guest star information.
+ * Includes directors, writers, and guest stars for comprehensive metadata.
+ */
+const fetchEpisodeDetails = async (
+  seriesId: number,
+  seasonNumber: number,
+  episodeNumber: number,
+  logger: ReturnType<typeof createLogger>,
+): Promise<TMDBEpisodeDetails | null> => {
+  const apiKey = process.env.TMDB_API_KEY
+  if (!apiKey) {
+    logger.warn('TMDB_API_KEY not configured, skipping episode details fetch')
+    return null
+  }
+
+  const url = `https://api.themoviedb.org/3/tv/${seriesId}/season/${seasonNumber}/episode/${episodeNumber}`
+  const headers = {
+    Authorization: `Bearer ${apiKey}`,
+    'Content-Type': 'application/json',
+  }
+
+  try {
+    const response = await fetch(url, {headers})
+    if (!response.ok) {
+      logger.error('TMDB API error for episode', {
+        status: response.status,
+        seriesId,
+        seasonNumber,
+        episodeNumber,
+      })
+      return null
+    }
+
+    const data = (await response.json()) as TMDBEpisodeDetails
+    return data
+  } catch (error: unknown) {
+    const errorDetails = {
+      name: error instanceof Error ? error.name : 'UnknownError',
+      message: error instanceof Error ? error.message : String(error),
+    }
+    logger.error('Failed to fetch episode details', {
+      seriesId,
+      seasonNumber,
+      episodeNumber,
+      error: errorDetails,
+    })
+    return null
+  }
+}
+
+/**
+ * Generate VBS episode ID following naming convention: series_s{season}_e{episode}
+ * Example: "Star Trek: The Next Generation" S3E15 → "tng_s3_e15"
+ */
+const generateEpisodeId = (seriesName: string, season: number, episode: number): string => {
+  const seriesCode = seriesName
+    .toLowerCase()
+    .replace(/^star trek:?\s*/i, '')
+    .replaceAll(/\s+/g, '')
+    .slice(0, 3)
+
+  return `${seriesCode}_s${season}_e${episode}`
+}
+
+/**
+ * Transform TMDB episode data to VBS format with crew information.
+ * Extracts directors, writers, and top 5 guest stars from TMDB crew data.
+ */
+const enrichEpisodeData = (
+  seriesName: string,
+  seasonNumber: number,
+  episodeNumber: number,
+  tmdbEpisode: TMDBEpisodeDetails,
+): EnrichedEpisodeData => {
+  const directors = tmdbEpisode.crew.filter(crew => crew.job === 'Director').map(crew => crew.name)
+  const writers = tmdbEpisode.crew
+    .filter(crew => crew.job === 'Writer' || crew.job === 'Teleplay')
+    .map(crew => crew.name)
+
+  return {
+    episodeId: generateEpisodeId(seriesName, seasonNumber, episodeNumber),
+    tmdbId: tmdbEpisode.id,
+    title: tmdbEpisode.name,
+    season: seasonNumber,
+    episode: episodeNumber,
+    airDate: tmdbEpisode.air_date,
+    overview: tmdbEpisode.overview,
+    runtime: tmdbEpisode.runtime,
+    director: directors.length > 0 ? directors.join(', ') : undefined,
+    writer: writers.length > 0 ? writers.join(', ') : undefined,
+    guestStars:
+      tmdbEpisode.guest_stars.length > 0
+        ? tmdbEpisode.guest_stars.slice(0, 5).map(star => `${star.name} as ${star.character}`)
+        : undefined,
+    voteAverage: tmdbEpisode.vote_average > 0 ? tmdbEpisode.vote_average : undefined,
+    voteCount: tmdbEpisode.vote_count > 0 ? tmdbEpisode.vote_count : undefined,
+  }
+}
+
+/**
+ * Enumerate all seasons and episodes for a discovered series with rate limiting.
+ * Rate limits: 250ms between episodes (~4 req/s), 500ms between seasons to respect TMDB quota (40 req/10s).
+ */
+const enumerateSeriesEpisodes = async (
+  series: DiscoveredSeries,
+  logger: ReturnType<typeof createLogger>,
+): Promise<EnrichedSeriesData> => {
+  logger.info(`Enumerating episodes for: ${series.name}`)
+
+  const enrichedSeasons: EnrichedSeasonData[] = []
+
+  for (let seasonNum = 1; seasonNum <= series.numberOfSeasons; seasonNum++) {
+    logger.debug(`Fetching season ${seasonNum} of ${series.numberOfSeasons}`)
+
+    const seasonDetails = await fetchSeasonDetails(series.id, seasonNum, logger)
+    if (!seasonDetails) {
+      logger.warn(`Failed to fetch season ${seasonNum} for ${series.name}`)
+      continue
+    }
+
+    const enrichedEpisodes: EnrichedEpisodeData[] = []
+
+    for (const episode of seasonDetails.episodes) {
+      logger.debug(`Fetching episode S${seasonNum}E${episode.episode_number}: ${episode.name}`)
+
+      const episodeDetails = await fetchEpisodeDetails(
+        series.id,
+        seasonNum,
+        episode.episode_number,
+        logger,
+      )
+
+      if (episodeDetails) {
+        const enrichedEpisode = enrichEpisodeData(
+          series.name,
+          seasonNum,
+          episode.episode_number,
+          episodeDetails,
+        )
+        enrichedEpisodes.push(enrichedEpisode)
+      } else {
+        logger.warn(`Failed to fetch episode details for S${seasonNum}E${episode.episode_number}`)
+      }
+
+      await new Promise<void>((resolve: () => void) => setTimeout(resolve, 250))
+    }
+
+    enrichedSeasons.push({
+      seasonNumber: seasonNum,
+      name: seasonDetails.name,
+      overview: seasonDetails.overview,
+      airDate: seasonDetails.air_date,
+      episodeCount: seasonDetails.episode_count,
+      episodes: enrichedEpisodes,
+    })
+
+    await new Promise<void>((resolve: () => void) => setTimeout(resolve, 500))
+  }
+
+  logger.info(
+    `Enumeration complete for ${series.name}: ${enrichedSeasons.length} seasons, ` +
+      `${enrichedSeasons.reduce((sum, s) => sum + s.episodes.length, 0)} episodes`,
+  )
+
+  return {
+    seriesId: series.id,
+    name: series.name,
+    overview: series.overview,
+    firstAirDate: series.firstAirDate,
+    status: series.status,
+    seasons: enrichedSeasons,
+  }
+}
+
+/**
+ * Discover Star Trek series from TMDB by searching predefined series list.
+ * Supports filtering to specific series when provided.
  */
 const discoverStarTrekSeries = async (
   logger: ReturnType<typeof createLogger>,
@@ -414,8 +753,22 @@ const main = async (): Promise<void> => {
       series: discoveredSeries.map((s: DiscoveredSeries) => s.name),
     })
 
-    // TASK-014: Season/episode enumeration (implementation follows)
-    logger.debug('Season/episode enumeration will be implemented next')
+    logger.info('Starting season/episode enumeration')
+    const enrichedSeriesData: EnrichedSeriesData[] = []
+
+    for (const series of discoveredSeries) {
+      const enrichedData = await enumerateSeriesEpisodes(series, logger)
+      enrichedSeriesData.push(enrichedData)
+    }
+
+    logger.info('Episode enumeration complete', {
+      seriesCount: enrichedSeriesData.length,
+      totalEpisodes: enrichedSeriesData.reduce(
+        (sum, s) =>
+          sum + s.seasons.reduce((seasonSum, season) => seasonSum + season.episodes.length, 0),
+        0,
+      ),
+    })
 
     // TASK-015: Movie discovery (implementation follows)
     logger.debug('Movie discovery will be implemented next')
@@ -437,9 +790,13 @@ const main = async (): Promise<void> => {
 
     if (options.dryRun) {
       logger.info('Dry-run mode: No files will be modified')
-      logger.info('Preview of discovered data:', {
-        seriesCount: discoveredSeries.length,
-        seriesNames: discoveredSeries.map((s: DiscoveredSeries) => s.name),
+      logger.info('Preview of enriched data:', {
+        seriesCount: enrichedSeriesData.length,
+        seriesNames: enrichedSeriesData.map((s: EnrichedSeriesData) => s.name),
+        sampleEpisodes: enrichedSeriesData.slice(0, 2).map((s: EnrichedSeriesData) => ({
+          series: s.name,
+          firstEpisode: s.seasons[0]?.episodes[0],
+        })),
       })
     } else {
       // TASK-022: File writing (implementation follows)
