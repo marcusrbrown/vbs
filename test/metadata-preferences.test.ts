@@ -67,6 +67,7 @@ describe('createMetadataPreferences', () => {
       update: vi.fn(),
       on: vi.fn(),
       off: vi.fn(),
+      getExpertMode: vi.fn().mockReturnValue(true), // Default to expert mode enabled for tests
       getPreferences: vi.fn().mockReturnValue({
         metadataSync: {
           dataLimits: {
@@ -447,6 +448,84 @@ describe('createMetadataPreferences', () => {
       })
 
       confirmSpy.mockRestore()
+    })
+  })
+
+  describe('Progressive Disclosure with Expert Mode', () => {
+    it('should hide bulk validation section when expert mode is disabled', () => {
+      mockPreferences.getExpertMode = vi.fn().mockReturnValue(false)
+
+      const preferences = createMetadataPreferences({
+        container,
+        debugPanel: mockDebugPanel,
+        preferences: mockPreferences,
+      })
+
+      preferences.render()
+
+      const validationSection = container.querySelector('[data-bulk-validation-section]')
+      expect(validationSection).toBeDefined()
+
+      const noticeText = validationSection?.textContent ?? ''
+      expect(noticeText).toContain('Enable Expert Mode')
+      expect(noticeText).toContain('advanced data validation')
+    })
+
+    it('should hide refresh all button when expert mode is disabled', () => {
+      mockPreferences.getExpertMode = vi.fn().mockReturnValue(false)
+
+      const preferences = createMetadataPreferences({
+        container,
+        debugPanel: mockDebugPanel,
+        preferences: mockPreferences,
+      })
+
+      preferences.render()
+
+      const refreshAllButton = container.querySelector('[data-refresh-all-button]')
+      expect(refreshAllButton).toBeNull()
+
+      const noticeText = container.querySelector('.expert-mode-notice')?.textContent ?? ''
+      expect(noticeText).toContain('Refresh All Episodes')
+    })
+
+    it('should hide usage controls section when expert mode is disabled', () => {
+      mockPreferences.getExpertMode = vi.fn().mockReturnValue(false)
+
+      const preferences = createMetadataPreferences({
+        container,
+        debugPanel: mockDebugPanel,
+        preferences: mockPreferences,
+      })
+
+      preferences.render()
+
+      const usageControlsContainer = container.querySelector('[data-usage-controls-container]')
+      expect(usageControlsContainer).toBeNull()
+
+      const expertNotice = container.querySelector('.expert-mode-notice')
+      expect(expertNotice).toBeDefined()
+    })
+
+    it('should show all features when expert mode is enabled', () => {
+      mockPreferences.getExpertMode = vi.fn().mockReturnValue(true)
+
+      const preferences = createMetadataPreferences({
+        container,
+        debugPanel: mockDebugPanel,
+        preferences: mockPreferences,
+      })
+
+      preferences.render()
+
+      const refreshAllButton = container.querySelector('[data-refresh-all-button]')
+      expect(refreshAllButton).toBeDefined()
+
+      const validationSeriesSelect = container.querySelector('[data-validation-series-select]')
+      expect(validationSeriesSelect).toBeDefined()
+
+      const usageControlsContainer = container.querySelector('[data-usage-controls-container]')
+      expect(usageControlsContainer).toBeDefined()
     })
   })
 })

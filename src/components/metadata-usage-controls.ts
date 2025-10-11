@@ -92,9 +92,19 @@ export const createMetadataUsageControls = (
   // Generic EventEmitter for type-safe events
   const eventEmitter = createEventEmitter<MetadataUsageControlsEvents>()
 
-  /**
-   * Load current usage statistics with error handling
-   */
+  const isExpertMode = (): boolean => {
+    return preferences.getExpertMode()
+  }
+
+  const createExpertModeNotice = (message: string): string => {
+    return `
+      <div class="expert-mode-notice" role="status">
+        <span class="notice-icon">🔒</span>
+        <span class="notice-text">${message}</span>
+      </div>
+    `
+  }
+
   const loadStats = async (): Promise<MetadataUsageStatistics> => {
     try {
       const stats = getUsageStats()
@@ -203,9 +213,15 @@ export const createMetadataUsageControls = (
   }
 
   /**
-   * Create detailed API call statistics section
+   * Create detailed API call statistics section (expert-only)
    */
   const createApiCallStats = (stats: MetadataUsageStatistics): string => {
+    const expertMode = isExpertMode()
+
+    if (!expertMode) {
+      return ''
+    }
+
     const sourceEntries = Object.entries(stats.apiCalls?.bySource ?? {})
       .map(([source, calls]) => {
         const percent = calculatePercentage(calls, stats.apiCalls?.today ?? 0)
@@ -251,9 +267,15 @@ export const createMetadataUsageControls = (
   }
 
   /**
-   * Create bandwidth usage statistics section
+   * Create bandwidth usage statistics section (expert-only)
    */
   const createBandwidthStats = (stats: MetadataUsageStatistics): string => {
+    const expertMode = isExpertMode()
+
+    if (!expertMode) {
+      return ''
+    }
+
     return `
       <div class="usage-section">
         <h4>Bandwidth Usage</h4>
@@ -280,9 +302,20 @@ export const createMetadataUsageControls = (
   }
 
   /**
-   * Create quota management controls section
+   * Create quota management controls section (expert-only)
    */
   const createQuotaControls = (): string => {
+    const expertMode = isExpertMode()
+
+    if (!expertMode) {
+      return `
+        <div class="quota-controls expert-mode-section">
+          <h3>Quota Management</h3>
+          ${createExpertModeNotice('Enable Expert Mode in preferences to access quota configuration and management')}
+        </div>
+      `
+    }
+
     let limits
     try {
       const prefs = preferences.getPreferences()
@@ -381,9 +414,20 @@ export const createMetadataUsageControls = (
   }
 
   /**
-   * Create cache management section
+   * Create cache management section (expert-only)
    */
   const createCacheManagement = (stats: MetadataUsageStatistics): string => {
+    const expertMode = isExpertMode()
+
+    if (!expertMode) {
+      return `
+        <div class="cache-management expert-mode-section">
+          <h3>Cache Management</h3>
+          ${createExpertModeNotice('Enable Expert Mode in preferences to access cache management and clearing operations')}
+        </div>
+      `
+    }
+
     const storagePercent = stats.storage?.percentUsed ?? 0
 
     return `
@@ -435,9 +479,20 @@ export const createMetadataUsageControls = (
   }
 
   /**
-   * Create export section for usage data
+   * Create export section for usage data (expert-only)
    */
   const createExportSection = (): string => {
+    const expertMode = isExpertMode()
+
+    if (!expertMode) {
+      return `
+        <div class="export-section expert-mode-section">
+          <h3>Export Usage Data</h3>
+          ${createExpertModeNotice('Enable Expert Mode in preferences to export usage statistics')}
+        </div>
+      `
+    }
+
     return `
       <div class="export-section">
         <h3>Export Usage Data</h3>
