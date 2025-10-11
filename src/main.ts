@@ -1,5 +1,6 @@
 import type {
   EpisodeManagerInstance,
+  MetadataSyncStatusIndicatorInstance,
   ProgressTrackerEvents,
   ProgressTrackerInstance,
   SearchFilterEvents,
@@ -8,6 +9,7 @@ import type {
   TimelineRendererInstance,
 } from './modules/types.js'
 import {createMetadataDebugPanel} from './components/metadata-debug-panel.js'
+import {createMetadataSyncStatusIndicator} from './components/metadata-sync-status.js'
 import {createEpisodeManager} from './modules/episodes.js'
 import {
   initializeGlobalErrorHandling,
@@ -510,6 +512,7 @@ export const createStarTrekViewingGuide = () => {
   const streamingApi = createStreamingApi()
   let timelineRenderer: TimelineRendererInstance | null = null
   let settingsManager: SettingsManagerInstance | null = null
+  let syncStatusIndicator: MetadataSyncStatusIndicatorInstance | null = null
 
   // Create managers
   const elementsManager = createElementsManager()
@@ -610,6 +613,23 @@ export const createStarTrekViewingGuide = () => {
       // Initialize global error handling
       initializeGlobalErrorHandling()
 
+      // Initialize metadata sync status indicator (TASK-039)
+      const syncStatusContainer = document.createElement('div')
+      syncStatusContainer.id = 'metadata-sync-status-container'
+      document.body.append(syncStatusContainer)
+
+      syncStatusIndicator = createMetadataSyncStatusIndicator({
+        container: syncStatusContainer,
+        position: 'top-right',
+        defaultAutoHideDelay: 5000,
+      })
+
+      // Example: Show sync ready notification (will be driven by metadata queue events)
+      syncStatusIndicator.showNotification('info', 'VBS metadata enrichment system ready', {
+        autoHide: true,
+        autoHideDelay: 3000,
+      })
+
       // Register Service Worker for PWA capabilities
       await registerServiceWorker()
     } catch (error) {
@@ -639,6 +659,7 @@ export const createStarTrekViewingGuide = () => {
    */
   const destroy = (): void => {
     settingsManager?.destroy()
+    syncStatusIndicator?.destroy()
   }
 
   return {

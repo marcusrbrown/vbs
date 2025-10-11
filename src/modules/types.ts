@@ -2673,6 +2673,163 @@ export interface MetadataPreferencesInstance {
   ) => void
 }
 
+// ============================================================================
+// TASK-039: Metadata Sync Status Indicator Types
+// ============================================================================
+
+/**
+ * Notification type for sync status indicator messages.
+ * Determines visual styling and urgency of notifications.
+ */
+export type SyncStatusNotificationType = 'info' | 'success' | 'warning' | 'error'
+
+/**
+ * Display mode for sync status indicator.
+ * Controls the level of detail shown to the user.
+ */
+export type SyncStatusDisplayMode = 'compact' | 'expanded'
+
+/**
+ * Sync notification message for user feedback.
+ * Represents a single notification about a metadata sync operation.
+ */
+export interface SyncNotification {
+  /** Unique notification ID */
+  id: string
+  /** Notification type affecting styling */
+  type: SyncStatusNotificationType
+  /** Short notification message */
+  message: string
+  /** Detailed description (shown in expanded mode) */
+  details?: string
+  /** ISO timestamp when notification was created */
+  timestamp: string
+  /** Whether notification should auto-hide after delay */
+  autoHide: boolean
+  /** Delay in milliseconds before auto-hide (if enabled) */
+  autoHideDelay?: number
+  /** Associated operation ID for tracking */
+  operationId?: string
+  /** Progress information (0-100) */
+  progress?: number
+  /** Whether user can dismiss this notification */
+  dismissible: boolean
+}
+
+/**
+ * Configuration for metadata sync status indicator component.
+ * Provides options for positioning, behavior, and Service Worker integration.
+ */
+export interface MetadataSyncStatusIndicatorConfig {
+  /** Container element for the status indicator */
+  container: HTMLElement
+  /** Initial display mode */
+  initialMode?: SyncStatusDisplayMode
+  /** Default position on screen */
+  position?: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left'
+  /** Maximum number of notifications to display simultaneously */
+  maxNotifications?: number
+  /** Default auto-hide delay for success notifications (ms) */
+  defaultAutoHideDelay?: number
+  /** Enable Service Worker integration for background sync tracking */
+  enableServiceWorkerIntegration?: boolean
+  /** Service Worker registration for postMessage communication */
+  serviceWorkerRegistration?: ServiceWorkerRegistration | null
+  /** Enable sound notifications */
+  enableSoundNotifications?: boolean
+  /** Enable desktop notifications (requires permission) */
+  enableDesktopNotifications?: boolean
+}
+
+/**
+ * Event map for metadata sync status indicator component.
+ * Defines type-safe events emitted by the status indicator.
+ */
+export interface MetadataSyncStatusIndicatorEvents extends EventMap {
+  /** Fired when a new notification is added */
+  'notification-added': {notification: SyncNotification}
+  /** Fired when a notification is dismissed */
+  'notification-dismissed': {notificationId: string}
+  /** Fired when display mode changes */
+  'mode-changed': {mode: SyncStatusDisplayMode}
+  /** Fired when sync operation starts (from Service Worker) */
+  'sync-started': {
+    operationId: string
+    operationType: 'enrich' | 'refresh' | 'validate' | 'cache-warm'
+    totalJobs: number
+  }
+  /** Fired when sync operation progress updates */
+  'sync-progress': {
+    operationId: string
+    completedJobs: number
+    totalJobs: number
+    percentComplete: number
+  }
+  /** Fired when sync operation completes successfully */
+  'sync-completed': {operationId: string; completedJobs: number; duration: number}
+  /** Fired when sync operation fails */
+  'sync-failed': {operationId: string; error: string}
+  /** Fired when user expands/collapses the indicator */
+  'expand-toggled': {isExpanded: boolean}
+}
+
+/**
+ * Public API interface for metadata sync status indicator instances.
+ * Factory function returns this interface for type-safe component interaction.
+ */
+export interface MetadataSyncStatusIndicatorInstance {
+  /** Show a notification with specified type and message */
+  showNotification: (
+    type: SyncStatusNotificationType,
+    message: string,
+    options?: {
+      details?: string
+      autoHide?: boolean
+      autoHideDelay?: number
+      progress?: number
+      operationId?: string
+    },
+  ) => string
+  /** Dismiss a specific notification by ID */
+  dismissNotification: (notificationId: string) => boolean
+  /** Clear all notifications */
+  clearAllNotifications: () => void
+  /** Update progress for an existing notification */
+  updateProgress: (notificationId: string, progress: number) => void
+  /** Update notification message/details */
+  updateNotification: (
+    notificationId: string,
+    updates: {message?: string; details?: string; type?: SyncStatusNotificationType},
+  ) => void
+  /** Set display mode (compact/expanded) */
+  setDisplayMode: (mode: SyncStatusDisplayMode) => void
+  /** Get current display mode */
+  getDisplayMode: () => SyncStatusDisplayMode
+  /** Get all active notifications */
+  getNotifications: () => SyncNotification[]
+  /** Render the status indicator (called internally) */
+  render: () => void
+  /** Destroy the component and cleanup resources */
+  destroy: () => void
+
+  // Generic EventEmitter methods for type-safe event handling
+  on: <TEventName extends keyof MetadataSyncStatusIndicatorEvents>(
+    eventName: TEventName,
+    listener: (payload: MetadataSyncStatusIndicatorEvents[TEventName]) => void,
+  ) => void
+  off: <TEventName extends keyof MetadataSyncStatusIndicatorEvents>(
+    eventName: TEventName,
+    listener: (payload: MetadataSyncStatusIndicatorEvents[TEventName]) => void,
+  ) => void
+  once: <TEventName extends keyof MetadataSyncStatusIndicatorEvents>(
+    eventName: TEventName,
+    listener: (payload: MetadataSyncStatusIndicatorEvents[TEventName]) => void,
+  ) => void
+  removeAllListeners: <TEventName extends keyof MetadataSyncStatusIndicatorEvents>(
+    eventName?: TEventName,
+  ) => void
+}
+
 /**
  * Metadata usage statistics tracking and display.
  * Tracks API calls, bandwidth usage, and cache storage for data usage monitoring.

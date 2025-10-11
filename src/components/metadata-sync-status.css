@@ -1,0 +1,409 @@
+/**
+ * Metadata Sync Status Indicator Styles
+ *
+ * Provides non-intrusive, toast-style notification styling for metadata sync operations.
+ * Uses VBS theme integration with CSS custom properties for consistent theming.
+ *
+ * Features:
+ * - Positioned fixed indicators (top-right, bottom-right, etc.)
+ * - Color-coded notification types (info, success, warning, error)
+ * - Animated slide-in and slide-out transitions
+ * - Progress bar visualization
+ * - Compact and expanded display modes
+ * - Responsive design with mobile support
+ * - Dark mode support via CSS custom properties
+ * - Accessibility features (high contrast, reduced motion)
+ */
+
+/* ============================================================================
+   Container and Positioning
+   ============================================================================ */
+
+.vbs-sync-status {
+  position: fixed;
+  z-index: 10000;
+  max-width: 400px;
+  pointer-events: none;
+  transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+}
+
+.vbs-sync-status__notifications {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vbs-spacing-small, 12px);
+  pointer-events: auto;
+}
+
+/* Position variants */
+.vbs-sync-status--top-right {
+  top: var(--vbs-spacing-large, 24px);
+  right: var(--vbs-spacing-large, 24px);
+}
+
+.vbs-sync-status--top-left {
+  top: var(--vbs-spacing-large, 24px);
+  left: var(--vbs-spacing-large, 24px);
+}
+
+.vbs-sync-status--bottom-right {
+  bottom: var(--vbs-spacing-large, 24px);
+  right: var(--vbs-spacing-large, 24px);
+}
+
+.vbs-sync-status--bottom-left {
+  bottom: var(--vbs-spacing-large, 24px);
+  left: var(--vbs-spacing-large, 24px);
+}
+
+/* Visibility state */
+.vbs-sync-status:not(.vbs-sync-status--visible) {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ============================================================================
+   Notification Cards
+   ============================================================================ */
+
+.vbs-sync-notification {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--vbs-spacing-small, 12px);
+  padding: var(--vbs-spacing-medium, 16px);
+  background-color: var(--vbs-bg-secondary, #1e1e1e);
+  border: 1px solid var(--vbs-border-color, #333);
+  border-radius: var(--vbs-border-radius, 8px);
+  box-shadow:
+    0 4px 6px rgba(0, 0, 0, 0.1),
+    0 2px 4px rgba(0, 0, 0, 0.06);
+  min-width: 320px;
+  max-width: 400px;
+  animation: slideIn 0.3s ease-out;
+  transition: all 0.2s ease-in-out;
+}
+
+.vbs-sync-notification:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 6px 12px rgba(0, 0, 0, 0.15),
+    0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Notification content */
+.vbs-sync-notification__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.vbs-sync-notification__message {
+  font-size: var(--vbs-font-size-medium, 14px);
+  font-weight: 500;
+  color: var(--vbs-text-primary, #e0e0e0);
+  margin: 0 0 var(--vbs-spacing-tiny, 4px) 0;
+  word-wrap: break-word;
+}
+
+.vbs-sync-notification__details {
+  font-size: var(--vbs-font-size-small, 12px);
+  color: var(--vbs-text-secondary, #a0a0a0);
+  margin: var(--vbs-spacing-tiny, 4px) 0;
+  line-height: 1.4;
+}
+
+.vbs-sync-notification__timestamp {
+  font-size: var(--vbs-font-size-tiny, 10px);
+  color: var(--vbs-text-tertiary, #707070);
+  margin-top: var(--vbs-spacing-tiny, 4px);
+}
+
+/* Notification icon */
+.vbs-sync-notification__icon {
+  flex-shrink: 0;
+  font-size: 20px;
+  line-height: 1;
+  user-select: none;
+}
+
+/* Dismiss button */
+.vbs-sync-notification__dismiss {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  margin-left: auto;
+  background: transparent;
+  border: none;
+  color: var(--vbs-text-secondary, #a0a0a0);
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.vbs-sync-notification__dismiss:hover {
+  background-color: var(--vbs-bg-hover, rgba(255, 255, 255, 0.1));
+  color: var(--vbs-text-primary, #e0e0e0);
+}
+
+.vbs-sync-notification__dismiss:focus-visible {
+  outline: 2px solid var(--vbs-color-primary, #0099ff);
+  outline-offset: 2px;
+}
+
+/* ============================================================================
+   Notification Type Variants
+   ============================================================================ */
+
+/* Info notification */
+.vbs-sync-notification--info {
+  border-left: 4px solid var(--vbs-color-info, #0099ff);
+}
+
+.vbs-sync-notification--info .vbs-sync-notification__icon {
+  color: var(--vbs-color-info, #0099ff);
+}
+
+/* Success notification */
+.vbs-sync-notification--success {
+  border-left: 4px solid var(--vbs-color-success, #00cc66);
+}
+
+.vbs-sync-notification--success .vbs-sync-notification__icon {
+  color: var(--vbs-color-success, #00cc66);
+}
+
+/* Warning notification */
+.vbs-sync-notification--warning {
+  border-left: 4px solid var(--vbs-color-warning, #ffaa00);
+}
+
+.vbs-sync-notification--warning .vbs-sync-notification__icon {
+  color: var(--vbs-color-warning, #ffaa00);
+}
+
+/* Error notification */
+.vbs-sync-notification--error {
+  border-left: 4px solid var(--vbs-color-error, #ff3333);
+}
+
+.vbs-sync-notification--error .vbs-sync-notification__icon {
+  color: var(--vbs-color-error, #ff3333);
+}
+
+/* ============================================================================
+   Progress Bar
+   ============================================================================ */
+
+.vbs-sync-notification__progress {
+  width: 100%;
+  height: 6px;
+  background-color: var(--vbs-bg-tertiary, #2a2a2a);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: var(--vbs-spacing-small, 8px);
+}
+
+.vbs-sync-notification__progress-bar {
+  height: 100%;
+  background-color: var(--vbs-color-primary, #0099ff);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+  background-image: linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.15) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(255, 255, 255, 0.15) 50%,
+    rgba(255, 255, 255, 0.15) 75%,
+    transparent 75%,
+    transparent
+  );
+  background-size: 20px 20px;
+  animation: progressAnimation 1s linear infinite;
+}
+
+/* Progress animation */
+@keyframes progressAnimation {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 20px 0;
+  }
+}
+
+/* ============================================================================
+   Display Mode Variants
+   ============================================================================ */
+
+/* Compact mode */
+.vbs-sync-notification--compact .vbs-sync-notification__details {
+  display: none;
+}
+
+/* Expanded mode */
+.vbs-sync-notification--expanded .vbs-sync-notification__details {
+  display: block;
+}
+
+/* ============================================================================
+   Animations
+   ============================================================================ */
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+/* ============================================================================
+   Responsive Design
+   ============================================================================ */
+
+@media (max-width: 767px) {
+  .vbs-sync-status {
+    max-width: calc(100vw - 32px);
+    left: 16px !important;
+    right: 16px !important;
+  }
+
+  .vbs-sync-notification {
+    min-width: 100%;
+    padding: var(--vbs-spacing-small, 12px);
+  }
+
+  .vbs-sync-notification__message {
+    font-size: var(--vbs-font-size-small, 13px);
+  }
+
+  .vbs-sync-notification__details {
+    font-size: var(--vbs-font-size-tiny, 11px);
+  }
+}
+
+/* Tablet adjustments */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .vbs-sync-status {
+    max-width: 360px;
+  }
+
+  .vbs-sync-notification {
+    min-width: 300px;
+  }
+}
+
+/* ============================================================================
+   Dark Mode Support
+   ============================================================================ */
+
+@media (prefers-color-scheme: dark) {
+  .vbs-sync-notification {
+    background-color: var(--vbs-bg-secondary, #1e1e1e);
+    border-color: var(--vbs-border-color, #333);
+  }
+
+  .vbs-sync-notification__message {
+    color: var(--vbs-text-primary, #e0e0e0);
+  }
+
+  .vbs-sync-notification__details {
+    color: var(--vbs-text-secondary, #a0a0a0);
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  .vbs-sync-notification {
+    background-color: var(--vbs-bg-secondary, #ffffff);
+    border-color: var(--vbs-border-color, #e0e0e0);
+  }
+
+  .vbs-sync-notification__message {
+    color: var(--vbs-text-primary, #1a1a1a);
+  }
+
+  .vbs-sync-notification__details {
+    color: var(--vbs-text-secondary, #666666);
+  }
+
+  .vbs-sync-notification__progress {
+    background-color: var(--vbs-bg-tertiary, #f0f0f0);
+  }
+
+  .vbs-sync-notification__dismiss:hover {
+    background-color: var(--vbs-bg-hover, rgba(0, 0, 0, 0.05));
+  }
+}
+
+/* ============================================================================
+   Accessibility Features
+   ============================================================================ */
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .vbs-sync-notification {
+    border-width: 2px;
+    border-left-width: 6px;
+  }
+
+  .vbs-sync-notification__dismiss:focus-visible {
+    outline-width: 3px;
+  }
+
+  .vbs-sync-notification__progress-bar {
+    background-image: none;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .vbs-sync-notification {
+    animation: none;
+    transition: none;
+  }
+
+  .vbs-sync-notification:hover {
+    transform: none;
+  }
+
+  .vbs-sync-notification__progress-bar {
+    animation: none;
+    transition: none;
+  }
+
+  @keyframes progressAnimation {
+    0%,
+    100% {
+      background-position: 0 0;
+    }
+  }
+}
+
+/* Focus management */
+.vbs-sync-notification:focus-within {
+  outline: 2px solid var(--vbs-color-primary, #0099ff);
+  outline-offset: 2px;
+}
+
+/* Print optimization */
+@media print {
+  .vbs-sync-status {
+    display: none;
+  }
+}
