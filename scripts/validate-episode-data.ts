@@ -49,6 +49,7 @@ import process from 'node:process'
 import {starTrekData} from '../src/data/star-trek-data.js'
 import {createQualityScorer} from '../src/modules/metadata-quality.js'
 import {pipe} from '../src/utils/composition.js'
+import {loadEnv} from './lib/cli-utils.js'
 import {
   validateEpisodeWithReporting,
   type ValidationError,
@@ -60,6 +61,9 @@ import {
   METADATA_SOURCE_TEMPLATES,
 } from './lib/metadata-utils.js'
 import {initializeMetadataSources} from './lib/source-config.js'
+
+// Load environment variables from .env file (optional)
+loadEnv()
 
 // CLI Configuration Types
 

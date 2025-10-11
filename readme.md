@@ -101,6 +101,33 @@ VBS (View By Stardate) is a modern, local-first web application that helps Star 
 
 ## Development
 
+### Environment Configuration
+
+VBS supports optional API keys for enhanced metadata enrichment through environment variables:
+
+1. **Copy the example environment file**:
+
+   ```bash
+   cp .env.example .env
+   ```
+
+2. **Add your API keys** (optional):
+
+   Edit `.env` and add your API credentials:
+
+   ```bash
+   TMDB_API_KEY=your_tmdb_api_key_here
+   ```
+
+3. **Scripts automatically load variables**: CLI scripts (like `validate-episode-data.ts`) automatically load `.env` files
+
+**📚 See [docs/environment-variables.md](docs/environment-variables.md) for complete documentation on:**
+
+- All supported environment variables
+- Getting API keys (TMDB, etc.)
+- Testing with environment variables
+- Security best practices
+
 ### Development Workflow
 
 ```bash

@@ -2110,15 +2110,15 @@ export interface ProgressPipelineConfig {
 /**
  * Configuration for event handling pipeline operations.
  */
-export interface EventPipelineConfig<TEvent> {
+export interface EventPipelineConfig<TEvent, TState = unknown> {
   /** Function to validate incoming events */
   validateEvent?: (event: TEvent) => boolean
   /** Function to extract relevant data from events */
-  eventExtractor?: (event: TEvent) => any
+  eventExtractor?: (event: TEvent) => TState
   /** Function called after state updates are complete */
-  onStateUpdate?: (newState: any) => void
+  onStateUpdate?: (newState: TState) => void
   /** Function to handle DOM updates */
-  onDOMUpdate?: (element: HTMLElement, newState: any) => void
+  onDOMUpdate?: (element: HTMLElement, newState: TState) => void
 }
 
 // ============================================================================

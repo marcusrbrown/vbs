@@ -3,7 +3,9 @@
  * Provides reusable patterns for building command-line tools.
  */
 
+import {resolve} from 'node:path'
 import process from 'node:process'
+import {config as dotenvConfig} from 'dotenv'
 
 /**
  * Generic CLI options interface that can be extended by specific scripts.
@@ -23,6 +25,52 @@ export const EXIT_CODES = {
   INVALID_ARGUMENTS: 3,
   FATAL_ERROR: 4,
 } as const
+
+/**
+ * Loads environment variables from .env file.
+ * Searches for .env file in project root and loads it using dotenv.
+ * Silently continues if .env file is not found (optional configuration).
+ *
+ * @param options - Configuration options for dotenv
+ * @param options.verbose - Log environment loading status (default: false)
+ * @param options.required - Exit with error if .env file is missing (default: false)
+ */
+export const loadEnv = (options: {verbose?: boolean; required?: boolean} = {}): void => {
+  const {verbose = false, required = false} = options
+
+  const envPath = resolve(process.cwd(), '.env')
+
+  if (verbose === true) {
+    console.error(`Loading environment from: ${envPath}`)
+  }
+
+  const result = dotenvConfig({path: envPath})
+
+  if (result.error != null) {
+    const errorMessage = result.error.message
+    const isFileNotFound =
+      errorMessage.includes('ENOENT') || result.error.code === 'NOT_FOUND_DOTENV_ENVIRONMENT'
+
+    if (isFileNotFound) {
+      if (required === true) {
+        console.error('Error: .env file not found and is required')
+        console.error('Create .env file from .env.example:')
+        console.error('  cp .env.example .env')
+        process.exit(EXIT_CODES.INVALID_ARGUMENTS)
+      }
+      if (verbose === true) {
+        console.error('Note: .env file not found, using system environment variables only')
+      }
+    } else {
+      console.error(`Error loading .env file: ${errorMessage}`)
+      if (required === true) {
+        process.exit(EXIT_CODES.INVALID_ARGUMENTS)
+      }
+    }
+  } else if (verbose === true) {
+    console.error('✓ Environment variables loaded successfully')
+  }
+}
 
 /**
  * Parses a boolean flag from command-line arguments.
@@ -127,7 +175,10 @@ export const formatReportSection = (title: string, content: string[]): string =>
  * @param itemName - Name of items being processed (e.g., 'episodes')
  * @returns Object with update and complete methods
  */
-export const createProgressIndicator = (total: number, itemName: string) => {
+export const createProgressIndicator = (
+  total: number,
+  itemName: string,
+): {update: (increment?: number) => void; complete: () => void} => {
   let current = 0
 
   return {
