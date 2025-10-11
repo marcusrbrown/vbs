@@ -44,26 +44,22 @@
  *   pnpm exec jiti scripts/validate-episode-data.ts --strict --min-quality 0.8
  */
 
-import type {
-  Episode,
-  EpisodeMetadata,
-  MetadataSource,
-  MetadataSourceType,
-} from '../src/modules/types.js'
+import type {Episode, EpisodeMetadata, MetadataSource} from '../src/modules/types.js'
 import process from 'node:process'
-import {getProductionMetadataConfig} from '../src/data/metadata-sources-config.js'
 import {starTrekData} from '../src/data/star-trek-data.js'
 import {createQualityScorer} from '../src/modules/metadata-quality.js'
-import {createMetadataSources} from '../src/modules/metadata-sources.js'
 import {pipe} from '../src/utils/composition.js'
 import {
-  isValidEpisodeId,
   validateEpisodeWithReporting,
   type ValidationError,
   type ValidationWarning,
-} from '../src/utils/metadata-validation.js'
-
-type MetadataSourcesInstance = ReturnType<typeof createMetadataSources>
+} from './lib/data-validation.js'
+import {
+  createMetadataSource,
+  createMockMetadata,
+  METADATA_SOURCE_TEMPLATES,
+} from './lib/metadata-utils.js'
+import {initializeMetadataSources} from './lib/source-config.js'
 
 // CLI Configuration Types
 
@@ -115,65 +111,6 @@ interface EpisodeValidationResult {
   missingFields: string[]
   recommendations: string[]
 }
-
-// Metadata Source Configurations
-// Memory Alpha is primary source with highest confidence for Star Trek canonical information
-const MEMORY_ALPHA_SOURCE: MetadataSource = {
-  name: 'Memory Alpha',
-  type: 'memory-alpha',
-  baseUrl: 'https://memory-alpha.fandom.com',
-  confidenceLevel: 0.9,
-  lastAccessed: '',
-  isAvailable: true,
-  rateLimit: {
-    requestsPerMinute: 60,
-    burstLimit: 10,
-  },
-  fields: ['synopsis', 'plotPoints', 'productionCode', 'memoryAlphaUrl'],
-  reliability: {
-    uptime: 0.95,
-    accuracy: 0.9,
-    latency: 200,
-  },
-}
-
-// Fallback source used when external APIs are unavailable
-const MOCK_FALLBACK_SOURCE: MetadataSource = {
-  name: 'Mock Data',
-  type: 'manual',
-  baseUrl: '',
-  confidenceLevel: 0.5,
-  lastAccessed: '',
-  isAvailable: true,
-  rateLimit: {
-    requestsPerMinute: 0,
-    burstLimit: 0,
-  },
-  fields: [],
-  reliability: {
-    uptime: 1,
-    accuracy: 0.5,
-    latency: 0,
-  },
-}
-
-// Quality threshold for marking metadata as validated
-const VALIDATION_CONFIDENCE_THRESHOLD = 0.7
-
-// Enrichment status thresholds
-const ENRICHMENT_COMPLETE_THRESHOLD = 0.9
-const ENRICHMENT_PARTIAL_THRESHOLD = 0.5
-
-const initializeMetadataSources = (): MetadataSourcesInstance => {
-  const tmdbApiKey = process.env.TMDB_API_KEY
-  const config = getProductionMetadataConfig(tmdbApiKey)
-  return createMetadataSources(config)
-}
-
-const createMetadataSource = (template: MetadataSource): MetadataSource => ({
-  ...template,
-  lastAccessed: new Date().toISOString(),
-})
 
 // CLI Argument Parsing
 
@@ -316,7 +253,7 @@ function filterEpisodes(episodes: Episode[], options: CLIOptions): Episode[] {
 
 async function validateEpisode(
   episode: Episode,
-  metadataSources: MetadataSourcesInstance,
+  metadataSources: ReturnType<typeof initializeMetadataSources>,
 ): Promise<EpisodeValidationResult> {
   const validation = validateEpisodeWithReporting(episode)
   const qualityScorer = createQualityScorer()
@@ -331,13 +268,19 @@ async function validateEpisode(
 
   try {
     metadata = await metadataSources.enrichEpisode(episode.id)
-    primarySource = createMetadataSource(MEMORY_ALPHA_SOURCE)
+    primarySource = createMetadataSource({
+      ...METADATA_SOURCE_TEMPLATES.memoryAlpha,
+      fields: [...METADATA_SOURCE_TEMPLATES.memoryAlpha.fields],
+    })
   } catch {
     if (process.stderr.isTTY) {
       console.error(`Warning: Failed to enrich episode ${episode.id}, using fallback data`)
     }
     metadata = createMockMetadata(episode)
-    primarySource = createMetadataSource(MOCK_FALLBACK_SOURCE)
+    primarySource = createMetadataSource({
+      ...METADATA_SOURCE_TEMPLATES.mockFallback,
+      fields: [...METADATA_SOURCE_TEMPLATES.mockFallback.fields],
+    })
   }
 
   if (metadata) {
@@ -363,65 +306,6 @@ async function validateEpisode(
     qualityGrade,
     missingFields,
     recommendations,
-  }
-}
-
-function createMockMetadata(episode: Episode): EpisodeMetadata | null {
-  if (!isValidEpisodeId(episode.id)) {
-    return null
-  }
-
-  const fieldValidation: Record<string, {isValid: boolean; source: MetadataSourceType}> = {
-    title: {isValid: Boolean(episode.title), source: 'memory-alpha'},
-    airDate: {isValid: Boolean(episode.airDate), source: 'tmdb'},
-    season: {isValid: episode.season > 0, source: 'memory-alpha'},
-    episode: {isValid: episode.episode > 0, source: 'memory-alpha'},
-    synopsis: {isValid: Boolean(episode.synopsis), source: 'memory-alpha'},
-    plotPoints: {isValid: episode.plotPoints.length > 0, source: 'memory-alpha'},
-    guestStars: {isValid: episode.guestStars.length > 0, source: 'memory-alpha'},
-  }
-
-  if (episode.productionCode) {
-    fieldValidation.productionCode = {isValid: true, source: 'memory-alpha'}
-  }
-  if (episode.director) {
-    fieldValidation.director = {isValid: episode.director.length > 0, source: 'tmdb'}
-  }
-  if (episode.writer) {
-    fieldValidation.writer = {isValid: episode.writer.length > 0, source: 'tmdb'}
-  }
-  if (episode.tmdbId) {
-    fieldValidation.tmdbId = {isValid: true, source: 'tmdb'}
-  }
-  if (episode.imdbId) {
-    fieldValidation.imdbId = {isValid: true, source: 'imdb'}
-  }
-  if (episode.memoryAlphaUrl) {
-    fieldValidation.memoryAlphaUrl = {isValid: true, source: 'memory-alpha'}
-  }
-
-  const validFieldCount = Object.values(fieldValidation).filter(v => v.isValid).length
-  const totalFields = Object.keys(fieldValidation).length
-  const confidenceScore = totalFields > 0 ? validFieldCount / totalFields : 0
-
-  let enrichmentStatus: 'pending' | 'partial' | 'complete' | 'failed' = 'pending'
-  if (confidenceScore >= ENRICHMENT_COMPLETE_THRESHOLD) {
-    enrichmentStatus = 'complete'
-  } else if (confidenceScore >= ENRICHMENT_PARTIAL_THRESHOLD) {
-    enrichmentStatus = 'partial'
-  } else if (confidenceScore === 0) {
-    enrichmentStatus = 'failed'
-  }
-
-  return {
-    episodeId: episode.id,
-    dataSource: 'memory-alpha',
-    lastUpdated: new Date().toISOString(),
-    isValidated: confidenceScore >= VALIDATION_CONFIDENCE_THRESHOLD,
-    confidenceScore,
-    version: '1.0',
-    enrichmentStatus,
-    fieldValidation,
   }
 }
 
