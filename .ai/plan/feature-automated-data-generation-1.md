@@ -81,7 +81,7 @@ This plan implements an automated system to fetch series, movie, and episode dat
 | TASK-015 | Add movie discovery and metadata fetching (theatrical releases, TV movies, special presentations) | ✅ | 2025-10-11 |
 | TASK-015 | Add movie discovery and metadata fetching (theatrical releases, TV movies, special presentations) | ✅ | 2025-10-11 |
 | TASK-016 | Create data normalization pipeline using composition utilities to standardize formats across sources | ✅ | 2025-10-11 |
-| TASK-017 | Implement era classification logic to group content chronologically (Enterprise Era, TOS Era, TNG Era, etc.) | | |
+| TASK-017 | Implement era classification logic to group content chronologically (Enterprise Era, TOS Era, TNG Era, etc.) | ✅ | 2025-10-11 |
 | TASK-018 | Add chronological ordering algorithms based on in-universe stardates and timelines | | |
 | TASK-019 | Create TypeScript code generation templates for `starTrekData` array structure with proper typing | | |
 | TASK-020 | Implement intelligent merging when multiple sources provide data for same content (priority: Memory Alpha > TMDB > TrekCore) | | |

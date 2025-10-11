@@ -1001,9 +1001,234 @@ const normalizeSeries = (series: EnrichedSeriesData): NormalizedSeasonItem[] => 
   return series.seasons.map(season => normalizeSeason(series.name, season))
 }
 
+// ============================================================================
+// ERA CLASSIFICATION LOGIC (TASK-017)
+// ============================================================================
+
 /**
- * Create data normalization pipeline.
- * Eras array will be populated by TASK-017 era classification logic.
+ * Era IDs for type-safe classification.
+ * Represents the chronological eras in Star Trek universe.
+ */
+type EraId =
+  | 'enterprise'
+  | 'discovery_snw'
+  | 'tos_era'
+  | 'tng_era'
+  | 'picard_era'
+  | 'far_future'
+  | 'kelvin_timeline'
+
+/**
+ * Era definition mapping for chronological classification.
+ * Maps series/movie identifiers to their corresponding Star Trek eras.
+ */
+interface EraDefinition {
+  /** Era ID for VBS format */
+  id: EraId
+  /** Display title for era */
+  title: string
+  /** Year range (in-universe chronology) */
+  years: string
+  /** Stardate system description */
+  stardates: string
+  /** Era description */
+  description: string
+  /** Series codes belonging to this era */
+  seriesCodes: string[]
+  /** Movie IDs belonging to this era */
+  movieIds: string[]
+  /** Sort order for chronological display */
+  sortOrder: number
+}
+
+/**
+ * Chronological era definitions for Star Trek content.
+ * Based on in-universe timeline and narrative continuity.
+ *
+ * Note: Discovery series spans multiple eras - seasons 1-2 are in
+ * discovery_snw era, while seasons 3+ are in far_future era.
+ */
+const ERA_DEFINITIONS: EraDefinition[] = [
+  {
+    id: 'enterprise',
+    title: '22nd Century – Enterprise Era',
+    years: '2151–2161',
+    stardates: 'Earth years & simple logs',
+    description: 'The beginning of human space exploration and first contact protocols',
+    seriesCodes: ['ent'],
+    movieIds: [],
+    sortOrder: 1,
+  },
+  {
+    id: 'discovery_snw',
+    title: 'Mid-23rd Century – Discovery & Strange New Worlds Era',
+    years: '2256–2259',
+    stardates: 'Four-digit stardates',
+    description: "The era of the USS Discovery and Captain Pike's Enterprise",
+    seriesCodes: ['dis', 'snw'],
+    movieIds: [],
+    sortOrder: 2,
+  },
+  {
+    id: 'tos_era',
+    title: '23rd Century – Original Series Era',
+    years: '2265–2293',
+    stardates: 'Four-digit stardates',
+    description: 'The original five-year mission and beyond',
+    seriesCodes: ['tos', 'tas'],
+    movieIds: ['tmp', 'twok', 'tsfs', 'tvh', 'tff', 'tuc'],
+    sortOrder: 3,
+  },
+  {
+    id: 'tng_era',
+    title: '24th Century – Next Generation Era',
+    years: '2364–2379',
+    stardates: 'Five-digit stardates (41xxx-5xxxx)',
+    description:
+      'The Next Generation, Deep Space Nine, and Voyager running concurrently across the Alpha and Delta Quadrants',
+    seriesCodes: ['tng', 'ds9', 'voy'],
+    movieIds: ['gen', 'fc', 'ins', 'nem'],
+    sortOrder: 4,
+  },
+  {
+    id: 'picard_era',
+    title: '25th Century – Picard Era',
+    years: '2399–2401',
+    stardates: 'Five-digit stardates',
+    description: 'The return of Jean-Luc Picard and the evolving Federation',
+    seriesCodes: ['pic', 'ld', 'pro'],
+    movieIds: [],
+    sortOrder: 5,
+  },
+  {
+    id: 'far_future',
+    title: '32nd Century – Far Future',
+    years: '3188+',
+    stardates: 'Post-Burn chronology',
+    description: 'The distant future after the Burn event',
+    seriesCodes: ['dis'],
+    movieIds: [],
+    sortOrder: 6,
+  },
+  {
+    id: 'kelvin_timeline',
+    title: 'Kelvin Timeline',
+    years: '2233–2263 (Alternate Reality)',
+    stardates: 'Alternate timeline stardates',
+    description: "The alternate reality created by Nero's temporal incursion",
+    seriesCodes: [],
+    movieIds: ['st2009', 'stid', 'stb'],
+    sortOrder: 7,
+  },
+]
+
+/**
+ * Classify a series by name into its corresponding era.
+ * Uses series code mapping and era definitions.
+ *
+ * @returns Era ID if classified, null if series is unrecognized
+ */
+const classifySeries = (seriesName: string): EraId | null => {
+  const seriesCode = generateSeriesCode(seriesName)
+  const era = ERA_DEFINITIONS.find(e => e.seriesCodes.includes(seriesCode))
+  return era?.id ?? null
+}
+
+/**
+ * Classify a movie by its ID into its corresponding era.
+ * Uses movie ID mapping and era definitions.
+ *
+ * @returns Era ID if classified, null if movie is unrecognized
+ */
+const classifyMovie = (movieId: string): EraId | null => {
+  const era = ERA_DEFINITIONS.find(e => e.movieIds.includes(movieId))
+  return era?.id ?? null
+}
+
+/**
+ * Special handling for Discovery series which spans multiple eras.
+ * Seasons 1-2 are in Discovery/SNW era, Seasons 3+ are in Far Future era.
+ *
+ * @param seasonNumber - Season number to classify
+ * @returns Era ID for the Discovery season
+ */
+const classifyDiscoverySeason = (seasonNumber: number): EraId => {
+  return seasonNumber <= 2 ? 'discovery_snw' : 'far_future'
+}
+
+/**
+ * Group normalized items into chronological eras.
+ * Handles special cases like Discovery spanning multiple eras.
+ */
+const groupItemsByEra = (
+  seasonItems: NormalizedSeasonItem[],
+  movieItems: NormalizedMovieItem[],
+  logger: ReturnType<typeof createLogger>,
+): NormalizedEra[] => {
+  logger.info('Grouping content into chronological eras')
+
+  const eraItemsMap = new Map<EraId, (NormalizedSeasonItem | NormalizedMovieItem)[]>()
+
+  const addToEra = (eraId: EraId, item: NormalizedSeasonItem | NormalizedMovieItem): void => {
+    const items = eraItemsMap.get(eraId) ?? []
+    items.push(item)
+    eraItemsMap.set(eraId, items)
+  }
+
+  for (const season of seasonItems) {
+    const seriesName = season.title.replace(/\s+Season\s+\d+$/i, '').trim()
+    let eraId = classifySeries(seriesName)
+
+    if (seriesName.toLowerCase().includes('discovery')) {
+      const seasonMatch = season.id.match(/_s(\d+)$/)
+      const seasonNumber = seasonMatch?.[1] ? Number.parseInt(seasonMatch[1], 10) : 1
+      eraId = classifyDiscoverySeason(seasonNumber)
+    }
+
+    if (eraId === null) {
+      logger.warn(`Unable to classify series: ${seriesName}`, {seasonId: season.id})
+      continue
+    }
+
+    addToEra(eraId, season)
+  }
+
+  for (const movie of movieItems) {
+    const eraId = classifyMovie(movie.id)
+
+    if (eraId === null) {
+      logger.warn(`Unable to classify movie: ${movie.title}`, {movieId: movie.id})
+      continue
+    }
+
+    addToEra(eraId, movie)
+  }
+
+  const eras: NormalizedEra[] = ERA_DEFINITIONS.filter(eraDef => eraItemsMap.has(eraDef.id))
+    .sort((a, b) => a.sortOrder - b.sortOrder)
+    .map(eraDef => {
+      const items = eraItemsMap.get(eraDef.id) ?? []
+      return {
+        id: eraDef.id,
+        title: eraDef.title,
+        years: eraDef.years,
+        stardates: eraDef.stardates,
+        description: eraDef.description,
+        items,
+      }
+    })
+
+  logger.info('Era classification complete', {
+    eraCount: eras.length,
+    eraBreakdown: eras.map(era => ({id: era.id, itemCount: era.items.length})),
+  })
+
+  return eras
+}
+
+/**
+ * Create data normalization pipeline with era classification.
+ * Transforms enriched metadata into VBS format grouped by chronological eras.
  */
 const createNormalizationPipeline = (
   allSeries: EnrichedSeriesData[],
@@ -1024,8 +1249,10 @@ const createNormalizationPipeline = (
     totalEpisodes,
   })
 
+  const eras = groupItemsByEra(allSeasonItems, allMovieItems, logger)
+
   return {
-    eras: [],
+    eras,
     metadata: {
       generatedAt: new Date().toISOString(),
       seriesCount: allSeries.length,
@@ -1409,9 +1636,6 @@ const main = async (): Promise<void> => {
       movieCount: normalizedData.metadata.movieCount,
       episodeCount: normalizedData.metadata.episodeCount,
     })
-
-    // TASK-017: Era classification (implementation follows)
-    logger.debug('Era classification will be implemented next')
 
     // TASK-018: Chronological ordering (implementation follows)
     logger.debug('Chronological ordering will be implemented next')
