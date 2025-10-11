@@ -20,27 +20,42 @@ The project uses **functional factory patterns** with closures for state managem
 
 ### Functional Factory Architecture with Generic EventEmitters
 
+**Core Application & State Management:**
 - `createStarTrekViewingGuide` (main.ts): Main application factory coordinating all modules and DOM interactions
-- `createProgressTracker`: Factory managing watched items state with generic EventEmitter (`ProgressTrackerEvents`)
-- `createEpisodeTracker`: Factory for episode-level progress tracking with hierarchical calculations (`EpisodeTrackerEvents`)
-- `createEpisodeManager`: Factory for episode filtering, search, and spoiler-safe content management (`EpisodeManagerEvents`)
-- `createSearchFilter`: Factory handling real-time search with generic EventEmitter (`SearchFilterEvents`)
-- `createTimelineRenderer`: Factory rendering era-based timeline with dependency injection
+- `createProgressTracker` (progress.ts): Factory managing watched items state with generic EventEmitter (`ProgressTrackerEvents`)
+- `createEpisodeTracker` (episode-tracker.ts): Factory for episode-level progress tracking with hierarchical calculations (`EpisodeTrackerEvents`)
+- `createEpisodeManager` (episodes.ts): Factory for episode filtering, search, and spoiler-safe content management (`EpisodeManagerEvents`)
+- `createSearchFilter` (search.ts): Factory handling real-time search with generic EventEmitter (`SearchFilterEvents`)
+
+**UI & Visualization:**
+- `createTimelineRenderer` (timeline.ts): Factory rendering era-based timeline with dependency injection
+- `createTimelineVisualization` (timeline-viz.ts): Interactive timeline visualization with D3.js integration
 - `createElementsManager`: Factory for DOM element caching and management
-- `createEventEmitter<T>`: Generic EventEmitter factory with type-safe event handling
-- `createLogger`: Generic logging utility with configurable levels, filtering, metrics, and persistence
-- `storage.ts`: Generic storage utilities with EventEmitter notifications (`StorageEvents`)
+
+**Settings & Preferences:**
+- `createSettingsManager` (settings-manager.ts): Centralized settings coordination with validation, persistence, and UI synchronization
+- `createPreferences` (preferences.ts): User settings management with persistent storage
+- `createThemeSystem` (themes.ts): CSS custom properties system with Star Trek theming and auto-detection
+
+**Metadata & External Integration:**
+- `createMetadataSources` (metadata-sources.ts): External API integration for episode metadata enrichment
+- `createMetadataStorage` (metadata-storage.ts): Persistent storage layer for cached episode metadata
+- `createMetadataQueue` (metadata-queue.ts): Request queue management with rate limiting
+- `createMetadataScheduler` (metadata-scheduler.ts): Background scheduling system for metadata updates
+- `createStreamingApi` (streaming-api.ts): Streaming service availability and content discovery
+- `createCacheWarming` (cache-warming.ts): Proactive caching utilities for metadata and content preloading
+
+**Core Utilities:**
+- `createEventEmitter<T>` (events.ts): Generic EventEmitter factory with type-safe event handling
+- `createLogger` (logger.ts): Generic logging utility with configurable levels, filtering, metrics, and persistence
+- `createStorage` (storage.ts): Generic storage utilities with EventEmitter notifications (`StorageEvents`)
 - `migration.ts`: Data migration utilities for schema evolution and version management
 - `progress-validation.ts`: Validation and error recovery for progress data integrity
-- `themes.ts`: CSS custom properties system with Star Trek theming and auto-detection
-- `preferences.ts`: User settings management with persistent storage
-- `timeline-viz.ts`: Interactive timeline visualization with D3.js integration
-- `streaming-api.ts`: Streaming service availability and content discovery
+- `error-handler.ts`: Centralized error management with `withErrorHandling()` and `withSyncErrorHandling()` wrappers
 
 ### Factory Function Pattern
 
 **Factory functions with closures** for private state management:
-
 ```typescript
 // Factory function with closure-based state and generic EventEmitter integration
 export const createProgressTracker = (): ProgressTrackerInstance => {
@@ -225,7 +240,6 @@ const createRenderer = <TContainer extends HTMLElement>(container: TContainer) =
 ## Theme System & CSS Custom Properties
 
 VBS implements a comprehensive theme system using CSS custom properties for consistent Star Trek-inspired styling:
-
 ```typescript
 // Theme management with auto-detection
 const themeSystem = createThemeSystem(preferences)
@@ -254,8 +268,29 @@ The theme system includes Star Trek-specific design tokens:
 
 ## Component Architecture
 
-VBS extends the functional factory pattern to UI components in `src/components/`:
+VBS extends the functional factory pattern to UI components in `src/components/` with co-located CSS files:
 
+**Timeline & Visualization Components:**
+- `createTimelineControls` (timeline-controls.ts): Interactive controls for timeline navigation and filtering
+- `createTimelineVisualization` (timeline-viz.ts): D3.js-based timeline rendering with zoom and pan
+
+**Streaming Service Components:**
+- `createStreamingIndicators` (streaming-indicators.ts): UI components showing streaming service availability
+- `createStreamingPreferences` (streaming-preferences.ts): User interface for streaming service configuration
+
+**Metadata Management Components:**
+- `createMetadataDebugPanel` (metadata-debug-panel.ts): Developer tool for inspecting and debugging metadata operations
+- `createMetadataExpertMode` (metadata-expert-mode.ts): Advanced metadata management interface for power users
+- `createMetadataPreferences` (metadata-preferences.ts): User interface for configuring metadata enrichment preferences
+- `createMetadataQualityIndicator` (metadata-quality-indicator.ts): Visual indicator for metadata completeness and quality scores
+- `createMetadataSourceAttribution` (metadata-source-attribution.ts): Display component for metadata source attribution and licensing
+- `createMetadataSyncStatus` (metadata-sync-status.ts): Real-time synchronization status indicator for metadata operations
+- `createMetadataUsageControls` (metadata-usage-controls.ts): UI controls for managing metadata fetching and caching behavior
+
+**Utility Components:**
+- `createMigrationProgress` (migration-progress.ts): Progress indicator component for data migration operations
+
+### Component Patterns
 ```typescript
 // Component factory with DOM management
 const createTimelineControls = <TContainer extends HTMLElement>(
@@ -285,13 +320,49 @@ const createTimelineControls = <TContainer extends HTMLElement>(
 }
 ```
 
-### Component Patterns
-
+**Key Patterns:**
 - **DOM element caching**: Components cache frequently accessed elements in closure
-- **CSS class management**: Use CSS modules or scoped classes with `--vbs-` prefix
+- **Co-located CSS**: Each component has a matching `.css` file (e.g., `timeline-controls.ts` + `timeline-controls.css`)
+- **CSS class management**: Use scoped classes with `--vbs-` prefix for CSS custom properties
 - **Event delegation**: Components use event delegation for performance
 - **Cleanup handling**: All components provide `destroy()` method for proper cleanup
 - **Responsive design**: Components adapt to container size using CSS custom properties
+
+## Service Worker & PWA
+
+VBS implements Progressive Web App capabilities with a Service Worker for offline support and background synchronization:
+```typescript
+// Service Worker registration in main.ts
+const registerServiceWorker = async (): Promise<void> => {
+  if ('serviceWorker' in navigator) {
+    const registration = await navigator.serviceWorker.register('/vbs/sw.js', {
+      scope: '/vbs/',
+    })
+
+    // Detect Background Sync API support
+    await detectBackgroundSyncSupport(registration)
+  }
+}
+
+// Background sync detection with graceful degradation
+const detectBackgroundSyncSupport = async (
+  registration: ServiceWorkerRegistration
+): Promise<void> => {
+  // Check for Background Sync API availability
+  // Falls back to immediate execution, polling, manual sync, or disabled based on capability
+}
+```
+
+### PWA Features
+
+- **Service Worker**: Registered at `/vbs/sw.js` with `/vbs/` scope for GitHub Pages deployment
+- **Background Sync**: Automatic metadata enrichment when network is available
+- **Fallback Strategies**: Graceful degradation when Background Sync unavailable:
+  - `immediate`: Execute metadata operations immediately
+  - `polling`: Use polling-based background updates
+  - `manual`: Require manual sync trigger
+  - `disabled`: Metadata sync completely disabled
+- **Update Detection**: Automatic detection of new service worker versions with user notification
 
 ## Timeline Visualization
 
@@ -334,7 +405,6 @@ interface TimelineEvent {
 ## Data Structure
 
 The core data lives in `src/data/star-trek-data.ts` - a 570-line structured dataset:
-
 ```typescript
 // Era -> Items hierarchy
 interface StarTrekEra {
@@ -355,7 +425,6 @@ interface StarTrekItem {
 ## Component System Data Flow
 
 VBS components follow a unidirectional data flow pattern with event-driven updates:
-
 ```typescript
 // Main application coordinates component communication
 const app = createStarTrekViewingGuide()
@@ -430,16 +499,25 @@ const migrationState = getMigrationState()
 ## Development Workflow
 
 ```bash
-pnpm dev          # Vite dev server (port 3000)
-pnpm test         # Vitest unit tests
-pnpm test:ui      # Visual test runner
-pnpm test:coverage # Coverage reports
-pnpm build        # TypeScript + Vite production build
-pnpm lint         # ESLint with @bfra.me/eslint-config
-pnpm fix          # Auto-fix linting issues
+pnpm dev           # Vite dev server (port 3000)
+pnpm test          # Vitest unit tests
+pnpm test:ui       # Visual test runner
+pnpm test:coverage # Coverage reports with @vitest/coverage-v8
+pnpm build         # TypeScript compilation + Vite production build
+pnpm lint          # ESLint with @bfra.me/eslint-config
+pnpm fix           # Auto-fix linting issues
+pnpm type-check    # TypeScript type checking without emit
+pnpm preview       # Preview production build (port 4173)
 ```
 
-**Build target**: `/vbs/` base path for GitHub Pages deployment.
+**Package Manager**: This project uses pnpm@10.18.1 with workspace support. Always use `pnpm` commands, not `npm` or `yarn`.
+
+**Build Configuration**:
+- **Base path**: `/vbs/` for GitHub Pages deployment
+- **Manual chunking**: Data layer (`star-trek-data.ts`) bundled separately for optimal caching
+- **Source maps**: Enabled for production debugging
+- **Dev server**: Port 3000 with auto-open browser
+- **Preview server**: Port 4173 for production build testing
 
 ## Git Workflow & Pre-commit Hooks
 
@@ -464,7 +542,6 @@ git commit --no-verify
 ## Testing Patterns
 
 Use Vitest with factory function instantiation in `beforeEach` and comprehensive event testing:
-
 ```typescript
 import type { ProgressTrackerInstance } from '../src/modules/types.js'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -505,12 +582,11 @@ describe('ProgressTracker', () => {
 })
 ```
 
-**Mock LocalStorage** for storage tests. Import modules using `.js` extensions (TypeScript ES modules). Test factory functions, not classes. Always test both successful operations and event emissions. Use `vi.fn()` for mocking event listeners and async operations.
+**Mock LocalStorage** for storage tests. **CRITICAL**: Import modules using `.js` extensions (TypeScript ES modules) - this is required for proper module resolution. Test factory functions, not classes. Always test both successful operations and event emissions. Use `vi.fn()` for mocking event listeners and async operations.
 
 ### Episode Management & Validation Testing
 
 Test episode-level functionality with hierarchical progress and validation:
-
 ```typescript
 describe('EpisodeTracker', () => {
   let episodeTracker: EpisodeTrackerInstance
@@ -569,7 +645,6 @@ describe('EpisodeManager', () => {
 ### Composition Utilities Testing
 
 Test functional composition utilities with comprehensive type safety and integration testing:
-
 ```typescript
 describe('Functional Composition', () => {
   it('should pipe data through transformation chain', () => {
@@ -631,6 +706,7 @@ it('should handle errors in composition chains', () => {
 ## Code Style Specifics
 
 ### Required Patterns
+- **CRITICAL: `.js` extensions**: Always use `.js` extensions in imports (TypeScript ES modules) - `import { createProgressTracker } from './progress.js'`
 - **Single quotes** for all string literals
 - **Optional chaining** (`?.`) and nullish coalescing (`??`) for safe property access
 - **Explicit return types** on all public methods and exported functions
@@ -659,7 +735,6 @@ it('should handle errors in composition chains', () => {
 ## LocalStorage Schema
 
 Progress data structure for import/export functionality:
-
 ```typescript
 interface ProgressExportData {
   version: string      // "1.0"
@@ -672,30 +747,18 @@ interface ProgressExportData {
 
 ## Common Patterns
 
-**DOM element caching**: All frequently accessed elements are cached in the main application's `elements` object on initialization.
-
-**Event delegation**: Use event listeners on containers rather than individual items for performance.
-
-**Progress calculation**: Total progress is calculated by counting watched items across all eras, not just within individual eras.
-
-**Episode ID validation**: Use predefined patterns for episode (`tng_s3_e15`), season (`tng_s3`), and series (`tng`) IDs with validation utilities.
-
-**Hierarchical progress**: Calculate progress at multiple levels (episode → season → series → era) using composition utilities.
-
-**Data migration**: Version progress data with migration utilities and backup mechanisms for schema evolution.
-
-**Spoiler-safe filtering**: Progressive disclosure of episode content based on user preferences and spoiler levels.
-
-**Error recovery**: Validate and sanitize corrupted progress data with graceful fallbacks and user notifications.
-
-**Event handling**: Factories provide modern EventEmitter methods (`on`, `off`, `once`) for enhanced type safety.
-
-**Generic storage operations**: Use `createStorage<T>()` with `StorageAdapter<T>` for type-safe storage with validation and EventEmitter notifications.
-
-**Functional composition patterns**: Use `pipe()` for intuitive left-to-right data flow, `curry()` for reusable predicates, and VBS-specific pipeline builders (`createSearchPipeline`, `createProgressPipeline`) for complex transformations.
-
-**Metadata enrichment pipelines**: Combine multiple sources with conflict resolution and quality validation using functional composition:
-
+- **DOM element caching**: All frequently accessed elements are cached in the main application's `elements` object on initialization.
+- **Event delegation**: Use event listeners on containers rather than individual items for performance.
+- **Progress calculation**: Total progress is calculated by counting watched items across all eras, not just within individual eras.
+- **Episode ID validation**: Use predefined patterns for episode (`tng_s3_e15`), season (`tng_s3`), and series (`tng`) IDs with validation utilities.
+- **Hierarchical progress**: Calculate progress at multiple levels (episode → season → series → era) using composition utilities.
+- **Data migration**: Version progress data with migration utilities and backup mechanisms for schema evolution.
+- **Spoiler-safe filtering**: Progressive disclosure of episode content based on user preferences and spoiler levels.
+- **Error recovery**: Validate and sanitize corrupted progress data with graceful fallbacks and user notifications.
+- **Event handling**: Factories provide modern EventEmitter methods (`on`, `off`, `once`) for enhanced type safety.
+- **Generic storage operations**: Use `createStorage<T>()` with `StorageAdapter<T>` for type-safe storage with validation and EventEmitter notifications.
+- **Functional composition patterns**: Use `pipe()` for intuitive left-to-right data flow, `curry()` for reusable predicates, and VBS-specific pipeline builders (`createSearchPipeline`, `createProgressPipeline`) for complex transformations.
+- **Metadata enrichment pipelines**: Combine multiple sources with conflict resolution and quality validation using functional composition:
 ```typescript
 const enrichedMetadata = await pipe(
   episodeId,
