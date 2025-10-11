@@ -119,7 +119,7 @@ This plan extends the existing VBS Service Worker to implement a comprehensive e
 
 | Task | Description | Completed | Date |
 |------|-------------|-----------|------|
-| TASK-041 | Create `scripts/validate-episode-data.ts` CLI script for comprehensive data validation and quality checking | |  |
+| TASK-041 | Create `scripts/validate-episode-data.ts` CLI script for comprehensive data validation and quality checking | ✅ | 2025-10-11 |
 | TASK-042 | Implement bulk metadata testing tools with automated data integrity verification | |  |
 | TASK-043 | Add data quality metrics and reporting with actionable insights for missing or incorrect metadata | |  |
 | TASK-044 | Create metadata import/export utilities for backup and development seeding | |  |
