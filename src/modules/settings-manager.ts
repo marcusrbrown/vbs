@@ -20,12 +20,14 @@
  */
 
 import type {
+  MetadataExpertModeInstance,
   MetadataPreferencesInstance,
   MetadataUsageControlsInstance,
   SettingsManagerConfig,
   SettingsManagerEvents,
   SettingsManagerInstance,
 } from './types.js'
+import {createMetadataExpertMode} from '../components/metadata-expert-mode.js'
 import {createMetadataPreferences} from '../components/metadata-preferences.js'
 import {createMetadataUsageControls} from '../components/metadata-usage-controls.js'
 import {withErrorHandling, withSyncErrorHandling} from './error-handler.js'
@@ -108,9 +110,9 @@ export const createSettingsManager = (config: SettingsManagerConfig): SettingsMa
   let isVisible = false
   let usageControlsInstance: MetadataUsageControlsInstance | null = null
   let preferencesInstance: MetadataPreferencesInstance | null = null
+  let expertModeInstance: MetadataExpertModeInstance | null = null
   let cleanupHandlers: (() => void)[] = []
 
-  // Error metrics tracking (closure-based state)
   const errorMetrics = {
     totalErrors: 0,
     errorsByCategory: {
@@ -243,7 +245,6 @@ export const createSettingsManager = (config: SettingsManagerConfig): SettingsMa
       maxRetries: MAX_INIT_RETRIES,
     })
 
-    // Initialize usage controls with individual error handling (graceful degradation)
     if (!usageControlsInstance) {
       try {
         usageControlsInstance = createMetadataUsageControls({
@@ -259,14 +260,33 @@ export const createSettingsManager = (config: SettingsManagerConfig): SettingsMa
         failedComponents.push({name: 'usage-controls', error: err})
         trackError(err, 'component-initialization', 'Usage controls initialization failed')
 
-        // Continue with other components despite failure
         logger.warn('Usage controls failed to initialize, continuing with other components', {
           errorMessage: err.message,
         })
       }
     }
 
-    // Initialize preferences with individual error handling (graceful degradation)
+    if (!expertModeInstance) {
+      try {
+        expertModeInstance = createMetadataExpertMode({
+          container: contentContainer,
+          preferences,
+          initiallyVisible: true,
+        })
+        expertModeInstance.render()
+        initializedComponents.push('expert-mode')
+        logger.info('Expert mode toggle initialized successfully')
+      } catch (error) {
+        const err = error instanceof Error ? error : new Error(String(error))
+        failedComponents.push({name: 'expert-mode', error: err})
+        trackError(err, 'component-initialization', 'Expert mode toggle initialization failed')
+
+        logger.warn('Expert mode toggle failed to initialize, continuing with other components', {
+          errorMessage: err.message,
+        })
+      }
+    }
+
     if (!preferencesInstance) {
       try {
         preferencesInstance = createMetadataPreferences({
@@ -282,7 +302,6 @@ export const createSettingsManager = (config: SettingsManagerConfig): SettingsMa
         failedComponents.push({name: 'preferences', error: err})
         trackError(err, 'component-initialization', 'Preferences initialization failed')
 
-        // Continue despite failure
         logger.warn('Preferences failed to initialize', {
           errorMessage: err.message,
         })
@@ -291,7 +310,6 @@ export const createSettingsManager = (config: SettingsManagerConfig): SettingsMa
 
     const duration = performance.now() - startTime
 
-    // Handle complete initialization failure with retry logic
     if (initializedComponents.length === 0 && failedComponents.length > 0) {
       const retryableErrors = failedComponents.filter(
         f => f.error.message.includes('Network') || f.error.message.includes('timeout'),
@@ -491,6 +509,7 @@ export const createSettingsManager = (config: SettingsManagerConfig): SettingsMa
       componentsToCleanup: [
         usageControlsInstance ? 'usage-controls' : null,
         preferencesInstance ? 'preferences' : null,
+        expertModeInstance ? 'expert-mode' : null,
       ].filter(Boolean),
       eventListeners: cleanupHandlers.length,
     })
@@ -520,6 +539,21 @@ export const createSettingsManager = (config: SettingsManagerConfig): SettingsMa
         cleanupErrors++
         const err = error instanceof Error ? error : new Error(String(error))
         logger.error('Failed to destroy preferences', {
+          error: {name: err.name, message: err.message},
+        })
+      }
+    }
+
+    if (expertModeInstance) {
+      try {
+        expertModeInstance.destroy()
+        expertModeInstance = null
+        componentsDestroyed++
+        logger.info('Expert mode toggle destroyed')
+      } catch (error) {
+        cleanupErrors++
+        const err = error instanceof Error ? error : new Error(String(error))
+        logger.error('Failed to destroy expert mode toggle', {
           error: {name: err.name, message: err.message},
         })
       }

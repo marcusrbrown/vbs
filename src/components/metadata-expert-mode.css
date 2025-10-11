@@ -1,0 +1,268 @@
+/**
+ * Metadata Expert Mode Toggle Component Styles
+ *
+ * Provides comprehensive styling for the expert mode toggle control with VBS theme integration,
+ * responsive design, and accessibility features.
+ *
+ * Features:
+ * - Toggle switch with animated slider
+ * - Icon and title header
+ * - Descriptive text with dynamic updates
+ * - Feature list with icons
+ * - Dark mode support via CSS custom properties
+ * - Responsive design with mobile optimizations
+ * - High contrast mode support
+ * - Reduced motion support
+ * - Keyboard focus indicators
+ */
+
+/* Container */
+.metadata-expert-mode {
+  background: var(--vbs-bg-secondary, #f5f5f5);
+  border: 1px solid var(--vbs-border-color, #ddd);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin: 1rem 0;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+/* Header */
+.expert-mode-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  gap: 1rem;
+}
+
+.expert-mode-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.expert-mode-icon {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.expert-mode-title h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--vbs-text-primary, #1a1a1a);
+}
+
+/* Toggle Switch */
+.expert-mode-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.expert-mode-toggle input[type='checkbox'] {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.toggle-slider {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 24px;
+  background: var(--vbs-bg-tertiary, #ccc);
+  border-radius: 24px;
+  transition: background-color 0.2s ease;
+}
+
+.toggle-slider::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.expert-mode-toggle input[type='checkbox']:checked + .toggle-slider {
+  background: var(--vbs-color-primary, #0066cc);
+}
+
+.expert-mode-toggle input[type='checkbox']:checked + .toggle-slider::before {
+  transform: translateX(24px);
+}
+
+.expert-mode-toggle input[type='checkbox']:focus-visible + .toggle-slider {
+  outline: 2px solid var(--vbs-color-primary, #0066cc);
+  outline-offset: 2px;
+}
+
+.toggle-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--vbs-text-secondary, #666);
+  min-width: 60px;
+}
+
+/* Description */
+.expert-mode-description {
+  margin: 0 0 1.5rem 0;
+  padding: 0.75rem 1rem;
+  background: var(--vbs-bg-primary, #ffffff);
+  border-left: 3px solid var(--vbs-color-primary, #0066cc);
+  border-radius: 4px;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--vbs-text-primary, #1a1a1a);
+}
+
+/* Features List */
+.expert-mode-features {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--vbs-border-color, #ddd);
+}
+
+.expert-mode-features h4 {
+  margin: 0 0 0.75rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--vbs-text-primary, #1a1a1a);
+}
+
+.expert-mode-features ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.expert-mode-features li {
+  padding: 0.5rem 0;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--vbs-text-secondary, #666);
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.expert-mode-features li::before {
+  content: '';
+  flex-shrink: 0;
+  width: 1.25rem;
+  display: inline-block;
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  .metadata-expert-mode {
+    background: var(--vbs-bg-secondary, #2a2a2a);
+    border-color: var(--vbs-border-color, #444);
+  }
+
+  .expert-mode-title h3 {
+    color: var(--vbs-text-primary, #e0e0e0);
+  }
+
+  .expert-mode-description {
+    background: var(--vbs-bg-primary, #1a1a1a);
+    color: var(--vbs-text-primary, #e0e0e0);
+  }
+
+  .expert-mode-features h4 {
+    color: var(--vbs-text-primary, #e0e0e0);
+  }
+
+  .expert-mode-features li {
+    color: var(--vbs-text-secondary, #aaa);
+  }
+
+  .toggle-label {
+    color: var(--vbs-text-secondary, #aaa);
+  }
+
+  .toggle-slider {
+    background: var(--vbs-bg-tertiary, #444);
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .metadata-expert-mode {
+    border-width: 2px;
+  }
+
+  .expert-mode-description {
+    border-left-width: 4px;
+  }
+
+  .toggle-slider::before {
+    box-shadow: 0 0 0 2px currentColor;
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .metadata-expert-mode,
+  .toggle-slider,
+  .toggle-slider::before {
+    transition: none;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 767px) {
+  .metadata-expert-mode {
+    padding: 1rem;
+  }
+
+  .expert-mode-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .expert-mode-toggle {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .expert-mode-title h3 {
+    font-size: 1.125rem;
+  }
+
+  .expert-mode-features li {
+    font-size: 0.875rem;
+  }
+}
+
+/* Tablet */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .metadata-expert-mode {
+    padding: 1.25rem;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .metadata-expert-mode {
+    background: white;
+    border: 1px solid black;
+  }
+
+  .expert-mode-toggle {
+    display: none;
+  }
+
+  .expert-mode-description {
+    border-color: black;
+  }
+}

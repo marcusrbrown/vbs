@@ -1673,6 +1673,8 @@ export interface UserPreferences {
   preferredStreamingServices: string[]
   /** Interface language setting */
   language: string
+  /** Enable expert mode for advanced metadata management and troubleshooting features */
+  expertMode: boolean
   /** Notification settings */
   notifications: {
     /** Master notification toggle */
@@ -1746,6 +1748,10 @@ export interface PreferencesEvents extends EventMap {
   /** Fired when preferences are successfully loaded from storage */
   'preferences-load': {
     preferences: UserPreferences
+  }
+  /** Fired when expert mode is toggled */
+  'expert-mode-changed': {
+    enabled: boolean
   }
   /** Fired when preferences are saved to storage */
   'preferences-save': {
@@ -3012,6 +3018,53 @@ export interface MetadataUsageControlsInstance {
     listener: (payload: MetadataUsageControlsEvents[TEventName]) => void,
   ) => void
   removeAllListeners: <TEventName extends keyof MetadataUsageControlsEvents>(
+    eventName?: TEventName,
+  ) => void
+}
+
+/**
+ * Metadata expert mode event map for type-safe event handling.
+ * Defines events emitted by the expert mode toggle component.
+ */
+export interface MetadataExpertModeEvents extends EventMap {
+  /** Fired when expert mode is toggled */
+  'expert-mode-changed': {
+    enabled: boolean
+  }
+}
+
+/**
+ * Metadata expert mode toggle instance interface for functional factory pattern.
+ * Provides UI control for enabling/disabling advanced metadata features.
+ */
+export interface MetadataExpertModeInstance {
+  /** Render the expert mode toggle UI into the container */
+  render: () => void
+  /** Show the expert mode toggle */
+  show: () => void
+  /** Hide the expert mode toggle */
+  hide: () => void
+  /** Check if expert mode is currently enabled */
+  isEnabled: () => boolean
+  /** Set expert mode state programmatically */
+  setEnabled: (enabled: boolean) => void
+  /** Destroy the component and cleanup resources */
+  destroy: () => void
+
+  // Generic EventEmitter methods for type-safe event handling
+  on: <TEventName extends keyof MetadataExpertModeEvents>(
+    eventName: TEventName,
+    listener: (payload: MetadataExpertModeEvents[TEventName]) => void,
+  ) => void
+  off: <TEventName extends keyof MetadataExpertModeEvents>(
+    eventName: TEventName,
+    listener: (payload: MetadataExpertModeEvents[TEventName]) => void,
+  ) => void
+  once: <TEventName extends keyof MetadataExpertModeEvents>(
+    eventName: TEventName,
+    listener: (payload: MetadataExpertModeEvents[TEventName]) => void,
+  ) => void
+  removeAllListeners: <TEventName extends keyof MetadataExpertModeEvents>(
     eventName?: TEventName,
   ) => void
 }

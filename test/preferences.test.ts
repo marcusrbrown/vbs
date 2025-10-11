@@ -84,6 +84,7 @@ describe('Preferences', () => {
         showSpoilers: true,
         preferredStreamingServices: ['netflix', 'paramount-plus'],
         language: 'en',
+        expertMode: true,
         notifications: {
           enabled: false,
           newEpisodes: false,
@@ -101,14 +102,14 @@ describe('Preferences', () => {
         metadataSync: {
           syncMode: 'manual',
           dataLimits: {
-            maxEpisodesPerSync: 30,
+            maxEpisodesPerSync: 25,
             maxDailyApiCalls: 500,
-            maxCacheSizeMB: 80,
+            maxCacheSizeMB: 50,
           },
           networkPreference: 'any-connection',
           scheduling: {
             allowDuringPeakHours: true,
-            minBatteryLevel: 0.15,
+            minBatteryLevel: 0.3,
             pauseWhileCharging: true,
             preferredTimeOfDay: 'night-only',
           },
@@ -332,22 +333,23 @@ describe('Preferences', () => {
           compactView: true,
           accessibilityMode: true,
           autoPlay: false,
-          showSpoilers: true,
+          showSpoilers: false,
           preferredStreamingServices: ['paramount-plus'],
           language: 'es',
+          expertMode: false,
           notifications: {
-            enabled: false,
+            enabled: true,
             newEpisodes: true,
             progressReminders: false,
           },
           timeline: {
             showMajorEvents: true,
-            showMinorEvents: true,
+            showMinorEvents: false,
             defaultZoomLevel: 'century' as const,
           },
           privacy: {
-            analyticsEnabled: true,
-            crashReportsEnabled: false,
+            analyticsEnabled: false,
+            crashReportsEnabled: true,
           },
           metadataSync: {
             syncMode: 'auto' as const,
