@@ -768,6 +768,273 @@ const discoverStarTrekMovies = async (
   return discovered
 }
 
+// ============================================================================
+// DATA NORMALIZATION PIPELINE (TASK-016)
+// ============================================================================
+
+/**
+ * Normalized season item for VBS format.
+ * Represents a single season within an era's items array.
+ */
+interface NormalizedSeasonItem {
+  /** Season ID (e.g., 'ent_s1', 'tng_s3') */
+  id: string
+  /** Display title */
+  title: string
+  /** Content type */
+  type: 'series' | 'movie'
+  /** In-universe year */
+  year: string
+  /** Stardate range or identifier */
+  stardate: string
+  /** Number of episodes in season */
+  episodes: number
+  /** Additional notes about the season */
+  notes?: string | undefined
+  /** Episode-level data array */
+  episodeData: NormalizedEpisodeItem[]
+}
+
+/**
+ * Normalized episode item for VBS format.
+ * Represents a single episode within a season's episodeData array.
+ */
+interface NormalizedEpisodeItem {
+  /** Episode ID (e.g., 'ent_s1_e01') */
+  id: string
+  /** Episode title */
+  title: string
+  /** Season number */
+  season: number
+  /** Episode number */
+  episode: number
+  /** Air date (YYYY-MM-DD format) */
+  airDate: string
+  /** Stardate for episode */
+  stardate: string
+  /** Episode synopsis/overview */
+  synopsis: string
+  /** Key plot points */
+  plotPoints?: string[]
+  /** Guest stars */
+  guestStars?: string[]
+  /** Connected episodes */
+  connections?: string[]
+}
+
+/**
+ * Normalized movie item for VBS format.
+ * Represents a movie within an era's items array.
+ */
+interface NormalizedMovieItem {
+  /** Movie ID (e.g., 'tmp', 'twok') */
+  id: string
+  /** Display title */
+  title: string
+  /** Content type */
+  type: 'movie'
+  /** Release year */
+  year: string
+  /** Stardate identifier */
+  stardate: string
+  /** Runtime in minutes */
+  runtime?: number | null
+  /** Movie synopsis */
+  notes?: string
+  /** Director name(s) */
+  director?: string
+  /** Writer name(s) */
+  writer?: string
+  /** Lead cast members */
+  cast?: string[]
+}
+
+/**
+ * Normalized era structure for VBS format.
+ * Represents a complete chronological era with all its content.
+ */
+interface NormalizedEra {
+  /** Era ID (e.g., 'enterprise', 'tos', 'tng') */
+  id: string
+  /** Era display title */
+  title: string
+  /** Year range for era */
+  years: string
+  /** Stardate system used in era */
+  stardates: string
+  /** Era description */
+  description: string
+  /** All items (seasons and movies) in era */
+  items: (NormalizedSeasonItem | NormalizedMovieItem)[]
+}
+
+/**
+ * Complete normalized data ready for code generation.
+ * Includes all eras with their content normalized to VBS format.
+ */
+interface NormalizedData {
+  /** All chronological eras */
+  eras: NormalizedEra[]
+  /** Generation metadata */
+  metadata: {
+    /** Generation timestamp */
+    generatedAt: string
+    /** TMDB series count */
+    seriesCount: number
+    /** TMDB movie count */
+    movieCount: number
+    /** Total episodes */
+    episodeCount: number
+  }
+}
+
+const SERIES_CODE_MAP: Record<string, string> = {
+  'the original series': 'tos',
+  'the animated series': 'tas',
+  'the next generation': 'tng',
+  'deep space nine': 'ds9',
+  voyager: 'voy',
+  enterprise: 'ent',
+  discovery: 'dis',
+  picard: 'pic',
+  'lower decks': 'ld',
+  prodigy: 'pro',
+  'strange new worlds': 'snw',
+}
+
+/**
+ * Generate series code from series name for ID generation.
+ * Maps known series names to short codes, falls back to first 3 characters.
+ */
+const generateSeriesCode = (seriesName: string): string => {
+  const normalized = seriesName
+    .toLowerCase()
+    .replace(/^star trek:?\s*/i, '')
+    .trim()
+
+  return SERIES_CODE_MAP[normalized] ?? normalized.replaceAll(/\s+/g, '').slice(0, 3)
+}
+
+const PLACEHOLDER_STARDATE = 'None'
+const PLACEHOLDER_YEAR = 'TBD'
+const PLACEHOLDER_MOVIE_STARDATE = 'Stardate TBD'
+
+/**
+ * Normalize enriched episode data to VBS format.
+ * Transforms TMDB episode metadata into target star-trek-data.ts structure.
+ */
+const normalizeEpisode = (episode: EnrichedEpisodeData): NormalizedEpisodeItem => {
+  const normalized: NormalizedEpisodeItem = {
+    id: episode.episodeId,
+    title: episode.title,
+    season: episode.season,
+    episode: episode.episode,
+    airDate: episode.airDate,
+    stardate: PLACEHOLDER_STARDATE,
+    synopsis: episode.overview,
+    connections: [],
+  }
+
+  if (episode.guestStars !== undefined) {
+    normalized.guestStars = episode.guestStars
+  }
+
+  return normalized
+}
+
+/**
+ * Normalize enriched season data to VBS format.
+ */
+const normalizeSeason = (seriesName: string, season: EnrichedSeasonData): NormalizedSeasonItem => {
+  const seriesCode = generateSeriesCode(seriesName)
+  const seasonId = `${seriesCode}_s${season.seasonNumber}`
+
+  const airYear = season.airDate
+    ? new Date(season.airDate).getFullYear().toString()
+    : PLACEHOLDER_YEAR
+
+  return {
+    id: seasonId,
+    title: `${seriesName} Season ${season.seasonNumber}`,
+    type: 'series',
+    year: airYear,
+    stardate: `~${season.seasonNumber}.1-${season.seasonNumber}.${season.episodeCount}`,
+    episodes: season.episodeCount,
+    episodeData: season.episodes.map(normalizeEpisode),
+  }
+}
+
+/**
+ * Normalize enriched movie data to VBS format.
+ */
+const normalizeMovie = (movie: EnrichedMovieData): NormalizedMovieItem => {
+  const releaseYear = movie.releaseDate
+    ? new Date(movie.releaseDate).getFullYear().toString()
+    : PLACEHOLDER_YEAR
+
+  const normalized: NormalizedMovieItem = {
+    id: movie.movieId,
+    title: movie.title,
+    type: 'movie',
+    year: releaseYear,
+    stardate: PLACEHOLDER_MOVIE_STARDATE,
+    runtime: movie.runtime,
+    notes: movie.overview,
+  }
+
+  if (movie.director !== undefined) {
+    normalized.director = movie.director
+  }
+
+  if (movie.writer !== undefined) {
+    normalized.writer = movie.writer
+  }
+
+  if (movie.cast !== undefined) {
+    normalized.cast = movie.cast
+  }
+
+  return normalized
+}
+
+const normalizeSeries = (series: EnrichedSeriesData): NormalizedSeasonItem[] => {
+  return series.seasons.map(season => normalizeSeason(series.name, season))
+}
+
+/**
+ * Create data normalization pipeline.
+ * Eras array will be populated by TASK-017 era classification logic.
+ */
+const createNormalizationPipeline = (
+  allSeries: EnrichedSeriesData[],
+  allMovies: EnrichedMovieData[],
+  logger: ReturnType<typeof createLogger>,
+): NormalizedData => {
+  logger.info('Starting data normalization pipeline')
+
+  const allSeasonItems: NormalizedSeasonItem[] = allSeries.flatMap(normalizeSeries)
+
+  const allMovieItems: NormalizedMovieItem[] = allMovies.map(normalizeMovie)
+
+  const totalEpisodes = allSeasonItems.reduce((sum, season) => sum + season.episodeData.length, 0)
+
+  logger.info('Normalization complete', {
+    seasonItems: allSeasonItems.length,
+    movieItems: allMovieItems.length,
+    totalEpisodes,
+  })
+
+  return {
+    eras: [],
+    metadata: {
+      generatedAt: new Date().toISOString(),
+      seriesCount: allSeries.length,
+      movieCount: allMovies.length,
+      episodeCount: totalEpisodes,
+    },
+  }
+}
+
 /**
  * Fetch season details from TMDB including episode list.
  * Uses Bearer token authentication for TMDB API v3.
@@ -1135,8 +1402,13 @@ const main = async (): Promise<void> => {
       movies: discoveredMovies.map(m => `${m.title} (${m.releaseDate?.slice(0, 4) ?? 'unknown'})`),
     })
 
-    // TASK-016: Data normalization (implementation follows)
-    logger.debug('Data normalization pipeline will be implemented next')
+    logger.info('Starting data normalization pipeline')
+    const normalizedData = createNormalizationPipeline(enrichedSeriesData, discoveredMovies, logger)
+    logger.info('Data normalization complete', {
+      seriesCount: normalizedData.metadata.seriesCount,
+      movieCount: normalizedData.metadata.movieCount,
+      episodeCount: normalizedData.metadata.episodeCount,
+    })
 
     // TASK-017: Era classification (implementation follows)
     logger.debug('Era classification will be implemented next')
