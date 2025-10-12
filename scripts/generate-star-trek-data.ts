@@ -32,10 +32,14 @@
  *   pnpm exec jiti scripts/generate-star-trek-data.ts --dry-run --verbose
  */
 
-import type {MetadataSourceInstance} from '../src/modules/types.js'
+import type {MetadataSource, MetadataSourceInstance} from '../src/modules/types.js'
 import {resolve} from 'node:path'
 import process from 'node:process'
 import {createLogger} from '../src/modules/logger.js'
+import {
+  createQualityScorer,
+  DEFAULT_QUALITY_SCORING_CONFIG,
+} from '../src/modules/metadata-quality.js'
 import {createMetadataSources} from '../src/modules/metadata-sources.js'
 import {
   EXIT_CODES,
@@ -285,6 +289,13 @@ interface GenerateDataOptions extends BaseCLIOptions {
   output: string
   validate: boolean
 }
+
+/**
+ * Quality threshold constants aligned with metadata-quality module.
+ * These define the minimum acceptable quality scores for data inclusion.
+ */
+const QUALITY_THRESHOLD_MINIMUM = 0.6 // Minimum acceptable quality score
+const QUALITY_THRESHOLD_TARGET = 0.75 // Target average quality score (good grade)
 
 const DEFAULT_OPTIONS: Omit<GenerateDataOptions, 'help' | 'verbose'> = {
   mode: 'full',
@@ -1531,6 +1542,13 @@ const enumerateSeriesEpisodes = async (
   logger.info(`Enumerating episodes for: ${series.name}`)
 
   const enrichedSeasons: EnrichedSeasonData[] = []
+  const qualityStats = {
+    totalProcessed: 0,
+    totalFiltered: 0,
+    scores: [] as number[],
+    gradeDistribution: {excellent: 0, good: 0, acceptable: 0, poor: 0},
+    commonMissingFields: new Map<string, number>(),
+  }
 
   for (let seasonNum = 1; seasonNum <= series.numberOfSeasons; seasonNum++) {
     logger.debug(`Fetching season ${seasonNum} of ${series.numberOfSeasons}`)
@@ -1542,6 +1560,55 @@ const enumerateSeriesEpisodes = async (
     }
 
     const enrichedEpisodes: EnrichedEpisodeData[] = []
+    const qualityScorer = createQualityScorer(DEFAULT_QUALITY_SCORING_CONFIG)
+    let filteredCount = 0
+
+    const metadataSourceMap: Record<string, MetadataSource> = {
+      'memory-alpha': {
+        name: 'Memory Alpha',
+        type: 'memory-alpha',
+        baseUrl: 'https://memory-alpha.fandom.com',
+        confidenceLevel: 0.9,
+        lastAccessed: new Date().toISOString(),
+        isAvailable: true,
+        rateLimit: {requestsPerMinute: 60, burstLimit: 10},
+        fields: ['synopsis', 'plotPoints', 'productionCode', 'memoryAlphaUrl'],
+        reliability: {uptime: 0.95, accuracy: 0.9, latency: 200},
+      },
+      tmdb: {
+        name: 'TMDB',
+        type: 'tmdb',
+        baseUrl: 'https://api.themoviedb.org/3',
+        confidenceLevel: 0.85,
+        lastAccessed: new Date().toISOString(),
+        isAvailable: true,
+        rateLimit: {requestsPerMinute: 40, burstLimit: 8},
+        fields: ['title', 'airDate', 'overview', 'director', 'writer', 'tmdbId'],
+        reliability: {uptime: 0.98, accuracy: 0.85, latency: 150},
+      },
+      trekcore: {
+        name: 'TrekCore',
+        type: 'trekcore',
+        baseUrl: 'https://www.trekcore.com',
+        confidenceLevel: 0.8,
+        lastAccessed: new Date().toISOString(),
+        isAvailable: true,
+        rateLimit: {requestsPerMinute: 30, burstLimit: 5},
+        fields: ['guestStars', 'screenshots'],
+        reliability: {uptime: 0.9, accuracy: 0.8, latency: 250},
+      },
+      manual: {
+        name: 'Manual Data',
+        type: 'manual',
+        baseUrl: '',
+        confidenceLevel: 0.5,
+        lastAccessed: new Date().toISOString(),
+        isAvailable: true,
+        rateLimit: {requestsPerMinute: 0, burstLimit: 0},
+        fields: [],
+        reliability: {uptime: 1, accuracy: 0.5, latency: 0},
+      },
+    }
 
     for (const episode of seasonDetails.episodes) {
       logger.debug(`Fetching episode S${seasonNum}E${episode.episode_number}: ${episode.name}`)
@@ -1551,25 +1618,82 @@ const enumerateSeriesEpisodes = async (
       const metadata = await metadataSources.enrichEpisode(episodeId)
 
       if (metadata) {
-        const enrichedEpisode: EnrichedEpisodeData = {
-          episodeId,
-          tmdbId: episode.id,
-          title: episode.name,
-          season: seasonNum,
-          episode: episode.episode_number,
-          airDate: episode.air_date,
-          overview: episode.overview,
-          runtime: episode.runtime,
-          director: undefined,
-          writer: undefined,
-          guestStars: undefined,
-          voteAverage: episode.vote_average > 0 ? episode.vote_average : undefined,
-          voteCount: episode.vote_count > 0 ? episode.vote_count : undefined,
+        const sourceKey = metadata.dataSource
+        const source = metadataSourceMap[sourceKey] ?? metadataSourceMap.manual
+
+        if (!source) {
+          logger.warn(`No metadata source found for ${episodeId}, skipping quality scoring`)
+          continue
         }
-        enrichedEpisodes.push(enrichedEpisode)
+
+        const qualityScore = qualityScorer.calculateQualityScore(metadata, source)
+
+        if (qualityScore) {
+          qualityStats.totalProcessed++
+          qualityStats.scores.push(qualityScore.overall)
+
+          if (qualityScore.qualityGrade === 'excellent') qualityStats.gradeDistribution.excellent++
+          if (qualityScore.qualityGrade === 'good') qualityStats.gradeDistribution.good++
+          if (qualityScore.qualityGrade === 'acceptable')
+            qualityStats.gradeDistribution.acceptable++
+          if (qualityScore.qualityGrade === 'poor') qualityStats.gradeDistribution.poor++
+
+          for (const field of qualityScore.missingFields) {
+            qualityStats.commonMissingFields.set(
+              field,
+              (qualityStats.commonMissingFields.get(field) ?? 0) + 1,
+            )
+          }
+
+          logger.debug(`Quality score for ${episodeId}`, {
+            overall: qualityScore.overall,
+            grade: qualityScore.qualityGrade,
+            completeness: qualityScore.completeness,
+            accuracy: qualityScore.accuracy,
+          })
+
+          if (qualityScore.overall >= QUALITY_THRESHOLD_MINIMUM) {
+            const enrichedEpisode: EnrichedEpisodeData = {
+              episodeId,
+              tmdbId: episode.id,
+              title: episode.name,
+              season: seasonNum,
+              episode: episode.episode_number,
+              airDate: episode.air_date,
+              overview: episode.overview,
+              runtime: episode.runtime,
+              director: undefined,
+              writer: undefined,
+              guestStars: undefined,
+              voteAverage: episode.vote_average > 0 ? episode.vote_average : undefined,
+              voteCount: episode.vote_count > 0 ? episode.vote_count : undefined,
+            }
+            enrichedEpisodes.push(enrichedEpisode)
+
+            if (qualityScore.recommendations.length > 0) {
+              logger.debug(`Quality recommendations for ${episodeId}`, {
+                recommendations: qualityScore.recommendations,
+                missingFields: qualityScore.missingFields,
+              })
+            }
+          } else {
+            filteredCount++
+            qualityStats.totalFiltered++
+            logger.warn(`Episode ${episodeId} filtered due to low quality score`, {
+              overall: qualityScore.overall,
+              grade: qualityScore.qualityGrade,
+              missingFields: qualityScore.missingFields,
+              recommendations: qualityScore.recommendations,
+            })
+          }
+        }
       } else {
         logger.warn(`Failed to enrich episode ${episodeId}`)
       }
+    }
+
+    if (filteredCount > 0) {
+      logger.info(`Season ${seasonNum}: Filtered ${filteredCount} low-quality episodes`)
     }
 
     enrichedSeasons.push({
@@ -1582,10 +1706,39 @@ const enumerateSeriesEpisodes = async (
     })
   }
 
+  const totalEpisodes = enrichedSeasons.reduce((sum, s) => sum + s.episodes.length, 0)
+
   logger.info(
-    `Enumeration complete for ${series.name}: ${enrichedSeasons.length} seasons, ` +
-      `${enrichedSeasons.reduce((sum, s) => sum + s.episodes.length, 0)} episodes`,
+    `Enumeration complete for ${series.name}: ${enrichedSeasons.length} seasons, ${totalEpisodes} episodes`,
   )
+
+  if (qualityStats.totalProcessed > 0) {
+    const avgQuality =
+      qualityStats.scores.reduce((sum, score) => sum + score, 0) / qualityStats.scores.length
+    const passRate =
+      ((qualityStats.totalProcessed - qualityStats.totalFiltered) / qualityStats.totalProcessed) *
+      100
+
+    const topMissingFields = Array.from(qualityStats.commonMissingFields.entries())
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 5)
+      .map(([field, count]) => `${field} (${count})`)
+
+    logger.info(`Quality Summary for ${series.name}`, {
+      totalProcessed: qualityStats.totalProcessed,
+      totalFiltered: qualityStats.totalFiltered,
+      averageQuality: avgQuality.toFixed(3),
+      passRate: `${passRate.toFixed(1)}%`,
+      gradeDistribution: qualityStats.gradeDistribution,
+      topMissingFields,
+    })
+
+    if (avgQuality < QUALITY_THRESHOLD_TARGET) {
+      logger.warn(
+        `Average quality score (${avgQuality.toFixed(3)}) below target threshold (${QUALITY_THRESHOLD_TARGET}) for ${series.name}`,
+      )
+    }
+  }
 
   return {
     seriesId: series.id,
