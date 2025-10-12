@@ -82,9 +82,10 @@ describe('generate-star-trek-data Integration Tests', () => {
     it('should enforce quality threshold of 0.6', () => {
       const scriptContent = getScriptContent()
 
-      expect(scriptContent).toContain('QUALITY_THRESHOLD_MINIMUM')
+      // Updated to use imported constant name MINIMUM_QUALITY_THRESHOLD from data-quality.ts
+      expect(scriptContent).toContain('MINIMUM_QUALITY_THRESHOLD')
       expect(scriptContent).toContain('0.6')
-      expect(scriptContent).toMatch(/qualityScore\.overall\s*>=\s*QUALITY_THRESHOLD_MINIMUM/)
+      expect(scriptContent).toMatch(/qualityScore\.overall\s*>=\s*MINIMUM_QUALITY_THRESHOLD/)
     })
 
     it('should calculate quality scores for episodes', () => {
@@ -379,10 +380,9 @@ describe('generate-star-trek-data Integration Tests', () => {
     it('should have generateSeriesCode function', () => {
       const scriptContent = getScriptContent()
 
-      // Verify series code mapping
-      expect(scriptContent).toContain('SERIES_CODE_MAP')
-      expect(scriptContent).toContain("'the next generation': 'tng'")
-      expect(scriptContent).toContain("'deep space nine': 'ds9'")
+      // Verify generateSeriesCode is imported from data-quality.ts
+      expect(scriptContent).toContain('generateSeriesCode')
+      expect(scriptContent).toMatch(/from ['"]\.\/lib\/data-quality\.js['"]/)
     })
 
     it('should have generateMovieId function', () => {

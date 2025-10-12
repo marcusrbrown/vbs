@@ -57,6 +57,18 @@ import {
   showHelpAndExit,
   type BaseCLIOptions,
 } from './lib/cli-utils.js'
+import {
+  detectDuplicateIds,
+  formatQualityReport,
+  generateDataDiff,
+  generateQualityReport,
+  generateSeriesCode,
+  MINIMUM_QUALITY_THRESHOLD,
+  type NormalizedEpisodeItem,
+  type NormalizedEra,
+  type NormalizedMovieItem,
+  type NormalizedSeasonItem,
+} from './lib/data-quality.js'
 import {getMetadataConfig, logMetadataSourceStatus} from './lib/source-config.js'
 
 /**
@@ -337,10 +349,10 @@ interface HealthMonitor {
 }
 
 /**
- * Quality threshold constants aligned with metadata-quality module.
- * These define the minimum acceptable quality scores for data inclusion.
+ * Quality threshold constants.
+ * MINIMUM_QUALITY_THRESHOLD (0.6) imported from data-quality.ts
+ * Target threshold for good quality average (75%)
  */
-const QUALITY_THRESHOLD_MINIMUM = 0.6 // Minimum acceptable quality score
 const QUALITY_THRESHOLD_TARGET = 0.75 // Target average quality score (good grade)
 
 const DEFAULT_OPTIONS: Omit<GenerateDataOptions, 'help' | 'verbose'> = {
@@ -794,100 +806,9 @@ const discoverStarTrekMovies = async (
 }
 
 /**
- * Normalized season item for VBS format.
- * Represents a single season within an era's items array.
+ * NOTE: Normalized data types (NormalizedEra, NormalizedSeasonItem, NormalizedEpisodeItem, NormalizedMovieItem)
+ * are imported from data-quality.ts to ensure consistency across validation and generation.
  */
-interface NormalizedSeasonItem {
-  /** Season ID (e.g., 'ent_s1', 'tng_s3') */
-  id: string
-  /** Display title */
-  title: string
-  /** Content type */
-  type: 'series' | 'movie'
-  /** In-universe year */
-  year: string
-  /** Stardate range or identifier */
-  stardate: string
-  /** Number of episodes in season */
-  episodes: number
-  /** Additional notes about the season */
-  notes?: string | undefined
-  /** Episode-level data array */
-  episodeData: NormalizedEpisodeItem[]
-}
-
-/**
- * Normalized episode item for VBS format.
- * Represents a single episode within a season's episodeData array.
- */
-interface NormalizedEpisodeItem {
-  /** Episode ID (e.g., 'ent_s1_e01') */
-  id: string
-  /** Episode title */
-  title: string
-  /** Season number */
-  season: number
-  /** Episode number */
-  episode: number
-  /** Air date (YYYY-MM-DD format) */
-  airDate: string
-  /** Stardate for episode */
-  stardate: string
-  /** Episode synopsis/overview */
-  synopsis: string
-  /** Key plot points */
-  plotPoints?: string[]
-  /** Guest stars */
-  guestStars?: string[]
-  /** Connected episodes */
-  connections?: string[]
-}
-
-/**
- * Normalized movie item for VBS format.
- * Represents a movie within an era's items array.
- */
-interface NormalizedMovieItem {
-  /** Movie ID (e.g., 'tmp', 'twok') */
-  id: string
-  /** Display title */
-  title: string
-  /** Content type */
-  type: 'movie'
-  /** Release year */
-  year: string
-  /** Stardate identifier */
-  stardate: string
-  /** Runtime in minutes */
-  runtime?: number | null
-  /** Movie synopsis */
-  notes?: string
-  /** Director name(s) */
-  director?: string
-  /** Writer name(s) */
-  writer?: string
-  /** Lead cast members */
-  cast?: string[]
-}
-
-/**
- * Normalized era structure for VBS format.
- * Represents a complete chronological era with all its content.
- */
-interface NormalizedEra {
-  /** Era ID (e.g., 'enterprise', 'tos', 'tng') */
-  id: string
-  /** Era display title */
-  title: string
-  /** Year range for era */
-  years: string
-  /** Stardate system used in era */
-  stardates: string
-  /** Era description */
-  description: string
-  /** All items (seasons and movies) in era */
-  items: (NormalizedSeasonItem | NormalizedMovieItem)[]
-}
 
 /**
  * Complete normalized data ready for code generation.
@@ -907,33 +828,6 @@ interface NormalizedData {
     /** Total episodes */
     episodeCount: number
   }
-}
-
-const SERIES_CODE_MAP: Record<string, string> = {
-  'the original series': 'tos',
-  'the animated series': 'tas',
-  'the next generation': 'tng',
-  'deep space nine': 'ds9',
-  voyager: 'voy',
-  enterprise: 'ent',
-  discovery: 'dis',
-  picard: 'pic',
-  'lower decks': 'ld',
-  prodigy: 'pro',
-  'strange new worlds': 'snw',
-}
-
-/**
- * Generate series code from series name for ID generation.
- * Maps known series names to short codes, falls back to first 3 characters.
- */
-const generateSeriesCode = (seriesName: string): string => {
-  const normalized = seriesName
-    .toLowerCase()
-    .replace(/^star trek:?\s*/i, '')
-    .trim()
-
-  return SERIES_CODE_MAP[normalized] ?? normalized.replaceAll(/\s+/g, '').slice(0, 3)
 }
 
 const PLACEHOLDER_STARDATE = 'None'
@@ -999,16 +893,16 @@ const normalizeMovie = (movie: EnrichedMovieData): NormalizedMovieItem => {
     type: 'movie',
     year: releaseYear,
     stardate: PLACEHOLDER_MOVIE_STARDATE,
-    runtime: movie.runtime,
     notes: movie.overview,
   }
 
+  // Convert string fields to arrays to match NormalizedMovieItem interface
   if (movie.director !== undefined) {
-    normalized.director = movie.director
+    normalized.director = [movie.director]
   }
 
   if (movie.writer !== undefined) {
-    normalized.writer = movie.writer
+    normalized.writer = [movie.writer]
   }
 
   if (movie.cast !== undefined) {
@@ -1447,11 +1341,12 @@ const sortEpisodesChronologically = (
  */
 const sortEraChronologically = (era: NormalizedEra): NormalizedEra => {
   const sortedItems = [...era.items].sort(compareItemsChronologically).map(item => {
-    if (item.type === 'series') {
+    // Type guard: only seasons have episodeData
+    if (item.type !== 'movie' && 'episodeData' in item && item.episodeData !== undefined) {
       return {
         ...item,
         episodeData: sortEpisodesChronologically(item.episodeData),
-      }
+      } as NormalizedSeasonItem
     }
     return item
   })
@@ -1484,7 +1379,10 @@ const createNormalizationPipeline = (
 
   const allMovieItems: NormalizedMovieItem[] = allMovies.map(normalizeMovie)
 
-  const totalEpisodes = allSeasonItems.reduce((sum, season) => sum + season.episodeData.length, 0)
+  const totalEpisodes = allSeasonItems.reduce(
+    (sum, season) => sum + (season.episodeData?.length ?? 0),
+    0,
+  )
 
   logger.info('Normalization complete', {
     seasonItems: allSeasonItems.length,
@@ -1691,7 +1589,7 @@ const enumerateSeriesEpisodes = async (
             accuracy: qualityScore.accuracy,
           })
 
-          if (qualityScore.overall >= QUALITY_THRESHOLD_MINIMUM) {
+          if (qualityScore.overall >= MINIMUM_QUALITY_THRESHOLD) {
             const enrichedEpisode: EnrichedEpisodeData = {
               episodeId,
               tmdbId: episode.id,
@@ -2237,6 +2135,46 @@ const main = async (): Promise<void> => {
       episodeCount: normalizedData.metadata.episodeCount,
     })
 
+    // Run quality validation on normalized data (TASK-026 through TASK-035)
+    logger.info('Running data quality validation')
+    const qualityReport = generateQualityReport(normalizedData.eras)
+
+    logger.info('Quality validation complete', {
+      averageQualityScore: `${(qualityReport.summary.averageQualityScore * 100).toFixed(1)}%`,
+      itemsAboveThreshold: qualityReport.summary.itemsAboveThreshold,
+      itemsBelowThreshold: qualityReport.summary.itemsBelowThreshold,
+      totalValidationIssues: qualityReport.validation.totalValidationIssues,
+    })
+
+    // Display quality report
+    if (options.verbose) {
+      console.error('\n=== Data Quality Report ===')
+      console.error(formatQualityReport(qualityReport))
+      console.error('')
+    }
+
+    // Check for duplicate IDs (TASK-028)
+    const duplicateIds = detectDuplicateIds(normalizedData.eras)
+    if (duplicateIds.length > 0) {
+      logger.error('Duplicate IDs detected', {
+        count: duplicateIds.length,
+        duplicates: duplicateIds,
+      })
+      throw new Error(`Data validation failed: ${duplicateIds.length} duplicate IDs found`)
+    }
+
+    // Check quality threshold
+    if (
+      qualityReport.summary.averageQualityScore < qualityReport.summary.qualityThreshold &&
+      qualityReport.summary.itemsBelowThreshold > 0
+    ) {
+      logger.warn('Quality threshold not met', {
+        threshold: `${(qualityReport.summary.qualityThreshold * 100).toFixed(0)}%`,
+        actual: `${(qualityReport.summary.averageQualityScore * 100).toFixed(1)}%`,
+        itemsBelowThreshold: qualityReport.summary.itemsBelowThreshold,
+      })
+    }
+
     if (options.mode === 'incremental') {
       logger.info('Running in incremental mode - loading existing data')
       const existingData = await loadExistingData(resolve(options.output))
@@ -2247,6 +2185,45 @@ const main = async (): Promise<void> => {
         logger.info('Existing data loaded - merging with new data', {
           existingEras: existingData.length,
         })
+
+        // Generate diff before merging (TASK-032)
+        // Note: existingData is typed as ExistingEraData[] which is a looser type than NormalizedEra[]
+        // This is safe because generateDataDiff only accesses common properties
+        const dataDiff = generateDataDiff(
+          existingData as unknown as NormalizedEra[],
+          normalizedData.eras,
+        )
+
+        if (dataDiff.hasChanges) {
+          logger.info('Data changes detected', {
+            erasAdded: dataDiff.summary.erasAdded,
+            erasRemoved: dataDiff.summary.erasRemoved,
+            erasModified: dataDiff.summary.erasModified,
+            itemsAdded: dataDiff.summary.itemsAdded,
+            itemsRemoved: dataDiff.summary.itemsRemoved,
+            itemsModified: dataDiff.summary.itemsModified,
+            episodesAdded: dataDiff.summary.episodesAdded,
+            episodesRemoved: dataDiff.summary.episodesRemoved,
+            episodesModified: dataDiff.summary.episodesModified,
+          })
+
+          if (options.verbose && dataDiff.episodeChanges.length > 0) {
+            console.error('\n=== Episode Changes (first 10) ===')
+            dataDiff.episodeChanges.slice(0, 10).forEach(change => {
+              console.error(
+                `  ${change.changeType.toUpperCase()}: ${change.episodeId}${
+                  change.fieldsChanged ? ` (${change.fieldsChanged.join(', ')})` : ''
+                }`,
+              )
+            })
+            if (dataDiff.episodeChanges.length > 10) {
+              console.error(`  ... and ${dataDiff.episodeChanges.length - 10} more changes`)
+            }
+            console.error('')
+          }
+        } else {
+          logger.info('No data changes detected - output will remain unchanged')
+        }
 
         const mergedEras = mergeIncrementalData(existingData, normalizedData.eras)
         normalizedData = {
