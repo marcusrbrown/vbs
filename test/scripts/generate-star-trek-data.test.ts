@@ -52,10 +52,12 @@ describe('generate-star-trek-data CLI script', () => {
     expect(scriptContent).toContain("from './lib/cli-utils.js'")
     expect(scriptContent).toContain("from './lib/source-config.js'")
     expect(scriptContent).toContain("from '../src/modules/logger.js'")
+    expect(scriptContent).toContain("from '../src/modules/metadata-sources.js'")
     expect(scriptContent).toContain('loadEnv')
     expect(scriptContent).toContain('parseBooleanFlag')
     expect(scriptContent).toContain('parseStringValue')
-    expect(scriptContent).toContain('initializeMetadataSources')
+    expect(scriptContent).toContain('createMetadataSources')
+    expect(scriptContent).toContain('getMetadataConfig')
     expect(scriptContent).toContain('createLogger')
   })
 
@@ -140,8 +142,9 @@ describe('generate-star-trek-data CLI script', () => {
     const scriptPath = resolve(process.cwd(), 'scripts/generate-star-trek-data.ts')
     const scriptContent = readFileSync(scriptPath, 'utf-8')
 
-    // Verify metadata source initialization
-    expect(scriptContent).toContain('initializeMetadataSources()')
+    // Verify metadata source initialization with production modules
+    expect(scriptContent).toContain('createMetadataSources')
+    expect(scriptContent).toContain('getMetadataConfig')
     expect(scriptContent).toContain('logMetadataSourceStatus')
   })
 

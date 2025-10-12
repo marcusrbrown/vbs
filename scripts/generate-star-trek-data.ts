@@ -32,9 +32,11 @@
  *   pnpm exec jiti scripts/generate-star-trek-data.ts --dry-run --verbose
  */
 
+import type {MetadataSourceInstance} from '../src/modules/types.js'
 import {resolve} from 'node:path'
 import process from 'node:process'
 import {createLogger} from '../src/modules/logger.js'
+import {createMetadataSources} from '../src/modules/metadata-sources.js'
 import {
   EXIT_CODES,
   loadEnv,
@@ -44,7 +46,7 @@ import {
   showHelpAndExit,
   type BaseCLIOptions,
 } from './lib/cli-utils.js'
-import {initializeMetadataSources, logMetadataSourceStatus} from './lib/source-config.js'
+import {getMetadataConfig, logMetadataSourceStatus} from './lib/source-config.js'
 
 /**
  * Discovered series information from TMDB.
@@ -125,34 +127,6 @@ interface TMDBSeasonDetails {
     still_path: string | null
     vote_average: number
     vote_count: number
-  }[]
-}
-
-/**
- * TMDB episode details response structure with crew information.
- */
-interface TMDBEpisodeDetails {
-  id: number
-  name: string
-  overview: string
-  episode_number: number
-  season_number: number
-  air_date: string
-  runtime: number | null
-  still_path: string | null
-  vote_average: number
-  vote_count: number
-  crew: {
-    id: number
-    name: string
-    job: string
-    department: string
-  }[]
-  guest_stars: {
-    id: number
-    name: string
-    character: string
-    order: number
   }[]
 }
 
@@ -768,10 +742,6 @@ const discoverStarTrekMovies = async (
   return discovered
 }
 
-// ============================================================================
-// DATA NORMALIZATION PIPELINE (TASK-016)
-// ============================================================================
-
 /**
  * Normalized season item for VBS format.
  * Represents a single season within an era's items array.
@@ -1001,10 +971,6 @@ const normalizeSeries = (series: EnrichedSeriesData): NormalizedSeasonItem[] => 
   return series.seasons.map(season => normalizeSeason(series.name, season))
 }
 
-// ============================================================================
-// INTELLIGENT MERGING FROM MULTIPLE SOURCES (TASK-020)
-// ============================================================================
-
 /**
  * Source priority for data merging.
  * Higher priority sources override data from lower priority sources.
@@ -1033,17 +999,14 @@ export const mergeEpisodeFromSources = (
     return null
   }
 
-  // Sort by priority (highest first)
   const sorted = [...episodeData].sort((a, b) => {
     const priorityA = SOURCE_PRIORITY[a.source as keyof typeof SOURCE_PRIORITY] ?? 0
     const priorityB = SOURCE_PRIORITY[b.source as keyof typeof SOURCE_PRIORITY] ?? 0
     return priorityB - priorityA
   })
 
-  // Start with base data from highest priority source
   const merged = {...sorted[0]} as EnrichedEpisodeData
 
-  // Merge fields from other sources only if missing in higher priority sources
   for (const data of sorted.slice(1)) {
     if (merged.title == null && data.title != null) merged.title = data.title
     if (merged.overview == null && data.overview != null) merged.overview = data.overview
@@ -1077,17 +1040,14 @@ export const mergeMovieFromSources = (
     return null
   }
 
-  // Sort by priority (highest first)
   const sorted = [...movieData].sort((a, b) => {
     const priorityA = SOURCE_PRIORITY[a.source as keyof typeof SOURCE_PRIORITY] ?? 0
     const priorityB = SOURCE_PRIORITY[b.source as keyof typeof SOURCE_PRIORITY] ?? 0
     return priorityB - priorityA
   })
 
-  // Start with base data from highest priority source
   const merged = {...sorted[0]} as EnrichedMovieData
 
-  // Merge fields from other sources only if missing in higher priority sources
   for (const data of sorted.slice(1)) {
     if (merged.title == null && data.title != null) merged.title = data.title
     if (merged.overview == null && data.overview != null) merged.overview = data.overview
@@ -1119,7 +1079,6 @@ export const resolveConflict = <T>(values: {value: T; source: string}[]): T | un
     return undefined
   }
 
-  // Sort by priority (highest first)
   const sorted = [...values].sort((a, b) => {
     const priorityA = SOURCE_PRIORITY[a.source as keyof typeof SOURCE_PRIORITY] ?? 0
     const priorityB = SOURCE_PRIORITY[b.source as keyof typeof SOURCE_PRIORITY] ?? 0
@@ -1133,10 +1092,6 @@ export const resolveConflict = <T>(values: {value: T; source: string}[]): T | un
 
   return firstValue.value
 }
-
-// ============================================================================
-// ERA CLASSIFICATION LOGIC (TASK-017)
-// ============================================================================
 
 /**
  * Era IDs for type-safe classification.
@@ -1359,10 +1314,6 @@ const groupItemsByEra = (
   return eras
 }
 
-// ============================================================================
-// CHRONOLOGICAL ORDERING ALGORITHMS (TASK-018)
-// ============================================================================
-
 /**
  * Extract numeric year from year string for sorting.
  * Returns Infinity for placeholders to ensure they sort after known dates.
@@ -1555,57 +1506,6 @@ const fetchSeasonDetails = async (
 }
 
 /**
- * Fetch episode details from TMDB with crew and guest star information.
- * Includes directors, writers, and guest stars for comprehensive metadata.
- */
-const fetchEpisodeDetails = async (
-  seriesId: number,
-  seasonNumber: number,
-  episodeNumber: number,
-  logger: ReturnType<typeof createLogger>,
-): Promise<TMDBEpisodeDetails | null> => {
-  const apiKey = process.env.TMDB_API_KEY
-  if (!apiKey) {
-    logger.warn('TMDB_API_KEY not configured, skipping episode details fetch')
-    return null
-  }
-
-  const url = `https://api.themoviedb.org/3/tv/${seriesId}/season/${seasonNumber}/episode/${episodeNumber}`
-  const headers = {
-    Authorization: `Bearer ${apiKey}`,
-    'Content-Type': 'application/json',
-  }
-
-  try {
-    const response = await fetch(url, {headers})
-    if (!response.ok) {
-      logger.error('TMDB API error for episode', {
-        status: response.status,
-        seriesId,
-        seasonNumber,
-        episodeNumber,
-      })
-      return null
-    }
-
-    const data = (await response.json()) as TMDBEpisodeDetails
-    return data
-  } catch (error: unknown) {
-    const errorDetails = {
-      name: error instanceof Error ? error.name : 'UnknownError',
-      message: error instanceof Error ? error.message : String(error),
-    }
-    logger.error('Failed to fetch episode details', {
-      seriesId,
-      seasonNumber,
-      episodeNumber,
-      error: errorDetails,
-    })
-    return null
-  }
-}
-
-/**
  * Generate VBS episode ID following naming convention: series_s{season}_e{episode}
  * Example: "Star Trek: The Next Generation" S3E15 → "tng_s3_e15"
  */
@@ -1620,47 +1520,13 @@ const generateEpisodeId = (seriesName: string, season: number, episode: number):
 }
 
 /**
- * Transform TMDB episode data to VBS format with crew information.
- * Extracts directors, writers, and top 5 guest stars from TMDB crew data.
- */
-const enrichEpisodeData = (
-  seriesName: string,
-  seasonNumber: number,
-  episodeNumber: number,
-  tmdbEpisode: TMDBEpisodeDetails,
-): EnrichedEpisodeData => {
-  const directors = tmdbEpisode.crew.filter(crew => crew.job === 'Director').map(crew => crew.name)
-  const writers = tmdbEpisode.crew
-    .filter(crew => crew.job === 'Writer' || crew.job === 'Teleplay')
-    .map(crew => crew.name)
-
-  return {
-    episodeId: generateEpisodeId(seriesName, seasonNumber, episodeNumber),
-    tmdbId: tmdbEpisode.id,
-    title: tmdbEpisode.name,
-    season: seasonNumber,
-    episode: episodeNumber,
-    airDate: tmdbEpisode.air_date,
-    overview: tmdbEpisode.overview,
-    runtime: tmdbEpisode.runtime,
-    director: directors.length > 0 ? directors.join(', ') : undefined,
-    writer: writers.length > 0 ? writers.join(', ') : undefined,
-    guestStars:
-      tmdbEpisode.guest_stars.length > 0
-        ? tmdbEpisode.guest_stars.slice(0, 5).map(star => `${star.name} as ${star.character}`)
-        : undefined,
-    voteAverage: tmdbEpisode.vote_average > 0 ? tmdbEpisode.vote_average : undefined,
-    voteCount: tmdbEpisode.vote_count > 0 ? tmdbEpisode.vote_count : undefined,
-  }
-}
-
-/**
- * Enumerate all seasons and episodes for a discovered series with rate limiting.
- * Rate limits: 250ms between episodes (~4 req/s), 500ms between seasons to respect TMDB quota (40 req/10s).
+ * Enumerate all seasons and episodes for a discovered series using production metadata sources.
+ * Uses token bucket rate limiting from metadata-sources module (no manual delays needed).
  */
 const enumerateSeriesEpisodes = async (
   series: DiscoveredSeries,
   logger: ReturnType<typeof createLogger>,
+  metadataSources: MetadataSourceInstance,
 ): Promise<EnrichedSeriesData> => {
   logger.info(`Enumerating episodes for: ${series.name}`)
 
@@ -1680,26 +1546,30 @@ const enumerateSeriesEpisodes = async (
     for (const episode of seasonDetails.episodes) {
       logger.debug(`Fetching episode S${seasonNum}E${episode.episode_number}: ${episode.name}`)
 
-      const episodeDetails = await fetchEpisodeDetails(
-        series.id,
-        seasonNum,
-        episode.episode_number,
-        logger,
-      )
+      const episodeId = generateEpisodeId(series.name, seasonNum, episode.episode_number)
 
-      if (episodeDetails) {
-        const enrichedEpisode = enrichEpisodeData(
-          series.name,
-          seasonNum,
-          episode.episode_number,
-          episodeDetails,
-        )
+      const metadata = await metadataSources.enrichEpisode(episodeId)
+
+      if (metadata) {
+        const enrichedEpisode: EnrichedEpisodeData = {
+          episodeId,
+          tmdbId: episode.id,
+          title: episode.name,
+          season: seasonNum,
+          episode: episode.episode_number,
+          airDate: episode.air_date,
+          overview: episode.overview,
+          runtime: episode.runtime,
+          director: undefined,
+          writer: undefined,
+          guestStars: undefined,
+          voteAverage: episode.vote_average > 0 ? episode.vote_average : undefined,
+          voteCount: episode.vote_count > 0 ? episode.vote_count : undefined,
+        }
         enrichedEpisodes.push(enrichedEpisode)
       } else {
-        logger.warn(`Failed to fetch episode details for S${seasonNum}E${episode.episode_number}`)
+        logger.warn(`Failed to enrich episode ${episodeId}`)
       }
-
-      await new Promise<void>((resolve: () => void) => setTimeout(resolve, TMDB_RATE_LIMIT_MS))
     }
 
     enrichedSeasons.push({
@@ -1710,8 +1580,6 @@ const enumerateSeriesEpisodes = async (
       episodeCount: seasonDetails.episode_count,
       episodes: enrichedEpisodes,
     })
-
-    await new Promise<void>((resolve: () => void) => setTimeout(resolve, TMDB_RATE_LIMIT_MS * 2))
   }
 
   logger.info(
@@ -1746,7 +1614,6 @@ const discoverStarTrekSeries = async (
 
   const discovered: DiscoveredSeries[] = []
 
-  // Filter series list if specific series requested
   const seriesToDiscover = filterSeries
     ? STAR_TREK_SERIES.filter((name: string) =>
         name.toLowerCase().includes(filterSeries.toLowerCase()),
@@ -1773,17 +1640,11 @@ const discoverStarTrekSeries = async (
         `Discovered: ${details.name} (${details.numberOfSeasons} seasons, ${details.numberOfEpisodes} episodes)`,
       )
     }
-
-    await new Promise<void>((resolve: () => void) => setTimeout(resolve, TMDB_RATE_LIMIT_MS))
   }
 
   logger.info(`Discovery complete: Found ${discovered.length} series`)
   return discovered
 }
-
-// ============================================================================
-// TYPESCRIPT CODE GENERATION (TASK-019)
-// ============================================================================
 
 const escapeStringForTS = (str: string): string => {
   return str
@@ -1917,7 +1778,6 @@ const parseArguments = (args: string[]): GenerateDataOptions => {
   const series = parseStringValue(args, '--series')
   const output = parseStringValue(args, '--output') ?? DEFAULT_OPTIONS.output
 
-  // Enforce strict validation: only 'full' or 'incremental' modes allowed
   if (modeStr !== 'full' && modeStr !== 'incremental') {
     showErrorAndExit(
       `Invalid mode: ${modeStr}. Must be 'full' or 'incremental'.`,
@@ -1935,10 +1795,6 @@ const parseArguments = (args: string[]): GenerateDataOptions => {
     validate,
   }
 }
-
-// ============================================================================
-// INCREMENTAL UPDATE MODE (TASK-025)
-// ============================================================================
 
 /**
  * Existing era data structure from star-trek-data.ts for incremental merging.
@@ -1975,28 +1831,23 @@ export const mergeIncrementalData = (
   const mergedEras: NormalizedEra[] = []
 
   for (const newEra of newData) {
-    // Find corresponding existing era
     const existingEra = existingData.find(e => e.id === newEra.id)
 
     if (existingEra == null) {
-      // New era, include as-is
       mergedEras.push(newEra)
       continue
     }
 
-    // Merge items within the era
     const mergedItems: (NormalizedSeasonItem | NormalizedMovieItem)[] = []
 
     for (const newItem of newEra.items) {
       const existingItem = existingEra.items.find(i => i.id === newItem.id)
 
       if (existingItem == null) {
-        // New item, include as-is
         mergedItems.push(newItem)
         continue
       }
 
-      // Preserve manual notes and custom fields
       const mergedItem: NormalizedSeasonItem | NormalizedMovieItem = {
         ...newItem,
       }
@@ -2008,7 +1859,6 @@ export const mergeIncrementalData = (
       mergedItems.push(mergedItem)
     }
 
-    // Create merged era
     mergedEras.push({
       ...newEra,
       items: mergedItems,
@@ -2034,14 +1884,12 @@ export const loadExistingData = async (filePath: string): Promise<ExistingEraDat
       return null
     }
 
-    // Import the existing data module
     const absolutePath = resolve(filePath)
     const dataModule = await import(absolutePath)
     const existingData = dataModule.starTrekData as ExistingEraData[]
 
     return existingData
   } catch {
-    // File doesn't exist or cannot be parsed
     return null
   }
 }
@@ -2074,8 +1922,22 @@ const main = async (): Promise<void> => {
   }
 
   logger.debug('Initializing metadata sources')
-  initializeMetadataSources()
+  const metadataConfig = getMetadataConfig()
+  const metadataSources: MetadataSourceInstance = createMetadataSources(metadataConfig)
   logger.info('Metadata sources initialized successfully')
+
+  metadataSources.on('enrichment-failed', ({episodeId, errors}) => {
+    logger.error('Metadata enrichment failed', {
+      episodeId,
+      errorCount: errors.length,
+      errors: errors.map(e => ({category: e.category, message: e.message, source: e.sourceApi})),
+    })
+  })
+
+  metadataSources.on('health-status-change', ({sourceId, isHealthy, consecutiveFailures}) => {
+    const status = isHealthy ? 'healthy' : 'unhealthy'
+    logger.warn(`API health status changed: ${sourceId} is now ${status}`, {consecutiveFailures})
+  })
 
   try {
     logger.info('Starting data fetching pipeline')
@@ -2089,7 +1951,7 @@ const main = async (): Promise<void> => {
     const enrichedSeriesData: EnrichedSeriesData[] = []
 
     for (const series of discoveredSeries) {
-      const enrichedData = await enumerateSeriesEpisodes(series, logger)
+      const enrichedData = await enumerateSeriesEpisodes(series, logger, metadataSources)
       enrichedSeriesData.push(enrichedData)
     }
 
@@ -2116,7 +1978,6 @@ const main = async (): Promise<void> => {
       episodeCount: normalizedData.metadata.episodeCount,
     })
 
-    // TASK-025: Incremental update mode
     if (options.mode === 'incremental') {
       logger.info('Running in incremental mode - loading existing data')
       const existingData = await loadExistingData(resolve(options.output))
@@ -2140,7 +2001,6 @@ const main = async (): Promise<void> => {
       }
     }
 
-    // TASK-019: Code generation
     logger.info('Generating TypeScript code for star-trek-data.ts')
     const generatedCode = generateStarTrekDataFile(normalizedData)
     logger.info('Code generation complete', {
@@ -2148,14 +2008,12 @@ const main = async (): Promise<void> => {
       linesOfCode: generatedCode.split('\n').length,
     })
 
-    // TASK-020: Intelligent merging infrastructure is in place
     logger.info('Multi-source merging infrastructure ready', {
       supportedSources: ['Memory Alpha', 'TMDB', 'TrekCore', 'STAPI'],
       currentSource: 'TMDB',
       mergingFunctions: ['mergeEpisodeFromSources', 'mergeMovieFromSources', 'resolveConflict'],
     })
 
-    // TASK-024: Dry-run mode
     if (options.dryRun) {
       logger.info('Dry-run mode: No files will be modified')
       logger.info('Preview of generated data:', {
@@ -2167,7 +2025,6 @@ const main = async (): Promise<void> => {
         linesOfCode: generatedCode.split('\n').length,
       })
 
-      // Show preview of first 1000 characters
       const previewLength = Math.min(1000, generatedCode.length)
       console.error('\n=== Generated Code Preview (first 1000 chars) ===')
       console.error(generatedCode.slice(0, previewLength))
@@ -2178,7 +2035,6 @@ const main = async (): Promise<void> => {
 
       logger.info('Dry-run complete - no files were modified')
     } else {
-      // TASK-022: File writing with atomic operations
       logger.info('Writing generated data to file', {outputPath: resolve(options.output)})
 
       const {writeTextFileAtomic, formatTypeScriptCode} = await import('./lib/file-operations.js')
@@ -2195,7 +2051,6 @@ const main = async (): Promise<void> => {
         fileSize: formattedCode.length,
       })
 
-      // TASK-021: Data validation integration
       if (options.validate) {
         logger.info('Running data validation')
 
@@ -2244,7 +2099,6 @@ const main = async (): Promise<void> => {
       logger.info('Generation complete', {outputPath: resolve(options.output)})
     }
 
-    // TASK-023: Comprehensive logging summary
     logger.info('Data generation completed successfully', {
       mode: options.mode,
       seriesProcessed: normalizedData.metadata.seriesCount,

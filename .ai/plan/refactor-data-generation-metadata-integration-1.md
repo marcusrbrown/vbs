@@ -4,13 +4,13 @@ version: 1.0
 date_created: 2025-10-11
 last_updated: 2025-10-11
 owner: marcusrbrown
-status: Planned
+status: In Progress
 tags: [refactor, data-generation, metadata, code-quality, technical-debt]
 ---
 
 # Refactor Data Generation Script - Metadata Integration
 
-![Status: Planned](https://img.shields.io/badge/status-Planned-blue)
+![Status: In Progress](https://img.shields.io/badge/status-In_Progress-yellow)
 
 This implementation plan refactors the `generate-star-trek-data.ts` script to eliminate ~500 lines of duplicate TMDB integration code by reusing production-tested metadata modules (`metadata-sources.ts`, `metadata-utils.ts`, `metadata-quality.ts`). The refactor will improve code maintainability, consistency, reliability, and add quality assessment capabilities.
 
@@ -72,14 +72,14 @@ This implementation plan refactors the `generate-star-trek-data.ts` script to el
 
 | Task | Description | Completed | Date |
 |------|-------------|-----------|------|
-| TASK-001 | **Backup current implementation** - Create `scripts/generate-star-trek-data.ts.backup` and create feature branch `refactor/data-generation-metadata-integration` | | |
-| TASK-002 | **Remove custom TMDB functions** - Delete `searchSeries()`, `getSeriesDetails()`, `getSeasonDetails()`, `getEpisodeDetails()` functions (lines 378-600) | | |
-| TASK-003 | **Import metadata-sources module** - Add `import {createMetadataSources} from '../src/modules/metadata-sources.js'` with proper `.js` extension | | |
-| TASK-004 | **Initialize metadata sources factory** - Create `metadataSources` instance with config: TMDB (4 req/s, burst 40), Memory Alpha (1 req/s, burst 5), TrekCore (0.5 req/s, burst 3), STAPI (2 req/s, burst 10) | | |
-| TASK-005 | **Replace TMDB calls with enrichment API** - Replace all direct TMDB fetch calls with `metadataSources.enrichEpisode(episodeId)` | | |
-| TASK-006 | **Remove manual rate limiting** - Delete all `setTimeout()` delay logic (replaced by token bucket algorithm) | | |
-| TASK-007 | **Add health monitoring event listeners** - Implement event handlers for `rate-limit-exceeded`, `enrichment-failed` events | | |
-| TASK-008 | **Verify Node.js fetch compatibility** - Test script with Node.js built-in `fetch` or add `undici` polyfill if needed | | |
+| TASK-001 | **Backup current implementation** - Create `scripts/generate-star-trek-data.ts.backup` and create feature branch `refactor/data-generation-metadata-integration` | ✅ | 2025-10-11 |
+| TASK-002 | **Remove custom TMDB functions** - Delete `fetchEpisodeDetails()` and `enrichEpisodeData()` functions (episode enrichment now via metadata-sources) | ✅ | 2025-10-11 |
+| TASK-003 | **Import metadata-sources module** - Add `import {createMetadataSources} from '../src/modules/metadata-sources.js'` with proper `.js` extension | ✅ | 2025-10-11 |
+| TASK-004 | **Initialize metadata sources factory** - Create `metadataSources` instance with production config via `getMetadataConfig()` | ✅ | 2025-10-11 |
+| TASK-005 | **Replace TMDB calls with enrichment API** - Replace `fetchEpisodeDetails()` with `metadataSources.enrichEpisode(episodeId)` | ✅ | 2025-10-11 |
+| TASK-006 | **Remove manual rate limiting** - Delete `setTimeout()` delay logic from series enumeration (token bucket algorithm handles this) | ✅ | 2025-10-11 |
+| TASK-007 | **Add health monitoring event listeners** - Implement event handlers for `enrichment-failed`, `health-status-change` events | ✅ | 2025-10-11 |
+| TASK-008 | **Verify Node.js fetch compatibility** - Confirmed Node.js 18+ built-in `fetch` works (project uses v22.20.0) | ✅ | 2025-10-11 |
 
 ### Phase 2: Data Enrichment & Quality Assessment
 
