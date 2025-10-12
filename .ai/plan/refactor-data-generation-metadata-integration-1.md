@@ -102,12 +102,12 @@ This implementation plan refactors the `generate-star-trek-data.ts` script to el
 
 | Task | Description | Completed | Date |
 |------|-------------|-----------|------|
-| TASK-017 | **Implement error event handlers** - Add listeners for `enrichment-failed` event with error categorization (network, rate-limit, data-format, etc.) | | |
-| TASK-018 | **Add error summary reporting** - Use `metadataSources.getUsageAnalytics()` to generate error counts by source, response times, cache hit rates | | |
-| TASK-019 | **Implement health status monitoring** - Call `metadataSources.getHealthStatus()` and log health indicators (consecutive failures, avg response time) per source | | |
-| TASK-020 | **Add automatic source fallback** - Detect unhealthy sources and switch to alternatives (e.g., TMDB → Memory Alpha + TrekCore) | | |
-| TASK-021 | **Replace basic try-catch blocks** - Use `withErrorHandling()` wrapper for async operations with automatic error categorization | | |
-| TASK-022 | **Add actionable error messages** - Include retry guidance, affected episode IDs, and resolution steps in error output | | |
+| TASK-017 | **Implement error event handlers** - Add listeners for `enrichment-failed` event with error categorization (network, rate-limit, data-format, etc.) | ✅ | 2025-10-11 |
+| TASK-018 | **Add error summary reporting** - Use `metadataSources.getUsageAnalytics()` to generate error counts by source, response times, cache hit rates | ✅ | 2025-10-11 |
+| TASK-019 | **Implement health status monitoring** - Call `metadataSources.getHealthStatus()` and log health indicators (consecutive failures, avg response time) per source | ✅ | 2025-10-11 |
+| TASK-020 | **Add automatic source fallback** - Detect unhealthy sources and switch to alternatives (e.g., TMDB → Memory Alpha + TrekCore) | ✅ | 2025-10-11 |
+| TASK-021 | **Replace basic try-catch blocks** - Use `withErrorHandling()` wrapper for async operations with automatic error categorization | ✅ | 2025-10-11 |
+| TASK-022 | **Add actionable error messages** - Include retry guidance, affected episode IDs, and resolution steps in error output | ✅ | 2025-10-11 |
 
 ### Phase 4: Testing & Validation
 
