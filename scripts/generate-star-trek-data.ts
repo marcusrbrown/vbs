@@ -1226,6 +1226,114 @@ const groupItemsByEra = (
   return eras
 }
 
+// ============================================================================
+// CHRONOLOGICAL ORDERING ALGORITHMS (TASK-018)
+// ============================================================================
+
+/**
+ * Extract numeric year from year string for sorting.
+ * Returns Infinity for placeholders to ensure they sort after known dates.
+ */
+const extractYearForSorting = (yearString: string): number => {
+  if (yearString === 'TBD' || !yearString) {
+    return Infinity
+  }
+
+  const match = yearString.match(/^\d{4}/)
+  return match ? Number.parseInt(match[0], 10) : Infinity
+}
+
+/**
+ * Extract numeric stardate for sorting across different era formats.
+ * Returns Infinity for placeholders to maintain sort stability.
+ */
+const extractStardateForSorting = (stardateString: string): number => {
+  if (stardateString === 'None' || stardateString === 'TBD' || stardateString === 'Stardate TBD') {
+    return Infinity
+  }
+
+  const stardatePatterns = [/~?(\d+)\.(\d+)/, /Stardate\s+(\d+)\.(\d+)/, /(\d+)\.(\d+)-/]
+
+  for (const pattern of stardatePatterns) {
+    const match = stardateString.match(pattern)
+    if (match?.[1] != null && match?.[2] != null) {
+      const wholePart = Number.parseInt(match[1], 10)
+      const decimalPart = Number.parseInt(match[2], 10)
+      return wholePart + decimalPart / 100
+    }
+  }
+
+  return Infinity
+}
+
+/**
+ * Compare items chronologically using in-universe timeline markers.
+ * Primary sort: year, Secondary sort: stardate for fine-grained ordering.
+ */
+const compareItemsChronologically = (
+  a: NormalizedSeasonItem | NormalizedMovieItem,
+  b: NormalizedSeasonItem | NormalizedMovieItem,
+): number => {
+  const yearA = extractYearForSorting(a.year)
+  const yearB = extractYearForSorting(b.year)
+
+  if (yearA !== yearB) {
+    return yearA - yearB
+  }
+
+  const stardateA = extractStardateForSorting(a.stardate)
+  const stardateB = extractStardateForSorting(b.stardate)
+
+  return stardateA - stardateB
+}
+
+/**
+ * Sort episodes by real-world air date for accurate chronological ordering.
+ * Falls back to episode number when air dates are invalid.
+ */
+const sortEpisodesChronologically = (
+  episodes: NormalizedEpisodeItem[],
+): NormalizedEpisodeItem[] => {
+  return [...episodes].sort((a, b) => {
+    const dateA = new Date(a.airDate).getTime()
+    const dateB = new Date(b.airDate).getTime()
+
+    if (!Number.isNaN(dateA) && !Number.isNaN(dateB)) {
+      return dateA - dateB
+    }
+
+    return a.episode - b.episode
+  })
+}
+
+/**
+ * Apply chronological ordering to era items and nested episodes.
+ * Maintains immutability by creating new objects rather than mutating.
+ */
+const sortEraChronologically = (era: NormalizedEra): NormalizedEra => {
+  const sortedItems = [...era.items].sort(compareItemsChronologically).map(item => {
+    if (item.type === 'series') {
+      return {
+        ...item,
+        episodeData: sortEpisodesChronologically(item.episodeData),
+      }
+    }
+    return item
+  })
+
+  return {
+    ...era,
+    items: sortedItems,
+  }
+}
+
+/**
+ * Apply chronological ordering to all eras based on in-universe timelines.
+ */
+const applyChronologicalOrdering = (eras: NormalizedEra[]): NormalizedEra[] => {
+  return eras.map(sortEraChronologically)
+}
+
 /**
  * Create data normalization pipeline with era classification.
  * Transforms enriched metadata into VBS format grouped by chronological eras.
@@ -1251,8 +1359,15 @@ const createNormalizationPipeline = (
 
   const eras = groupItemsByEra(allSeasonItems, allMovieItems, logger)
 
+  logger.info('Applying chronological ordering to eras')
+  const sortedEras = applyChronologicalOrdering(eras)
+
+  logger.info('Chronological ordering complete', {
+    eraCount: sortedEras.length,
+  })
+
   return {
-    eras,
+    eras: sortedEras,
     metadata: {
       generatedAt: new Date().toISOString(),
       seriesCount: allSeries.length,
@@ -1636,9 +1751,6 @@ const main = async (): Promise<void> => {
       movieCount: normalizedData.metadata.movieCount,
       episodeCount: normalizedData.metadata.episodeCount,
     })
-
-    // TASK-018: Chronological ordering (implementation follows)
-    logger.debug('Chronological ordering will be implemented next')
 
     // TASK-019: Code generation templates (implementation follows)
     logger.debug('Code generation templates will be implemented next')
