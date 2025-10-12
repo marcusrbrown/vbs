@@ -16,6 +16,9 @@ The architecture emphasizes type safety through advanced TypeScript generics, ge
 
 - [Generic Types Examples](docs/generic-types-examples.md): Comprehensive examples of the generic TypeScript system with EventEmitters and storage utilities
 - [Composition Examples](docs/composition-examples.md): Real-world functional composition patterns and utilities usage throughout VBS
+- [Data Generation Guide](docs/data-generation.md): Comprehensive guide to the automated data generation pipeline using production metadata modules
+- [Data Generation Migration](docs/data-generation-migration.md): Migration guide for data generation script refactor and metadata integration
+- [Environment Variables](docs/environment-variables.md): Configuration guide for API credentials and development environment setup
 - [IndexedDB Migration Plan](docs/indexeddb-migration.md): Technical specification for planned migration from LocalStorage to IndexedDB
 - [Metadata Storage Integration](docs/metadata-storage-integration.md): Architecture and implementation details for metadata enrichment and caching systems
 - [Settings Architecture](docs/settings-architecture.md): Design specification for user preferences and settings management system
@@ -73,6 +76,13 @@ The architecture emphasizes type safety through advanced TypeScript generics, ge
 - [Metadata Usage Controls](src/components/metadata-usage-controls.ts): UI controls for managing metadata fetching and caching behavior
 - [Component Styles](src/components/): CSS files for component styling and responsive design patterns
 
+## Scripts & Utilities
+
+- [Data Generation Script](scripts/generate-star-trek-data.ts): Automated pipeline for generating Star Trek episode data using production metadata modules
+- [Episode Data Validation](scripts/validate-episode-data.ts): CLI utility for validating episode data structure, IDs, and metadata completeness
+- [CLI Utilities](scripts/lib/cli-utils.ts): Shared utilities for CLI scripts including environment loading, argument parsing, and exit codes
+- [Source Configuration](scripts/lib/source-config.ts): Metadata source initialization and API credential management utilities
+
 ## Configuration & Development
 
 - [Package Configuration](package.json): Dependencies, scripts, and project metadata with pnpm workspace setup
@@ -84,6 +94,9 @@ The architecture emphasizes type safety through advanced TypeScript generics, ge
 ## Planning & Development
 
 - [Feature Prompts](.ai/notes/feature-prompts.md): Collection of detailed feature development prompts and implementation ideas
+- [Data Generation Integration Plan](.ai/notes/data-generation-integration-plan.md): Detailed analysis and planning document for metadata module integration
+- [Data Generation Integration Summary](.ai/notes/data-generation-integration-summary.md): Executive summary of data generation refactor problem statement and solution
+- [Environment Integration Summary](.ai/notes/environment-integration-summary.md): Summary of dotenv integration and environment variable configuration implementation
 - [Episode Tracking Feature Plan](.ai/plan/feature-episode-tracking-1.md): Detailed specification for individual episode progress tracking
 - [Episode Metadata Enrichment Plan](.ai/plan/feature-episode-metadata-enrichment-1.md): Technical specification for external metadata integration and enrichment
 - [Advanced Visualization Plan](.ai/plan/feature-advanced-visualization-1.md): Technical roadmap for D3.js timeline visualization features
@@ -92,6 +105,7 @@ The architecture emphasizes type safety through advanced TypeScript generics, ge
 - [Functional Composition Plan](.ai/plan/feature-functional-composition-1.md): Architecture specification for functional programming utilities
 - [Git Pre-commit Hooks Plan](.ai/plan/process-git-precommit-hooks-1.md): Implementation plan for automated code quality enforcement
 - [Production Readiness Infrastructure](.ai/plan/infrastructure-production-readiness-1.md): Comprehensive plan for production deployment readiness
+- [Data Generation Metadata Integration](.ai/plan/refactor-data-generation-metadata-integration-1.md): Completed refactor plan for integrating production metadata modules into data generation script
 - [ESLint Remediation Refactor](.ai/plan/refactor-eslint-remediation-1.md): Plan for upgrading and fixing ESLint configuration issues
 - [Generic Types Refactor Plan](.ai/plan/refactor-generic-types-1.md): Specification for enhanced type safety through generic TypeScript patterns
 - [Functional Factory Refactor Plan](.ai/plan/refactor-modules-functional-1.md): Migration plan from class-based to functional factory architecture
