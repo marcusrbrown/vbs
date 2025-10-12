@@ -49,6 +49,7 @@ The project uses **functional factory patterns** with closures for state managem
 - `createEventEmitter<T>` (events.ts): Generic EventEmitter factory with type-safe event handling
 - `createLogger` (logger.ts): Generic logging utility with configurable levels, filtering, metrics, and persistence
 - `createStorage` (storage.ts): Generic storage utilities with EventEmitter notifications (`StorageEvents`)
+- `createVersionManager` (version-manager.ts): Semantic versioning system for schema evolution with forward/backward compatibility checking
 - `migration.ts`: Data migration utilities for schema evolution and version management
 - `progress-validation.ts`: Validation and error recovery for progress data integrity
 - `error-handler.ts`: Centralized error management with `withErrorHandling()` and `withSyncErrorHandling()` wrappers
@@ -600,6 +601,113 @@ const migrationState = getMigrationState()
 // { currentVersion: '2.0', lastMigrated: '2025-08-07', backupData: [...] }
 ```
 
+## Version Management System
+
+VBS implements a comprehensive semantic versioning system (`src/modules/version-manager.ts`) for tracking schema evolution across multiple data structures. The version manager coordinates with migration utilities to ensure safe data upgrades and backward compatibility.
+
+### Core Concepts
+
+**Semantic Versioning**: All schemas use `major.minor.patch[-prerelease][+build]` format
+- **Major**: Breaking changes requiring migration
+- **Minor**: Backward-compatible additions
+- **Patch**: Bug fixes and non-functional changes
+- **Prerelease**: Alpha, beta, rc versions
+- **Build**: Build metadata (ignored in comparisons)
+
+**Tracked Schemas**: Storage, Progress, Episodes, Preferences, Migration
+- Each schema has independent versioning
+- Compatibility matrices define forward/backward compatibility
+- Migration strategies determined automatically
+
+### Version Manager Usage
+
+```typescript
+import { versionManager } from './modules/version-manager.js'
+
+// Check if migration is needed
+const migrationCheck = versionManager.isMigrationNeeded()
+if (migrationCheck.needed) {
+  console.log('Schemas needing migration:', migrationCheck.schemas)
+  console.log('Migration strategies:', migrationCheck.strategies)
+}
+
+// Validate data compatibility
+const compatibility = versionManager.validateCompatibility(
+  { major: 1, minor: 5, patch: 0 },
+  'progress'
+)
+console.log(compatibility.strategy) // 'use-as-is' | 'migrate' | 'reject'
+
+// Parse and compare versions
+const v1 = versionManager.parseVersion('2.1.0-beta.1+build.123')
+const v2 = versionManager.parseVersion('2.0.0')
+const comparison = versionManager.compareVersions(v1, v2) // 1 (v1 > v2)
+
+// Update versions after successful migration
+versionManager.updateVersions({
+  storage: { major: 2, minor: 1, patch: 0 },
+  progress: { major: 2, minor: 1, patch: 0 }
+})
+
+// Initialize version tracking (first-time setup)
+versionManager.initializeVersions()
+```
+
+### Current Schema Versions
+
+```typescript
+// From versionManager.CURRENT_VERSIONS
+{
+  storage: { major: 2, minor: 0, patch: 0 },
+  progress: { major: 2, minor: 0, patch: 0 },
+  episodes: { major: 1, minor: 0, patch: 0 },
+  preferences: { major: 1, minor: 0, patch: 0 },
+  migration: { major: 1, minor: 0, patch: 0 }
+}
+```
+
+### Migration Strategy Patterns
+
+```typescript
+// Automatic migration for compatible versions
+const strategy = versionManager.isMigrationNeeded()
+strategy.strategies.forEach(s => {
+  if (s.strategy === 'automatic') {
+    // Safe to auto-migrate
+    performMigration(s.from, s.to)
+  } else if (s.strategy === 'manual') {
+    // Requires manual intervention
+    console.warn(s.warningMessage)
+  } else {
+    // Unsupported - reject data
+    throw new Error(`Cannot migrate from ${s.from}`)
+  }
+})
+```
+
+### Integration with Storage
+
+The version manager is integrated with `storage.ts` for automatic version tracking:
+
+```typescript
+// Storage automatically checks versions
+const progress = loadProgress() // Triggers version validation
+
+// Storage updates versions on save
+saveProgress(data) // Updates version manager state
+
+// Manual version checking
+const storedVersions = versionManager.getStoredVersions()
+console.log('Current storage version:', storedVersions?.storage)
+```
+
+**Key Principles:**
+- **Singleton instance**: Use global `versionManager` instance
+- **Automatic detection**: Version checks happen transparently during storage operations
+- **Safe migrations**: Compatibility matrix prevents unsafe upgrades
+- **Rollback support**: Version history tracked in localStorage
+- **Error boundaries**: All version operations wrapped with `withSyncErrorHandling()`
+
 ## Development Workflow
 
 ### Environment Configuration
@@ -967,6 +1075,7 @@ When adding features, consider these integration points:
 - **Metadata storage**: Customize caching policies and TTL values in `metadata-storage.ts` for different data types
 - **Queue job types**: Add new metadata operation types beyond `enrich`, `refresh`, `validate`, `cache-warm` in `metadata-queue.ts`
 - **Migration strategies**: Extend `migration.ts` with new version handlers for schema evolution
+- **Version compatibility**: Update `version-manager.ts` compatibility matrices when introducing breaking changes
 - **Validation rules**: Add new validation patterns in `progress-validation.ts` for data integrity
 - **Spoiler management**: Extend spoiler-safe filtering with new content classification levels
 - **Composition pipelines**: Create new pipeline builders using `createPipeline()` for domain-specific transformations
@@ -984,4 +1093,5 @@ When adding features, consider these integration points:
 - Use debugging utilities (`debugTap`, `createDebugPipe`) for development and troubleshooting
 - Follow ID validation patterns for data integrity (`isValidEpisodeId`, `isValidSeasonId`)
 - Implement migration strategies for schema changes using `migration.ts` utilities
+- Use `versionManager` for schema version tracking and compatibility validation
 - Use spoiler-safe progressive disclosure for sensitive content
