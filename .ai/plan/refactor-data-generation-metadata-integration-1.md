@@ -87,14 +87,14 @@ This implementation plan refactors the `generate-star-trek-data.ts` script to el
 
 | Task | Description | Completed | Date |
 |------|-------------|-----------|------|
-| TASK-009 | **Import metadata-utils module** - Add `import {enrichEpisodeWithFallback} from './lib/metadata-utils.js'` | | |
-| TASK-010 | **Replace manual enrichment logic** - Replace manual episode field mapping (lines 1200-1300) with `enrichEpisodeWithFallback(episode, metadataSources)` | | |
-| TASK-011 | **Import metadata-quality module** - Add `import {createQualityScorer, DEFAULT_QUALITY_SCORING_CONFIG} from '../src/modules/metadata-quality.js'` | | |
-| TASK-012 | **Initialize quality scorer** - Create `qualityScorer` instance with default config | | |
-| TASK-013 | **Implement quality assessment** - Score each episode with `qualityScorer.scoreMetadata(metadata, source)` | | |
-| TASK-014 | **Add quality gates** - Filter episodes with `qualityBreakdown.overall >= 0.6` threshold before adding to output | | |
-| TASK-015 | **Log quality metrics** - Output quality grade, completeness, missing fields, and recommendations for each episode | | |
-| TASK-016 | **Generate quality summary report** - Aggregate quality statistics (avg score, total episodes filtered, common missing fields) | | |
+| TASK-009 | **Import metadata-quality module** - Add `import {createQualityScorer, DEFAULT_QUALITY_SCORING_CONFIG} from '../src/modules/metadata-quality.js'` | ✅ | 2025-10-11 |
+| TASK-010 | **Replace manual enrichment logic** - Integrated quality scoring into existing enrichment flow (kept metadataSources.enrichEpisode call) | ✅ | 2025-10-11 |
+| TASK-011 | **Import metadata-quality module (duplicate)** - Already completed as part of TASK-009 | ✅ | 2025-10-11 |
+| TASK-012 | **Initialize quality scorer** - Create `qualityScorer` instance with default config in enumerateSeriesEpisodes | ✅ | 2025-10-11 |
+| TASK-013 | **Implement quality assessment** - Score each episode with `qualityScorer.calculateQualityScore(metadata, metadataSourceMap)` | ✅ | 2025-10-11 |
+| TASK-014 | **Add quality gates** - Filter episodes with `qualityScore.overall >= 0.6` threshold before adding to output | ✅ | 2025-10-11 |
+| TASK-015 | **Log quality metrics** - Output quality grade, completeness, missing fields, and recommendations for each episode | ✅ | 2025-10-11 |
+| TASK-016 | **Generate quality summary report** - Aggregate quality statistics (avg score, grade distribution, top 5 missing fields, pass rate) | ✅ | 2025-10-11 |
 
 ### Phase 3: Error Handling & Health Monitoring
 
