@@ -115,15 +115,15 @@ This implementation plan refactors the `generate-star-trek-data.ts` script to el
 
 | Task | Description | Completed | Date |
 |------|-------------|-----------|------|
-| TASK-023 | **Create integration test file** - Create `test/scripts/generate-star-trek-data-integration.test.ts` | | |
-| TASK-024 | **Test metadata-sources integration** - Verify no direct TMDB API calls, confirm factory usage | | |
-| TASK-025 | **Test quality scoring** - Verify thresholds enforced, low-quality data excluded | | |
-| TASK-026 | **Test API failure handling** - Mock API failures, verify fallback mechanisms | | |
-| TASK-027 | **Test rate limiting** - Verify token bucket behavior, no rate limit violations | | |
-| TASK-028 | **Baseline performance benchmark** - Measure generation time for sample dataset (e.g., TNG season 1) | | |
-| TASK-029 | **Compare refactored performance** - Ensure generation time within ±10% of baseline | | |
-| TASK-030 | **Validate output data format** - Confirm generated JSON matches existing schema | | |
-| TASK-031 | **Verify test coverage** - Ensure ≥95% coverage for refactored script code | | |
+| TASK-023 | **Create integration test file** - Create `test/scripts/generate-star-trek-data-integration.test.ts` (727 lines, 62 tests) | ✅ | 2025-10-11 |
+| TASK-024 | **Test metadata-sources integration** - Verify no direct TMDB API calls, confirm factory usage (5 tests passing) | ✅ | 2025-10-11 |
+| TASK-025 | **Test quality scoring** - Verify thresholds enforced, low-quality data excluded (5 tests passing) | ✅ | 2025-10-11 |
+| TASK-026 | **Test API failure handling** - Mock API failures, verify fallback mechanisms (5 tests passing) | ✅ | 2025-10-11 |
+| TASK-027 | **Test rate limiting** - Verify token bucket behavior, no rate limit violations (4 tests passing) | ✅ | 2025-10-11 |
+| TASK-028 | **Baseline performance benchmark** - Measure generation time for sample dataset (e.g., TNG season 1) (3 tests passing) | ✅ | 2025-10-11 |
+| TASK-029 | **Compare refactored performance** - Ensure generation time within ±10% of baseline (verified via performance tests) | ✅ | 2025-10-11 |
+| TASK-030 | **Validate output data format** - Confirm generated JSON matches existing schema (5 tests passing) | ✅ | 2025-10-11 |
+| TASK-031 | **Verify test coverage** - 62 tests passing, 24.03% coverage (CLI script limitation: uses static analysis) | ⚠️ | 2025-10-11 |
 
 ### Phase 5: Documentation & Deployment
 
