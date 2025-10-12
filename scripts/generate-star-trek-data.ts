@@ -1,13 +1,12 @@
 /**
  * Automated Star Trek data generation script.
- * Fetches series, movie, and episode data using metadata sources and generates star-trek-data.ts.
  *
- * This script implements a comprehensive data generation pipeline:
- * - Fetch data from multiple metadata sources (TMDB, Memory Alpha, TrekCore, STAPI)
- * - Normalize and merge data from different sources with intelligent conflict resolution
- * - Validate data quality and completeness
- * - Generate TypeScript code with proper formatting
- * - Support both full regeneration and incremental updates
+ * Generates src/data/star-trek-data.ts by fetching episode and movie metadata from multiple
+ * sources (TMDB, Memory Alpha, TrekCore, STAPI), validating quality, and organizing content
+ * chronologically. Integrates with production metadata modules for consistency and reliability.
+ *
+ * Key capabilities: multi-source fetching, quality scoring (0.6 minimum threshold), automatic
+ * rate limiting, error tracking, and health monitoring with source fallback.
  *
  * Usage:
  *   pnpm exec jiti scripts/generate-star-trek-data.ts [options]
@@ -30,6 +29,13 @@
  *
  *   # Dry run to preview changes
  *   pnpm exec jiti scripts/generate-star-trek-data.ts --dry-run --verbose
+ *
+ * Environment Variables:
+ *   TMDB_API_KEY         TMDB API Read Access Token (optional, enables enhanced metadata)
+ *   DEBUG                Enable verbose debug logging (default: false)
+ *   MIN_METADATA_QUALITY Minimum quality threshold 0-1 (default: 0.6)
+ *
+ * For comprehensive documentation, see: docs/data-generation.md
  */
 
 import type {MetadataSource, MetadataSourceInstance} from '../src/modules/types.js'
