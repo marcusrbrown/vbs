@@ -1648,6 +1648,127 @@ const discoverStarTrekSeries = async (
   return discovered
 }
 
+// ============================================================================
+// TYPESCRIPT CODE GENERATION (TASK-019)
+// ============================================================================
+
+const escapeStringForTS = (str: string): string => {
+  return str
+    .replaceAll('\\', '\\\\')
+    .replaceAll("'", String.raw`\'`)
+    .replaceAll('\n', String.raw`\n`)
+    .replaceAll('\r', String.raw`\r`)
+    .replaceAll('\t', String.raw`\t`)
+}
+
+const generateEpisodeCode = (episode: NormalizedEpisodeItem, indent: string): string => {
+  const lines: string[] = []
+
+  lines.push(`${indent}{`)
+  lines.push(`${indent}  id: '${episode.id}',`)
+  lines.push(`${indent}  title: '${escapeStringForTS(episode.title)}',`)
+  lines.push(`${indent}  season: ${episode.season},`)
+  lines.push(`${indent}  episode: ${episode.episode},`)
+  lines.push(`${indent}  airDate: '${episode.airDate}',`)
+  lines.push(`${indent}  stardate: '${episode.stardate}',`)
+  lines.push(`${indent}  synopsis: '${escapeStringForTS(episode.synopsis)}',`)
+
+  if (episode.plotPoints != null && episode.plotPoints.length > 0) {
+    lines.push(`${indent}  plotPoints: [`)
+    episode.plotPoints.forEach(point => {
+      lines.push(`${indent}    '${escapeStringForTS(point)}',`)
+    })
+    lines.push(`${indent}  ],`)
+  } else {
+    lines.push(`${indent}  plotPoints: [],`)
+  }
+
+  if (episode.guestStars != null && episode.guestStars.length > 0) {
+    lines.push(`${indent}  guestStars: [`)
+    episode.guestStars.forEach(star => {
+      lines.push(`${indent}    '${escapeStringForTS(star)}',`)
+    })
+    lines.push(`${indent}  ],`)
+  } else {
+    lines.push(`${indent}  guestStars: [],`)
+  }
+
+  lines.push(`${indent}  connections: [],`)
+  lines.push(`${indent}},`)
+
+  return lines.join('\n')
+}
+
+const generateItemCode = (
+  item: NormalizedSeasonItem | NormalizedMovieItem,
+  indent: string,
+): string => {
+  const lines: string[] = []
+
+  lines.push(`${indent}{`)
+  lines.push(`${indent}  id: '${item.id}',`)
+  lines.push(`${indent}  title: '${escapeStringForTS(item.title)}',`)
+  lines.push(`${indent}  type: '${item.type}',`)
+  lines.push(`${indent}  year: '${item.year}',`)
+  lines.push(`${indent}  stardate: '${item.stardate}',`)
+
+  if ('episodes' in item) {
+    lines.push(`${indent}  episodes: ${item.episodes},`)
+  }
+
+  if (item.notes != null) {
+    lines.push(`${indent}  notes: '${escapeStringForTS(item.notes)}',`)
+  }
+
+  if ('episodeData' in item && item.episodeData.length > 0) {
+    lines.push(`${indent}  episodeData: [`)
+    item.episodeData.forEach(episode => {
+      lines.push(generateEpisodeCode(episode, `${indent}    `))
+    })
+    lines.push(`${indent}  ],`)
+  }
+
+  lines.push(`${indent}},`)
+
+  return lines.join('\n')
+}
+
+const generateEraCode = (era: NormalizedEra, indent: string): string => {
+  const lines: string[] = []
+
+  lines.push(`${indent}{`)
+  lines.push(`${indent}  id: '${era.id}',`)
+  lines.push(`${indent}  title: '${escapeStringForTS(era.title)}',`)
+  lines.push(`${indent}  years: '${era.years}',`)
+  lines.push(`${indent}  stardates: '${escapeStringForTS(era.stardates)}',`)
+  lines.push(`${indent}  description: '${escapeStringForTS(era.description)}',`)
+  lines.push(`${indent}  items: [`)
+
+  era.items.forEach(item => {
+    lines.push(generateItemCode(item, `${indent}    `))
+  })
+
+  lines.push(`${indent}  ],`)
+  lines.push(`${indent}},`)
+
+  return lines.join('\n')
+}
+
+const generateStarTrekDataFile = (normalizedData: NormalizedData): string => {
+  const lines: string[] = []
+
+  lines.push('export const starTrekData = [')
+
+  normalizedData.eras.forEach(era => {
+    lines.push(generateEraCode(era, '  '))
+  })
+
+  lines.push(']')
+  lines.push('')
+
+  return lines.join('\n')
+}
+
 const parseArguments = (args: string[]): GenerateDataOptions => {
   if (parseBooleanFlag(args, '--help')) {
     showHelpAndExit(HELP_TEXT)
@@ -1752,21 +1873,25 @@ const main = async (): Promise<void> => {
       episodeCount: normalizedData.metadata.episodeCount,
     })
 
-    // TASK-019: Code generation templates (implementation follows)
-    logger.debug('Code generation templates will be implemented next')
+    // TASK-019: Code generation
+    logger.info('Generating TypeScript code for star-trek-data.ts')
+    const generatedCode = generateStarTrekDataFile(normalizedData)
+    logger.info('Code generation complete', {
+      codeLength: generatedCode.length,
+      linesOfCode: generatedCode.split('\n').length,
+    })
 
     // TASK-020: Intelligent merging (implementation follows)
     logger.debug('Intelligent merging will be implemented next')
 
     if (options.dryRun) {
       logger.info('Dry-run mode: No files will be modified')
-      logger.info('Preview of enriched data:', {
-        seriesCount: enrichedSeriesData.length,
-        seriesNames: enrichedSeriesData.map((s: EnrichedSeriesData) => s.name),
-        sampleEpisodes: enrichedSeriesData.slice(0, 2).map((s: EnrichedSeriesData) => ({
-          series: s.name,
-          firstEpisode: s.seasons[0]?.episodes[0],
-        })),
+      logger.info('Preview of generated data:', {
+        seriesCount: normalizedData.metadata.seriesCount,
+        movieCount: normalizedData.metadata.movieCount,
+        episodeCount: normalizedData.metadata.episodeCount,
+        eraCount: normalizedData.eras.length,
+        codePreview: `${generatedCode.slice(0, 500)}...`,
       })
     } else {
       // TASK-022: File writing (implementation follows)
