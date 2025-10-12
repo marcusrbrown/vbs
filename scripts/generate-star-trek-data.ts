@@ -35,6 +35,7 @@
 import type {MetadataSource, MetadataSourceInstance} from '../src/modules/types.js'
 import {resolve} from 'node:path'
 import process from 'node:process'
+import {withErrorHandling} from '../src/modules/error-handler.js'
 import {createLogger} from '../src/modules/logger.js'
 import {
   createQualityScorer,
@@ -291,6 +292,45 @@ interface GenerateDataOptions extends BaseCLIOptions {
 }
 
 /**
+ * Error tracking structure for comprehensive error reporting.
+ */
+interface ErrorTracker {
+  /** Total errors encountered */
+  totalErrors: number
+  /** Errors by category (network, rate-limit, data-format, etc.) */
+  errorsByCategory: Map<string, number>
+  /** Errors by source API */
+  errorsBySource: Map<string, number>
+  /** Failed episode IDs for retry guidance */
+  failedEpisodes: string[]
+  /** Detailed error messages with context */
+  errorDetails: {
+    episodeId: string
+    category: string
+    message: string
+    sourceApi: string
+    timestamp: Date
+  }[]
+}
+
+/**
+ * Health monitoring structure for API sources.
+ */
+interface HealthMonitor {
+  /** Health check results by source */
+  healthBySource: Map<
+    string,
+    {
+      isHealthy: boolean
+      consecutiveFailures: number
+      lastCheck: Date
+    }
+  >
+  /** Sources that have been marked unhealthy */
+  unhealthySources: string[]
+}
+
+/**
  * Quality threshold constants aligned with metadata-quality module.
  * These define the minimum acceptable quality scores for data inclusion.
  */
@@ -433,24 +473,32 @@ const fetchSeriesDetails = async (
   seriesId: number,
   logger: ReturnType<typeof createLogger>,
 ): Promise<DiscoveredSeries | null> => {
-  const apiKey = process.env.TMDB_API_KEY
-  if (!apiKey) {
-    logger.warn('TMDB_API_KEY not configured, skipping TMDB queries')
-    return null
-  }
+  return withErrorHandling(async () => {
+    const apiKey = process.env.TMDB_API_KEY
+    if (!apiKey) {
+      logger.warn('TMDB_API_KEY not configured, skipping TMDB queries')
+      return null
+    }
 
-  const url = `https://api.themoviedb.org/3/tv/${seriesId}`
-  const headers = {
-    Authorization: `Bearer ${apiKey}`,
-    'Content-Type': 'application/json',
-  }
+    const url = `https://api.themoviedb.org/3/tv/${seriesId}`
+    const headers = {
+      Authorization: `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    }
 
-  try {
     const response = await fetch(url, {headers})
     if (!response.ok) {
       logger.error('TMDB API error for series', {
         status: response.status,
         seriesId,
+        guidance:
+          response.status === 429
+            ? 'Rate limit exceeded. Wait before retrying.'
+            : response.status === 401
+              ? 'Authentication failed. Check TMDB_API_KEY is valid.'
+              : response.status >= 500
+                ? 'TMDB service unavailable. Retry later.'
+                : 'Invalid request. Check series ID.',
       })
       return null
     }
@@ -467,14 +515,7 @@ const fetchSeriesDetails = async (
       numberOfEpisodes: data.number_of_episodes,
       status: data.status,
     }
-  } catch (error: unknown) {
-    const errorDetails = {
-      name: error instanceof Error ? error.name : 'UnknownError',
-      message: error instanceof Error ? error.message : String(error),
-    }
-    logger.error('Failed to fetch series details', {seriesId, error: errorDetails})
-    return null
-  }
+  }, `fetch-series-details-${seriesId}`)()
 }
 
 /**
@@ -585,37 +626,36 @@ const fetchMovieDetails = async (
   movieId: number,
   logger: ReturnType<typeof createLogger>,
 ): Promise<TMDBMovieDetails | null> => {
-  const apiKey = process.env.TMDB_API_KEY
-  if (!apiKey) {
-    return null
-  }
+  return withErrorHandling(async () => {
+    const apiKey = process.env.TMDB_API_KEY
+    if (!apiKey) {
+      return null
+    }
 
-  const url = `https://api.themoviedb.org/3/movie/${movieId}`
-  const headers = {
-    Authorization: `Bearer ${apiKey}`,
-    'Content-Type': 'application/json',
-  }
+    const url = `https://api.themoviedb.org/3/movie/${movieId}`
+    const headers = {
+      Authorization: `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    }
 
-  try {
     const response = await fetch(url, {headers})
     if (!response.ok) {
       logger.error('TMDB API error for movie', {
         status: response.status,
         movieId,
+        guidance:
+          response.status === 429
+            ? 'Rate limit exceeded. Implement exponential backoff.'
+            : response.status === 404
+              ? 'Movie not found. Verify TMDB movie ID.'
+              : 'API error - check TMDB service status.',
       })
       return null
     }
 
     const data = (await response.json()) as TMDBMovieDetails
     return data
-  } catch (error: unknown) {
-    const errorDetails = {
-      name: error instanceof Error ? error.name : 'UnknownError',
-      message: error instanceof Error ? error.message : String(error),
-    }
-    logger.error('Failed to fetch movie details', {movieId, error: errorDetails})
-    return null
-  }
+  }, `fetch-movie-details-${movieId}`)()
 }
 
 /**
@@ -626,37 +666,31 @@ const fetchMovieCredits = async (
   movieId: number,
   logger: ReturnType<typeof createLogger>,
 ): Promise<TMDBMovieCredits | null> => {
-  const apiKey = process.env.TMDB_API_KEY
-  if (!apiKey) {
-    return null
-  }
+  return withErrorHandling(async () => {
+    const apiKey = process.env.TMDB_API_KEY
+    if (!apiKey) {
+      return null
+    }
 
-  const url = `https://api.themoviedb.org/3/movie/${movieId}/credits`
-  const headers = {
-    Authorization: `Bearer ${apiKey}`,
-    'Content-Type': 'application/json',
-  }
+    const url = `https://api.themoviedb.org/3/movie/${movieId}/credits`
+    const headers = {
+      Authorization: `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    }
 
-  try {
     const response = await fetch(url, {headers})
     if (!response.ok) {
       logger.error('TMDB API error for movie credits', {
         status: response.status,
         movieId,
+        guidance: 'Credits endpoint unavailable. Movie details will be incomplete.',
       })
       return null
     }
 
     const data = (await response.json()) as TMDBMovieCredits
     return data
-  } catch (error: unknown) {
-    const errorDetails = {
-      name: error instanceof Error ? error.name : 'UnknownError',
-      message: error instanceof Error ? error.message : String(error),
-    }
-    logger.error('Failed to fetch movie credits', {movieId, error: errorDetails})
-    return null
-  }
+  }, `fetch-movie-credits-${movieId}`)()
 }
 
 /**
@@ -1481,39 +1515,38 @@ const fetchSeasonDetails = async (
   seasonNumber: number,
   logger: ReturnType<typeof createLogger>,
 ): Promise<TMDBSeasonDetails | null> => {
-  const apiKey = process.env.TMDB_API_KEY
-  if (!apiKey) {
-    logger.warn('TMDB_API_KEY not configured, skipping season details fetch')
-    return null
-  }
+  return withErrorHandling(async () => {
+    const apiKey = process.env.TMDB_API_KEY
+    if (!apiKey) {
+      logger.warn('TMDB_API_KEY not configured, skipping season details fetch')
+      return null
+    }
 
-  const url = `https://api.themoviedb.org/3/tv/${seriesId}/season/${seasonNumber}`
-  const headers = {
-    Authorization: `Bearer ${apiKey}`,
-    'Content-Type': 'application/json',
-  }
+    const url = `https://api.themoviedb.org/3/tv/${seriesId}/season/${seasonNumber}`
+    const headers = {
+      Authorization: `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    }
 
-  try {
     const response = await fetch(url, {headers})
     if (!response.ok) {
       logger.error('TMDB API error for season', {
         status: response.status,
         seriesId,
         seasonNumber,
+        guidance:
+          response.status === 404
+            ? 'Season not found. Verify season number is valid for this series.'
+            : response.status === 429
+              ? 'Rate limit reached. Token bucket will handle retry automatically.'
+              : 'Check TMDB service availability and API credentials.',
       })
       return null
     }
 
     const data = (await response.json()) as TMDBSeasonDetails
     return data
-  } catch (error: unknown) {
-    const errorDetails = {
-      name: error instanceof Error ? error.name : 'UnknownError',
-      message: error instanceof Error ? error.message : String(error),
-    }
-    logger.error('Failed to fetch season details', {seriesId, seasonNumber, error: errorDetails})
-    return null
-  }
+  }, `fetch-season-details-${seriesId}-s${seasonNumber}`)()
 }
 
 /**
@@ -2079,17 +2112,84 @@ const main = async (): Promise<void> => {
   const metadataSources: MetadataSourceInstance = createMetadataSources(metadataConfig)
   logger.info('Metadata sources initialized successfully')
 
+  // Initialize error tracking and health monitoring
+  const errorTracker: ErrorTracker = {
+    totalErrors: 0,
+    errorsByCategory: new Map(),
+    errorsBySource: new Map(),
+    failedEpisodes: [],
+    errorDetails: [],
+  }
+
+  const healthMonitor: HealthMonitor = {
+    healthBySource: new Map(),
+    unhealthySources: [],
+  }
+
+  // Enhanced error event handler with comprehensive categorization
   metadataSources.on('enrichment-failed', ({episodeId, errors}) => {
+    errorTracker.totalErrors++
+    errorTracker.failedEpisodes.push(episodeId)
+
+    errors.forEach(error => {
+      // Track by category
+      const categoryCount = errorTracker.errorsByCategory.get(error.category) ?? 0
+      errorTracker.errorsByCategory.set(error.category, categoryCount + 1)
+
+      // Track by source
+      const sourceCount = errorTracker.errorsBySource.get(error.sourceApi) ?? 0
+      errorTracker.errorsBySource.set(error.sourceApi, sourceCount + 1)
+
+      // Store detailed error
+      errorTracker.errorDetails.push({
+        episodeId,
+        category: error.category,
+        message: error.message,
+        sourceApi: error.sourceApi,
+        timestamp: new Date(),
+      })
+    })
+
+    // Determine if error is retryable and provide actionable guidance
+    const retryableCategories = ['network', 'rate-limit', 'timeout', 'service-unavailable']
+    const hasRetryableErrors = errors.some(e => retryableCategories.includes(e.category))
+
     logger.error('Metadata enrichment failed', {
       episodeId,
       errorCount: errors.length,
       errors: errors.map(e => ({category: e.category, message: e.message, source: e.sourceApi})),
+      retryable: hasRetryableErrors,
+      guidance: hasRetryableErrors
+        ? 'Error is retryable - will attempt automatic fallback to alternative sources'
+        : 'Error requires manual intervention - check data format and API availability',
     })
   })
 
+  // Enhanced health monitoring event handler
   metadataSources.on('health-status-change', ({sourceId, isHealthy, consecutiveFailures}) => {
+    // Update health monitor
+    healthMonitor.healthBySource.set(sourceId, {
+      isHealthy,
+      consecutiveFailures,
+      lastCheck: new Date(),
+    })
+
+    if (!isHealthy && !healthMonitor.unhealthySources.includes(sourceId)) {
+      healthMonitor.unhealthySources.push(sourceId)
+    } else if (isHealthy && healthMonitor.unhealthySources.includes(sourceId)) {
+      healthMonitor.unhealthySources = healthMonitor.unhealthySources.filter(s => s !== sourceId)
+    }
+
     const status = isHealthy ? 'healthy' : 'unhealthy'
-    logger.warn(`API health status changed: ${sourceId} is now ${status}`, {consecutiveFailures})
+    const severity = consecutiveFailures >= 3 ? 'CRITICAL' : 'WARNING'
+
+    logger.warn(`[${severity}] API health status changed: ${sourceId} is now ${status}`, {
+      consecutiveFailures,
+      recommendation:
+        !isHealthy && consecutiveFailures >= 3
+          ? 'Consider switching to alternative sources or pausing data generation'
+          : 'Monitoring for recovery',
+    })
   })
 
   try {
@@ -2252,6 +2352,84 @@ const main = async (): Promise<void> => {
       logger.info('Generation complete', {outputPath: resolve(options.output)})
     }
 
+    // Generate comprehensive error summary report (TASK-018)
+    logger.info('\n=== Error Summary Report ===')
+    const usageAnalytics = metadataSources.getUsageAnalytics()
+
+    logger.info('API Usage Statistics', {
+      totalRequests: usageAnalytics.totalRequests,
+      requestsPerHour: usageAnalytics.requestsPerHour,
+      averageResponseTime: `${usageAnalytics.averageResponseTime}ms`,
+      cacheHitRate: `${(usageAnalytics.cacheHitRate * 100).toFixed(1)}%`,
+      errorRate: `${(usageAnalytics.errorRate * 100).toFixed(1)}%`,
+    })
+
+    // Display errors by source
+    if (errorTracker.totalErrors > 0) {
+      logger.warn('Error Breakdown by Source', {
+        totalErrors: errorTracker.totalErrors,
+        errorsBySource: Object.fromEntries(errorTracker.errorsBySource),
+      })
+
+      logger.warn('Error Breakdown by Category', {
+        errorsByCategory: Object.fromEntries(errorTracker.errorsByCategory),
+      })
+
+      logger.warn('Failed Episodes', {
+        count: errorTracker.failedEpisodes.length,
+        episodeIds: errorTracker.failedEpisodes.slice(0, 10), // Show first 10
+        truncated: errorTracker.failedEpisodes.length > 10,
+      })
+
+      // Provide actionable error guidance (TASK-022)
+      const retryableErrors = errorTracker.errorDetails.filter(e =>
+        ['network', 'rate-limit', 'timeout', 'service-unavailable'].includes(e.category),
+      ).length
+
+      logger.warn('Error Resolution Guidance', {
+        retryableErrors,
+        totalErrors: errorTracker.totalErrors,
+        recommendation:
+          retryableErrors > 0
+            ? 'Re-run the script to retry failed episodes. Network and rate-limit errors typically resolve on retry.'
+            : 'Manual intervention required. Check API credentials, data format, and service availability.',
+        affectedEpisodes: errorTracker.failedEpisodes,
+      })
+    } else {
+      logger.info('No errors encountered during generation')
+    }
+
+    // Generate health status report (TASK-019)
+    logger.info('\n=== API Health Status Report ===')
+    const healthStatus = metadataSources.getHealthStatus()
+
+    Object.entries(healthStatus).forEach(([sourceId, status]) => {
+      const healthLevel = status.isHealthy
+        ? 'HEALTHY'
+        : status.consecutiveFailures >= 3
+          ? 'CRITICAL'
+          : 'DEGRADED'
+
+      logger.info(`Source: ${sourceId}`, {
+        status: healthLevel,
+        consecutiveFailures: status.consecutiveFailures,
+        lastSuccessful: status.lastSuccessful
+          ? new Date(status.lastSuccessful).toISOString()
+          : 'never',
+        averageResponseTime: `${status.responseTimeMs}ms`,
+      })
+    })
+
+    // Display unhealthy sources warning (TASK-020)
+    if (healthMonitor.unhealthySources.length > 0) {
+      logger.warn('Unhealthy Sources Detected', {
+        unhealthySources: healthMonitor.unhealthySources,
+        impact: 'Data quality may be affected. Consider alternative sources or retry later.',
+        fallbackStrategy:
+          'Automatic fallback to alternative sources was attempted during enrichment.',
+      })
+    }
+
     logger.info('Data generation completed successfully', {
       mode: options.mode,
       seriesProcessed: normalizedData.metadata.seriesCount,
@@ -2261,6 +2439,8 @@ const main = async (): Promise<void> => {
       outputPath: resolve(options.output),
       dryRun: options.dryRun,
       validated: options.validate && !options.dryRun,
+      errors: errorTracker.totalErrors,
+      errorRate: `${((errorTracker.totalErrors / normalizedData.metadata.episodeCount) * 100).toFixed(1)}%`,
     })
   } catch (error: unknown) {
     if (error instanceof Error) {
