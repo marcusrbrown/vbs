@@ -83,12 +83,12 @@ This plan implements an automated system to fetch series, movie, and episode dat
 | TASK-017 | Implement era classification logic to group content chronologically (Enterprise Era, TOS Era, TNG Era, etc.) | ✅ | 2025-10-11 |
 | TASK-018 | Add chronological ordering algorithms based on in-universe stardates and timelines | ✅ | 2025-10-11 |
 | TASK-019 | Create TypeScript code generation templates for `starTrekData` array structure with proper typing | ✅ | 2025-10-11 |
-| TASK-020 | Implement intelligent merging when multiple sources provide data for same content (priority: Memory Alpha > TMDB > TrekCore) | | |
-| TASK-021 | Add data validation step that uses existing `validateEpisodeWithReporting()` before file generation | | |
-| TASK-022 | Implement file writing with atomic operations and backup creation for safety | | |
-| TASK-023 | Add comprehensive logging with progress indicators, data source attribution, and error summaries | | |
-| TASK-024 | Create dry-run mode that shows what would be generated without writing files | | |
-| TASK-025 | Implement incremental update mode that preserves manual edits and custom notes in existing data | | |
+| TASK-020 | Implement intelligent merging when multiple sources provide data for same content (priority: Memory Alpha > TMDB > TrekCore) | ✅ | 2025-10-11 |
+| TASK-021 | Add data validation step that uses existing `validateEpisodeWithReporting()` before file generation | ✅ | 2025-10-11 |
+| TASK-022 | Implement file writing with atomic operations and backup creation for safety | ✅ | 2025-10-11 |
+| TASK-023 | Add comprehensive logging with progress indicators, data source attribution, and error summaries | ✅ | 2025-10-11 |
+| TASK-024 | Create dry-run mode that shows what would be generated without writing files | ✅ | 2025-10-11 |
+| TASK-025 | Implement incremental update mode that preserves manual edits and custom notes in existing data | ✅ | 2025-10-11 |
 
 ### Implementation Phase 3: Data Quality & Validation
 
