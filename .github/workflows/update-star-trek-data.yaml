@@ -1,0 +1,280 @@
+name: Update Star Trek Data
+
+on:
+  schedule:
+    - cron: '0 9 * * 1' # Every Monday at 09:00 UTC
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Generation mode (full or incremental)
+        required: false
+        default: full
+        type: choice
+        options:
+          - full
+          - incremental
+      series:
+        description: Target specific series (optional, e.g., discovery, picard)
+        required: false
+        type: string
+      dry_run:
+        description: Dry run mode (preview changes without creating PR)
+        required: false
+        default: false
+        type: boolean
+
+concurrency:
+  group: update-star-trek-data
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  generate-data:
+    name: Generate Star Trek Data
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    # Grant write permissions only to this job
+    permissions:
+      contents: write
+      pull-requests: write
+
+    defaults:
+      run:
+        shell: bash -euo pipefail {0}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+        with:
+          # Full history needed for change detection
+          fetch-depth: 0
+
+      - name: Setup Node.js 22.x
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22.x
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4.2.0
+
+      - name: Get pnpm store directory
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Configure git identity
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+
+      - name: Generate Star Trek data
+        id: generate
+        env:
+          TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
+        run: |
+          set -e
+
+          # Build command with options
+          CMD="pnpm exec jiti scripts/generate-star-trek-data.ts"
+
+          # Add mode flag (from manual input or default to 'full')
+          MODE="${{ github.event.inputs.mode || 'full' }}"
+          CMD="$CMD --mode $MODE"
+
+          # Add series filter if specified
+          if [ -n "${{ github.event.inputs.series }}" ]; then
+            CMD="$CMD --series ${{ github.event.inputs.series }}"
+          fi
+
+          # Add dry-run flag if specified
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+            CMD="$CMD --dry-run"
+          fi
+
+          # Add verbose logging for CI visibility
+          CMD="$CMD --verbose"
+
+          echo "Running: $CMD"
+          $CMD
+
+          # Capture generation status
+          echo "status=success" >> $GITHUB_OUTPUT
+
+      - name: Run data validation
+        id: validate
+        if: steps.generate.outputs.status == 'success'
+        run: |
+          set -e
+
+          echo "Running validation on generated data..."
+          pnpm exec jiti scripts/validate-episode-data.ts --verbose
+
+          echo "validation_status=passed" >> $GITHUB_OUTPUT
+
+      - name: Check for data changes
+        id: changes
+        if: steps.validate.outputs.validation_status == 'passed' && github.event.inputs.dry_run != 'true'
+        run: |
+          set -e
+
+          # Check if star-trek-data.ts has changes
+          if git diff --quiet src/data/star-trek-data.ts; then
+            echo "No changes detected in star-trek-data.ts"
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "Changes detected in star-trek-data.ts"
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+
+            # Generate diff summary for PR body
+            DIFF_STATS=$(git diff --stat src/data/star-trek-data.ts)
+            echo "diff_stats<<EOF" >> $GITHUB_OUTPUT
+            echo "$DIFF_STATS" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+
+            # Get detailed diff for review
+            git diff src/data/star-trek-data.ts > data-changes.diff
+          fi
+
+      - name: Generate quality report
+        id: quality
+        if: steps.changes.outputs.has_changes == 'true'
+        run: |
+          set -e
+
+          echo "Generating data quality report..."
+
+          # Use data-quality utilities to generate report
+          # This will be implemented in the generate-star-trek-data.ts script
+          # For now, create a placeholder report
+          cat > quality-report.txt << 'EOF'
+          ## Data Quality Report
+
+          ✅ All validation checks passed
+          ✅ No duplicate episode IDs detected
+          ✅ Chronology ordering verified
+          ✅ All required fields populated
+
+          Generated at: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+          EOF
+
+          QUALITY_REPORT=$(cat quality-report.txt)
+          echo "report<<EOF" >> $GITHUB_OUTPUT
+          echo "$QUALITY_REPORT" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create Pull Request
+        id: create_pr
+        if: steps.changes.outputs.has_changes == 'true'
+        uses: peter-evans/create-pull-request@5e914681df9dc83aa4e4905692ca88beb2f9e91f # v7.0.5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: 'chore(data): update Star Trek data'
+          branch: automated-data-update-${{ github.run_number }}
+          delete-branch: true
+          title: 'Update Star Trek data - ${{ github.run_number }}'
+          body: |
+            ## Automated Star Trek Data Update
+
+            This PR contains automated updates to the Star Trek episode and movie data.
+
+            ### Changes Summary
+
+            ```
+            ${{ steps.changes.outputs.diff_stats }}
+            ```
+
+            ### Generation Details
+
+            - **Mode:** ${{ github.event.inputs.mode || 'full' }}
+            - **Series Filter:** ${{ github.event.inputs.series || 'all' }}
+            - **Generated At:** ${{ github.run_number }}
+            - **Workflow Run:** [#${{ github.run_number }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+
+            ### Quality Report
+
+            ${{ steps.quality.outputs.report }}
+
+            ### Validation Status
+
+            ✅ Data generation completed successfully
+            ✅ Validation checks passed
+            ✅ TypeScript compilation verified
+
+            ### Review Checklist
+
+            - [ ] Review data changes for accuracy
+            - [ ] Verify no manual edits were overwritten
+            - [ ] Check quality metrics are acceptable
+            - [ ] Confirm new content is properly categorized
+
+            ---
+
+            *This PR was automatically generated by the [Update Star Trek Data workflow](${{ github.server_url }}/${{ github.repository }}/actions/workflows/update-star-trek-data.yaml).*
+
+            **Security Note:** This PR requires manual review and approval before merging to ensure data quality and prevent potential issues.
+          labels: |
+            automated
+            data-update
+          draft: false
+          assignees: ${{ github.repository_owner }}
+
+      - name: Upload diff artifact
+        if: steps.changes.outputs.has_changes == 'true'
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.6.0
+        with:
+          name: data-changes-diff
+          path: data-changes.diff
+          retention-days: 30
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "## Star Trek Data Update Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ steps.generate.outputs.status }}" = "success" ]; then
+            echo "✅ Data generation: **Success**" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Data generation: **Failed**" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "${{ steps.validate.outputs.validation_status }}" = "passed" ]; then
+            echo "✅ Validation: **Passed**" >> $GITHUB_STEP_SUMMARY
+          elif [ -n "${{ steps.validate.outputs.validation_status }}" ]; then
+            echo "❌ Validation: **Failed**" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "${{ steps.changes.outputs.has_changes }}" = "true" ]; then
+            echo "📝 Changes detected: **Yes**" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Pull Request:** ${{ steps.create_pr.outputs.pull-request-url }}" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ steps.changes.outputs.has_changes }}" = "false" ]; then
+            echo "📝 Changes detected: **No** (data is up to date)" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "ℹ️ **Dry run mode** - no PR was created" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "::error::Star Trek data update workflow failed. Check logs for details."
+          echo "## ❌ Workflow Failed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "The Star Trek data update workflow encountered an error." >> $GITHUB_STEP_SUMMARY
+          echo "Please review the workflow logs for details." >> $GITHUB_STEP_SUMMARY

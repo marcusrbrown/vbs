@@ -378,6 +378,17 @@ Contributions are welcome! Here's how to get involved:
 6. Push to the branch (`git push origin feature/amazing-feature`)
 7. Open a Pull Request
 
+### Data Updates
+
+VBS includes automated data updates via GitHub Actions:
+
+- **Weekly Updates**: Automated checks for new Star Trek content every Monday
+- **Manual Triggers**: On-demand updates via GitHub Actions UI
+- **Quality Assurance**: Automated validation and quality checks before merging
+- **Pull Request Reviews**: All data updates reviewed for accuracy
+
+See [docs/automated-data-updates.md](docs/automated-data-updates.md) for details on the automated workflow.
+
 ### Planned Features
 
 - **Episode-Level Tracking**: Individual episode progress vs current season-level
