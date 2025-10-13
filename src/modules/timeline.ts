@@ -405,7 +405,7 @@ export const createTimelineRenderer = (
             <div class="episode-plot-points">
               <h6 class="detail-section-title">Key Plot Points</h6>
               <ul class="plot-points-list" role="list">
-                ${episode.plotPoints
+                ${(episode.plotPoints ?? [])
                   .map(
                     point => `
                   <li class="plot-point" role="listitem">${point}</li>
@@ -424,7 +424,7 @@ export const createTimelineRenderer = (
             <div class="episode-guest-stars">
               <h6 class="detail-section-title">Notable Guest Stars</h6>
               <ul class="guest-stars-list" role="list">
-                ${episode.guestStars
+                ${(episode.guestStars ?? [])
                   .map(
                     star => `
                   <li class="guest-star" role="listitem">${star}</li>
@@ -443,7 +443,7 @@ export const createTimelineRenderer = (
             <div class="episode-connections">
               <h6 class="detail-section-title">Cross-Series Connections</h6>
               <ul class="connections-list" role="list">
-                ${episode.connections
+                ${(episode.connections ?? [])
                   .map(
                     connection => `
                   <li class="connection-item" role="listitem">

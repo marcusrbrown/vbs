@@ -117,8 +117,8 @@ export const createEpisodeManager = (
           const matchesText = [
             episode.title,
             episode.synopsis,
-            ...episode.plotPoints,
-            ...episode.guestStars,
+            ...(episode.plotPoints ?? []),
+            ...(episode.guestStars ?? []),
           ].some(text => text.toLowerCase().includes(searchLower))
 
           if (!matchesText) return false
@@ -135,9 +135,9 @@ export const createEpisodeManager = (
         }
 
         // Guest stars filter
-        if (guestStars && guestStars.length > 0) {
+        if (guestStars && guestStars.length > 0 && episode.guestStars) {
           const hasMatchingGuest = guestStars.some(guest =>
-            episode.guestStars.some(episodeGuest =>
+            episode.guestStars?.some(episodeGuest =>
               episodeGuest.toLowerCase().includes(guest.toLowerCase()),
             ),
           )
@@ -145,9 +145,9 @@ export const createEpisodeManager = (
         }
 
         // Plot keywords filter
-        if (plotKeywords && plotKeywords.length > 0) {
+        if (plotKeywords && plotKeywords.length > 0 && episode.plotPoints) {
           const hasMatchingPlot = plotKeywords.some(keyword =>
-            episode.plotPoints.some(point => point.toLowerCase().includes(keyword.toLowerCase())),
+            episode.plotPoints?.some(point => point.toLowerCase().includes(keyword.toLowerCase())),
           )
           if (!hasMatchingPlot) return false
         }
@@ -203,9 +203,12 @@ export const createEpisodeManager = (
    */
   const searchByText = curry((searchTerm: string, episode: Episode): boolean => {
     const searchLower = searchTerm.toLowerCase()
-    return [episode.title, episode.synopsis, ...episode.plotPoints, ...episode.guestStars].some(
-      text => text.toLowerCase().includes(searchLower),
-    )
+    return [
+      episode.title,
+      episode.synopsis,
+      ...(episode.plotPoints ?? []),
+      ...(episode.guestStars ?? []),
+    ].some(text => text.toLowerCase().includes(searchLower))
   })
 
   /**

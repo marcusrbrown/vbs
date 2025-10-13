@@ -45,8 +45,8 @@ export const createMockMetadata = (episode: Episode): EpisodeMetadata | null => 
     season: {isValid: episode.season > 0, source: 'memory-alpha'},
     episode: {isValid: episode.episode > 0, source: 'memory-alpha'},
     synopsis: {isValid: Boolean(episode.synopsis), source: 'memory-alpha'},
-    plotPoints: {isValid: episode.plotPoints.length > 0, source: 'memory-alpha'},
-    guestStars: {isValid: episode.guestStars.length > 0, source: 'memory-alpha'},
+    plotPoints: {isValid: Boolean(episode.plotPoints?.length), source: 'memory-alpha'},
+    guestStars: {isValid: Boolean(episode.guestStars?.length), source: 'memory-alpha'},
   }
 
   if (episode.productionCode) {

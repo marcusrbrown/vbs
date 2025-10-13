@@ -54,11 +54,11 @@ export interface Episode {
   /** Episode synopsis/summary */
   synopsis: string
   /** Key plot points and story elements */
-  plotPoints: string[]
+  plotPoints?: string[]
   /** Notable guest stars and recurring characters */
-  guestStars: string[]
+  guestStars?: string[]
   /** Cross-series connections and references */
-  connections: EpisodeConnection[]
+  connections?: EpisodeConnection[]
 
   // Extended metadata fields from external sources (optional for backward compatibility)
   /** Production code for the episode (e.g., '176251') */
@@ -93,7 +93,7 @@ export interface EpisodeConnection {
   /** ID of the connected episode */
   episodeId: string
   /** Series ID of the connected episode */
-  seriesId: string
+  seriesId?: string
   /** Type of connection: 'character', 'event', 'storyline', 'reference' */
   connectionType: 'character' | 'event' | 'storyline' | 'reference'
   /** Description of the connection */
@@ -331,7 +331,34 @@ export interface StarTrekItem {
   /** Additional notes or description */
   notes: string
   /** Optional array of detailed episode data for episode-level tracking */
-  episodeData?: Episode[]
+  episodeData?: Episode[] | undefined
+}
+
+/**
+ * Helper type for StarTrekItem that guarantees episodeData exists.
+ * Use this with hasEpisodeData() type guard for proper type narrowing.
+ */
+export type StarTrekItemWithEpisodeData = StarTrekItem & {
+  episodeData: Episode[]
+}
+
+/**
+ * Type guard to check if a StarTrekItem has episodeData.
+ * Narrows the type to StarTrekItemWithEpisodeData for safe property access.
+ *
+ * @param item - The StarTrekItem to check
+ * @returns True if item has episodeData property
+ *
+ * @example
+ * ```typescript
+ * if (hasEpisodeData(item)) {
+ *   // item is now narrowed to StarTrekItemWithEpisodeData
+ *   item.episodeData.forEach(ep => console.log(ep.title))
+ * }
+ * ```
+ */
+export function hasEpisodeData(item: StarTrekItem): item is StarTrekItemWithEpisodeData {
+  return item.episodeData !== undefined && Array.isArray(item.episodeData)
 }
 
 /**

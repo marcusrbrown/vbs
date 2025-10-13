@@ -26,6 +26,7 @@ import {starTrekData} from '../data/star-trek-data.js'
 import {pipe} from '../utils/composition.js'
 import {createEventEmitter} from './events.js'
 import {createMetadataJob} from './metadata-queue.js'
+import {hasEpisodeData} from './types.js'
 
 /**
  * Default cache warming configuration
@@ -165,7 +166,7 @@ export const createCacheWarming = (
     const era = starTrekData.find(e => e.id === eraId)
     if (!era) return []
 
-    const episodes = era.items.flatMap(item => item.episodeData ?? [])
+    const episodes = era.items.flatMap(item => (hasEpisodeData(item) ? item.episodeData : []))
     return episodes.slice(0, limit)
   }
 
@@ -414,7 +415,10 @@ export const createCacheWarming = (
       // Validate that episodes exist in the data
       const validEpisodeIds = episodeIds.filter(episodeId => {
         return starTrekData.some(era =>
-          era.items.some(item => (item.episodeData ?? []).some(ep => ep.id === episodeId)),
+          era.items.some(
+            item =>
+              hasEpisodeData(item) && item.episodeData.some((ep: Episode) => ep.id === episodeId),
+          ),
         )
       })
 

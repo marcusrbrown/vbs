@@ -26,6 +26,20 @@ import {isValidEpisodeId} from './data-validation.js'
 // ============================================================================
 
 /**
+ * Episode connection object for cross-series references.
+ */
+export interface EpisodeConnection {
+  /** ID of the connected episode */
+  episodeId: string
+  /** Series ID of the connected episode */
+  seriesId?: string
+  /** Type of connection: 'character', 'event', 'storyline', 'reference' */
+  connectionType: 'character' | 'event' | 'storyline' | 'reference'
+  /** Description of the connection */
+  description: string
+}
+
+/**
  * Normalized episode item structure from generated data.
  */
 export interface NormalizedEpisodeItem {
@@ -38,7 +52,7 @@ export interface NormalizedEpisodeItem {
   synopsis: string
   plotPoints?: string[]
   guestStars?: string[]
-  connections?: string[]
+  connections?: EpisodeConnection[]
   productionCode?: string
   director?: string[]
   writer?: string[]
@@ -319,7 +333,13 @@ export const validateEpisodeId = (episodeId: string): boolean => {
  * Series code mapping for known Star Trek series.
  * Maps normalized series names to their standard abbreviations.
  */
+/**
+ * Mapping of normalized series names to short series codes used in episode IDs.
+ * Handles TMDB API variations where "Star Trek" (TOS) lacks subtitle suffix.
+ */
 export const SERIES_CODE_MAP: Record<string, string> = {
+  '': 'tos', // Empty string after prefix removal (TMDB returns just "Star Trek" for TOS)
+  'star trek': 'tos', // Full name fallback without prefix removal
   'the original series': 'tos',
   'the animated series': 'tas',
   'the next generation': 'tng',
@@ -787,7 +807,8 @@ export const validateCrossReferences = (eras: NormalizedEra[]): CrossReferenceIs
       if ('episodeData' in item && item.episodeData) {
         for (const episode of item.episodeData) {
           if (episode.connections && episode.connections.length > 0) {
-            for (const connectionId of episode.connections) {
+            for (const connection of episode.connections) {
+              const connectionId = connection.episodeId
               if (!allEpisodeIds.has(connectionId)) {
                 issues.push({
                   sourceItemId: episode.id,
@@ -798,11 +819,11 @@ export const validateCrossReferences = (eras: NormalizedEra[]): CrossReferenceIs
               }
             }
 
-            const circularRef = episode.connections.find(id => id === episode.id)
+            const circularRef = episode.connections.find(conn => conn.episodeId === episode.id)
             if (circularRef) {
               issues.push({
                 sourceItemId: episode.id,
-                targetItemId: circularRef,
+                targetItemId: circularRef.episodeId,
                 type: 'circular-reference',
                 message: `Episode ${episode.id} references itself`,
               })
