@@ -42,7 +42,7 @@ describe('generate-star-trek-data Integration Tests', () => {
 
       expect(scriptContent).toContain("from '../src/modules/metadata-sources.js'")
       expect(scriptContent).toContain('createMetadataSources')
-      expect(scriptContent).toContain('enrichEpisode')
+      expect(scriptContent).toContain('enumerateSeriesEpisodes')
     })
 
     it('should use factory pattern for metadata-sources', () => {
@@ -50,15 +50,15 @@ describe('generate-star-trek-data Integration Tests', () => {
 
       expect(scriptContent).toContain('createMetadataSources')
       expect(scriptContent).toContain('metadataSources')
-      expect(scriptContent).toContain('enrichEpisode')
+      expect(scriptContent).toContain('enumerateSeriesEpisodes')
     })
 
-    it('should import metadata quality module', () => {
+    it('should import data quality module', () => {
       const scriptContent = getScriptContent()
 
-      expect(scriptContent).toContain("from '../src/modules/metadata-quality.js'")
-      expect(scriptContent).toContain('createQualityScorer')
-      expect(scriptContent).toContain('DEFAULT_QUALITY_SCORING_CONFIG')
+      expect(scriptContent).toContain("from './lib/data-quality.js'")
+      expect(scriptContent).toContain('generateQualityReport')
+      expect(scriptContent).toContain('MINIMUM_QUALITY_THRESHOLD')
     })
 
     it('should use production config from source-config module', () => {
@@ -82,18 +82,17 @@ describe('generate-star-trek-data Integration Tests', () => {
     it('should enforce quality threshold of 0.6', () => {
       const scriptContent = getScriptContent()
 
-      // Updated to use imported constant name MINIMUM_QUALITY_THRESHOLD from data-quality.ts
       expect(scriptContent).toContain('MINIMUM_QUALITY_THRESHOLD')
       expect(scriptContent).toContain('0.6')
-      expect(scriptContent).toMatch(/qualityScore\.overall\s*>=\s*MINIMUM_QUALITY_THRESHOLD/)
+      expect(scriptContent).toContain('qualityReport')
     })
 
     it('should calculate quality scores for episodes', () => {
       const scriptContent = getScriptContent()
 
-      expect(scriptContent).toContain('createQualityScorer')
-      expect(scriptContent).toContain('calculateQualityScore')
-      expect(scriptContent).toContain('qualityScore')
+      expect(scriptContent).toContain('generateQualityReport')
+      expect(scriptContent).toContain('averageQualityScore')
+      expect(scriptContent).toContain('qualityReport')
     })
 
     it('should target average quality score of 0.75', () => {
@@ -107,18 +106,18 @@ describe('generate-star-trek-data Integration Tests', () => {
       const scriptContent = getScriptContent()
 
       expect(scriptContent).toContain('Quality Summary')
-      expect(scriptContent).toContain('qualityGrade')
-      expect(scriptContent).toContain('completeness')
-      expect(scriptContent).toContain('missingFields')
-      expect(scriptContent).toContain('recommendations')
+      expect(scriptContent).toContain('gradeDistribution')
+      expect(scriptContent).toContain('averageQuality')
+      expect(scriptContent).toContain('topMissingFields')
+      expect(scriptContent).toContain('passRate')
     })
 
     it('should log quality metrics for each episode', () => {
       const scriptContent = getScriptContent()
 
-      expect(scriptContent).toContain('qualityScore.overall')
-      expect(scriptContent).toContain('qualityScore.qualityGrade')
-      expect(scriptContent).toContain('logger.debug')
+      expect(scriptContent).toContain('averageQualityScore')
+      expect(scriptContent).toContain('qualityReport')
+      expect(scriptContent).toContain('logger.')
     })
   })
 
@@ -176,7 +175,7 @@ describe('generate-star-trek-data Integration Tests', () => {
       const scriptContent = getScriptContent()
 
       expect(scriptContent).toContain('createMetadataSources')
-      expect(scriptContent).toContain('enrichEpisode')
+      expect(scriptContent).toContain('enumerateSeriesEpisodes')
     })
 
     it('should implement health monitoring', () => {
@@ -369,12 +368,14 @@ describe('generate-star-trek-data Integration Tests', () => {
   })
 
   describe('ID Generation Functions', () => {
-    it('should have generateEpisodeId function', () => {
+    it('should import generateEpisodeId from data-quality library', () => {
       const scriptContent = getScriptContent()
 
-      // Verify episode ID generation function exists
+      // Verify episode ID generation is imported from data-quality library
       expect(scriptContent).toContain('generateEpisodeId')
-      expect(scriptContent).toMatch(/series_s\{season\}_e\{episode\}/)
+      expect(scriptContent).toContain("from './lib/data-quality.js'")
+      // Verify documentation mentions the ID format convention
+      expect(scriptContent).toMatch(/tng_s3_e15/)
     })
 
     it('should have generateSeriesCode function', () => {

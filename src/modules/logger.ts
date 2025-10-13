@@ -143,17 +143,20 @@ export const createLogger = (config: Partial<LoggerConfig> = {}): LoggerInstance
     const prefix = `[VBS ${entry.category.toUpperCase()} ${entry.level.toUpperCase()}]`
     const message = `${prefix} ${entry.message}`
 
+    // Conditional context passing prevents "undefined" from appearing in output
+    const args = entry.context ? [message, entry.context] : [message]
+
     switch (entry.level) {
       case 'debug':
       case 'info':
-        console.warn(message, entry.context)
+        console.info(...args)
         break
       case 'warn':
-        console.warn(message, entry.context)
+        console.warn(...args)
         break
       case 'error':
       case 'critical':
-        console.error(message, entry.context)
+        console.error(...args)
         break
     }
   }

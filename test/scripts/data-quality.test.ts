@@ -458,7 +458,17 @@ describe('Cross-Reference Validation (TASK-031)', () => {
           items: [
             createMockSeason({
               episodeData: [
-                createMockEpisode({id: 'tos_s1_e01', connections: ['tos_s1_e02']}),
+                createMockEpisode({
+                  id: 'tos_s1_e01',
+                  connections: [
+                    {
+                      episodeId: 'tos_s1_e02',
+                      seriesId: 'tos',
+                      connectionType: 'storyline',
+                      description: 'Continues in next episode',
+                    },
+                  ],
+                }),
                 createMockEpisode({id: 'tos_s1_e02', connections: []}),
               ],
             }),
@@ -475,7 +485,19 @@ describe('Cross-Reference Validation (TASK-031)', () => {
         createMockEra({
           items: [
             createMockSeason({
-              episodeData: [createMockEpisode({id: 'tos_s1_e01', connections: ['nonexistent_id']})],
+              episodeData: [
+                createMockEpisode({
+                  id: 'tos_s1_e01',
+                  connections: [
+                    {
+                      episodeId: 'nonexistent_id',
+                      seriesId: 'tos',
+                      connectionType: 'reference',
+                      description: 'References nonexistent episode',
+                    },
+                  ],
+                }),
+              ],
             }),
           ],
         }),
@@ -492,7 +514,19 @@ describe('Cross-Reference Validation (TASK-031)', () => {
         createMockEra({
           items: [
             createMockSeason({
-              episodeData: [createMockEpisode({id: 'tos_s1_e01', connections: ['tos_s1_e01']})],
+              episodeData: [
+                createMockEpisode({
+                  id: 'tos_s1_e01',
+                  connections: [
+                    {
+                      episodeId: 'tos_s1_e01',
+                      seriesId: 'tos',
+                      connectionType: 'reference',
+                      description: 'Self-reference',
+                    },
+                  ],
+                }),
+              ],
             }),
           ],
         }),

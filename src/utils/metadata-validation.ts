@@ -420,7 +420,7 @@ export const validateEpisodeWithReporting = (episode: unknown): ValidationResult
     })
   }
 
-  if (validEpisode.plotPoints.length === 0) {
+  if (!validEpisode.plotPoints || validEpisode.plotPoints.length === 0) {
     warnings.push({
       field: 'plotPoints',
       message: 'No plot points defined',

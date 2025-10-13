@@ -48,6 +48,7 @@ import type {Episode, EpisodeMetadata, MetadataSource} from '../src/modules/type
 import process from 'node:process'
 import {starTrekData} from '../src/data/star-trek-data.js'
 import {createQualityScorer} from '../src/modules/metadata-quality.js'
+import {hasEpisodeData} from '../src/modules/types.js'
 import {pipe} from '../src/utils/composition.js'
 import {loadEnv} from './lib/cli-utils.js'
 import {
@@ -235,7 +236,7 @@ function getAllEpisodes(): Episode[] {
 
   for (const era of starTrekData) {
     for (const item of era.items) {
-      if (item.episodeData && Array.isArray(item.episodeData)) {
+      if (hasEpisodeData(item)) {
         episodes.push(...item.episodeData)
       }
     }

@@ -216,7 +216,7 @@ export const validateEpisodeData = (episode: unknown): ValidationResult => {
     warnings.push(`Invalid air date format: ${ep.airDate}`)
   }
 
-  if (ep.plotPoints.length === 0) {
+  if (!ep.plotPoints || ep.plotPoints.length === 0) {
     warnings.push(`Episode ${ep.id} has no plot points`)
   }
 

@@ -6,6 +6,7 @@
 import type {Episode, EpisodeMetadata} from '../src/modules/types.js'
 import process from 'node:process'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
+import {hasEpisodeData} from '../src/modules/types.js'
 
 const originalArgv = process.argv
 const originalExit = process.exit
@@ -30,7 +31,7 @@ describe('validate-episode-data CLI script', () => {
 
       for (const era of starTrekData) {
         for (const item of era.items) {
-          if (item.episodeData && Array.isArray(item.episodeData)) {
+          if (hasEpisodeData(item)) {
             episodeCount += item.episodeData.length
           }
         }
@@ -45,7 +46,7 @@ describe('validate-episode-data CLI script', () => {
 
       for (const era of starTrekData) {
         for (const item of era.items) {
-          if (item.episodeData && Array.isArray(item.episodeData)) {
+          if (hasEpisodeData(item)) {
             for (const episode of item.episodeData) {
               expect(episode.id).toBeDefined()
               expect(typeof episode.id).toBe('string')
@@ -54,8 +55,13 @@ describe('validate-episode-data CLI script', () => {
               expect(typeof episode.episode).toBe('number')
               expect(episode.airDate).toBeDefined()
               expect(episode.synopsis).toBeDefined()
-              expect(Array.isArray(episode.plotPoints)).toBe(true)
-              expect(Array.isArray(episode.guestStars)).toBe(true)
+              // plotPoints and guestStars are optional but should be arrays when present
+              if (episode.plotPoints !== undefined) {
+                expect(Array.isArray(episode.plotPoints)).toBe(true)
+              }
+              if (episode.guestStars !== undefined) {
+                expect(Array.isArray(episode.guestStars)).toBe(true)
+              }
             }
           }
         }
