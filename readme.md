@@ -380,14 +380,62 @@ Contributions are welcome! Here's how to get involved:
 
 ### Data Updates
 
-VBS includes automated data updates via GitHub Actions:
+VBS uses an **automated data generation pipeline** to maintain up-to-date Star Trek content:
+
+#### Automated Data Generation System
+
+The `generate-star-trek-data.ts` script fetches metadata from multiple authoritative sources (TMDB, Memory Alpha, TrekCore, STAPI), validates data quality, and generates the `star-trek-data.ts` file programmatically.
+
+**Key Features:**
+
+- **Multi-Source Aggregation**: Combines data from 4+ sources with intelligent conflict resolution
+- **Quality Scoring**: Comprehensive validation ensures data completeness and accuracy (minimum score: 0.6)
+- **Production Module Integration**: Reuses battle-tested VBS metadata infrastructure
+- **Incremental Updates**: Preserves manual annotations while updating from authoritative sources
+- **Type-Safe Generation**: Creates TypeScript code with full type safety and validation
+
+**Running Data Generation:**
+
+```bash
+# Copy environment template (TMDB API key optional but recommended)
+cp .env.example .env
+
+# Full regeneration with validation
+pnpm exec jiti scripts/generate-star-trek-data.ts --mode full --validate
+
+# Incremental update for specific series
+pnpm exec jiti scripts/generate-star-trek-data.ts --mode incremental --series discovery
+
+# Dry run to preview changes
+pnpm exec jiti scripts/generate-star-trek-data.ts --dry-run --verbose
+```
+
+**📚 Complete Documentation:**
+
+- [Data Generation Guide](docs/data-generation.md) - Comprehensive usage guide with CLI options, quality scoring, error handling
+- [Architecture Decision Record](docs/adr/data-generation-architecture.md) - Design rationale and technical decisions
+- [Environment Variables](docs/environment-variables.md) - API key configuration and setup
+
+#### GitHub Actions Workflow
+
+Automated updates via GitHub Actions:
 
 - **Weekly Updates**: Automated checks for new Star Trek content every Monday
 - **Manual Triggers**: On-demand updates via GitHub Actions UI
 - **Quality Assurance**: Automated validation and quality checks before merging
 - **Pull Request Reviews**: All data updates reviewed for accuracy
 
-See [docs/automated-data-updates.md](docs/automated-data-updates.md) for details on the automated workflow.
+See [docs/automated-data-updates.md](docs/automated-data-updates.md) for GitHub Actions workflow details.
+
+#### Contributing Data
+
+When contributing data updates:
+
+1. **Use automated generation** when possible for consistency
+2. **Validate quality**: Run `pnpm exec jiti scripts/validate-episode-data.ts` before submitting
+3. **Document sources**: Include references to Memory Alpha or TMDB
+4. **Test integration**: Ensure changes don't break existing functionality (`pnpm test`)
+5. **Manual curations**: Add custom notes or corrections as needed (preserved in incremental mode)
 
 ### Planned Features
 
