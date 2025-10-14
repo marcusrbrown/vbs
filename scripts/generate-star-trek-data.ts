@@ -45,6 +45,7 @@ import {withErrorHandling} from '../src/modules/error-handler.js'
 import {createLogger} from '../src/modules/logger.js'
 import {createMetadataSources} from '../src/modules/metadata-sources.js'
 import {
+  createParallelExecutor,
   EXIT_CODES,
   loadEnv,
   parseBooleanFlag,
@@ -304,6 +305,7 @@ interface GenerateDataOptions extends BaseCLIOptions {
   dryRun: boolean
   output: string
   validate: boolean
+  concurrency: number
 }
 
 /**
@@ -352,11 +354,18 @@ interface HealthMonitor {
  */
 const QUALITY_THRESHOLD_TARGET = 0.75 // Target average quality score (good grade)
 
+/**
+ * Default concurrency for parallel operations.
+ * Balances performance with API rate limit compliance.
+ */
+const DEFAULT_CONCURRENCY = 5
+
 const DEFAULT_OPTIONS: Omit<GenerateDataOptions, 'help' | 'verbose'> = {
   mode: 'full',
   dryRun: false,
   output: 'src/data/star-trek-data.ts',
   validate: true,
+  concurrency: DEFAULT_CONCURRENCY,
 }
 
 const HELP_TEXT = `
@@ -378,6 +387,10 @@ Options:
 
   --season <number>    Target specific season number (requires --series)
                        Only fetch episodes from this season for faster testing
+
+  --concurrency <num>  Number of parallel operations (default: 5)
+                       Range: 1-10 recommended to balance speed with rate limits
+                       Also configurable via CONCURRENCY environment variable
 
   --dry-run            Show what would be generated without writing files
                        Useful for testing and previewing changes
@@ -410,9 +423,13 @@ Environment Variables:
                        Get yours at: https://www.themoviedb.org/settings/api
                        Enables enhanced metadata from TMDB
 
+  CONCURRENCY          Number of parallel operations (default: 5, range: 1-10)
+                       Overridden by --concurrency flag if provided
+
 Notes:
   - Script requires internet connection to fetch metadata
   - Rate limiting is enforced to respect API quotas
+  - Parallel fetching improves performance while respecting rate limits
   - Generated files are formatted with Prettier/ESLint
   - Backup of existing file is created automatically
   - Memory Alpha, TrekCore, and STAPI are always available
@@ -497,7 +514,7 @@ const fetchSeriesDetails = async (
 ): Promise<DiscoveredSeries | null> => {
   return withErrorHandling(async () => {
     const apiKey = process.env.TMDB_API_KEY
-    if (!apiKey) {
+    if (apiKey == null) {
       logger.warn('TMDB_API_KEY not configured, skipping TMDB queries')
       return null
     }
@@ -548,18 +565,18 @@ const searchSeries = async (
   seriesName: string,
   logger: ReturnType<typeof createLogger>,
 ): Promise<number | null> => {
-  const apiKey = process.env.TMDB_API_KEY
-  if (!apiKey) {
-    return null
-  }
+  return withErrorHandling(async () => {
+    const apiKey = process.env.TMDB_API_KEY
+    if (apiKey == null) {
+      return null
+    }
 
-  const url = `https://api.themoviedb.org/3/search/tv?query=${encodeURIComponent(seriesName)}`
-  const headers = {
-    Authorization: `Bearer ${apiKey}`,
-    'Content-Type': 'application/json',
-  }
+    const url = `https://api.themoviedb.org/3/search/tv?query=${encodeURIComponent(seriesName)}`
+    const headers = {
+      Authorization: `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    }
 
-  try {
     const response = await fetch(url, {headers})
     if (!response.ok) {
       logger.error('TMDB search error', {seriesName, status: response.status})
@@ -578,14 +595,7 @@ const searchSeries = async (
     )
 
     return match?.id ?? null
-  } catch (error: unknown) {
-    const errorDetails = {
-      name: error instanceof Error ? error.name : 'UnknownError',
-      message: error instanceof Error ? error.message : String(error),
-    }
-    logger.error('Failed to search for series', {seriesName, error: errorDetails})
-    return null
-  }
+  }, `search-series-${seriesName}`)()
 }
 
 /**
@@ -596,18 +606,18 @@ const searchMovie = async (
   movieTitle: string,
   logger: ReturnType<typeof createLogger>,
 ): Promise<number | null> => {
-  const apiKey = process.env.TMDB_API_KEY
-  if (!apiKey) {
-    return null
-  }
+  return withErrorHandling(async () => {
+    const apiKey = process.env.TMDB_API_KEY
+    if (apiKey == null) {
+      return null
+    }
 
-  const url = `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(movieTitle)}`
-  const headers = {
-    Authorization: `Bearer ${apiKey}`,
-    'Content-Type': 'application/json',
-  }
+    const url = `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(movieTitle)}`
+    const headers = {
+      Authorization: `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    }
 
-  try {
     const response = await fetch(url, {headers})
     if (!response.ok) {
       logger.error('TMDB search error', {movieTitle, status: response.status})
@@ -625,19 +635,12 @@ const searchMovie = async (
           movieTitle.toLowerCase().includes(result.title.toLowerCase())),
     )
 
-    if (match) {
+    if (match != null) {
       logger.info(`Found movie: ${match.title} (ID: ${match.id})`)
     }
 
     return match?.id ?? null
-  } catch (error: unknown) {
-    const errorDetails = {
-      name: error instanceof Error ? error.name : 'UnknownError',
-      message: error instanceof Error ? error.message : String(error),
-    }
-    logger.error('Failed to search for movie', {movieTitle, error: errorDetails})
-    return null
-  }
+  }, `search-movie-${movieTitle}`)()
 }
 
 /**
@@ -650,7 +653,7 @@ const fetchMovieDetails = async (
 ): Promise<TMDBMovieDetails | null> => {
   return withErrorHandling(async () => {
     const apiKey = process.env.TMDB_API_KEY
-    if (!apiKey) {
+    if (apiKey == null) {
       return null
     }
 
@@ -690,7 +693,7 @@ const fetchMovieCredits = async (
 ): Promise<TMDBMovieCredits | null> => {
   return withErrorHandling(async () => {
     const apiKey = process.env.TMDB_API_KEY
-    if (!apiKey) {
+    if (apiKey == null) {
       return null
     }
 
@@ -767,50 +770,70 @@ const enrichMovieData = (
 
 /**
  * Discover Star Trek movies from TMDB by searching predefined movie list.
- * Rate limits requests to respect TMDB quota (40 req/10s).
+ * Uses parallel fetching with configurable concurrency for performance.
  */
 const discoverStarTrekMovies = async (
   logger: ReturnType<typeof createLogger>,
+  concurrency: number = DEFAULT_CONCURRENCY,
 ): Promise<EnrichedMovieData[]> => {
-  logger.info('Starting Star Trek movie discovery')
+  logger.info('Starting Star Trek movie discovery', {concurrency})
 
-  if (!process.env.TMDB_API_KEY) {
+  if (process.env.TMDB_API_KEY == null) {
     logger.warn('TMDB_API_KEY not configured - movie discovery skipped')
     return []
   }
 
-  const discovered: EnrichedMovieData[] = []
-
   logger.info(`Searching for ${STAR_TREK_MOVIES.length} Star Trek movies`)
 
-  for (const movieTitle of STAR_TREK_MOVIES) {
-    // Rate limiting handled by TMDB API itself (40 req/10s quota)
+  const executor = createParallelExecutor<string, EnrichedMovieData | null>({
+    concurrency,
+    onProgress: (completed, total) => {
+      logger.debug(`Movie discovery progress: ${completed}/${total}`)
+    },
+    onError: (error, index) => {
+      const movieTitle = STAR_TREK_MOVIES[index]
+      logger.error(`Failed to discover movie: ${movieTitle ?? 'unknown'}`, {
+        name: error.name,
+        message: error.message,
+        stack: error.stack,
+      })
+    },
+  })
 
-    const movieId = await searchMovie(movieTitle, logger)
-    if (!movieId) {
-      logger.warn(`Movie not found: ${movieTitle}`)
-      continue
-    }
+  const result = await executor(
+    STAR_TREK_MOVIES as unknown as string[],
+    async (movieTitle: string) => {
+      const movieId = await searchMovie(movieTitle, logger)
+      if (movieId == null) {
+        logger.warn(`Movie not found: ${movieTitle}`)
+        return null
+      }
 
-    const movieDetails = await fetchMovieDetails(movieId, logger)
-    if (!movieDetails) {
-      logger.warn(`Failed to fetch details for movie ID ${movieId}`)
-      continue
-    }
+      const movieDetails = await fetchMovieDetails(movieId, logger)
+      if (movieDetails == null) {
+        logger.warn(`Failed to fetch details for movie ID ${movieId}`)
+        return null
+      }
 
-    // Rate limiting handled by TMDB API itself
+      const movieCredits = await fetchMovieCredits(movieId, logger)
 
-    const movieCredits = await fetchMovieCredits(movieId, logger)
+      const enrichedMovie = enrichMovieData(movieTitle, movieDetails, movieCredits)
 
-    const enrichedMovie = enrichMovieData(movieTitle, movieDetails, movieCredits)
-    discovered.push(enrichedMovie)
+      logger.info(
+        `Discovered movie: ${enrichedMovie.title} (${enrichedMovie.releaseDate?.slice(0, 4) ?? 'unknown year'})`,
+      )
 
-    logger.info(
-      `Discovered movie: ${enrichedMovie.title} (${enrichedMovie.releaseDate?.slice(0, 4) ?? 'unknown year'})`,
-    )
-  }
+      return enrichedMovie
+    },
+  )
 
-  logger.info(`Movie discovery complete: Found ${discovered.length} movies`)
+  const discovered = result.results.filter((movie): movie is EnrichedMovieData => movie !== null)
+
+  logger.info(`Movie discovery complete: Found ${discovered.length} movies`, {
+    successCount: result.successCount,
+    errorCount: result.errorCount,
+  })
+
   return discovered
 }
 
@@ -1436,7 +1459,7 @@ const fetchSeasonDetails = async (
 ): Promise<TMDBSeasonDetails | null> => {
   return withErrorHandling(async () => {
     const apiKey = process.env.TMDB_API_KEY
-    if (!apiKey) {
+    if (apiKey == null) {
       logger.warn('TMDB_API_KEY not configured, skipping season details fetch')
       return null
     }
@@ -1481,13 +1504,13 @@ const enumerateSeriesEpisodes = async (
   logger: ReturnType<typeof createLogger>,
   _metadataSources: MetadataSourceInstance,
   filterSeasonNumber?: number,
+  concurrency: number = DEFAULT_CONCURRENCY,
 ): Promise<EnrichedSeriesData> => {
   const seasonInfo = filterSeasonNumber
     ? ` (season ${filterSeasonNumber} only)`
     : ` (all ${series.numberOfSeasons} seasons)`
-  logger.info(`Enumerating episodes for: ${series.name}${seasonInfo}`)
+  logger.info(`Enumerating episodes for: ${series.name}${seasonInfo} (concurrency: ${concurrency})`)
 
-  const enrichedSeasons: EnrichedSeasonData[] = []
   const qualityStats = {
     totalProcessed: 0,
     totalFiltered: 0,
@@ -1499,13 +1522,30 @@ const enumerateSeriesEpisodes = async (
   const startSeason = filterSeasonNumber ?? 1
   const endSeason = filterSeasonNumber ?? series.numberOfSeasons
 
-  for (let seasonNum = startSeason; seasonNum <= endSeason; seasonNum++) {
+  const seasonNumbers = Array.from({length: endSeason - startSeason + 1}, (_, i) => startSeason + i)
+
+  const executor = createParallelExecutor<number, EnrichedSeasonData | null>({
+    concurrency,
+    onProgress: (completed, total) => {
+      logger.debug(`Season fetch progress for ${series.name}: ${completed}/${total}`)
+    },
+    onError: (error, index) => {
+      const seasonNum = seasonNumbers[index]
+      logger.error(`Failed to fetch season ${seasonNum ?? 'unknown'} for ${series.name}`, {
+        name: error.name,
+        message: error.message,
+        stack: error.stack,
+      })
+    },
+  })
+
+  const result = await executor(seasonNumbers, async (seasonNum: number) => {
     logger.debug(`Fetching season ${seasonNum} of ${series.numberOfSeasons}`)
 
     const seasonDetails = await fetchSeasonDetails(series.id, seasonNum, logger)
-    if (!seasonDetails) {
+    if (seasonDetails == null) {
       logger.warn(`Failed to fetch season ${seasonNum} for ${series.name}`)
-      continue
+      return null
     }
 
     const enrichedEpisodes: EnrichedEpisodeData[] = []
@@ -1516,7 +1556,6 @@ const enumerateSeriesEpisodes = async (
 
       const episodeId = generateEpisodeId(series.name, seasonNum, episode.episode_number)
 
-      // Use TMDB episode data directly
       const hasBasicData = Boolean(episode.name && episode.air_date)
 
       if (!hasBasicData) {
@@ -1527,10 +1566,8 @@ const enumerateSeriesEpisodes = async (
         continue
       }
 
-      // Track quality statistics
       qualityStats.totalProcessed++
 
-      // Create enriched episode from TMDB data
       const enrichedEpisode: EnrichedEpisodeData = {
         episodeId,
         tmdbId: episode.id,
@@ -1549,7 +1586,6 @@ const enumerateSeriesEpisodes = async (
 
       enrichedEpisodes.push(enrichedEpisode)
 
-      // Track missing overview separately (most common missing field)
       if (!episode.overview) {
         qualityStats.commonMissingFields.set(
           'overview',
@@ -1564,15 +1600,19 @@ const enumerateSeriesEpisodes = async (
       )
     }
 
-    enrichedSeasons.push({
+    return {
       seasonNumber: seasonNum,
       name: seasonDetails.name,
       overview: seasonDetails.overview,
       airDate: seasonDetails.air_date,
       episodeCount: seasonDetails.episode_count,
       episodes: enrichedEpisodes,
-    })
-  }
+    }
+  })
+
+  const enrichedSeasons = result.results.filter(
+    (season): season is EnrichedSeasonData => season !== null,
+  )
 
   const totalEpisodes = enrichedSeasons.reduce((sum, s) => sum + s.episodes.length, 0)
 
@@ -1625,15 +1665,14 @@ const enumerateSeriesEpisodes = async (
 const discoverStarTrekSeries = async (
   logger: ReturnType<typeof createLogger>,
   filterSeries?: string,
+  concurrency: number = DEFAULT_CONCURRENCY,
 ): Promise<DiscoveredSeries[]> => {
   logger.info('Starting Star Trek series discovery')
 
-  if (!process.env.TMDB_API_KEY) {
+  if (process.env.TMDB_API_KEY == null) {
     logger.warn('TMDB_API_KEY not configured - series discovery will be limited')
     return []
   }
-
-  const discovered: DiscoveredSeries[] = []
 
   const seriesToDiscover = filterSeries
     ? STAR_TREK_SERIES.filter((name: string) =>
@@ -1641,29 +1680,55 @@ const discoverStarTrekSeries = async (
       )
     : STAR_TREK_SERIES
 
-  logger.info(`Searching for ${seriesToDiscover.length} Star Trek series`)
+  logger.info(
+    `Searching for ${seriesToDiscover.length} Star Trek series (concurrency: ${concurrency})`,
+  )
 
-  for (const seriesName of seriesToDiscover) {
+  const executor = createParallelExecutor<string, DiscoveredSeries | null>({
+    concurrency,
+    onProgress: (completed, total) => {
+      if (logger) {
+        logger.debug(`Series discovery progress: ${completed}/${total}`)
+      }
+    },
+    onError: (error, index) => {
+      const seriesName = seriesToDiscover[index]
+      logger.error(`Failed to discover series: ${seriesName ?? 'unknown'}`, {
+        name: error.name,
+        message: error.message,
+        stack: error.stack,
+      })
+    },
+  })
+
+  const result = await executor(seriesToDiscover as string[], async (seriesName: string) => {
     logger.debug(`Searching for: ${seriesName}`)
 
     const seriesId = await searchSeries(seriesName, logger)
-    if (!seriesId) {
+    if (seriesId == null) {
       logger.warn(`Could not find TMDB ID for: ${seriesName}`)
-      continue
+      return null
     }
 
     logger.debug(`Found TMDB ID ${seriesId} for: ${seriesName}`)
 
     const details = await fetchSeriesDetails(seriesId, logger)
     if (details) {
-      discovered.push(details)
       logger.info(
         `Discovered: ${details.name} (${details.numberOfSeasons} seasons, ${details.numberOfEpisodes} episodes)`,
       )
     }
-  }
 
-  logger.info(`Discovery complete: Found ${discovered.length} series`)
+    return details
+  })
+
+  const discovered = result.results.filter((series): series is DiscoveredSeries => series !== null)
+
+  logger.info(`Discovery complete: Found ${discovered.length} series`, {
+    successCount: result.successCount,
+    errorCount: result.errorCount,
+  })
+
   return discovered
 }
 
@@ -1815,6 +1880,11 @@ const parseArguments = (args: string[]): GenerateDataOptions => {
   const season = seasonStr ? Number.parseInt(seasonStr, 10) : undefined
   const output = parseStringValue(args, '--output') ?? DEFAULT_OPTIONS.output
 
+  const concurrencyStr = parseStringValue(args, '--concurrency') ?? process.env.CONCURRENCY
+  const concurrency = concurrencyStr
+    ? Number.parseInt(concurrencyStr, 10)
+    : DEFAULT_OPTIONS.concurrency
+
   if (modeStr !== 'full' && modeStr !== 'incremental') {
     showErrorAndExit(
       `Invalid mode: ${modeStr}. Must be 'full' or 'incremental'.`,
@@ -1836,6 +1906,13 @@ const parseArguments = (args: string[]): GenerateDataOptions => {
     )
   }
 
+  if (Number.isNaN(concurrency) || concurrency < 1) {
+    showErrorAndExit(
+      `Invalid concurrency: ${concurrencyStr}. Must be a positive integer (recommended: 1-10).`,
+      EXIT_CODES.INVALID_ARGUMENTS,
+    )
+  }
+
   return {
     help: false,
     verbose,
@@ -1845,6 +1922,7 @@ const parseArguments = (args: string[]): GenerateDataOptions => {
     dryRun,
     output,
     validate,
+    concurrency,
   }
 }
 
@@ -2222,9 +2300,16 @@ const main = async (): Promise<void> => {
   })
 
   try {
-    logger.info('Starting data fetching pipeline')
+    logger.info('Starting data fetching pipeline', {
+      concurrency: options.concurrency,
+      mode: options.mode,
+    })
 
-    const discoveredSeries = await discoverStarTrekSeries(logger, options.series)
+    const discoveredSeries = await discoverStarTrekSeries(
+      logger,
+      options.series,
+      options.concurrency,
+    )
     logger.info(`Discovered ${discoveredSeries.length} Star Trek series`, {
       series: discoveredSeries.map((s: DiscoveredSeries) => s.name),
     })
@@ -2238,6 +2323,7 @@ const main = async (): Promise<void> => {
         logger,
         metadataSources,
         options.season,
+        options.concurrency,
       )
       enrichedSeriesData.push(enrichedData)
     }
@@ -2252,7 +2338,7 @@ const main = async (): Promise<void> => {
     })
 
     logger.info('Starting movie discovery')
-    const discoveredMovies = await discoverStarTrekMovies(logger)
+    const discoveredMovies = await discoverStarTrekMovies(logger, options.concurrency)
     logger.info(`Movie discovery complete: ${discoveredMovies.length} movies found`, {
       movies: discoveredMovies.map(m => `${m.title} (${m.releaseDate?.slice(0, 4) ?? 'unknown'})`),
     })

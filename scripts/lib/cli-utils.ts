@@ -225,3 +225,107 @@ export const formatTable = (headers: string[], rows: string[][]): string => {
 
   return [formatRow(headers), separator, ...rows.map(formatRow)].join('\n')
 }
+
+/**
+ * Parallel executor configuration options.
+ */
+export interface ParallelExecutorConfig {
+  concurrency: number
+  onProgress?: (completed: number, total: number) => void
+  onError?: (error: Error, itemIndex: number) => void
+}
+
+/**
+ * Result of parallel execution.
+ */
+export interface ParallelExecutionResult<T> {
+  results: T[]
+  errors: {index: number; error: Error}[]
+  successCount: number
+  errorCount: number
+}
+
+/**
+ * Creates a parallel executor with configurable concurrency limits.
+ * Implements a queue-based approach to limit the number of concurrent operations
+ * while maintaining order of results.
+ *
+ * @param config - Configuration for parallel execution
+ * @returns Executor function that processes items in parallel
+ *
+ * @example
+ * ```typescript
+ * const executor = createParallelExecutor({
+ *   concurrency: 5,
+ *   onProgress: (completed, total) => console.log(`${completed}/${total}`),
+ * })
+ *
+ * const results = await executor(
+ *   ['item1', 'item2', 'item3'],
+ *   async (item) => fetchData(item)
+ * )
+ * ```
+ */
+export const createParallelExecutor = <T, R>(
+  config: ParallelExecutorConfig,
+): ((
+  items: T[],
+  processor: (item: T, index: number) => Promise<R>,
+) => Promise<ParallelExecutionResult<R>>) => {
+  const {concurrency, onProgress, onError} = config
+
+  return async (
+    items: T[],
+    processor: (item: T, index: number) => Promise<R>,
+  ): Promise<ParallelExecutionResult<R>> => {
+    const results: R[] = Array.from({length: items.length})
+    const errors: {index: number; error: Error}[] = []
+    let completed = 0
+    let nextIndex = 0
+
+    const processNext = async (): Promise<void> => {
+      if (nextIndex >= items.length) {
+        return
+      }
+
+      const currentIndex = nextIndex++
+      const item = items[currentIndex]
+
+      if (item === undefined) {
+        return
+      }
+
+      try {
+        const result = await processor(item, currentIndex)
+        results[currentIndex] = result
+      } catch (error) {
+        const errorObj = error instanceof Error ? error : new Error(String(error))
+        errors.push({index: currentIndex, error: errorObj})
+        onError?.(errorObj, currentIndex)
+      } finally {
+        completed++
+        onProgress?.(completed, items.length)
+
+        if (nextIndex < items.length) {
+          await processNext()
+        }
+      }
+    }
+
+    const workers: Promise<void>[] = []
+    const workerCount = Math.min(concurrency, items.length)
+
+    for (let i = 0; i < workerCount; i++) {
+      workers.push(processNext())
+    }
+
+    await Promise.all(workers)
+
+    return {
+      results,
+      errors,
+      successCount: items.length - errors.length,
+      errorCount: errors.length,
+    }
+  }
+}
