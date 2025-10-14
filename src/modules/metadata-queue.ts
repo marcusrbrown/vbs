@@ -48,7 +48,7 @@ export const createMetadataQueue = (
   const runningJobs: Set<string> = new Set()
   let isProcessing = false
   let isPaused = false
-  let processingTimer: number | null = null
+  let processingTimer: ReturnType<typeof setTimeout> | null = null
 
   // Background sync capability state
   let syncCapability: import('./types.js').BackgroundSyncCapability = {
@@ -187,7 +187,7 @@ export const createMetadataQueue = (
 
       // Schedule next processing cycle if there are pending jobs
       if (getPendingJobs().length > 0 && runningJobs.size < queueConfig.maxConcurrentJobs) {
-        processingTimer = window.setTimeout(() => {
+        processingTimer = setTimeout(() => {
           processQueue()
         }, queueConfig.processingInterval)
       }
