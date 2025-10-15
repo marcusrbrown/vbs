@@ -44,6 +44,7 @@ import process from 'node:process'
 import {withErrorHandling} from '../src/modules/error-handler.js'
 import {createLogger} from '../src/modules/logger.js'
 import {createMetadataSources} from '../src/modules/metadata-sources.js'
+import {createApiCache, type ApiCacheInstance} from './lib/api-cache.js'
 import {
   createParallelExecutor,
   EXIT_CODES,
@@ -306,6 +307,9 @@ interface GenerateDataOptions extends BaseCLIOptions {
   output: string
   validate: boolean
   concurrency: number
+  enableCache: boolean
+  clearCache: boolean
+  cacheStats: boolean
 }
 
 /**
@@ -366,6 +370,9 @@ const DEFAULT_OPTIONS: Omit<GenerateDataOptions, 'help' | 'verbose'> = {
   output: 'src/data/star-trek-data.ts',
   validate: true,
   concurrency: DEFAULT_CONCURRENCY,
+  enableCache: true,
+  clearCache: false,
+  cacheStats: false,
 }
 
 const HELP_TEXT = `
@@ -401,6 +408,19 @@ Options:
                        Uses existing validation tools to ensure data quality
 
   --verbose            Enable detailed logging with progress indicators
+
+  --enable-cache       Enable API response caching (default: true)
+                       Caches responses to .cache/api-responses directory
+                       Reduces redundant requests during development
+
+  --no-cache           Disable API response caching
+                       Forces fresh requests for all API calls
+
+  --clear-cache        Clear all cached API responses before generation
+                       Useful for forcing fresh data retrieval
+
+  --cache-stats        Display cache statistics and exit
+                       Shows hit rate, cache size, and entry counts
 
   --help               Show this help message and exit
 
@@ -498,6 +518,17 @@ const MOVIE_ID_MAP: Record<string, string> = {
 } as const
 
 /**
+ * Format bytes to human-readable size string.
+ */
+const formatBytes = (bytes: number): string => {
+  if (bytes === 0) return '0 Bytes'
+  const k = 1024
+  const sizes = ['Bytes', 'KB', 'MB', 'GB']
+  const i = Math.floor(Math.log(bytes) / Math.log(k))
+  return `${(bytes / k ** i).toFixed(2)} ${sizes[i]}`
+}
+
+/**
  * Rate limiting delay between TMDB API requests (milliseconds).
  * REMOVED: Production metadata-sources.ts has built-in token bucket rate limiting.
  * No manual delays needed as the production module handles this automatically.
@@ -511,6 +542,7 @@ const MOVIE_ID_MAP: Record<string, string> = {
 const fetchSeriesDetails = async (
   seriesId: number,
   logger: ReturnType<typeof createLogger>,
+  cache: ApiCacheInstance,
 ): Promise<DiscoveredSeries | null> => {
   return withErrorHandling(async () => {
     const apiKey = process.env.TMDB_API_KEY
@@ -523,6 +555,21 @@ const fetchSeriesDetails = async (
     const headers = {
       Authorization: `Bearer ${apiKey}`,
       'Content-Type': 'application/json',
+    }
+
+    // Try cache first
+    const cached = await cache.get<TMDBSeriesDetails>(url)
+    if (cached != null) {
+      return {
+        id: cached.id,
+        name: cached.name,
+        originalName: cached.original_name,
+        firstAirDate: cached.first_air_date,
+        overview: cached.overview,
+        numberOfSeasons: cached.number_of_seasons,
+        numberOfEpisodes: cached.number_of_episodes,
+        status: cached.status,
+      }
     }
 
     const response = await fetch(url, {headers})
@@ -543,6 +590,7 @@ const fetchSeriesDetails = async (
     }
 
     const data = (await response.json()) as TMDBSeriesDetails
+    await cache.set(url, data)
 
     return {
       id: data.id,
@@ -564,6 +612,7 @@ const fetchSeriesDetails = async (
 const searchSeries = async (
   seriesName: string,
   logger: ReturnType<typeof createLogger>,
+  cache: ApiCacheInstance,
 ): Promise<number | null> => {
   return withErrorHandling(async () => {
     const apiKey = process.env.TMDB_API_KEY
@@ -577,6 +626,20 @@ const searchSeries = async (
       'Content-Type': 'application/json',
     }
 
+    // Try cache first
+    const cached = await cache.get<TMDBSearchResult>(url)
+    if (cached != null) {
+      const match = cached.results.find(
+        (result: TMDBSearchResult['results'][number]) =>
+          result.name.toLowerCase().includes('star trek') &&
+          (result.name
+            .toLowerCase()
+            .includes(seriesName.toLowerCase().replace('star trek:', '').trim()) ||
+            seriesName.toLowerCase().includes(result.name.toLowerCase())),
+      )
+      return match?.id ?? null
+    }
+
     const response = await fetch(url, {headers})
     if (!response.ok) {
       logger.error('TMDB search error', {seriesName, status: response.status})
@@ -584,6 +647,7 @@ const searchSeries = async (
     }
 
     const data = (await response.json()) as TMDBSearchResult
+    await cache.set(url, data)
 
     const match = data.results.find(
       (result: TMDBSearchResult['results'][number]) =>
@@ -605,6 +669,7 @@ const searchSeries = async (
 const searchMovie = async (
   movieTitle: string,
   logger: ReturnType<typeof createLogger>,
+  cache: ApiCacheInstance,
 ): Promise<number | null> => {
   return withErrorHandling(async () => {
     const apiKey = process.env.TMDB_API_KEY
@@ -618,6 +683,23 @@ const searchMovie = async (
       'Content-Type': 'application/json',
     }
 
+    // Try cache first
+    const cached = await cache.get<TMDBMovieSearchResult>(url)
+    if (cached != null) {
+      const match = cached.results.find(
+        (result: TMDBMovieSearchResult['results'][number]) =>
+          result.title.toLowerCase().includes('star trek') &&
+          (result.title
+            .toLowerCase()
+            .includes(movieTitle.toLowerCase().replace('star trek', '').trim()) ||
+            movieTitle.toLowerCase().includes(result.title.toLowerCase())),
+      )
+      if (match != null) {
+        logger.info(`Found movie (cached): ${match.title} (ID: ${match.id})`)
+      }
+      return match?.id ?? null
+    }
+
     const response = await fetch(url, {headers})
     if (!response.ok) {
       logger.error('TMDB search error', {movieTitle, status: response.status})
@@ -625,6 +707,7 @@ const searchMovie = async (
     }
 
     const data = (await response.json()) as TMDBMovieSearchResult
+    await cache.set(url, data)
 
     const match = data.results.find(
       (result: TMDBMovieSearchResult['results'][number]) =>
@@ -650,6 +733,7 @@ const searchMovie = async (
 const fetchMovieDetails = async (
   movieId: number,
   logger: ReturnType<typeof createLogger>,
+  cache: ApiCacheInstance,
 ): Promise<TMDBMovieDetails | null> => {
   return withErrorHandling(async () => {
     const apiKey = process.env.TMDB_API_KEY
@@ -661,6 +745,12 @@ const fetchMovieDetails = async (
     const headers = {
       Authorization: `Bearer ${apiKey}`,
       'Content-Type': 'application/json',
+    }
+
+    // Try cache first
+    const cached = await cache.get<TMDBMovieDetails>(url)
+    if (cached != null) {
+      return cached
     }
 
     const response = await fetch(url, {headers})
@@ -679,6 +769,7 @@ const fetchMovieDetails = async (
     }
 
     const data = (await response.json()) as TMDBMovieDetails
+    await cache.set(url, data)
     return data
   }, `fetch-movie-details-${movieId}`)()
 }
@@ -690,6 +781,7 @@ const fetchMovieDetails = async (
 const fetchMovieCredits = async (
   movieId: number,
   logger: ReturnType<typeof createLogger>,
+  cache: ApiCacheInstance,
 ): Promise<TMDBMovieCredits | null> => {
   return withErrorHandling(async () => {
     const apiKey = process.env.TMDB_API_KEY
@@ -703,6 +795,12 @@ const fetchMovieCredits = async (
       'Content-Type': 'application/json',
     }
 
+    // Try cache first
+    const cached = await cache.get<TMDBMovieCredits>(url)
+    if (cached != null) {
+      return cached
+    }
+
     const response = await fetch(url, {headers})
     if (!response.ok) {
       logger.error('TMDB API error for movie credits', {
@@ -714,6 +812,7 @@ const fetchMovieCredits = async (
     }
 
     const data = (await response.json()) as TMDBMovieCredits
+    await cache.set(url, data)
     return data
   }, `fetch-movie-credits-${movieId}`)()
 }
@@ -774,6 +873,7 @@ const enrichMovieData = (
  */
 const discoverStarTrekMovies = async (
   logger: ReturnType<typeof createLogger>,
+  cache: ApiCacheInstance,
   concurrency: number = DEFAULT_CONCURRENCY,
 ): Promise<EnrichedMovieData[]> => {
   logger.info('Starting Star Trek movie discovery', {concurrency})
@@ -803,19 +903,19 @@ const discoverStarTrekMovies = async (
   const result = await executor(
     STAR_TREK_MOVIES as unknown as string[],
     async (movieTitle: string) => {
-      const movieId = await searchMovie(movieTitle, logger)
+      const movieId = await searchMovie(movieTitle, logger, cache)
       if (movieId == null) {
         logger.warn(`Movie not found: ${movieTitle}`)
         return null
       }
 
-      const movieDetails = await fetchMovieDetails(movieId, logger)
+      const movieDetails = await fetchMovieDetails(movieId, logger, cache)
       if (movieDetails == null) {
         logger.warn(`Failed to fetch details for movie ID ${movieId}`)
         return null
       }
 
-      const movieCredits = await fetchMovieCredits(movieId, logger)
+      const movieCredits = await fetchMovieCredits(movieId, logger, cache)
 
       const enrichedMovie = enrichMovieData(movieTitle, movieDetails, movieCredits)
 
@@ -1664,6 +1764,7 @@ const enumerateSeriesEpisodes = async (
  */
 const discoverStarTrekSeries = async (
   logger: ReturnType<typeof createLogger>,
+  cache: ApiCacheInstance,
   filterSeries?: string,
   concurrency: number = DEFAULT_CONCURRENCY,
 ): Promise<DiscoveredSeries[]> => {
@@ -1704,7 +1805,7 @@ const discoverStarTrekSeries = async (
   const result = await executor(seriesToDiscover as string[], async (seriesName: string) => {
     logger.debug(`Searching for: ${seriesName}`)
 
-    const seriesId = await searchSeries(seriesName, logger)
+    const seriesId = await searchSeries(seriesName, logger, cache)
     if (seriesId == null) {
       logger.warn(`Could not find TMDB ID for: ${seriesName}`)
       return null
@@ -1712,7 +1813,7 @@ const discoverStarTrekSeries = async (
 
     logger.debug(`Found TMDB ID ${seriesId} for: ${seriesName}`)
 
-    const details = await fetchSeriesDetails(seriesId, logger)
+    const details = await fetchSeriesDetails(seriesId, logger, cache)
     if (details) {
       logger.info(
         `Discovered: ${details.name} (${details.numberOfSeasons} seasons, ${details.numberOfEpisodes} episodes)`,
@@ -1885,6 +1986,10 @@ const parseArguments = (args: string[]): GenerateDataOptions => {
     ? Number.parseInt(concurrencyStr, 10)
     : DEFAULT_OPTIONS.concurrency
 
+  const enableCache = !parseBooleanFlag(args, '--no-cache')
+  const clearCache = parseBooleanFlag(args, '--clear-cache')
+  const cacheStats = parseBooleanFlag(args, '--cache-stats')
+
   if (modeStr !== 'full' && modeStr !== 'incremental') {
     showErrorAndExit(
       `Invalid mode: ${modeStr}. Must be 'full' or 'incremental'.`,
@@ -1923,6 +2028,9 @@ const parseArguments = (args: string[]): GenerateDataOptions => {
     output,
     validate,
     concurrency,
+    enableCache,
+    clearCache,
+    cacheStats,
   }
 }
 
@@ -2182,6 +2290,43 @@ const main = async (): Promise<void> => {
     persistLogs: false,
   })
 
+  // Initialize API response cache
+  const apiCache = createApiCache({
+    cacheDir: '.cache/api-responses',
+    defaultTtl: 24 * 60 * 60 * 1000, // 24 hours
+    enabled: options.enableCache,
+    verbose: options.verbose,
+  })
+
+  // Handle --cache-stats flag: display statistics and exit
+  if (options.cacheStats) {
+    const stats = await apiCache.getStats()
+    console.error('\n=== API Cache Statistics ===')
+    console.error(`Total entries:     ${stats.totalEntries}`)
+    console.error(`Total size:        ${formatBytes(stats.totalSize)}`)
+    console.error(`Cache hits:        ${stats.hits}`)
+    console.error(`Cache misses:      ${stats.misses}`)
+    console.error(`Hit rate:          ${(stats.hitRate * 100).toFixed(1)}%`)
+    if (stats.oldestEntry) {
+      console.error(`Oldest entry:      ${new Date(stats.oldestEntry).toLocaleString()}`)
+    }
+    if (stats.newestEntry) {
+      console.error(`Newest entry:      ${new Date(stats.newestEntry).toLocaleString()}`)
+    }
+    console.error('')
+    process.exit(EXIT_CODES.SUCCESS)
+  }
+
+  // Handle --clear-cache flag: clear cache before generation
+  if (options.clearCache) {
+    logger.info('Clearing API response cache...')
+    const result = await apiCache.clear()
+    logger.info('Cache cleared', {
+      removedEntries: result.removedEntries,
+      freedSpace: formatBytes(result.freedSpace),
+    })
+  }
+
   // Auto-detect incremental mode when output file exists (prevents accidental data loss)
   if (options.mode === 'full') {
     const {fileExists} = await import('./lib/file-operations.js')
@@ -2307,6 +2452,7 @@ const main = async (): Promise<void> => {
 
     const discoveredSeries = await discoverStarTrekSeries(
       logger,
+      apiCache,
       options.series,
       options.concurrency,
     )
@@ -2338,7 +2484,7 @@ const main = async (): Promise<void> => {
     })
 
     logger.info('Starting movie discovery')
-    const discoveredMovies = await discoverStarTrekMovies(logger, options.concurrency)
+    const discoveredMovies = await discoverStarTrekMovies(logger, apiCache, options.concurrency)
     logger.info(`Movie discovery complete: ${discoveredMovies.length} movies found`, {
       movies: discoveredMovies.map(m => `${m.title} (${m.releaseDate?.slice(0, 4) ?? 'unknown'})`),
     })
