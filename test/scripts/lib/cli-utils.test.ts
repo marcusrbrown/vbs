@@ -287,6 +287,7 @@ describe('CLI Utilities', () => {
 
     it('should load environment variables without error when .env exists', async () => {
       const {loadEnv} = await import('../../../scripts/lib/cli-utils.js')
+      vi.clearAllMocks()
       const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never)
       loadEnv()
       expect(exitSpy).not.toHaveBeenCalled()
