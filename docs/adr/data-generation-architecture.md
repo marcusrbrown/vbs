@@ -317,11 +317,11 @@ export const starTrekData: StarTrekEra[] = [
 
 ### Related Issues
 
-- #250: Phase 5 - Testing & Documentation
-- #249: Phase 4 - GitHub Actions Workflow
-- #248: Phase 3 - Data Quality & Validation
-- #247: Phase 2 - Core Generation
-- #246: Phase 1 - Shared Utilities
+- # 250: Phase 5 - Testing & Documentation
+- # 249: Phase 4 - GitHub Actions Workflow
+- # 248: Phase 3 - Data Quality & Validation
+- # 247: Phase 2 - Core Generation
+- # 246: Phase 1 - Shared Utilities
 
 ### External Resources
 
