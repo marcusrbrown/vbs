@@ -1,10 +1,6 @@
 # ADR: Automated Star Trek Data Generation Architecture
 
-**Status**: Accepted  
-**Date**: 2025-10-13  
-**Decision Makers**: Marcus R. Brown  
-**Related Issues**: #250, #249, #248, #247, #246  
-**Implementation**: `scripts/generate-star-trek-data.ts`
+**Status**: Accepted<br> **Date**: 2025-10-13<br> **Decision Makers**: Marcus R. Brown<br> **Related Issues**: #250, #249, #248, #247, #246<br> **Implementation**: `scripts/generate-star-trek-data.ts`<br>
 
 ## Context
 
@@ -317,11 +313,11 @@ export const starTrekData: StarTrekEra[] = [
 
 ### Related Issues
 
-- # 250: Phase 5 - Testing & Documentation
-- # 249: Phase 4 - GitHub Actions Workflow
-- # 248: Phase 3 - Data Quality & Validation
-- # 247: Phase 2 - Core Generation
-- # 246: Phase 1 - Shared Utilities
+- \#250: Phase 5 - Testing & Documentation
+- \#249: Phase 4 - GitHub Actions Workflow
+- \#248: Phase 3 - Data Quality & Validation
+- \#247: Phase 2 - Core Generation
+- \#246: Phase 1 - Shared Utilities
 
 ### External Resources
 
