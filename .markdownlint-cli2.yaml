@@ -1,3 +1,7 @@
 globs:
   - '!.ai/**'
   - '!.github/copilot-instructions.md'
+
+config:
+  no-inline-html:
+    allowed_elements: [br]
