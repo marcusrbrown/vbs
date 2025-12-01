@@ -418,9 +418,8 @@ describe('validate-episode-data CLI script', () => {
     })
 
     it('should integrate with progress validation utilities', async () => {
-      const {isValidEpisodeId, isValidISOTimestamp} = await import(
-        '../src/utils/metadata-validation.js'
-      )
+      const {isValidEpisodeId, isValidISOTimestamp} =
+        await import('../src/utils/metadata-validation.js')
 
       expect(isValidEpisodeId('ent_s1_e01')).toBe(true)
       expect(isValidISOTimestamp('2025-08-12T10:30:00.000Z')).toBe(true)

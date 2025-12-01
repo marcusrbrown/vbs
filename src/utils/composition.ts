@@ -812,8 +812,11 @@ export const starTrekTransformations = {
  * @template TOutput - Output type for the pipeline
  * @template TEventMap - Event map type for type-safe event emissions
  */
-export interface EventAwarePipelineConfig<TInput, TOutput, TEventMap extends EventMap>
-  extends PipelineConfig<TInput, TOutput> {
+export interface EventAwarePipelineConfig<
+  TInput,
+  TOutput,
+  TEventMap extends EventMap,
+> extends PipelineConfig<TInput, TOutput> {
   /** EventEmitter instance for emitting pipeline events */
   eventEmitter: EventEmitterInstance<TEventMap>
   /** Event name to emit when pipeline starts */
