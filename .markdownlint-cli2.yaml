@@ -1,6 +1,7 @@
 globs:
   - '!.ai/**'
   - '!.github/copilot-instructions.md'
+  - '!**/AGENTS.md'
 
 config:
   no-inline-html:
