@@ -39,12 +39,12 @@ See `AGENTS.md` for project knowledge base, `src/modules/AGENTS.md` and `src/com
 
 ```typescript
 // ✅ CORRECT - Always use .js extension
-import {createProgressTracker} from './progress.js'
-import {loadEnv} from '../lib/cli-utils.js'
+import {createProgressTracker} from "./progress.js"
+import {loadEnv} from "../lib/cli-utils.js"
 
 // ❌ WRONG - Missing .js extension will cause runtime errors
-import {createProgressTracker} from './progress'
-import {loadEnv} from '../lib/cli-utils'
+import {createProgressTracker} from "./progress"
+import {loadEnv} from "../lib/cli-utils"
 ```
 
 ## Architecture Overview
@@ -66,11 +66,16 @@ export const createProgressTracker = (): ProgressTrackerInstance => {
   let watchedItems: string[] = []
   const eventEmitter = createEventEmitter<ProgressTrackerEvents>()
   return {
-    toggleItem: (itemId: string) =>
-      eventEmitter.emit('item-toggle', {
+    toggleItem: (itemId: string): void => {
+      const isCurrentlyWatched = watchedItems.includes(itemId)
+      watchedItems = isCurrentlyWatched
+        ? watchedItems.filter(id => id !== itemId)
+        : [...watchedItems, itemId]
+      eventEmitter.emit("item-toggle", {
         itemId,
-        isWatched: !watchedItems.includes(itemId),
-      }),
+        isWatched: !isCurrentlyWatched,
+      })
+    },
     on: eventEmitter.on.bind(eventEmitter),
     off: eventEmitter.off.bind(eventEmitter),
     once: eventEmitter.once.bind(eventEmitter),

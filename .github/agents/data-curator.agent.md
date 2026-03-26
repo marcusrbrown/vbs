@@ -18,8 +18,8 @@ Manage Star Trek dataset lifecycle: extraction, enrichment, validation, and disk
 
 - **IDs:** Must be unique across all eras.
 - **Patterns:**
-  - Episode: `[series]_[season]_[episode]` (e.g., `tng_s3_e15`)
-  - Season: `[series]_[season]` (e.g., `tng_s3`)
+  - Episode: `[series]_s{season}_e{episode}` (e.g., `tng_s3_e15`)
+  - Season: `[series]_s{season}` (e.g., `tng_s3`)
   - Series: `[series]` (e.g., `tng`)
 - **Quality Score:** Minimum 0.6 required for inclusion.
 - **Sources (Hierarchy):** TMDB -> Memory Alpha -> TrekCore -> STAPI.
