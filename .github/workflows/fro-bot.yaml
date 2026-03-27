@@ -1,0 +1,173 @@
+---
+name: Fro Bot
+
+on:
+  issue_comment:
+    types: [created]
+  pull_request_review_comment:
+    types: [created]
+  discussion_comment:
+    types: [created]
+  issues:
+    types: [opened, edited]
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review, review_requested]
+  schedule:
+    - cron: '30 15 * * *'
+  workflow_dispatch:
+    inputs:
+      prompt:
+        description: Custom prompt for the Fro Bot agent
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: >-
+    fro-bot-${{
+      github.event.issue.number ||
+      github.event.pull_request.number ||
+      github.event.discussion.number ||
+      github.run_id
+    }}
+  cancel-in-progress: false
+
+env:
+  PR_REVIEW_PROMPT: |
+    Review this PR for the VBS (View By Stardate) project — a TypeScript +
+    Vite + D3.js Star Trek viewing guide using functional factory architecture.
+    Read AGENTS.md for full project conventions before reviewing.
+
+    Focus your review on:
+    - Correctness and edge cases
+    - Security implications (credentials, localStorage, API keys)
+    - Breaking changes to public factory APIs or event maps
+    - Test coverage for new/changed behavior
+    - VBS-specific violations:
+      * Missing `.js` extensions in imports (runtime breakage)
+      * Use of `any` instead of `unknown` + type guards
+      * Class-based patterns instead of functional factories
+      * `this` binding instead of closure-based state
+      * Missing `destroy()` on components/factories with listeners
+      * Inline styles instead of CSS custom properties (`--vbs-` prefix)
+      * Missing event map types in `src/modules/types.ts`
+    Skip style nits — the linter handles those.
+
+    Do NOT push commits, modify code, or create branches. Review only.
+    Use inline comments for file-specific issues. Reserve the review body
+    for the structured summary below.
+
+    You MUST structure your review using exactly these headings:
+    ## Verdict: [PASS | CONDITIONAL | REJECT]
+    CONDITIONAL = can merge after addressing the listed blocking issues.
+    ### Blocking issues
+    ### Non-blocking concerns
+    ### Missing tests
+    ### Risk assessment (LOW/MED/HIGH) + rationale
+    Evaluate likelihood of regression, security exposure, or blast radius.
+    If a section has no items, write "None" under the heading.
+    Do not omit any heading.
+
+  SCHEDULE_PROMPT: |
+    Perform daily repository maintenance for VBS (View By Stardate) and update
+    a SINGLE rolling issue titled "Daily Maintenance Report" in this repository.
+
+    Search for an issue with this exact title. If multiple matches exist,
+    use the most recently updated one. If no open issue exists, create it.
+    If the most recent matching issue is closed, reopen it instead of creating
+    a new one.
+
+    Append a new dated section for each run using "## YYYY-MM-DD (UTC)".
+    To keep the issue bounded: after appending today's section, replace any
+    individual daily sections older than 14 days with a single
+    "## Historical Summary" section that lists only the count of prior runs
+    and any items that remained unresolved across those runs. If a Historical
+    Summary already exists, update it in place — do not create a second one.
+
+    Include links only (no full content duplication). Keep it concise and
+    actionable. Flag items that appear in the stale list for the first time
+    (not present in the previous dated section) with a ★ marker.
+
+    Sections (in order):
+    - Summary metrics (issues opened since last run, currently open PRs, stale
+      issues/PRs count, main branch check status, security alerts if accessible)
+    - Stale issues (no activity >30 days; recommend next step)
+    - Stale PRs (no activity >7 days; stale >14 days)
+    - Unassigned bugs (label bug, no assignee)
+    - Recommended actions (bulleted checklist)
+    - Notes (use "data unavailable" for any inaccessible data source)
+
+    Do NOT comment on or modify individual issues/PRs. Do NOT apply labels.
+    Do NOT open PRs. This run must update ONE issue only.
+
+jobs:
+  fro-bot:
+    name: Fro Bot
+    runs-on: ubuntu-latest
+    if: >-
+      (
+        github.event.pull_request == null ||
+        (
+          !github.event.pull_request.head.repo.fork &&
+          !endsWith(github.event.pull_request.user.login || '', '[bot]')
+        )
+      ) && (
+        (
+          github.event_name == 'issues' &&
+          !endsWith(github.event.issue.user.login || '', '[bot]') &&
+          (github.event.issue.user.login || '') != 'fro-bot'
+        ) ||
+        (
+          github.event_name == 'pull_request' &&
+          !endsWith(github.event.pull_request.user.login || '', '[bot]') &&
+          (github.event.pull_request.user.login || '') != 'fro-bot'
+        ) ||
+        github.event_name == 'schedule' ||
+        github.event_name == 'workflow_dispatch' ||
+        (
+          (github.event_name == 'issue_comment' ||
+           github.event_name == 'pull_request_review_comment' ||
+           github.event_name == 'discussion_comment') &&
+          contains(github.event.comment.body || '', '@fro-bot') &&
+          (github.event.comment.user.login || '') != 'fro-bot' &&
+          contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association || '')
+        )
+      )
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+          ref: >-
+            ${{
+              (github.event.issue.pull_request && format('refs/pull/{0}/head', github.event.issue.number))
+              || github.event.pull_request.head.sha
+              || ''
+            }}
+          token: ${{ secrets.FRO_BOT_PAT }}
+
+      - name: Setup pnpm
+        uses: ./.github/actions/setup-pnpm
+
+      - name: Build project
+        run: pnpm build
+
+      - name: Run Fro Bot
+        uses: fro-bot/agent@9083d9d3fe350d32c4917bd0312fe78f241ad0aa # v0.32.1
+        env:
+          OPENCODE_PROMPT_ARTIFACT: 'true'
+          PROMPT: >-
+            ${{
+              (github.event_name == 'workflow_dispatch' && (github.event.inputs.prompt || ''))
+              || (github.event_name == 'schedule' && env.SCHEDULE_PROMPT)
+              || (github.event_name == 'pull_request' && env.PR_REVIEW_PROMPT)
+              || ''
+            }}
+        with:
+          auth-json: ${{ secrets.OPENCODE_AUTH_JSON }}
+          github-token: ${{ secrets.FRO_BOT_PAT }}
+          model: ${{ vars.FRO_BOT_MODEL }}
+          omo-providers: ${{ secrets.OMO_PROVIDERS }}
+          prompt: ${{ env.PROMPT }}
+          timeout: 0
