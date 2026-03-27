@@ -12,12 +12,7 @@
  * Integrates with existing normalized data types from data-quality.ts.
  */
 
-import type {
-  NormalizedEpisodeItem,
-  NormalizedEra,
-  NormalizedMovieItem,
-  NormalizedSeasonItem,
-} from './data-quality.js'
+import type {NormalizedEra, NormalizedMovieItem, NormalizedSeasonItem} from './data-quality.js'
 import {mkdir, readFile, writeFile} from 'node:fs/promises'
 import {dirname} from 'node:path'
 
@@ -381,21 +376,19 @@ const deepClone = <T>(value: T): T => {
 
 /**
  * Applies field updates to a target object, returning the modified object.
- * Only updates fields that are present in the fields record.
+ * Centralizes the unsafe cast required when updating normalized data types
+ * whose fields are not all `unknown`-compatible.
  *
- * @param target - The object to update
+ * @param target - The object to update (cast internally via unknown)
  * @param fields - Record of field names to new values
- * @returns The updated object
+ * @returns The updated object with fields merged in
  */
-const applyFieldUpdates = <T extends Record<string, unknown>>(
-  target: T,
-  fields: Record<string, unknown>,
-): T => {
-  const result = {...target}
+const applyFieldUpdates = <T>(target: T, fields: Record<string, unknown>): T => {
+  const clone = {...(target as Record<string, unknown>)}
   for (const [key, value] of Object.entries(fields)) {
-    ;(result as Record<string, unknown>)[key] = value
+    clone[key] = value
   }
-  return result
+  return clone as T
 }
 
 /**
@@ -436,10 +429,11 @@ const applyEpisodePatch = (eras: NormalizedEra[], patch: DataPatch): boolean => 
         const episodeIndex = item.episodeData.findIndex(ep => ep.id === patch.targetId)
         if (episodeIndex !== -1) {
           if (patch.operation === 'update' || patch.operation === 'add') {
+            // Index is guaranteed valid by findIndex check above
             item.episodeData[episodeIndex] = applyFieldUpdates(
-              item.episodeData[episodeIndex] as unknown as Record<string, unknown>,
+              item.episodeData[episodeIndex]!,
               patch.fields,
-            ) as unknown as NormalizedEpisodeItem
+            )
           } else if (patch.operation === 'remove') {
             item.episodeData.splice(episodeIndex, 1)
           }
@@ -463,10 +457,8 @@ const applySeasonPatch = (eras: NormalizedEra[], patch: DataPatch): boolean => {
     const itemIndex = era.items.findIndex(item => item.id === patch.targetId && isSeasonItem(item))
     if (itemIndex !== -1) {
       if (patch.operation === 'update' || patch.operation === 'add') {
-        era.items[itemIndex] = applyFieldUpdates(
-          era.items[itemIndex] as unknown as Record<string, unknown>,
-          patch.fields,
-        ) as unknown as NormalizedSeasonItem | NormalizedMovieItem
+        // Index is guaranteed valid by findIndex check above
+        era.items[itemIndex] = applyFieldUpdates(era.items[itemIndex]!, patch.fields)
       } else if (patch.operation === 'remove') {
         era.items.splice(itemIndex, 1)
       }
@@ -488,10 +480,8 @@ const applyMoviePatch = (eras: NormalizedEra[], patch: DataPatch): boolean => {
     const itemIndex = era.items.findIndex(item => item.id === patch.targetId && isMovieItem(item))
     if (itemIndex !== -1) {
       if (patch.operation === 'update' || patch.operation === 'add') {
-        era.items[itemIndex] = applyFieldUpdates(
-          era.items[itemIndex] as unknown as Record<string, unknown>,
-          patch.fields,
-        ) as unknown as NormalizedSeasonItem | NormalizedMovieItem
+        // Index is guaranteed valid by findIndex check above
+        era.items[itemIndex] = applyFieldUpdates(era.items[itemIndex]!, patch.fields)
       } else if (patch.operation === 'remove') {
         era.items.splice(itemIndex, 1)
       }
@@ -515,10 +505,8 @@ const applyEraPatch = (eras: NormalizedEra[], patch: DataPatch): boolean => {
   }
 
   if (patch.operation === 'update' || patch.operation === 'add') {
-    eras[eraIndex] = applyFieldUpdates(
-      eras[eraIndex] as unknown as Record<string, unknown>,
-      patch.fields,
-    ) as unknown as NormalizedEra
+    // Index is guaranteed valid by findIndex check above
+    eras[eraIndex] = applyFieldUpdates(eras[eraIndex]!, patch.fields)
   } else if (patch.operation === 'remove') {
     eras.splice(eraIndex, 1)
   }
@@ -552,6 +540,7 @@ export const applyPatches = (
   const appliedPatches: string[] = []
   const failedPatches: FailedPatch[] = []
   let skipped = 0
+  let failed = 0
 
   for (const patch of patches) {
     // Validate each patch before applying
@@ -583,6 +572,7 @@ export const applyPatches = (
           break
       }
     } catch (error) {
+      failed++
       failedPatches.push({
         patchId: patch.id,
         reason: `Runtime error: ${error instanceof Error ? error.message : String(error)}`,
@@ -593,6 +583,7 @@ export const applyPatches = (
     if (applied) {
       appliedPatches.push(patch.id)
     } else {
+      failed++
       failedPatches.push({
         patchId: patch.id,
         reason: `Target not found: ${patch.targetType} with id "${patch.targetId}"`,
@@ -607,7 +598,7 @@ export const applyPatches = (
     summary: {
       total: patches.length,
       applied: appliedPatches.length,
-      failed: failedPatches.length - skipped,
+      failed,
       skipped,
     },
   }
