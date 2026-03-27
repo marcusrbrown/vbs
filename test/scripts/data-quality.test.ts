@@ -20,6 +20,7 @@ import {
   generateEpisodeId,
   generateProvenanceComment,
   generateQualityReport,
+  generateSeriesCode,
   MINIMUM_QUALITY_THRESHOLD,
   parseProvenanceComment,
   validateAirDateOrdering,
@@ -104,6 +105,12 @@ describe('Episode ID Validation (TASK-027)', () => {
       expect(validateEpisodeId('dis_s2_e04')).toBe(true)
     })
 
+    it('should validate episode ID with TMDB suffix for unknown series', () => {
+      // Unknown series have TMDB suffix as part of series code (e.g., 'unk_123456_s1_e01')
+      expect(validateEpisodeId('unk_123456_s1_e01')).toBe(true)
+      expect(validateEpisodeId('ds9_s2_e26')).toBe(true) // DS9 has digit in series code
+    })
+
     it('should reject invalid episode ID formats', () => {
       expect(validateEpisodeId('invalid')).toBe(false)
       expect(validateEpisodeId('TOS_S1_E01')).toBe(false)
@@ -123,6 +130,36 @@ describe('Episode ID Validation (TASK-027)', () => {
     it('should pad episode numbers with zero', () => {
       expect(generateEpisodeId('Star Trek: Voyager', 1, 5)).toBe('voy_s1_e05')
       expect(generateEpisodeId('Star Trek: Voyager', 1, 15)).toBe('voy_s1_e15')
+    })
+
+    it('should NOT add TMDB suffix for known series (backward compatible)', () => {
+      // Known series should not have TMDB suffix for backward compatibility
+      expect(generateEpisodeId('Star Trek: The Next Generation', 3, 15, 655)).toBe('tng_s3_e15')
+      expect(generateEpisodeId('Star Trek: The Original Series', 1, 1, 253)).toBe('tos_s1_e01')
+    })
+
+    it('should add TMDB suffix for unknown series', () => {
+      // Unknown series should have TMDB suffix to prevent collisions
+      expect(generateEpisodeId('Star Trek: Unknown Series', 1, 1, 123456)).toBe('unk_s1_e01_123456')
+      expect(generateEpisodeId('Some Other Show', 2, 5, 999)).toBe('som_s2_e05_999')
+    })
+  })
+
+  describe('generateSeriesCode', () => {
+    it('should generate correct series code from series name', () => {
+      expect(generateSeriesCode('Star Trek: The Next Generation')).toBe('tng')
+      expect(generateSeriesCode('Star Trek: The Original Series')).toBe('tos')
+      expect(generateSeriesCode('Star Trek: Discovery')).toBe('dis')
+    })
+
+    it('should NOT add TMDB suffix for known series', () => {
+      expect(generateSeriesCode('Star Trek: The Next Generation', 655)).toBe('tng')
+      expect(generateSeriesCode('Star Trek: Picard', 123)).toBe('pic')
+    })
+
+    it('should add TMDB suffix for unknown series', () => {
+      expect(generateSeriesCode('Star Trek: Unknown Series', 123456)).toBe('unk_123456')
+      expect(generateSeriesCode('Some Other Show', 999)).toBe('som_999')
     })
   })
 
@@ -159,6 +196,12 @@ describe('Episode ID Validation (TASK-027)', () => {
       expect(extractSeriesCode('dis_s2_e04')).toBe('dis')
     })
 
+    it('should extract series code from episode ID with unknown series TMDB suffix', () => {
+      // Unknown series have TMDB suffix as part of series code
+      expect(extractSeriesCode('unk_123456_s1_e01')).toBe('unk_123456')
+      expect(extractSeriesCode('som_999_s2_e05')).toBe('som_999')
+    })
+
     it('should return null for invalid episode IDs', () => {
       expect(extractSeriesCode('invalid')).toBe(null)
       expect(extractSeriesCode('tos_s1')).toBe(null)
@@ -172,6 +215,12 @@ describe('Episode ID Validation (TASK-027)', () => {
       expect(extractSeasonNumber('dis_s10_e04')).toBe(10)
     })
 
+    it('should extract season number from episode ID with unknown series TMDB suffix', () => {
+      // Unknown series have TMDB suffix as part of series code
+      expect(extractSeasonNumber('unk_123456_s1_e01')).toBe(1)
+      expect(extractSeasonNumber('som_999_s2_e05')).toBe(2)
+    })
+
     it('should return null for invalid episode IDs', () => {
       expect(extractSeasonNumber('invalid')).toBe(null)
     })
@@ -182,6 +231,12 @@ describe('Episode ID Validation (TASK-027)', () => {
       expect(extractEpisodeNumber('tos_s1_e01')).toBe(1)
       expect(extractEpisodeNumber('tng_s3_e15')).toBe(15)
       expect(extractEpisodeNumber('dis_s2_e04')).toBe(4)
+    })
+
+    it('should extract episode number from episode ID with unknown series TMDB suffix', () => {
+      // Unknown series have TMDB suffix as part of series code
+      expect(extractEpisodeNumber('unk_123456_s1_e01')).toBe(1)
+      expect(extractEpisodeNumber('som_999_s2_e05')).toBe(5)
     })
 
     it('should return null for invalid episode IDs', () => {

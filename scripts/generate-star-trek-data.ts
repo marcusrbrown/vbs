@@ -994,8 +994,12 @@ const normalizeEpisode = (episode: EnrichedEpisodeData): NormalizedEpisodeItem =
 /**
  * Normalize enriched season data to VBS format.
  */
-const normalizeSeason = (seriesName: string, season: EnrichedSeasonData): NormalizedSeasonItem => {
-  const seriesCode = generateSeriesCode(seriesName)
+const normalizeSeason = (
+  seriesName: string,
+  seriesId: number,
+  season: EnrichedSeasonData,
+): NormalizedSeasonItem => {
+  const seriesCode = generateSeriesCode(seriesName, seriesId)
   const seasonId = `${seriesCode}_s${season.seasonNumber}`
 
   const airYear = season.airDate
@@ -1051,7 +1055,7 @@ const normalizeMovie = (movie: EnrichedMovieData): NormalizedMovieItem => {
 }
 
 const normalizeSeries = (series: EnrichedSeriesData): NormalizedSeasonItem[] => {
-  return series.seasons.map(season => normalizeSeason(series.name, season))
+  return series.seasons.map(season => normalizeSeason(series.name, series.seriesId, season))
 }
 
 /**
@@ -1654,7 +1658,7 @@ const enumerateSeriesEpisodes = async (
       const episodeTitle = episode.name ?? 'Untitled'
       logger.debug(`Processing episode S${seasonNum}E${episode.episode_number}: ${episodeTitle}`)
 
-      const episodeId = generateEpisodeId(series.name, seasonNum, episode.episode_number)
+      const episodeId = generateEpisodeId(series.name, seasonNum, episode.episode_number, series.id)
 
       const hasBasicData = Boolean(episode.name && episode.air_date)
 
@@ -2522,7 +2526,25 @@ const main = async (): Promise<void> => {
         count: duplicateIds.length,
         duplicates: duplicateIds,
       })
+
+      // Additional diagnostic info for debugging
+      if (options.verbose) {
+        console.error('\n=== Duplicate ID Diagnostic Info ===')
+        console.error(`Found ${duplicateIds.length} duplicate IDs:`)
+        duplicateIds.slice(0, 50).forEach(id => {
+          console.error(`  - ${id}`)
+        })
+        if (duplicateIds.length > 50) {
+          console.error(`  ... and ${duplicateIds.length - 50} more`)
+        }
+        console.error('')
+      }
+
       throw new Error(`Data validation failed: ${duplicateIds.length} duplicate IDs found`)
+    } else {
+      logger.info('No duplicate IDs detected', {
+        totalEpisodes: normalizedData.metadata.episodeCount,
+      })
     }
 
     // Check quality threshold
