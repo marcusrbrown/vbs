@@ -356,14 +356,12 @@ export const SERIES_CODE_MAP: Record<string, string> = {
 /**
  * Generate episode ID from series name, season, and episode numbers.
  * Uses mapping table for known series, falls back to first 3 characters for unknown series.
- * Only adds TMDB series ID suffix for unknown series (not in SERIES_CODE_MAP) to prevent
- * collisions while maintaining backward compatibility for known series.
  *
  * @param seriesName - Full series name (e.g., "Star Trek: The Next Generation")
  * @param season - Season number
  * @param episode - Episode number
- * @param tmdbSeriesId - Optional TMDB series ID for guaranteed uniqueness on unknown series
- * @returns Generated episode ID (e.g., "tng_s3_e15" or "unk_s3_e15_655" with TMDB ID for unknown series)
+ * @param tmdbSeriesId - Optional TMDB series ID for guaranteed uniqueness
+ * @returns Generated episode ID (e.g., "tng_s3_e15" or "tng_s3_e15_655" with TMDB ID)
  */
 export const generateEpisodeId = (
   seriesName: string,
@@ -377,11 +375,7 @@ export const generateEpisodeId = (
     .trim()
 
   const seriesCode = SERIES_CODE_MAP[normalized] ?? normalized.replaceAll(/\s+/g, '').slice(0, 3)
-  const isUnknownSeries = SERIES_CODE_MAP[normalized] === undefined
-
-  // Only add TMDB suffix for unknown series to prevent collisions
-  // Known series are already unique via SERIES_CODE_MAP
-  const tmdbSuffix = isUnknownSeries && tmdbSeriesId !== undefined ? `_${tmdbSeriesId}` : ''
+  const tmdbSuffix = tmdbSeriesId === undefined ? '' : `_${tmdbSeriesId}`
 
   return `${seriesCode}_s${season}_e${String(episode).padStart(2, '0')}${tmdbSuffix}`
 }
