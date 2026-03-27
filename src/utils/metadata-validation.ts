@@ -234,9 +234,11 @@ export const isValidISOTimestamp = (timestamp: string): boolean => {
 
 /**
  * Validates episode ID format following VBS patterns (e.g., 'ent_s1_e01').
+ * Supports optional TMDB series ID suffix (e.g., 'unk_123456_s1_e01').
+ * Series codes can include digits (e.g., 'ds9').
  */
 export const isValidEpisodeId = (episodeId: string): boolean => {
-  const episodeIdPattern = /^[a-z]+_s\d+_e\d+$/
+  const episodeIdPattern = /^[a-z0-9]+(?:_[a-z0-9]+)?_s\d+_e\d+$/
   return episodeIdPattern.test(episodeId)
 }
 

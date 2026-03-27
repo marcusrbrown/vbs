@@ -17,29 +17,29 @@ export interface ValidationResult {
 
 /**
  * Validate episode ID format and structure.
+ * Supports optional TMDB series ID suffix (e.g., 'unk_123456_s1_e01').
+ * Series codes can include digits (e.g., 'ds9').
  */
 export const isValidEpisodeId = (episodeId: string): boolean => {
-  // Episode IDs should match pattern: series_s{season}_e{episode}
-  // Examples: 'ent_s1_e01', 'tos_s2_e15', 'tng_s1_e26'
-  return /^[a-z]+_s\d+_e\d+$/.test(episodeId)
+  return /^[a-z0-9]+(?:_[a-z0-9]+)?_s\d+_e\d+$/.test(episodeId)
 }
 
 /**
  * Validate season ID format and structure.
+ * Supports unknown series with TMDB suffix (e.g., 'unk_123456_s1').
+ * Series codes can include digits (e.g., 'ds9').
  */
 export const isValidSeasonId = (seasonId: string): boolean => {
-  // Season IDs should match pattern: series_s{season}
-  // Examples: 'ent_s1', 'tos_s2', 'tng_s1'
-  return /^[a-z]+_s\d+$/.test(seasonId)
+  return /^[a-z0-9]+(?:_[a-z0-9]+)?_s\d+$/.test(seasonId)
 }
 
 /**
  * Validate series ID format and structure.
+ * Supports unknown series with TMDB suffix (e.g., 'unk_123456').
+ * Series codes can include digits (e.g., 'ds9').
  */
 export const isValidSeriesId = (seriesId: string): boolean => {
-  // Series IDs should match pattern: series or series_s{season}
-  // Examples: 'ent', 'tos', 'tng', 'ent_s1', 'tos_s2'
-  return /^[a-z]+(?:_s\d+)?$/.test(seriesId)
+  return /^[a-z0-9]+(?:_[a-z0-9]+)?(?:_s\d+)?$/.test(seriesId)
 }
 
 /**

@@ -265,15 +265,15 @@ export interface MetadataProvenance {
 
 /**
  * Episode ID format pattern: series_s{season}_e{episode}
- * Examples: tos_s1_e01, tng_s3_e15, dis_s2_e04
+ * Series codes can include digits and optional TMDB suffix (e.g., 'ds9', 'unk_123456')
  */
-const EPISODE_ID_PATTERN = /^[a-z]+_s\d+_e\d+$/
+const EPISODE_ID_PATTERN = /^[a-z0-9]+(?:_[a-z0-9]+)?_s\d+_e\d+$/
 
 /**
  * Season ID format pattern: series_s{season}
- * Examples: tos_s1, tng_s3, dis_s2
+ * Series codes can include digits and optional TMDB suffix (e.g., 'ds9', 'unk_123456')
  */
-const SEASON_ID_PATTERN = /^[a-z]+_s\d+$/
+const SEASON_ID_PATTERN = /^[a-z0-9]+(?:_[a-z0-9]+)?_s\d+$/
 
 /**
  * Movie ID format pattern: short code
@@ -356,37 +356,59 @@ export const SERIES_CODE_MAP: Record<string, string> = {
 /**
  * Generate episode ID from series name, season, and episode numbers.
  * Uses mapping table for known series, falls back to first 3 characters for unknown series.
+ * Only adds TMDB series ID suffix for unknown series (not in SERIES_CODE_MAP) to prevent
+ * collisions while maintaining backward compatibility for known series.
  *
  * @param seriesName - Full series name (e.g., "Star Trek: The Next Generation")
  * @param season - Season number
  * @param episode - Episode number
- * @returns Generated episode ID (e.g., "tng_s3_e15")
+ * @param tmdbSeriesId - Optional TMDB series ID for guaranteed uniqueness on unknown series
+ * @returns Generated episode ID (e.g., "tng_s3_e15" or "unk_s3_e15_655" with TMDB ID for unknown series)
  */
-export const generateEpisodeId = (seriesName: string, season: number, episode: number): string => {
+export const generateEpisodeId = (
+  seriesName: string,
+  season: number,
+  episode: number,
+  tmdbSeriesId?: number,
+): string => {
   const normalized = seriesName
     .toLowerCase()
     .replace(/^star trek:?\s*/i, '')
     .trim()
 
   const seriesCode = SERIES_CODE_MAP[normalized] ?? normalized.replaceAll(/\s+/g, '').slice(0, 3)
+  const isUnknownSeries = SERIES_CODE_MAP[normalized] === undefined
 
-  return `${seriesCode}_s${season}_e${String(episode).padStart(2, '0')}`
+  // Only add TMDB suffix for unknown series to prevent collisions
+  // Known series are already unique via SERIES_CODE_MAP
+  const tmdbSuffix = isUnknownSeries && tmdbSeriesId !== undefined ? `_${tmdbSeriesId}` : ''
+
+  return `${seriesCode}_s${season}_e${String(episode).padStart(2, '0')}${tmdbSuffix}`
 }
 
 /**
  * Generate series code from series name for ID generation.
  * Maps known series names to short codes, falls back to first 3 characters.
+ * Only adds TMDB series ID suffix for unknown series to prevent collisions while
+ * maintaining backward compatibility for known series.
  *
  * @param seriesName - Full series name (e.g., "Star Trek: The Next Generation")
- * @returns Series code (e.g., "tng")
+ * @param tmdbSeriesId - Optional TMDB series ID for guaranteed uniqueness on unknown series
+ * @returns Series code (e.g., "tng" or "unk_655" with TMDB ID for unknown series)
  */
-export const generateSeriesCode = (seriesName: string): string => {
+export const generateSeriesCode = (seriesName: string, tmdbSeriesId?: number): string => {
   const normalized = seriesName
     .toLowerCase()
     .replace(/^star trek:?\s*/i, '')
     .trim()
 
-  return SERIES_CODE_MAP[normalized] ?? normalized.replaceAll(/\s+/g, '').slice(0, 3)
+  const seriesCode = SERIES_CODE_MAP[normalized] ?? normalized.replaceAll(/\s+/g, '').slice(0, 3)
+  const isUnknownSeries = SERIES_CODE_MAP[normalized] === undefined
+
+  // Only add TMDB suffix for unknown series to prevent collisions
+  const tmdbSuffix = isUnknownSeries && tmdbSeriesId !== undefined ? `_${tmdbSeriesId}` : ''
+
+  return `${seriesCode}${tmdbSuffix}`
 }
 
 /**
@@ -405,34 +427,37 @@ export const validateMovieId = (movieId: string): boolean => {
 
 /**
  * Extract series code from episode ID.
+ * Supports optional TMDB series ID suffix.
  *
- * @param episodeId - Episode ID (e.g., "tng_s3_e15")
+ * @param episodeId - Episode ID (e.g., "tng_s3_e15" or "tng_s3_e15_655")
  * @returns Series code (e.g., "tng")
  */
 export const extractSeriesCode = (episodeId: string): string | null => {
-  const match = episodeId.match(/^([a-z]+)_s\d+_e\d+$/)
+  const match = episodeId.match(/^([a-z0-9]+(?:_[a-z0-9]+)?)_s\d+_e\d+$/)
   return match?.[1] ?? null
 }
 
 /**
  * Extract season number from episode ID.
+ * Supports optional TMDB series ID suffix.
  *
- * @param episodeId - Episode ID (e.g., "tng_s3_e15")
+ * @param episodeId - Episode ID (e.g., "tng_s3_e15" or "unk_123456_s1_e01")
  * @returns Season number (e.g., 3)
  */
 export const extractSeasonNumber = (episodeId: string): number | null => {
-  const match = episodeId.match(/^[a-z]+_s(\d+)_e\d+$/)
+  const match = episodeId.match(/^[a-z0-9]+(?:_[a-z0-9]+)?_s(\d+)_e\d+$/)
   return match?.[1] ? Number.parseInt(match[1], 10) : null
 }
 
 /**
  * Extract episode number from episode ID.
+ * Supports optional TMDB series ID suffix.
  *
- * @param episodeId - Episode ID (e.g., "tng_s3_e15")
+ * @param episodeId - Episode ID (e.g., "tng_s3_e15" or "unk_123456_s1_e01")
  * @returns Episode number (e.g., 15)
  */
 export const extractEpisodeNumber = (episodeId: string): number | null => {
-  const match = episodeId.match(/^[a-z]+_s\d+_e(\d+)$/)
+  const match = episodeId.match(/^[a-z0-9]+(?:_[a-z0-9]+)?_s\d+_e(\d+)$/)
   return match?.[1] ? Number.parseInt(match[1], 10) : null
 }
 
