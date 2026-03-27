@@ -1,0 +1,29 @@
+{
+  "data": {
+    "page": 1,
+    "results": [
+      {
+        "adult": false,
+        "backdrop_path": "/ywK4VrR7vL56mDGXDLMtFypwqA8.jpg",
+        "genre_ids": [10765, 18],
+        "id": 253,
+        "origin_country": ["US"],
+        "original_language": "en",
+        "original_name": "Star Trek",
+        "overview": "Space. The Final Frontier. The U.S.S. Enterprise embarks on a five year mission to explore the galaxy. The Enterprise is under the command of Captain James T. Kirk with First Officer Mr. Spock, from the planet Vulcan. With a determined crew, the Enterprise encounters Klingons, Romulans, time paradoxes, tribbles and genetic supermen led by Khan Noonian Singh. Their mission is to explore strange new worlds, to seek new life and new civilizations, and to boldly go where no man has gone before.",
+        "popularity": 93.3134,
+        "poster_path": "/bPsxOpHVpVCX3hFz2fxnF1Vz3Dj.jpg",
+        "first_air_date": "1966-09-08",
+        "name": "Star Trek",
+        "vote_average": 8,
+        "vote_count": 1453
+      }
+    ],
+    "total_pages": 1,
+    "total_results": 1
+  },
+  "cachedAt": "2026-03-27T22:41:59.016Z",
+  "expiresAt": "2026-03-28T22:41:59.016Z",
+  "url": "https://api.themoviedb.org/3/search/tv?query=Star%20Trek%3A%20The%20Original%20Series",
+  "key": "d29cba5b9b14c411b69d630da2ffef2c27ce94f133bd5d96b7bb4bd0b03d19b8"
+}

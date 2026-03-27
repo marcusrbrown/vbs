@@ -1,0 +1,45 @@
+{
+  "data": {
+    "page": 1,
+    "results": [
+      {
+        "adult": false,
+        "backdrop_path": "/wygUDDRNpeKUnkekRGeLCZM93tA.jpg",
+        "genre_ids": [878, 28, 12, 53],
+        "id": 199,
+        "original_language": "en",
+        "original_title": "Star Trek: First Contact",
+        "overview": "The Borg, a relentless race of cyborgs, are on a direct course for Earth. Violating orders to stay away from the battle, Captain Picard and the crew of the newly-commissioned USS Enterprise E pursue the Borg back in time to prevent the invaders from changing Federation history and assimilating the galaxy.",
+        "popularity": 4.0059,
+        "poster_path": "/iqhHe893Vcf07jNkNQ31tu85dKG.jpg",
+        "release_date": "1996-11-22",
+        "title": "Star Trek: First Contact",
+        "video": false,
+        "vote_average": 7.3,
+        "vote_count": 1923
+      },
+      {
+        "adult": false,
+        "backdrop_path": null,
+        "genre_ids": [99],
+        "id": 1285581,
+        "original_language": "en",
+        "original_title": "The Making of Star Trek: First Contact",
+        "overview": "The Making of Star Trek: First Contact was a 25-minute television documentary which aired on the HBO television channel in the US in 1996. This film was also broadcast in the UK as Star Trek Beyond First Contact and was given a new title card but still retained the original title on the program card that was used to frame the show's commercial breaks.  The film focused on behind-the-scenes footage and interviews with the cast and crew of Star Trek: First Contact and it discussed the Star Trek phenomenon and its popularity. It was first broadcast to commemorate Star Trek's 30th anniversary and to promote the feature film.",
+        "popularity": 0,
+        "poster_path": null,
+        "release_date": "1996-12-13",
+        "title": "The Making of Star Trek: First Contact",
+        "video": false,
+        "vote_average": 1,
+        "vote_count": 1
+      }
+    ],
+    "total_pages": 1,
+    "total_results": 2
+  },
+  "cachedAt": "2026-03-27T22:42:01.714Z",
+  "expiresAt": "2026-03-28T22:42:01.714Z",
+  "url": "https://api.themoviedb.org/3/search/movie?query=Star%20Trek%3A%20First%20Contact",
+  "key": "c92d83f1bd00a9235bf5575e657042cc9fd48cdb84a0b224da21f9f870a1b2e6"
+}

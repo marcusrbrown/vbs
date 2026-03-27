@@ -1,0 +1,156 @@
+{
+  "data": {
+    "adult": false,
+    "backdrop_path": "/ywK4VrR7vL56mDGXDLMtFypwqA8.jpg",
+    "created_by": [
+      {
+        "id": 1745,
+        "credit_id": "5253496c19c29579400e927b",
+        "name": "Gene Roddenberry",
+        "original_name": "Gene Roddenberry",
+        "gender": 2,
+        "profile_path": "/qY3gWqAMDrrvNVUrwZ8lSa4IKtS.jpg"
+      }
+    ],
+    "episode_run_time": [50],
+    "first_air_date": "1966-09-08",
+    "genres": [
+      {
+        "id": 10765,
+        "name": "Sci-Fi & Fantasy"
+      },
+      {
+        "id": 18,
+        "name": "Drama"
+      }
+    ],
+    "homepage": "https://intl.startrek.com/shows/star-trek-the-original-series",
+    "id": 253,
+    "in_production": false,
+    "languages": ["en"],
+    "last_air_date": "1969-06-03",
+    "last_episode_to_air": {
+      "id": 14009,
+      "name": "Turnabout Intruder",
+      "overview": "The Enterprise is in danger when Janice Lester, one of Kirk's former lovers, steals his body.",
+      "vote_average": 7,
+      "vote_count": 31,
+      "air_date": "1969-06-03",
+      "episode_number": 24,
+      "episode_type": "finale",
+      "production_code": "79",
+      "runtime": 51,
+      "season_number": 3,
+      "show_id": 253,
+      "still_path": "/hC1xxfvEDpXjD5MFf05pW7CcRf0.jpg"
+    },
+    "name": "Star Trek",
+    "next_episode_to_air": null,
+    "networks": [
+      {
+        "id": 6,
+        "logo_path": "/cm111bsDVlYaC1foL0itvEI4yLG.png",
+        "name": "NBC",
+        "origin_country": "US"
+      }
+    ],
+    "number_of_episodes": 79,
+    "number_of_seasons": 3,
+    "origin_country": ["US"],
+    "original_language": "en",
+    "original_name": "Star Trek",
+    "overview": "Space. The Final Frontier. The U.S.S. Enterprise embarks on a five year mission to explore the galaxy. The Enterprise is under the command of Captain James T. Kirk with First Officer Mr. Spock, from the planet Vulcan. With a determined crew, the Enterprise encounters Klingons, Romulans, time paradoxes, tribbles and genetic supermen led by Khan Noonian Singh. Their mission is to explore strange new worlds, to seek new life and new civilizations, and to boldly go where no man has gone before.",
+    "popularity": 93.3134,
+    "poster_path": "/bPsxOpHVpVCX3hFz2fxnF1Vz3Dj.jpg",
+    "production_companies": [
+      {
+        "id": 39856,
+        "logo_path": "/x929GPaOozzVA92B0IkjbucZRAk.png",
+        "name": "Desilu Productions",
+        "origin_country": "US"
+      },
+      {
+        "id": 9223,
+        "logo_path": "/40qzTBM38vokoWhLKurficZ5syV.png",
+        "name": "Paramount Television",
+        "origin_country": "US"
+      },
+      {
+        "id": 57121,
+        "logo_path": null,
+        "name": "Norway Corporation",
+        "origin_country": ""
+      },
+      {
+        "id": 41097,
+        "logo_path": null,
+        "name": "Norway Productions",
+        "origin_country": ""
+      }
+    ],
+    "production_countries": [
+      {
+        "iso_3166_1": "US",
+        "name": "United States of America"
+      }
+    ],
+    "seasons": [
+      {
+        "air_date": "1988-10-15",
+        "episode_count": 62,
+        "id": 816,
+        "name": "Specials",
+        "overview": "Special installments of the series.",
+        "poster_path": "/3Yr4kanzx8iqRumQ9I63Z46O4XJ.jpg",
+        "season_number": 0,
+        "vote_average": 0
+      },
+      {
+        "air_date": "1966-09-08",
+        "episode_count": 29,
+        "id": 813,
+        "name": "Season 1",
+        "overview": "",
+        "poster_path": "/cTXQJqgWyAiaMWpfsjkNVi5Eov9.jpg",
+        "season_number": 1,
+        "vote_average": 7.3
+      },
+      {
+        "air_date": "1967-09-15",
+        "episode_count": 26,
+        "id": 814,
+        "name": "Season 2",
+        "overview": "",
+        "poster_path": "/2X0AzpGtCU1OBEdTwYdzkQgkCu3.jpg",
+        "season_number": 2,
+        "vote_average": 7.4
+      },
+      {
+        "air_date": "1968-09-20",
+        "episode_count": 24,
+        "id": 815,
+        "name": "Season 3",
+        "overview": "",
+        "poster_path": "/rMy0icwqYxSiGci2t5qW3Rc1PjR.jpg",
+        "season_number": 3,
+        "vote_average": 6.9
+      }
+    ],
+    "spoken_languages": [
+      {
+        "english_name": "English",
+        "iso_639_1": "en",
+        "name": "English"
+      }
+    ],
+    "status": "Ended",
+    "tagline": "To boldly go where no man has gone before",
+    "type": "Scripted",
+    "vote_average": 8,
+    "vote_count": 1453
+  },
+  "cachedAt": "2026-03-27T22:41:59.122Z",
+  "expiresAt": "2026-03-28T22:41:59.122Z",
+  "url": "https://api.themoviedb.org/3/tv/253",
+  "key": "ef34892506ea5c966c6bc85d606e03dfaa8d1d6621320be3894bf38f0b07ec64"
+}

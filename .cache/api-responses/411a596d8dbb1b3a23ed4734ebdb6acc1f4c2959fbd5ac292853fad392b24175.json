@@ -1,0 +1,29 @@
+{
+  "data": {
+    "page": 1,
+    "results": [
+      {
+        "adult": false,
+        "backdrop_path": "/npDrIM6ZbuD7nUxI7ZzNBxs4IRF.jpg",
+        "genre_ids": [28, 12, 878],
+        "id": 54138,
+        "original_language": "en",
+        "original_title": "Star Trek Into Darkness",
+        "overview": "When the crew of the Enterprise is called back home, they find an unstoppable force of terror from within their own organization has detonated the fleet and everything it stands for, leaving our world in a state of crisis.  With a personal score to settle, Captain Kirk leads a manhunt to a war-zone world to capture a one man weapon of mass destruction. As our heroes are propelled into an epic chess game of life and death, love will be challenged, friendships will be torn apart, and sacrifices must be made for the only family Kirk has left: his crew.",
+        "popularity": 6.8192,
+        "poster_path": "/Aim3kVNh1MPIxPEFeJrl9e9Uf1a.jpg",
+        "release_date": "2013-05-05",
+        "title": "Star Trek Into Darkness",
+        "video": false,
+        "vote_average": 7.319,
+        "vote_count": 9557
+      }
+    ],
+    "total_pages": 1,
+    "total_results": 1
+  },
+  "cachedAt": "2026-03-27T22:42:02.047Z",
+  "expiresAt": "2026-03-28T22:42:02.047Z",
+  "url": "https://api.themoviedb.org/3/search/movie?query=Star%20Trek%20Into%20Darkness",
+  "key": "411a596d8dbb1b3a23ed4734ebdb6acc1f4c2959fbd5ac292853fad392b24175"
+}

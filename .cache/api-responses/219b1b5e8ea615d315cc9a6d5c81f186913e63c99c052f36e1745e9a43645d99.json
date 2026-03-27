@@ -1,0 +1,29 @@
+{
+  "data": {
+    "page": 1,
+    "results": [
+      {
+        "adult": false,
+        "backdrop_path": "/y0klN15XPVyYtd4P7HYecgJXSsZ.jpg",
+        "genre_ids": [878, 28, 12, 53],
+        "id": 172,
+        "original_language": "en",
+        "original_title": "Star Trek V: The Final Frontier",
+        "overview": "A renegade Vulcan with a startling secret hijacks the U.S.S. Enterprise in order to find a mythical planet.",
+        "popularity": 2.9089,
+        "poster_path": "/uiXr41VLYsuug3CZbFrKLSNahuZ.jpg",
+        "release_date": "1989-06-09",
+        "title": "Star Trek V: The Final Frontier",
+        "video": false,
+        "vote_average": 5.733,
+        "vote_count": 1286
+      }
+    ],
+    "total_pages": 1,
+    "total_results": 1
+  },
+  "cachedAt": "2026-03-27T22:42:01.286Z",
+  "expiresAt": "2026-03-28T22:42:01.286Z",
+  "url": "https://api.themoviedb.org/3/search/movie?query=Star%20Trek%20V%3A%20The%20Final%20Frontier",
+  "key": "219b1b5e8ea615d315cc9a6d5c81f186913e63c99c052f36e1745e9a43645d99"
+}
