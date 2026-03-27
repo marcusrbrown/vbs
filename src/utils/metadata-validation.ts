@@ -235,10 +235,11 @@ export const isValidISOTimestamp = (timestamp: string): boolean => {
 /**
  * Validates episode ID format following VBS patterns (e.g., 'ent_s1_e01').
  * Supports optional TMDB series ID suffix (e.g., 'unk_123456_s1_e01').
+ * Supports optional TMDB numeric suffix at the end (e.g., 'tos_s1_e01_253').
  * Series codes can include digits (e.g., 'ds9').
  */
 export const isValidEpisodeId = (episodeId: string): boolean => {
-  const episodeIdPattern = /^[a-z0-9]+(?:_[a-z0-9]+)?_s\d+_e\d+$/
+  const episodeIdPattern = /^[a-z0-9]+(?:_[a-z0-9]+)?_s\d+_e\d+(?:_\d+)?$/
   return episodeIdPattern.test(episodeId)
 }
 
@@ -395,7 +396,8 @@ export const validateEpisodeWithReporting = (episode: unknown): ValidationResult
   if (!isValidEpisodeId(validEpisode.id)) {
     errors.push({
       field: 'id',
-      message: 'Episode ID must follow pattern: series_s{season}_e{episode}',
+      message:
+        'Episode ID must follow pattern: series_s{season}_e{episode} or series_s{season}_e{episode}_{numericId}',
       severity: 'error',
     })
   }
