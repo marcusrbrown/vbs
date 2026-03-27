@@ -152,9 +152,9 @@ describe('Episode ID Validation (TASK-027)', () => {
       expect(generateSeriesCode('Star Trek: Discovery')).toBe('dis')
     })
 
-    it('should NOT add TMDB suffix for known series', () => {
-      expect(generateSeriesCode('Star Trek: The Next Generation', 655)).toBe('tng')
-      expect(generateSeriesCode('Star Trek: Picard', 123)).toBe('pic')
+    it('should add TMDB suffix when provided for known series', () => {
+      expect(generateSeriesCode('Star Trek: The Next Generation', 655)).toBe('tng_655')
+      expect(generateSeriesCode('Star Trek: Picard', 123)).toBe('pic_123')
     })
 
     it('should add TMDB suffix for unknown series', () => {
