@@ -1,4 +1,4 @@
-import type {EventListener, EventMap} from './types'
+import type {EventListener, EventMap} from './types.js'
 
 /**
  * Generic EventEmitter implementation for type-safe event emission and subscription.
