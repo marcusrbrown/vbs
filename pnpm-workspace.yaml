@@ -1,4 +1,4 @@
-autoInstallPeers: false
+autoInstallPeers: true
 
 dedupePeerDependents: true
 
@@ -11,4 +11,4 @@ shamefullyHoist: true
 
 shellEmulator: true
 
-strictPeerDependencies: true
+strictPeerDependencies: false
