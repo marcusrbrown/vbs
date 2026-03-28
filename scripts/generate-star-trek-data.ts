@@ -2429,6 +2429,25 @@ const main = async (): Promise<void> => {
       if (configData.output && !args.includes('--output')) {
         options = {...options, output: configData.output}
       }
+      if (configData.mode && !args.includes('--mode')) {
+        options = {...options, mode: configData.mode}
+      }
+      if (configData.overrides?.filePath && !args.includes('--override') && !options.override) {
+        options = {...options, override: configData.overrides.filePath}
+      }
+      if (configData.export?.defaultFormat && !args.includes('--export-format')) {
+        options = {...options, exportFormat: configData.export.defaultFormat}
+      }
+      if (configData.export?.defaultDirectory && !args.includes('--export-output')) {
+        options = {...options, exportOutput: configData.export.defaultDirectory}
+      }
+      if (
+        configData.updateDetection?.manifestPath &&
+        !args.includes('--manifest') &&
+        !options.manifest
+      ) {
+        options = {...options, manifest: configData.updateDetection.manifestPath}
+      }
     }
   }
 
