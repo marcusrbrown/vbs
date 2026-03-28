@@ -2044,17 +2044,26 @@ const parseArguments = (args: string[]): GenerateDataOptions => {
   const clearCache = parseBooleanFlag(args, '--clear-cache')
   const cacheStats = parseBooleanFlag(args, '--cache-stats')
 
-  const patch = parseStringValue(args, '--patch')
-  const manifest = parseStringValue(args, '--manifest') ?? parseBooleanFlag(args, '--manifest')
-  const override = parseStringValue(args, '--override')
+  const patchValue = parseStringValue(args, '--patch')
+  const patch = patchValue && !patchValue.startsWith('--') ? patchValue : undefined
+  const manifestValue = parseStringValue(args, '--manifest')
+  const manifest =
+    manifestValue && !manifestValue.startsWith('--')
+      ? manifestValue
+      : parseBooleanFlag(args, '--manifest')
+  const overrideValue = parseStringValue(args, '--override')
+  const override = overrideValue && !overrideValue.startsWith('--') ? overrideValue : undefined
 
   const exportFormatStr = parseStringValue(args, '--export-format')
   const exportFormat =
     exportFormatStr === 'csv' ? 'csv' : exportFormatStr === 'json' ? 'json' : undefined
-  const exportOutput = parseStringValue(args, '--export-output')
+  const exportOutputValue = parseStringValue(args, '--export-output')
+  const exportOutput =
+    exportOutputValue && !exportOutputValue.startsWith('--') ? exportOutputValue : undefined
 
   const preview = parseBooleanFlag(args, '--preview')
-  const config = parseStringValue(args, '--config')
+  const configValue = parseStringValue(args, '--config')
+  const config = configValue && !configValue.startsWith('--') ? configValue : undefined
   const skipUpdates = parseBooleanFlag(args, '--skip-updates')
 
   if (modeStr !== 'full' && modeStr !== 'incremental') {
@@ -2620,10 +2629,7 @@ const main = async (): Promise<void> => {
             ...(errorObj.stack ? {stack: errorObj.stack} : {}),
           },
         })
-        showErrorAndExit(
-          `Failed to load or apply patch file: ${errorObj.message}`,
-          EXIT_CODES.INVALID_ARGUMENTS,
-        )
+        showErrorAndExit(`Failed to export data: ${errorObj.message}`, EXIT_CODES.INVALID_ARGUMENTS)
       }
     }
 
@@ -2716,7 +2722,11 @@ const main = async (): Promise<void> => {
           logger.info('No updates detected - data is current')
         }
         const updatedManifest = updateManifestFromData(manifest, currentSeries, currentMovies)
-        await saveManifest(manifestPath, updatedManifest)
+        if (options.dryRun) {
+          logger.info('Dry run: skipping manifest update', {path: manifestPath})
+        } else {
+          await saveManifest(manifestPath, updatedManifest)
+        }
       } else {
         logger.info('No manifest found - will create on completion')
         const currentSeries = discoveredSeries.map(s => {
@@ -2775,8 +2785,12 @@ const main = async (): Promise<void> => {
             ]),
           ),
         }
-        await saveManifest(manifestPath, initialManifest)
-        logger.info('Created initial manifest', {path: manifestPath})
+        if (options.dryRun) {
+          logger.info('Dry run: would create initial manifest', {path: manifestPath})
+        } else {
+          await saveManifest(manifestPath, initialManifest)
+          logger.info('Created initial manifest', {path: manifestPath})
+        }
       }
     }
 
@@ -2816,6 +2830,7 @@ const main = async (): Promise<void> => {
             ...(errorObj.stack ? {stack: errorObj.stack} : {}),
           },
         })
+        showErrorAndExit(`Failed to export data: ${errorObj.message}`, EXIT_CODES.INVALID_ARGUMENTS)
       }
     }
 
