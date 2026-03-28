@@ -46,19 +46,36 @@ jobs:
         shell: bash -euo pipefail {0}
 
     steps:
+      - id: get-app-token
+        name: Get GitHub App Installation Token
+        uses: actions/create-github-app-token@f8d387b68d61c58ab83c6c016672934102569859 # v3.0.0
+        with:
+          app-id: ${{ secrets.APPLICATION_ID }}
+          private-key: ${{ secrets.APPLICATION_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           # Full history needed for change detection
           fetch-depth: 0
+          token: ${{ steps.get-app-token.outputs.token }}
 
       - name: Setup pnpm
         uses: ./.github/actions/setup-pnpm
 
-      - name: Configure git identity
+      - id: get-user-id
+        name: Configure git identity
+        env:
+          GH_TOKEN: ${{ steps.get-app-token.outputs.token }}
         run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          name="${{ steps.get-app-token.outputs.app-slug }}[bot]"
+          user_id=$(gh api "/users/${name}" --jq .id)
+          email="${user_id}+${name}@users.noreply.github.com"
+          echo "user-email=${email}" >> "$GITHUB_OUTPUT"
+          echo "user-name=${name}" >> "$GITHUB_OUTPUT"
+          git config --global user.email "${email}"
+          git config --global user.name "${name}"
 
       - name: Generate Star Trek data
         id: generate
@@ -160,8 +177,11 @@ jobs:
         if: steps.changes.outputs.has_changes == 'true'
         uses: peter-evans/create-pull-request@22a9089034f40e5a961c8808d113e2c98fb63676 # v7.0.11
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ steps.get-app-token.outputs.token }}
           commit-message: 'chore(data): update Star Trek data'
+          committer: '${{ steps.get-user-id.outputs.user-name }} <${{ steps.get-user-id.outputs.user-email }}>'
+          author: '${{ steps.get-user-id.outputs.user-name }} <${{ steps.get-user-id.outputs.user-email }}>'
+          sign-commits: true
           branch: automated-data-update-${{ github.run_number }}
           delete-branch: true
           title: 'Update Star Trek data - ${{ github.run_number }}'
