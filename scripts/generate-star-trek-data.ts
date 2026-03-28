@@ -2094,11 +2094,19 @@ const parseArguments = (args: string[]): GenerateDataOptions => {
     )
   }
 
-  if (exportFormatStr !== undefined && exportFormat === undefined) {
-    showErrorAndExit(
-      `Invalid export format: ${exportFormatStr}. Must be 'json' or 'csv'.`,
-      EXIT_CODES.INVALID_ARGUMENTS,
-    )
+  if (args.includes('--export-format')) {
+    if (exportFormatStr === undefined || exportFormatStr.startsWith('--')) {
+      showErrorAndExit(
+        `--export-format requires 'json' or 'csv' as a value.`,
+        EXIT_CODES.INVALID_ARGUMENTS,
+      )
+    }
+    if (exportFormat === undefined) {
+      showErrorAndExit(
+        `Invalid export format: ${exportFormatStr}. Must be 'json' or 'csv'.`,
+        EXIT_CODES.INVALID_ARGUMENTS,
+      )
+    }
   }
 
   if (args.includes('--patch') && patch === undefined) {
