@@ -75,6 +75,8 @@ describe('validate-episode-data CLI script', () => {
 
       expect(isValidEpisodeId('ent_s1_e01')).toBe(true)
       expect(isValidEpisodeId('tng_s3_e15')).toBe(true)
+      expect(isValidEpisodeId('tos_s1_e01_253')).toBe(true)
+      expect(isValidEpisodeId('ds9_s2_e10_4567')).toBe(true)
       expect(isValidEpisodeId('invalid_id')).toBe(false)
       expect(isValidEpisodeId('no_season')).toBe(false)
     })
