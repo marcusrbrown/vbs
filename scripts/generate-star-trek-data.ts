@@ -2124,7 +2124,7 @@ const parseArguments = (args: string[]): GenerateDataOptions => {
 
   if (args.includes('--config') && config === undefined) {
     showErrorAndExit(
-      `--config requires a file path argument (e.g., --config path/to/config.json).`,
+      `--config requires a file path argument (e.g., --config scripts/config/data-generation.config.ts).`,
       EXIT_CODES.INVALID_ARGUMENTS,
     )
   }
