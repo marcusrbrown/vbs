@@ -444,8 +444,9 @@ Options:
   --patch <path>       Path to JSON patch file for targeted fixes
                        Apply manual corrections to episodes/seasons/movies
 
-  --manifest           Enable update detection via manifest
+  --manifest [path]    Enable update detection via manifest
                        Detects new/updated content automatically
+                       Optional path to manifest file; defaults to project manifest
 
   --override <path>    Path to overrides JSON file for persistent corrections
                        Manual fixes that survive regeneration
