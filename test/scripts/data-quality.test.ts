@@ -132,10 +132,9 @@ describe('Episode ID Validation (TASK-027)', () => {
       expect(generateEpisodeId('Star Trek: Voyager', 1, 15)).toBe('voy_s1_e15')
     })
 
-    it('should NOT add TMDB suffix for known series (backward compatible)', () => {
-      // Known series should not have TMDB suffix for backward compatibility
-      expect(generateEpisodeId('Star Trek: The Next Generation', 3, 15, 655)).toBe('tng_s3_e15')
-      expect(generateEpisodeId('Star Trek: The Original Series', 1, 1, 253)).toBe('tos_s1_e01')
+    it('should add TMDB suffix when provided for known series', () => {
+      expect(generateEpisodeId('Star Trek: The Next Generation', 3, 15, 655)).toBe('tng_s3_e15_655')
+      expect(generateEpisodeId('Star Trek: The Original Series', 1, 1, 253)).toBe('tos_s1_e01_253')
     })
 
     it('should add TMDB suffix for unknown series', () => {
@@ -152,9 +151,9 @@ describe('Episode ID Validation (TASK-027)', () => {
       expect(generateSeriesCode('Star Trek: Discovery')).toBe('dis')
     })
 
-    it('should NOT add TMDB suffix for known series', () => {
-      expect(generateSeriesCode('Star Trek: The Next Generation', 655)).toBe('tng')
-      expect(generateSeriesCode('Star Trek: Picard', 123)).toBe('pic')
+    it('should add TMDB suffix when provided for known series', () => {
+      expect(generateSeriesCode('Star Trek: The Next Generation', 655)).toBe('tng_655')
+      expect(generateSeriesCode('Star Trek: Picard', 123)).toBe('pic_123')
     })
 
     it('should add TMDB suffix for unknown series', () => {
