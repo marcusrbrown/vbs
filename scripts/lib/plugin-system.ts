@@ -25,6 +25,10 @@ export type PluginPhase =
 
 /**
  * Target type that a plugin can operate on.
+ *
+ * Note: The target field is informational-only and not enforced by the
+ * execution pipeline. Plugins receive all eras regardless of target.
+ * This may be used for future filtering or for plugin documentation.
  */
 export type PluginTarget = 'era' | 'season' | 'movie' | 'episode' | 'all'
 
