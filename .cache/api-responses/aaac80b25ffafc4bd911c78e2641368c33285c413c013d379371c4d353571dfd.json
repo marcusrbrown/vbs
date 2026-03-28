@@ -1,0 +1,29 @@
+{
+  "data": {
+    "page": 1,
+    "results": [
+      {
+        "adult": false,
+        "backdrop_path": "/7YFranrnnIcCrgsLYQsoq8aE3Ir.jpg",
+        "genre_ids": [10765, 18, 10759],
+        "id": 1855,
+        "origin_country": ["US"],
+        "original_language": "en",
+        "original_name": "Star Trek: Voyager",
+        "overview": "Pulled to the far side of the galaxy, where the Federation is 75 years away at maximum warp speed, a Starfleet ship must cooperate with Maquis rebels to find a way home.",
+        "popularity": 92.5023,
+        "poster_path": "/gNS5tRSG3UlXodCxznKKOKweqxh.jpg",
+        "first_air_date": "1995-01-16",
+        "name": "Star Trek: Voyager",
+        "vote_average": 7.8,
+        "vote_count": 1074
+      }
+    ],
+    "total_pages": 1,
+    "total_results": 1
+  },
+  "cachedAt": "2026-03-28T10:23:30.671Z",
+  "expiresAt": "2026-03-29T10:23:30.671Z",
+  "url": "https://api.themoviedb.org/3/search/tv?query=Star%20Trek%3A%20Voyager",
+  "key": "aaac80b25ffafc4bd911c78e2641368c33285c413c013d379371c4d353571dfd"
+}
