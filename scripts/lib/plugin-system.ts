@@ -234,8 +234,11 @@ export const executePhasePlugins = async (
 
       if (result.success && result.data) {
         currentEras = result.data
-      } else if (!result.success && result.error) {
-        errors.push({pluginId: plugin.id, error: result.error})
+      } else if (!result.success) {
+        const errorMessage =
+          result.error ??
+          `Plugin ${plugin.options.name} returned success: false without an error message`
+        errors.push({pluginId: plugin.id, error: errorMessage})
         failedPlugins.push(plugin.id)
 
         if (!plugin.options.continueOnError) {
