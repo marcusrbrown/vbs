@@ -2432,16 +2432,24 @@ const main = async (): Promise<void> => {
       if (configData.mode && !args.includes('--mode')) {
         options = {...options, mode: configData.mode}
       }
-      if (configData.overrides?.filePath && !args.includes('--override') && !options.override) {
+      if (
+        configData.overrides?.enabled !== false &&
+        configData.overrides?.filePath &&
+        !args.includes('--override') &&
+        !options.override
+      ) {
         options = {...options, override: configData.overrides.filePath}
       }
       if (configData.export?.defaultFormat && !args.includes('--export-format')) {
         options = {...options, exportFormat: configData.export.defaultFormat}
       }
       if (configData.export?.defaultDirectory && !args.includes('--export-output')) {
-        options = {...options, exportOutput: configData.export.defaultDirectory}
+        const format = options.exportFormat ?? configData.export?.defaultFormat ?? 'json'
+        const filename = format === 'csv' ? 'star-trek-data.csv' : 'star-trek-data.json'
+        options = {...options, exportOutput: `${configData.export.defaultDirectory}/${filename}`}
       }
       if (
+        configData.updateDetection?.enabled !== false &&
         configData.updateDetection?.manifestPath &&
         !args.includes('--manifest') &&
         !options.manifest
