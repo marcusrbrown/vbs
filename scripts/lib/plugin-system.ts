@@ -384,7 +384,7 @@ export const createFilterPlugin = (
 
 const defaultRegistry = createPluginRegistry()
 
-export const getDefaultRegistry = () => defaultRegistry
+export const getDefaultRegistry = (): PluginRegistry => defaultRegistry
 
 export const registerDefaultPlugin = (plugin: Plugin): void => {
   defaultRegistry.register(plugin)

@@ -15,7 +15,7 @@ import {dirname} from 'node:path'
 /**
  * Outcome of a single generation run.
  */
-export type RunOutcome = 'success' | 'partial' | 'failed'
+export type RunOutcome = 'pending' | 'success' | 'partial' | 'failed'
 
 /**
  * Represents a single data generation run.
@@ -99,6 +99,38 @@ export interface TelemetryData {
   lastUpdated: string
 }
 
+/**
+ * Telemetry tracker interface for public API.
+ */
+export interface TelemetryTracker {
+  startRun: (mode: 'full' | 'incremental', flags: string[]) => string
+  updateRun: (runId: string, data: Partial<Omit<TelemetryRun, 'id' | 'startedAt'>>) => void
+  completeRun: (
+    runId: string,
+    outcome: Exclude<RunOutcome, 'pending'>,
+    metrics: {
+      seriesProcessed: number
+      moviesProcessed: number
+      episodesProcessed: number
+      erasGenerated: number
+      totalErrors: number
+      errorsByCategory: Record<string, number>
+      qualityScore: number
+      patchesApplied: number
+      overridesApplied: number
+      validationPassed: boolean
+      warnings: string[]
+    },
+  ) => void
+  getRuns: () => TelemetryRun[]
+  getRunsByOutcome: (outcome: RunOutcome) => TelemetryRun[]
+  getRunsInRange: (startDate: Date, endDate: Date) => TelemetryRun[]
+  calculateStats: () => TelemetryStats
+  getTelemetryData: () => TelemetryData
+  loadTelemetryData: (data: TelemetryData) => void
+  clear: () => void
+}
+
 // ============================================================================
 // CONSTANTS
 // ============================================================================
@@ -114,7 +146,7 @@ let runIdCounter = 0
 /**
  * Creates a telemetry tracker for monitoring generation runs.
  */
-export const createTelemetryTracker = () => {
+export const createTelemetryTracker = (): TelemetryTracker => {
   const runs: TelemetryRun[] = []
 
   /**
@@ -137,7 +169,7 @@ export const createTelemetryTracker = () => {
       startedAt,
       completedAt: '',
       durationMs: 0,
-      outcome: 'success',
+      outcome: 'pending',
       mode,
       seriesProcessed: 0,
       moviesProcessed: 0,
@@ -173,7 +205,7 @@ export const createTelemetryTracker = () => {
    */
   const completeRun = (
     runId: string,
-    outcome: RunOutcome,
+    outcome: Exclude<RunOutcome, 'pending'>,
     metrics: {
       seriesProcessed: number
       moviesProcessed: number
@@ -231,9 +263,11 @@ export const createTelemetryTracker = () => {
 
   /**
    * Calculates aggregated statistics across all runs.
+   * Only includes completed runs (those with non-empty completedAt).
    */
   const calculateStats = (): TelemetryStats => {
-    const totalRuns = runs.length
+    const completedRuns = runs.filter(r => r.completedAt !== '')
+    const totalRuns = completedRuns.length
 
     if (totalRuns === 0) {
       return {
@@ -251,17 +285,17 @@ export const createTelemetryTracker = () => {
       }
     }
 
-    const successfulRuns = runs.filter(r => r.outcome === 'success').length
-    const partialRuns = runs.filter(r => r.outcome === 'partial').length
-    const failedRuns = runs.filter(r => r.outcome === 'failed').length
+    const successfulRuns = completedRuns.filter(r => r.outcome === 'success').length
+    const partialRuns = completedRuns.filter(r => r.outcome === 'partial').length
+    const failedRuns = completedRuns.filter(r => r.outcome === 'failed').length
 
-    const totalDuration = runs.reduce((sum, r) => sum + r.durationMs, 0)
-    const totalQuality = runs.reduce((sum, r) => sum + r.qualityScore, 0)
-    const totalEpisodes = runs.reduce((sum, r) => sum + r.episodesProcessed, 0)
-    const totalPatches = runs.reduce((sum, r) => sum + r.patchesApplied, 0)
+    const totalDuration = completedRuns.reduce((sum, r) => sum + r.durationMs, 0)
+    const totalQuality = completedRuns.reduce((sum, r) => sum + r.qualityScore, 0)
+    const totalEpisodes = completedRuns.reduce((sum, r) => sum + r.episodesProcessed, 0)
+    const totalPatches = completedRuns.reduce((sum, r) => sum + r.patchesApplied, 0)
 
     const errorCounts: Record<string, number> = {}
-    for (const run of runs) {
+    for (const run of completedRuns) {
       for (const [category, count] of Object.entries(run.errorsByCategory)) {
         errorCounts[category] = (errorCounts[category] ?? 0) + count
       }
@@ -271,7 +305,7 @@ export const createTelemetryTracker = () => {
       .sort((a, b) => b.count - a.count)
       .slice(0, 10)
 
-    const sortedRuns = [...runs].sort(
+    const sortedRuns = [...completedRuns].sort(
       (a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime(),
     )
 
@@ -338,32 +372,33 @@ export const createTelemetryTracker = () => {
 
 /**
  * Saves telemetry data to disk.
+ * @throws Error if write fails
  */
 export const saveTelemetry = async (data: TelemetryData, filePath: string): Promise<void> => {
-  try {
-    const dir = dirname(filePath)
-    await mkdir(dir, {recursive: true})
-    const content = `${JSON.stringify(data, null, 2)}\n`
-    await writeFile(filePath, content, 'utf-8')
-  } catch (error) {
-    console.error(`Failed to save telemetry to ${filePath}:`, error)
-  }
+  const dir = dirname(filePath)
+  await mkdir(dir, {recursive: true})
+  const content = `${JSON.stringify(data, null, 2)}\n`
+  await writeFile(filePath, content, 'utf-8')
 }
 
 /**
  * Loads telemetry data from disk.
+ * @returns TelemetryData if found and valid, null if file doesn't exist, throws on parse errors
  */
 export const loadTelemetry = async (filePath: string): Promise<TelemetryData | null> => {
+  const {readFile} = await import('node:fs/promises')
   try {
-    const {readFile} = await import('node:fs/promises')
     const content = await readFile(filePath, 'utf-8')
     const data = JSON.parse(content) as TelemetryData
     if (data.version === TELEMETRY_VERSION) {
       return data
     }
     return null
-  } catch {
-    return null
+  } catch (error) {
+    if (error instanceof Error && 'code' in error && error.code === 'ENOENT') {
+      return null
+    }
+    throw error
   }
 }
 
@@ -373,7 +408,7 @@ export const loadTelemetry = async (filePath: string): Promise<TelemetryData | n
 
 const defaultTracker = createTelemetryTracker()
 
-export const getDefaultTracker = () => defaultTracker
+export const getDefaultTracker = (): TelemetryTracker => defaultTracker
 
 export const trackRun = (
   mode: 'full' | 'incremental',

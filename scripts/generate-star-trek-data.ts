@@ -313,7 +313,7 @@ interface GenerateDataOptions extends BaseCLIOptions {
   cacheStats: boolean
   // Phase 6 CLI flags
   patch?: string | undefined
-  manifest?: boolean | undefined
+  manifest?: string | boolean | undefined
   override?: string | undefined
   exportFormat?: ExportFormat | undefined
   exportOutput?: string | undefined
@@ -2045,7 +2045,7 @@ const parseArguments = (args: string[]): GenerateDataOptions => {
   const cacheStats = parseBooleanFlag(args, '--cache-stats')
 
   const patch = parseStringValue(args, '--patch')
-  const manifest = parseBooleanFlag(args, '--manifest')
+  const manifest = parseStringValue(args, '--manifest') ?? parseBooleanFlag(args, '--manifest')
   const override = parseStringValue(args, '--override')
 
   const exportFormatStr = parseStringValue(args, '--export-format')
@@ -2620,6 +2620,10 @@ const main = async (): Promise<void> => {
             ...(errorObj.stack ? {stack: errorObj.stack} : {}),
           },
         })
+        showErrorAndExit(
+          `Failed to load or apply patch file: ${errorObj.message}`,
+          EXIT_CODES.INVALID_ARGUMENTS,
+        )
       }
     }
 
@@ -2653,6 +2657,10 @@ const main = async (): Promise<void> => {
             ...(errorObj.stack ? {stack: errorObj.stack} : {}),
           },
         })
+        showErrorAndExit(
+          `Failed to load or apply overrides file: ${errorObj.message}`,
+          EXIT_CODES.INVALID_ARGUMENTS,
+        )
       }
     }
 
