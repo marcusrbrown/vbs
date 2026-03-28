@@ -182,7 +182,7 @@ export const createTelemetryTracker = (): TelemetryTracker => {
       overridesApplied: 0,
       validationPassed: true,
       warnings: [],
-      flags,
+      flags: [...flags],
     })
     return id
   }
@@ -230,12 +230,12 @@ export const createTelemetryTracker = (): TelemetryTracker => {
       run.episodesProcessed = metrics.episodesProcessed
       run.erasGenerated = metrics.erasGenerated
       run.totalErrors = metrics.totalErrors
-      run.errorsByCategory = metrics.errorsByCategory
+      run.errorsByCategory = {...metrics.errorsByCategory}
       run.qualityScore = metrics.qualityScore
       run.patchesApplied = metrics.patchesApplied
       run.overridesApplied = metrics.overridesApplied
       run.validationPassed = metrics.validationPassed
-      run.warnings = metrics.warnings
+      run.warnings = [...metrics.warnings]
     }
   }
 
