@@ -2372,6 +2372,20 @@ const main = async (): Promise<void> => {
     persistLogs: false,
   })
 
+  if (options.config) {
+    const {loadConfig} = await import('./lib/config-loader.js')
+    const configData = await loadConfig(options.config)
+    if (configData) {
+      logger.info('Loaded config from', {path: options.config})
+      if (configData.concurrency && !args.includes('--concurrency')) {
+        options = {...options, concurrency: configData.concurrency}
+      }
+      if (configData.output && !args.includes('--output')) {
+        options = {...options, output: configData.output}
+      }
+    }
+  }
+
   // Initialize API response cache
   const apiCache = createApiCache({
     cacheDir: '.cache/api-responses',
@@ -2653,22 +2667,35 @@ const main = async (): Promise<void> => {
       const manifestPath =
         options.manifest === true ? DEFAULT_MANIFEST_PATH : String(options.manifest)
       logger.info('Checking for updates via manifest', {path: manifestPath})
+
+      const currentMovies = discoveredMovies.map(m => ({
+        id: m.movieId,
+        tmdbId: m.tmdbId,
+        title: m.title,
+        releaseDate: m.releaseDate,
+      }))
+
       const manifest = await loadManifest(manifestPath)
       if (manifest) {
-        const currentSeries = discoveredSeries.map(s => ({
-          code: generateSeriesCode(s.name, s.id),
-          tmdbId: s.id,
-          name: s.name,
-          seasonCount: s.numberOfSeasons,
-          episodeCount: s.numberOfEpisodes,
-          seasons: [] as {seasonNumber: number; episodeCount: number; lastAirDate: string}[],
-        }))
-        const currentMovies = discoveredMovies.map(m => ({
-          id: m.movieId,
-          tmdbId: m.tmdbId,
-          title: m.title,
-          releaseDate: m.releaseDate,
-        }))
+        const currentSeries = discoveredSeries.map(s => {
+          const enrichedSeries = enrichedSeriesData.find(series => series.seriesId === s.id)
+          const seasons =
+            enrichedSeries?.seasons?.map(season => ({
+              seasonNumber: season.seasonNumber,
+              episodeCount:
+                season.episodeCount ??
+                (Array.isArray(season.episodes) ? season.episodes.length : 0),
+              lastAirDate: season.airDate ?? '',
+            })) ?? []
+          return {
+            code: generateSeriesCode(s.name, s.id),
+            tmdbId: s.id,
+            name: s.name,
+            seasonCount: s.numberOfSeasons,
+            episodeCount: s.numberOfEpisodes,
+            seasons,
+          }
+        })
         const updateResult = checkForUpdates(manifest, currentSeries, currentMovies)
         if (updateResult.hasUpdates) {
           logger.info('Updates detected', {summary: updateResult.summary})
@@ -2684,6 +2711,64 @@ const main = async (): Promise<void> => {
         await saveManifest(manifestPath, updatedManifest)
       } else {
         logger.info('No manifest found - will create on completion')
+        const currentSeries = discoveredSeries.map(s => {
+          const enrichedSeries = enrichedSeriesData.find(series => series.seriesId === s.id)
+          const seasons =
+            enrichedSeries?.seasons?.map(season => ({
+              seasonNumber: season.seasonNumber,
+              episodeCount:
+                season.episodeCount ??
+                (Array.isArray(season.episodes) ? season.episodes.length : 0),
+              lastAirDate: season.airDate ?? '',
+            })) ?? []
+          return {
+            code: generateSeriesCode(s.name, s.id),
+            tmdbId: s.id,
+            name: s.name,
+            seasonCount: s.numberOfSeasons,
+            episodeCount: s.numberOfEpisodes,
+            seasons,
+          }
+        })
+        const initialManifest = {
+          version: '1.0',
+          lastFullUpdate: new Date().toISOString(),
+          lastCheckTimestamp: new Date().toISOString(),
+          series: Object.fromEntries(
+            currentSeries.map(s => [
+              s.code,
+              {
+                tmdbId: s.tmdbId,
+                name: s.name,
+                knownSeasons: s.seasonCount,
+                knownEpisodes: s.episodeCount,
+                lastUpdated: new Date().toISOString(),
+                seasonDetails: Object.fromEntries(
+                  s.seasons.map(season => [
+                    season.seasonNumber,
+                    {
+                      episodeCount: season.episodeCount,
+                      lastAirDate: season.lastAirDate,
+                    },
+                  ]),
+                ),
+              },
+            ]),
+          ),
+          movies: Object.fromEntries(
+            currentMovies.map(m => [
+              m.id,
+              {
+                tmdbId: m.tmdbId,
+                title: m.title,
+                releaseDate: m.releaseDate,
+                lastUpdated: new Date().toISOString(),
+              },
+            ]),
+          ),
+        }
+        await saveManifest(manifestPath, initialManifest)
+        logger.info('Created initial manifest', {path: manifestPath})
       }
     }
 

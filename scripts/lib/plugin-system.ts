@@ -91,6 +91,18 @@ export interface Plugin {
   transform: TransformFn
 }
 
+/**
+ * Registry interface for managing plugins.
+ */
+export interface PluginRegistry {
+  register: (plugin: Plugin) => void
+  unregister: (pluginId: string) => boolean
+  getPlugins: (phase?: PluginPhase) => Plugin[]
+  getPlugin: (pluginId: string) => Plugin | undefined
+  clear: () => void
+  size: () => number
+}
+
 // ============================================================================
 // PLUGIN REGISTRY
 // ============================================================================
@@ -116,7 +128,7 @@ export const createPlugin = (options: PluginOptions, transform: TransformFn): Pl
 /**
  * Creates a registry for managing plugins.
  */
-export const createPluginRegistry = () => {
+export const createPluginRegistry = (): PluginRegistry => {
   const plugins: Plugin[] = []
 
   const register = (plugin: Plugin): void => {
@@ -225,6 +237,15 @@ export const executePhasePlugins = async (
         if (!plugin.options.continueOnError) {
           break
         }
+      }
+    } else {
+      // NEW: Handle thrown errors from plugins that did not execute
+      failedPlugins.push(plugin.id)
+      if (result?.error) {
+        errors.push({pluginId: plugin.id, error: result.error})
+      }
+      if (!plugin.options.continueOnError) {
+        break
       }
     }
   }
