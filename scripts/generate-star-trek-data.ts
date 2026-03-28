@@ -39,6 +39,7 @@
  */
 
 import type {MetadataSourceInstance} from '../src/modules/types.js'
+import type {ExportFormat} from './lib/data-export.js'
 import {resolve} from 'node:path'
 import process from 'node:process'
 import {withErrorHandling} from '../src/modules/error-handler.js'
@@ -310,6 +311,15 @@ interface GenerateDataOptions extends BaseCLIOptions {
   enableCache: boolean
   clearCache: boolean
   cacheStats: boolean
+  // Phase 6 CLI flags
+  patch?: string | undefined
+  manifest?: string | boolean | undefined
+  override?: string | undefined
+  exportFormat?: ExportFormat | undefined
+  exportOutput?: string | undefined
+  preview?: boolean | undefined
+  config?: string | undefined
+  skipUpdates?: boolean | undefined
 }
 
 /**
@@ -373,6 +383,15 @@ const DEFAULT_OPTIONS: Omit<GenerateDataOptions, 'help' | 'verbose'> = {
   enableCache: true,
   clearCache: false,
   cacheStats: false,
+  // Phase 6 defaults
+  patch: undefined,
+  manifest: undefined,
+  override: undefined,
+  exportFormat: undefined,
+  exportOutput: undefined,
+  preview: undefined,
+  config: undefined,
+  skipUpdates: undefined,
 }
 
 const HELP_TEXT = `
@@ -422,6 +441,31 @@ Options:
   --cache-stats        Display cache statistics and exit
                        Shows hit rate, cache size, and entry counts
 
+  --patch <path>       Path to JSON patch file for targeted fixes
+                       Apply manual corrections to episodes/seasons/movies
+
+  --manifest [path]    Enable update detection via manifest
+                       Detects new/updated content automatically
+                       Optional path to manifest file; defaults to project manifest
+
+  --override <path>    Path to overrides JSON file for persistent corrections
+                       Manual fixes that survive regeneration
+
+  --export-format <fmt> Export data to format: 'json' or 'csv'
+                       Use with --export-output to specify path
+
+  --export-output <path> Output path for exported data
+                       Defaults to 'dist/data/star-trek-data.json' or '.csv'
+
+  --preview            Generate tree-view preview of data
+                       Shows structure and statistics before writing
+
+  --config <path>      Path to custom configuration file
+                       Load settings from TypeScript config module
+
+  --skip-updates       Skip update detection when regenerating
+                       Forces full regeneration regardless of manifest
+
   --help               Show this help message and exit
 
 Examples:
@@ -434,8 +478,14 @@ Examples:
   # Incremental update for specific series
   pnpm exec jiti scripts/generate-star-trek-data.ts --mode incremental --series discovery
 
-  # Dry run to preview changes
-  pnpm exec jiti scripts/generate-star-trek-data.ts --dry-run --verbose
+  # Apply patches and overrides
+  pnpm exec jiti scripts/generate-star-trek-data.ts --patch ./patches/fixes.json --override ./config/overrides.json
+
+  # Export data to CSV
+  pnpm exec jiti scripts/generate-star-trek-data.ts --export-format csv --export-output ./export/data.csv
+
+  # Preview data structure
+  pnpm exec jiti scripts/generate-star-trek-data.ts --preview --dry-run
 
 Environment Variables:
   TMDB_API_KEY         The Movie Database API Read Access Token (optional but recommended)
@@ -453,6 +503,7 @@ Notes:
   - Generated files are formatted with Prettier/ESLint
   - Backup of existing file is created automatically
   - Memory Alpha, TrekCore, and STAPI are always available
+  - Phase 6 modules provide patches, overrides, and update detection
 `
 
 /**
@@ -1994,6 +2045,28 @@ const parseArguments = (args: string[]): GenerateDataOptions => {
   const clearCache = parseBooleanFlag(args, '--clear-cache')
   const cacheStats = parseBooleanFlag(args, '--cache-stats')
 
+  const patchValue = parseStringValue(args, '--patch')
+  const patch = patchValue && !patchValue.startsWith('--') ? patchValue : undefined
+  const manifestValue = parseStringValue(args, '--manifest')
+  const manifest =
+    manifestValue && !manifestValue.startsWith('--')
+      ? manifestValue
+      : parseBooleanFlag(args, '--manifest')
+  const overrideValue = parseStringValue(args, '--override')
+  const override = overrideValue && !overrideValue.startsWith('--') ? overrideValue : undefined
+
+  const exportFormatStr = parseStringValue(args, '--export-format')
+  const exportFormat =
+    exportFormatStr === 'csv' ? 'csv' : exportFormatStr === 'json' ? 'json' : undefined
+  const exportOutputValue = parseStringValue(args, '--export-output')
+  const exportOutput =
+    exportOutputValue && !exportOutputValue.startsWith('--') ? exportOutputValue : undefined
+
+  const preview = parseBooleanFlag(args, '--preview')
+  const configValue = parseStringValue(args, '--config')
+  const config = configValue && !configValue.startsWith('--') ? configValue : undefined
+  const skipUpdates = parseBooleanFlag(args, '--skip-updates')
+
   if (modeStr !== 'full' && modeStr !== 'incremental') {
     showErrorAndExit(
       `Invalid mode: ${modeStr}. Must be 'full' or 'incremental'.`,
@@ -2022,6 +2095,49 @@ const parseArguments = (args: string[]): GenerateDataOptions => {
     )
   }
 
+  if (args.includes('--export-format')) {
+    if (exportFormatStr === undefined || exportFormatStr.startsWith('--')) {
+      showErrorAndExit(
+        `--export-format requires 'json' or 'csv' as a value.`,
+        EXIT_CODES.INVALID_ARGUMENTS,
+      )
+    }
+    if (exportFormat === undefined) {
+      showErrorAndExit(
+        `Invalid export format: ${exportFormatStr}. Must be 'json' or 'csv'.`,
+        EXIT_CODES.INVALID_ARGUMENTS,
+      )
+    }
+  }
+
+  if (args.includes('--patch') && patch === undefined) {
+    showErrorAndExit(
+      `--patch requires a file path argument (e.g., --patch path/to/patches.json).`,
+      EXIT_CODES.INVALID_ARGUMENTS,
+    )
+  }
+
+  if (args.includes('--override') && override === undefined) {
+    showErrorAndExit(
+      `--override requires a file path argument (e.g., --override path/to/overrides.json).`,
+      EXIT_CODES.INVALID_ARGUMENTS,
+    )
+  }
+
+  if (args.includes('--export-output') && exportOutput === undefined) {
+    showErrorAndExit(
+      `--export-output requires a file path argument (e.g., --export-output path/to/export.json).`,
+      EXIT_CODES.INVALID_ARGUMENTS,
+    )
+  }
+
+  if (args.includes('--config') && config === undefined) {
+    showErrorAndExit(
+      `--config requires a file path argument (e.g., --config scripts/config/data-generation.config.ts).`,
+      EXIT_CODES.INVALID_ARGUMENTS,
+    )
+  }
+
   return {
     help: false,
     verbose,
@@ -2035,6 +2151,14 @@ const parseArguments = (args: string[]): GenerateDataOptions => {
     enableCache,
     clearCache,
     cacheStats,
+    patch,
+    manifest,
+    override,
+    exportFormat,
+    exportOutput,
+    preview,
+    config,
+    skipUpdates,
   }
 }
 
@@ -2294,6 +2418,47 @@ const main = async (): Promise<void> => {
     persistLogs: false,
   })
 
+  if (options.config) {
+    const {loadConfig} = await import('./lib/config-loader.js')
+    const configData = await loadConfig(options.config)
+    if (configData) {
+      logger.info('Loaded config from', {path: options.config})
+      if (configData.concurrency && !args.includes('--concurrency')) {
+        options = {...options, concurrency: configData.concurrency}
+      }
+      if (configData.output && !args.includes('--output')) {
+        options = {...options, output: configData.output}
+      }
+      if (configData.mode && !args.includes('--mode')) {
+        options = {...options, mode: configData.mode}
+      }
+      if (
+        configData.overrides?.enabled !== false &&
+        configData.overrides?.filePath &&
+        !args.includes('--override') &&
+        !options.override
+      ) {
+        options = {...options, override: configData.overrides.filePath}
+      }
+      if (configData.export?.defaultFormat && !args.includes('--export-format')) {
+        options = {...options, exportFormat: configData.export.defaultFormat}
+      }
+      if (configData.export?.defaultDirectory && !args.includes('--export-output')) {
+        const format = options.exportFormat ?? configData.export?.defaultFormat ?? 'json'
+        const filename = format === 'csv' ? 'star-trek-data.csv' : 'star-trek-data.json'
+        options = {...options, exportOutput: `${configData.export.defaultDirectory}/${filename}`}
+      }
+      if (
+        configData.updateDetection?.enabled !== false &&
+        configData.updateDetection?.manifestPath &&
+        !args.includes('--manifest') &&
+        !options.manifest
+      ) {
+        options = {...options, manifest: configData.updateDetection.manifestPath}
+      }
+    }
+  }
+
   // Initialize API response cache
   const apiCache = createApiCache({
     cacheDir: '.cache/api-responses',
@@ -2500,6 +2665,241 @@ const main = async (): Promise<void> => {
       movieCount: normalizedData.metadata.movieCount,
       episodeCount: normalizedData.metadata.episodeCount,
     })
+
+    if (options.patch) {
+      const {loadPatchFile, applyPatches} = await import('./lib/data-patches.js')
+      logger.info('Loading patch file', {path: options.patch})
+      try {
+        const patchFile = await loadPatchFile(options.patch)
+        logger.info(`Loaded ${patchFile.patches.length} patches from ${options.patch}`)
+        const patchResult = applyPatches(normalizedData.eras, patchFile.patches)
+        normalizedData = {...normalizedData, eras: patchResult.eras}
+        logger.info('Patches applied', {
+          applied: patchResult.summary.applied,
+          failed: patchResult.summary.failed,
+          skipped: patchResult.summary.skipped,
+        })
+        if (patchResult.failedPatches.length > 0 && options.verbose) {
+          for (const failed of patchResult.failedPatches) {
+            logger.warn(`Patch failed: ${failed.patchId} - ${failed.reason}`)
+          }
+        }
+      } catch (error) {
+        const errorObj = error instanceof Error ? error : new Error(String(error))
+        logger.error('Failed to load or apply patches', {
+          error: {
+            name: errorObj.name,
+            message: errorObj.message,
+            ...(errorObj.stack ? {stack: errorObj.stack} : {}),
+          },
+        })
+        showErrorAndExit(
+          `Failed to load or apply patch file "${options.patch}": ${errorObj.message}`,
+          EXIT_CODES.INVALID_ARGUMENTS,
+        )
+      }
+    }
+
+    if (options.override) {
+      const {loadOverridesFile, applyOverrides} = await import('./lib/data-overrides.js')
+      logger.info('Loading overrides file', {path: options.override})
+      try {
+        const overridesFile = await loadOverridesFile(options.override)
+        if (overridesFile) {
+          logger.info(`Loaded ${overridesFile.overrides.length} overrides from ${options.override}`)
+          const overrideResult = applyOverrides(normalizedData.eras, overridesFile.overrides)
+          normalizedData = {...normalizedData, eras: overrideResult.eras}
+          logger.info('Overrides applied', {
+            applied: overrideResult.summary.applied,
+            skipped: overrideResult.summary.skipped,
+          })
+          if (overrideResult.skippedOverrides.length > 0 && options.verbose) {
+            for (const skipped of overrideResult.skippedOverrides) {
+              logger.warn(`Override skipped: ${skipped.targetId} - ${skipped.reason}`)
+            }
+          }
+        } else {
+          logger.warn(`Overrides file not found: ${options.override}`)
+        }
+      } catch (error) {
+        const errorObj = error instanceof Error ? error : new Error(String(error))
+        logger.error('Failed to load or apply overrides', {
+          error: {
+            name: errorObj.name,
+            message: errorObj.message,
+            ...(errorObj.stack ? {stack: errorObj.stack} : {}),
+          },
+        })
+        showErrorAndExit(
+          `Failed to load or apply overrides file: ${errorObj.message}`,
+          EXIT_CODES.INVALID_ARGUMENTS,
+        )
+      }
+    }
+
+    if (options.manifest && !options.skipUpdates) {
+      const {
+        loadManifest,
+        checkForUpdates,
+        updateManifestFromData,
+        saveManifest,
+        DEFAULT_MANIFEST_PATH,
+      } = await import('./lib/update-detection.js')
+      const manifestPath =
+        options.manifest === true ? DEFAULT_MANIFEST_PATH : String(options.manifest)
+      logger.info('Checking for updates via manifest', {path: manifestPath})
+
+      const currentMovies = discoveredMovies.map(m => ({
+        id: m.movieId,
+        tmdbId: m.tmdbId,
+        title: m.title,
+        releaseDate: m.releaseDate,
+      }))
+
+      const manifest = await loadManifest(manifestPath)
+      if (manifest) {
+        const currentSeries = discoveredSeries.map(s => {
+          const enrichedSeries = enrichedSeriesData.find(series => series.seriesId === s.id)
+          const seasons =
+            enrichedSeries?.seasons?.map(season => ({
+              seasonNumber: season.seasonNumber,
+              episodeCount:
+                season.episodeCount ??
+                (Array.isArray(season.episodes) ? season.episodes.length : 0),
+              lastAirDate: season.airDate ?? '',
+            })) ?? []
+          return {
+            code: generateSeriesCode(s.name, s.id),
+            tmdbId: s.id,
+            name: s.name,
+            seasonCount: s.numberOfSeasons,
+            episodeCount: s.numberOfEpisodes,
+            seasons,
+          }
+        })
+        const updateResult = checkForUpdates(manifest, currentSeries, currentMovies)
+        if (updateResult.hasUpdates) {
+          logger.info('Updates detected', {summary: updateResult.summary})
+          if (options.verbose) {
+            console.error('\n=== Update Summary ===')
+            console.error(updateResult.summary)
+            console.error('')
+          }
+        } else {
+          logger.info('No updates detected - data is current')
+        }
+        const updatedManifest = updateManifestFromData(manifest, currentSeries, currentMovies)
+        if (options.dryRun) {
+          logger.info('Dry run: skipping manifest update', {path: manifestPath})
+        } else {
+          await saveManifest(manifestPath, updatedManifest)
+        }
+      } else {
+        logger.info('No manifest found - will create on completion')
+        const currentSeries = discoveredSeries.map(s => {
+          const enrichedSeries = enrichedSeriesData.find(series => series.seriesId === s.id)
+          const seasons =
+            enrichedSeries?.seasons?.map(season => ({
+              seasonNumber: season.seasonNumber,
+              episodeCount:
+                season.episodeCount ??
+                (Array.isArray(season.episodes) ? season.episodes.length : 0),
+              lastAirDate: season.airDate ?? '',
+            })) ?? []
+          return {
+            code: generateSeriesCode(s.name, s.id),
+            tmdbId: s.id,
+            name: s.name,
+            seasonCount: s.numberOfSeasons,
+            episodeCount: s.numberOfEpisodes,
+            seasons,
+          }
+        })
+        const initialManifest = {
+          version: '1.0',
+          lastFullUpdate: new Date().toISOString(),
+          lastCheckTimestamp: new Date().toISOString(),
+          series: Object.fromEntries(
+            currentSeries.map(s => [
+              s.code,
+              {
+                tmdbId: s.tmdbId,
+                name: s.name,
+                knownSeasons: s.seasonCount,
+                knownEpisodes: s.episodeCount,
+                lastUpdated: new Date().toISOString(),
+                seasonDetails: Object.fromEntries(
+                  s.seasons.map(season => [
+                    season.seasonNumber,
+                    {
+                      episodeCount: season.episodeCount,
+                      lastAirDate: season.lastAirDate,
+                    },
+                  ]),
+                ),
+              },
+            ]),
+          ),
+          movies: Object.fromEntries(
+            currentMovies.map(m => [
+              m.id,
+              {
+                tmdbId: m.tmdbId,
+                title: m.title,
+                releaseDate: m.releaseDate,
+                lastUpdated: new Date().toISOString(),
+              },
+            ]),
+          ),
+        }
+        if (options.dryRun) {
+          logger.info('Dry run: would create initial manifest', {path: manifestPath})
+        } else {
+          await saveManifest(manifestPath, initialManifest)
+          logger.info('Created initial manifest', {path: manifestPath})
+        }
+      }
+    }
+
+    if (options.preview) {
+      const {generatePreview} = await import('./lib/data-preview.js')
+      logger.info('Generating data preview')
+      const preview = generatePreview(normalizedData.eras, {
+        maxItemsPerEra: 5,
+        maxEpisodesPerItem: 3,
+        showStatistics: true,
+        colorize: true,
+      })
+      console.error(preview)
+    }
+
+    if (options.exportFormat && !options.dryRun) {
+      const {exportData} = await import('./lib/data-export.js')
+      const exportPath = options.exportOutput ?? `dist/data/star-trek-data.${options.exportFormat}`
+      logger.info('Exporting data', {format: options.exportFormat, path: exportPath})
+      try {
+        const exportResult = await exportData(normalizedData.eras, {
+          format: options.exportFormat,
+          outputPath: exportPath,
+          prettyPrint: true,
+        })
+        logger.info('Export complete', {
+          records: exportResult.recordCount,
+          size: exportResult.fileSize,
+          path: exportResult.outputPath,
+        })
+      } catch (error) {
+        const errorObj = error instanceof Error ? error : new Error(String(error))
+        logger.error('Export failed', {
+          error: {
+            name: errorObj.name,
+            message: errorObj.message,
+            ...(errorObj.stack ? {stack: errorObj.stack} : {}),
+          },
+        })
+        showErrorAndExit(`Failed to export data: ${errorObj.message}`, EXIT_CODES.INVALID_ARGUMENTS)
+      }
+    }
 
     // Run quality validation on normalized data (TASK-026 through TASK-035)
     logger.info('Running data quality validation')
