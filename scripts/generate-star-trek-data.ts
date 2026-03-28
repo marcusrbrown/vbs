@@ -2101,6 +2101,34 @@ const parseArguments = (args: string[]): GenerateDataOptions => {
     )
   }
 
+  if (args.includes('--patch') && patch === undefined) {
+    showErrorAndExit(
+      `--patch requires a file path argument (e.g., --patch path/to/patches.json).`,
+      EXIT_CODES.INVALID_ARGUMENTS,
+    )
+  }
+
+  if (args.includes('--override') && override === undefined) {
+    showErrorAndExit(
+      `--override requires a file path argument (e.g., --override path/to/overrides.json).`,
+      EXIT_CODES.INVALID_ARGUMENTS,
+    )
+  }
+
+  if (args.includes('--export-output') && exportOutput === undefined) {
+    showErrorAndExit(
+      `--export-output requires a file path argument (e.g., --export-output path/to/export.json).`,
+      EXIT_CODES.INVALID_ARGUMENTS,
+    )
+  }
+
+  if (args.includes('--config') && config === undefined) {
+    showErrorAndExit(
+      `--config requires a file path argument (e.g., --config path/to/config.json).`,
+      EXIT_CODES.INVALID_ARGUMENTS,
+    )
+  }
+
   return {
     help: false,
     verbose,
@@ -2629,7 +2657,10 @@ const main = async (): Promise<void> => {
             ...(errorObj.stack ? {stack: errorObj.stack} : {}),
           },
         })
-        showErrorAndExit(`Failed to export data: ${errorObj.message}`, EXIT_CODES.INVALID_ARGUMENTS)
+        showErrorAndExit(
+          `Failed to load or apply patch file "${options.patch}": ${errorObj.message}`,
+          EXIT_CODES.INVALID_ARGUMENTS,
+        )
       }
     }
 
