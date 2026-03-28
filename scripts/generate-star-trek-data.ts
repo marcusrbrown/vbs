@@ -39,6 +39,7 @@
  */
 
 import type {MetadataSourceInstance} from '../src/modules/types.js'
+import type {ExportFormat} from './lib/data-export.js'
 import {resolve} from 'node:path'
 import process from 'node:process'
 import {withErrorHandling} from '../src/modules/error-handler.js'
@@ -310,6 +311,15 @@ interface GenerateDataOptions extends BaseCLIOptions {
   enableCache: boolean
   clearCache: boolean
   cacheStats: boolean
+  // Phase 6 CLI flags
+  patch?: string | undefined
+  manifest?: boolean | undefined
+  override?: string | undefined
+  exportFormat?: ExportFormat | undefined
+  exportOutput?: string | undefined
+  preview?: boolean | undefined
+  config?: string | undefined
+  skipUpdates?: boolean | undefined
 }
 
 /**
@@ -373,6 +383,15 @@ const DEFAULT_OPTIONS: Omit<GenerateDataOptions, 'help' | 'verbose'> = {
   enableCache: true,
   clearCache: false,
   cacheStats: false,
+  // Phase 6 defaults
+  patch: undefined,
+  manifest: undefined,
+  override: undefined,
+  exportFormat: undefined,
+  exportOutput: undefined,
+  preview: undefined,
+  config: undefined,
+  skipUpdates: undefined,
 }
 
 const HELP_TEXT = `
@@ -422,6 +441,30 @@ Options:
   --cache-stats        Display cache statistics and exit
                        Shows hit rate, cache size, and entry counts
 
+  --patch <path>       Path to JSON patch file for targeted fixes
+                       Apply manual corrections to episodes/seasons/movies
+
+  --manifest           Enable update detection via manifest
+                       Detects new/updated content automatically
+
+  --override <path>    Path to overrides JSON file for persistent corrections
+                       Manual fixes that survive regeneration
+
+  --export-format <fmt> Export data to format: 'json' or 'csv'
+                       Use with --export-output to specify path
+
+  --export-output <path> Output path for exported data
+                       Defaults to 'dist/data/star-trek-data.json' or '.csv'
+
+  --preview            Generate tree-view preview of data
+                       Shows structure and statistics before writing
+
+  --config <path>      Path to custom configuration file
+                       Load settings from TypeScript config module
+
+  --skip-updates       Skip update detection when regenerating
+                       Forces full regeneration regardless of manifest
+
   --help               Show this help message and exit
 
 Examples:
@@ -434,8 +477,14 @@ Examples:
   # Incremental update for specific series
   pnpm exec jiti scripts/generate-star-trek-data.ts --mode incremental --series discovery
 
-  # Dry run to preview changes
-  pnpm exec jiti scripts/generate-star-trek-data.ts --dry-run --verbose
+  # Apply patches and overrides
+  pnpm exec jiti scripts/generate-star-trek-data.ts --patch ./patches/fixes.json --override ./config/overrides.json
+
+  # Export data to CSV
+  pnpm exec jiti scripts/generate-star-trek-data.ts --export-format csv --export-output ./export/data.csv
+
+  # Preview data structure
+  pnpm exec jiti scripts/generate-star-trek-data.ts --preview --dry-run
 
 Environment Variables:
   TMDB_API_KEY         The Movie Database API Read Access Token (optional but recommended)
@@ -453,6 +502,7 @@ Notes:
   - Generated files are formatted with Prettier/ESLint
   - Backup of existing file is created automatically
   - Memory Alpha, TrekCore, and STAPI are always available
+  - Phase 6 modules provide patches, overrides, and update detection
 `
 
 /**
@@ -1994,6 +2044,19 @@ const parseArguments = (args: string[]): GenerateDataOptions => {
   const clearCache = parseBooleanFlag(args, '--clear-cache')
   const cacheStats = parseBooleanFlag(args, '--cache-stats')
 
+  const patch = parseStringValue(args, '--patch')
+  const manifest = parseBooleanFlag(args, '--manifest')
+  const override = parseStringValue(args, '--override')
+
+  const exportFormatStr = parseStringValue(args, '--export-format')
+  const exportFormat =
+    exportFormatStr === 'csv' ? 'csv' : exportFormatStr === 'json' ? 'json' : undefined
+  const exportOutput = parseStringValue(args, '--export-output')
+
+  const preview = parseBooleanFlag(args, '--preview')
+  const config = parseStringValue(args, '--config')
+  const skipUpdates = parseBooleanFlag(args, '--skip-updates')
+
   if (modeStr !== 'full' && modeStr !== 'incremental') {
     showErrorAndExit(
       `Invalid mode: ${modeStr}. Must be 'full' or 'incremental'.`,
@@ -2022,6 +2085,13 @@ const parseArguments = (args: string[]): GenerateDataOptions => {
     )
   }
 
+  if (exportFormatStr !== undefined && exportFormat === undefined) {
+    showErrorAndExit(
+      `Invalid export format: ${exportFormatStr}. Must be 'json' or 'csv'.`,
+      EXIT_CODES.INVALID_ARGUMENTS,
+    )
+  }
+
   return {
     help: false,
     verbose,
@@ -2035,6 +2105,14 @@ const parseArguments = (args: string[]): GenerateDataOptions => {
     enableCache,
     clearCache,
     cacheStats,
+    patch,
+    manifest,
+    override,
+    exportFormat,
+    exportOutput,
+    preview,
+    config,
+    skipUpdates,
   }
 }
 
@@ -2500,6 +2578,153 @@ const main = async (): Promise<void> => {
       movieCount: normalizedData.metadata.movieCount,
       episodeCount: normalizedData.metadata.episodeCount,
     })
+
+    if (options.patch) {
+      const {loadPatchFile, applyPatches} = await import('./lib/data-patches.js')
+      logger.info('Loading patch file', {path: options.patch})
+      try {
+        const patchFile = await loadPatchFile(options.patch)
+        logger.info(`Loaded ${patchFile.patches.length} patches from ${options.patch}`)
+        const patchResult = applyPatches(normalizedData.eras, patchFile.patches)
+        normalizedData = {...normalizedData, eras: patchResult.eras}
+        logger.info('Patches applied', {
+          applied: patchResult.summary.applied,
+          failed: patchResult.summary.failed,
+          skipped: patchResult.summary.skipped,
+        })
+        if (patchResult.failedPatches.length > 0 && options.verbose) {
+          for (const failed of patchResult.failedPatches) {
+            logger.warn(`Patch failed: ${failed.patchId} - ${failed.reason}`)
+          }
+        }
+      } catch (error) {
+        const errorObj = error instanceof Error ? error : new Error(String(error))
+        logger.error('Failed to load or apply patches', {
+          error: {
+            name: errorObj.name,
+            message: errorObj.message,
+            ...(errorObj.stack ? {stack: errorObj.stack} : {}),
+          },
+        })
+      }
+    }
+
+    if (options.override) {
+      const {loadOverridesFile, applyOverrides} = await import('./lib/data-overrides.js')
+      logger.info('Loading overrides file', {path: options.override})
+      try {
+        const overridesFile = await loadOverridesFile(options.override)
+        if (overridesFile) {
+          logger.info(`Loaded ${overridesFile.overrides.length} overrides from ${options.override}`)
+          const overrideResult = applyOverrides(normalizedData.eras, overridesFile.overrides)
+          normalizedData = {...normalizedData, eras: overrideResult.eras}
+          logger.info('Overrides applied', {
+            applied: overrideResult.summary.applied,
+            skipped: overrideResult.summary.skipped,
+          })
+          if (overrideResult.skippedOverrides.length > 0 && options.verbose) {
+            for (const skipped of overrideResult.skippedOverrides) {
+              logger.warn(`Override skipped: ${skipped.targetId} - ${skipped.reason}`)
+            }
+          }
+        } else {
+          logger.warn(`Overrides file not found: ${options.override}`)
+        }
+      } catch (error) {
+        const errorObj = error instanceof Error ? error : new Error(String(error))
+        logger.error('Failed to load or apply overrides', {
+          error: {
+            name: errorObj.name,
+            message: errorObj.message,
+            ...(errorObj.stack ? {stack: errorObj.stack} : {}),
+          },
+        })
+      }
+    }
+
+    if (options.manifest && !options.skipUpdates) {
+      const {
+        loadManifest,
+        checkForUpdates,
+        updateManifestFromData,
+        saveManifest,
+        DEFAULT_MANIFEST_PATH,
+      } = await import('./lib/update-detection.js')
+      const manifestPath =
+        options.manifest === true ? DEFAULT_MANIFEST_PATH : String(options.manifest)
+      logger.info('Checking for updates via manifest', {path: manifestPath})
+      const manifest = await loadManifest(manifestPath)
+      if (manifest) {
+        const currentSeries = discoveredSeries.map(s => ({
+          code: generateSeriesCode(s.name, s.id),
+          tmdbId: s.id,
+          name: s.name,
+          seasonCount: s.numberOfSeasons,
+          episodeCount: s.numberOfEpisodes,
+          seasons: [] as {seasonNumber: number; episodeCount: number; lastAirDate: string}[],
+        }))
+        const currentMovies = discoveredMovies.map(m => ({
+          id: m.movieId,
+          tmdbId: m.tmdbId,
+          title: m.title,
+          releaseDate: m.releaseDate,
+        }))
+        const updateResult = checkForUpdates(manifest, currentSeries, currentMovies)
+        if (updateResult.hasUpdates) {
+          logger.info('Updates detected', {summary: updateResult.summary})
+          if (options.verbose) {
+            console.error('\n=== Update Summary ===')
+            console.error(updateResult.summary)
+            console.error('')
+          }
+        } else {
+          logger.info('No updates detected - data is current')
+        }
+        const updatedManifest = updateManifestFromData(manifest, currentSeries, currentMovies)
+        await saveManifest(manifestPath, updatedManifest)
+      } else {
+        logger.info('No manifest found - will create on completion')
+      }
+    }
+
+    if (options.preview) {
+      const {generatePreview} = await import('./lib/data-preview.js')
+      logger.info('Generating data preview')
+      const preview = generatePreview(normalizedData.eras, {
+        maxItemsPerEra: 5,
+        maxEpisodesPerItem: 3,
+        showStatistics: true,
+        colorize: true,
+      })
+      console.error(preview)
+    }
+
+    if (options.exportFormat && !options.dryRun) {
+      const {exportData} = await import('./lib/data-export.js')
+      const exportPath = options.exportOutput ?? `dist/data/star-trek-data.${options.exportFormat}`
+      logger.info('Exporting data', {format: options.exportFormat, path: exportPath})
+      try {
+        const exportResult = await exportData(normalizedData.eras, {
+          format: options.exportFormat,
+          outputPath: exportPath,
+          prettyPrint: true,
+        })
+        logger.info('Export complete', {
+          records: exportResult.recordCount,
+          size: exportResult.fileSize,
+          path: exportResult.outputPath,
+        })
+      } catch (error) {
+        const errorObj = error instanceof Error ? error : new Error(String(error))
+        logger.error('Export failed', {
+          error: {
+            name: errorObj.name,
+            message: errorObj.message,
+            ...(errorObj.stack ? {stack: errorObj.stack} : {}),
+          },
+        })
+      }
+    }
 
     // Run quality validation on normalized data (TASK-026 through TASK-035)
     logger.info('Running data quality validation')
