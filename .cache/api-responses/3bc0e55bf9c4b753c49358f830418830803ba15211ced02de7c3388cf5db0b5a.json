@@ -1,0 +1,105 @@
+{
+  "data": {
+    "adult": false,
+    "backdrop_path": "/9gsDmPZcOkmIv2bolHMs3hQEO0r.jpg",
+    "created_by": [
+      {
+        "id": 1745,
+        "credit_id": "69c8a10b48a679e328c6871f",
+        "name": "Gene Roddenberry",
+        "original_name": "Gene Roddenberry",
+        "gender": 2,
+        "profile_path": "/qY3gWqAMDrrvNVUrwZ8lSa4IKtS.jpg"
+      }
+    ],
+    "episode_run_time": [],
+    "first_air_date": "2016-12-13",
+    "genres": [
+      {
+        "id": 99,
+        "name": "Documentary"
+      }
+    ],
+    "homepage": "",
+    "id": 317907,
+    "in_production": false,
+    "languages": ["en"],
+    "last_air_date": "2017-01-17",
+    "last_episode_to_air": {
+      "id": 7088618,
+      "name": "Swept Up - Snippets From The Cutting Room Floor",
+      "overview": "This special installment explores how the creative team behind Star Trek: The Original Series imagined and realized its most extraordinary worlds. Drawing from rare archival materials, concept art, unused effects footage, and behind‑the‑scenes production elements, the episode reveals how designers, directors, and visual‑effects pioneers pushed the boundaries of 1960s television. Historians and artists trace the evolution of iconic alien landscapes, starship interiors, and fantastical imagery, offering a vivid look at the ingenuity that helped define the franchise’s bold aesthetic.",
+      "vote_average": 0,
+      "vote_count": 0,
+      "air_date": "2017-01-17",
+      "episode_number": 6,
+      "episode_type": "standard",
+      "production_code": "",
+      "runtime": 21,
+      "season_number": 1,
+      "show_id": 317907,
+      "still_path": "/hjSRWAmF4zVy0Wa4dnkmpNx5Fb.jpg"
+    },
+    "name": "Star Trek: The Original Series – The Roddenberry Vault",
+    "next_episode_to_air": null,
+    "networks": [
+      {
+        "id": 16,
+        "logo_path": "/wju8KhOUsR5y4bH9p3Jc50hhaLO.png",
+        "name": "CBS",
+        "origin_country": "US"
+      }
+    ],
+    "number_of_episodes": 6,
+    "number_of_seasons": 1,
+    "origin_country": ["US"],
+    "original_language": "en",
+    "original_name": "Star Trek: The Original Series – The Roddenberry Vault",
+    "overview": "Fifty years after the original Star Trek first arrived on television, is there anything about Gene Roddenberry's space opera that hasn't been uncovered? Plenty! On December 13, 2016 fans can experience Star Trek: The Original Series - The Roddenberry Vault, a newly produced multi-part documentary featuring footage from the cutting room floor, long preserved in film canisters by the Roddenberry Estate. The origins of the classic series are explored with new interviews featuring cast and production personnel combined with newly-found deleted scenes, alternate angles, outtakes, behind the scenes moments, and original visual effects elements to tell the definitive story on the making and enduring legacy of Gene Roddenberry's creation.",
+    "popularity": 0.0714,
+    "poster_path": "/82HzzMvBBTjfZ5RI3SLKIPt3ih2.jpg",
+    "production_companies": [
+      {
+        "id": 51670,
+        "logo_path": "/sFDn8bWLh9sE2dPxaa0xUUYL6zS.png",
+        "name": "Roddenberry Entertainment",
+        "origin_country": "US"
+      },
+      {
+        "id": 293627,
+        "logo_path": "/hbPFa15qTiB9TBMElZr1wQ8jcZe.png",
+        "name": "CBS Home Entertainment",
+        "origin_country": ""
+      }
+    ],
+    "production_countries": [],
+    "seasons": [
+      {
+        "air_date": "2016-12-13",
+        "episode_count": 6,
+        "id": 507557,
+        "name": "Season 1",
+        "overview": "",
+        "poster_path": null,
+        "season_number": 1,
+        "vote_average": 0
+      }
+    ],
+    "spoken_languages": [
+      {
+        "english_name": "English",
+        "iso_639_1": "en",
+        "name": "English"
+      }
+    ],
+    "status": "Ended",
+    "tagline": "",
+    "type": "Scripted",
+    "vote_average": 0,
+    "vote_count": 0
+  },
+  "cachedAt": "2026-03-30T09:37:38.918Z",
+  "expiresAt": "2026-03-31T09:37:38.918Z",
+  "url": "https://api.themoviedb.org/3/tv/317907",
+  "key": "3bc0e55bf9c4b753c49358f830418830803ba15211ced02de7c3388cf5db0b5a"
+}
