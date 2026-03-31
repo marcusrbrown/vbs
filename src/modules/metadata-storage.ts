@@ -73,32 +73,35 @@ export interface MetadataStorageAdapterInstance {
 }
 
 /**
- * Enhanced IndexedDB adapter specifically for episode metadata with advanced caching features.
+ * Internal interface for the IndexedDB metadata adapter with additional methods
+ * beyond the base StorageAdapter for bulk operations and size estimation.
  */
-class MetadataIndexedDBAdapter implements StorageAdapter<EpisodeMetadata> {
-  private readonly dbName: string
-  private readonly storeName: string
-  private readonly version: number
-  private readonly options: StorageValidationOptions<EpisodeMetadata>
+interface MetadataIndexedDBAdapterInstance extends StorageAdapter<EpisodeMetadata> {
+  getAllEntries: () => Promise<EpisodeMetadata[]>
+  getStorageSize: () => Promise<number>
+}
 
-  constructor(
-    dbName: string,
-    storeName: string,
-    version: number,
-    options: StorageValidationOptions<EpisodeMetadata> = {},
-  ) {
-    this.dbName = dbName
-    this.storeName = storeName
-    this.version = version
-    this.options = {
-      validate: isValidEpisodeMetadata,
-      ...options,
-    }
+/**
+ * Factory function to create an enhanced IndexedDB adapter specifically for episode metadata
+ * with advanced caching features.
+ *
+ * Follows VBS functional factory architecture with closure-based state management.
+ * Replaces the former class-based MetadataIndexedDBAdapter.
+ */
+const createMetadataIndexedDBAdapter = (
+  dbName: string,
+  storeName: string,
+  version: number,
+  options: StorageValidationOptions<EpisodeMetadata> = {},
+): MetadataIndexedDBAdapterInstance => {
+  const resolvedOptions: StorageValidationOptions<EpisodeMetadata> = {
+    validate: isValidEpisodeMetadata,
+    ...options,
   }
 
-  private async openDB(): Promise<IDBDatabase> {
+  const openDB = (): Promise<IDBDatabase> => {
     return new Promise((resolve, reject) => {
-      const request = indexedDB.open(this.dbName, this.version)
+      const request = indexedDB.open(dbName, version)
 
       request.addEventListener('error', () =>
         reject(new Error('Failed to open metadata IndexedDB')),
@@ -107,8 +110,8 @@ class MetadataIndexedDBAdapter implements StorageAdapter<EpisodeMetadata> {
 
       request.addEventListener('upgradeneeded', event => {
         const db = (event.target as IDBOpenDBRequest).result
-        if (!db.objectStoreNames.contains(this.storeName)) {
-          const store = db.createObjectStore(this.storeName, {keyPath: 'episodeId'})
+        if (!db.objectStoreNames.contains(storeName)) {
+          const store = db.createObjectStore(storeName, {keyPath: 'episodeId'})
 
           // Create indexes for efficient querying
           store.createIndex('dataSource', 'dataSource', {unique: false})
@@ -120,12 +123,12 @@ class MetadataIndexedDBAdapter implements StorageAdapter<EpisodeMetadata> {
     })
   }
 
-  async save(_key: string, data: EpisodeMetadata): Promise<void> {
+  const save = async (_key: string, data: EpisodeMetadata): Promise<void> => {
     try {
-      const sanitizedData = this.options.sanitize ? this.options.sanitize(data) : data
-      const db = await this.openDB()
-      const transaction = db.transaction([this.storeName], 'readwrite')
-      const store = transaction.objectStore(this.storeName)
+      const sanitizedData = resolvedOptions.sanitize ? resolvedOptions.sanitize(data) : data
+      const db = await openDB()
+      const transaction = db.transaction([storeName], 'readwrite')
+      const store = transaction.objectStore(storeName)
 
       return new Promise((resolve, reject) => {
         const request = store.put(sanitizedData)
@@ -139,28 +142,28 @@ class MetadataIndexedDBAdapter implements StorageAdapter<EpisodeMetadata> {
     }
   }
 
-  async load(key: string): Promise<EpisodeMetadata | null> {
+  const load = async (key: string): Promise<EpisodeMetadata | null> => {
     try {
-      const db = await this.openDB()
-      const transaction = db.transaction([this.storeName], 'readonly')
-      const store = transaction.objectStore(this.storeName)
+      const db = await openDB()
+      const transaction = db.transaction([storeName], 'readonly')
+      const store = transaction.objectStore(storeName)
 
       return new Promise(resolve => {
         const request = store.get(key)
         request.addEventListener('error', () => {
           console.error('Error loading metadata from IndexedDB')
-          resolve(this.options.fallback ?? null)
+          resolve(resolvedOptions.fallback ?? null)
         })
         request.addEventListener('success', () => {
           const result = request.result
 
           if (result === undefined) {
-            return resolve(this.options.fallback ?? null)
+            return resolve(resolvedOptions.fallback ?? null)
           }
 
-          if (this.options.validate && !this.options.validate(result)) {
+          if (resolvedOptions.validate && !resolvedOptions.validate(result)) {
             console.warn(`Invalid metadata format for episode "${key}", using fallback`)
-            return resolve(this.options.fallback ?? null)
+            return resolve(resolvedOptions.fallback ?? null)
           }
 
           resolve(result as EpisodeMetadata)
@@ -168,14 +171,14 @@ class MetadataIndexedDBAdapter implements StorageAdapter<EpisodeMetadata> {
       })
     } catch (error) {
       console.error(`Error loading metadata from IndexedDB: ${error}`)
-      return this.options.fallback ?? null
+      return resolvedOptions.fallback ?? null
     }
   }
 
-  async remove(key: string): Promise<void> {
-    const db = await this.openDB()
-    const transaction = db.transaction([this.storeName], 'readwrite')
-    const store = transaction.objectStore(this.storeName)
+  const remove = async (key: string): Promise<void> => {
+    const db = await openDB()
+    const transaction = db.transaction([storeName], 'readwrite')
+    const store = transaction.objectStore(storeName)
 
     return new Promise((resolve, reject) => {
       const request = store.delete(key)
@@ -186,10 +189,10 @@ class MetadataIndexedDBAdapter implements StorageAdapter<EpisodeMetadata> {
     })
   }
 
-  async clear(): Promise<void> {
-    const db = await this.openDB()
-    const transaction = db.transaction([this.storeName], 'readwrite')
-    const store = transaction.objectStore(this.storeName)
+  const clear = async (): Promise<void> => {
+    const db = await openDB()
+    const transaction = db.transaction([storeName], 'readwrite')
+    const store = transaction.objectStore(storeName)
 
     return new Promise((resolve, reject) => {
       const request = store.clear()
@@ -200,11 +203,11 @@ class MetadataIndexedDBAdapter implements StorageAdapter<EpisodeMetadata> {
     })
   }
 
-  async exists(key: string): Promise<boolean> {
+  const exists = async (key: string): Promise<boolean> => {
     try {
-      const db = await this.openDB()
-      const transaction = db.transaction([this.storeName], 'readonly')
-      const store = transaction.objectStore(this.storeName)
+      const db = await openDB()
+      const transaction = db.transaction([storeName], 'readonly')
+      const store = transaction.objectStore(storeName)
 
       return new Promise(resolve => {
         const request = store.count(key)
@@ -216,11 +219,11 @@ class MetadataIndexedDBAdapter implements StorageAdapter<EpisodeMetadata> {
     }
   }
 
-  async getAllEntries(): Promise<EpisodeMetadata[]> {
+  const getAllEntries = async (): Promise<EpisodeMetadata[]> => {
     try {
-      const db = await this.openDB()
-      const transaction = db.transaction([this.storeName], 'readonly')
-      const store = transaction.objectStore(this.storeName)
+      const db = await openDB()
+      const transaction = db.transaction([storeName], 'readonly')
+      const store = transaction.objectStore(storeName)
 
       return new Promise((resolve, reject) => {
         const request = store.getAll()
@@ -235,15 +238,25 @@ class MetadataIndexedDBAdapter implements StorageAdapter<EpisodeMetadata> {
     }
   }
 
-  async getStorageSize(): Promise<number> {
+  const getStorageSize = async (): Promise<number> => {
     try {
       // Estimate storage usage based on JSON serialization
-      const allEntries = await this.getAllEntries()
+      const allEntries = await getAllEntries()
       const jsonString = JSON.stringify(allEntries)
       return new Blob([jsonString]).size
     } catch {
       return 0
     }
+  }
+
+  return {
+    save,
+    load,
+    remove,
+    clear,
+    exists,
+    getAllEntries,
+    getStorageSize,
   }
 }
 
@@ -255,7 +268,7 @@ export const createMetadataStorageAdapter = (
   config: MetadataStorageConfig,
 ): MetadataStorageAdapterInstance => {
   // Private state managed via closure
-  const adapter = new MetadataIndexedDBAdapter('StarTrekVBS', config.storeName, config.version, {
+  const adapter = createMetadataIndexedDBAdapter('StarTrekVBS', config.storeName, config.version, {
     validate: isValidEpisodeMetadata,
   })
 
