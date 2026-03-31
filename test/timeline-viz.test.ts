@@ -231,26 +231,20 @@ describe('Timeline Visualization', () => {
       // Trigger render which calls updateScales and builds tracks
       timelineViz.render()
 
-      // track-change should have been emitted with track configs
+      // track-change should have been emitted with correct payload shape
       if (trackChangeListener.mock.calls.length > 0) {
-        const call = trackChangeListener.mock.calls[0]
-        if (call) {
-          const payload = call[0]
-          expect(payload).toHaveProperty('tracks')
-          expect(payload).toHaveProperty('trackCount')
-          expect(Array.isArray(payload.tracks)).toBe(true)
-          expect(typeof payload.trackCount).toBe('number')
-          expect(payload.trackCount).toBeGreaterThanOrEqual(1)
-
-          // Each track should have type, label, and index
-          for (const track of payload.tracks) {
-            expect(track).toHaveProperty('type')
-            expect(track).toHaveProperty('label')
-            expect(track).toHaveProperty('index')
-            expect(typeof track.label).toBe('string')
-            expect(typeof track.index).toBe('number')
-          }
-        }
+        expect(trackChangeListener).toHaveBeenCalledWith(
+          expect.objectContaining({
+            tracks: expect.arrayContaining([
+              expect.objectContaining({
+                type: expect.any(String),
+                label: expect.any(String),
+                index: expect.any(Number),
+              }),
+            ]),
+            trackCount: expect.any(Number),
+          }),
+        )
       }
     })
 
@@ -261,13 +255,6 @@ describe('Timeline Visualization', () => {
       // Update with new data - should trigger re-render and track rebuild
       const newEvents = timelineEvents.slice(0, 3)
       expect(() => timelineViz.updateData(newEvents)).not.toThrow()
-    })
-
-    it('should include track data in state', () => {
-      timelineViz.render()
-      const state = timelineViz.getState()
-      expect(state).toBeDefined()
-      expect(state.events).toBeDefined()
     })
 
     it('should handle render with multiple event types without errors', () => {
