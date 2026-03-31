@@ -4,11 +4,13 @@ import type {
   TimelineConfig,
   TimelineEvent,
   TimelineEvents,
+  TimelineEventType,
   TimelineInteraction,
   TimelineLayout,
   TimelinePerformanceConfig,
   TimelinePerformanceMetrics,
   TimelineVisualizationInstance,
+  TrackConfig,
 } from './types.js'
 
 import * as d3 from 'd3'
@@ -152,6 +154,39 @@ export const createTimelineVisualization = <TContainer extends HTMLElement>(
   const handleEventLeave = (): void => {
     delete interaction.hoveredEventId
     eventEmitter.emit('event-hover', {eventId: '', event: null})
+  }
+
+  // Event type display labels for track lanes
+  const EVENT_TYPE_LABELS: Record<TimelineEventType, string> = {
+    series: 'Series',
+    movie: 'Movies',
+    animated: 'Animated',
+    galactic_event: 'Galactic Events',
+    first_contact: 'First Contact',
+    war: 'Wars',
+    technology: 'Technology',
+    political: 'Political',
+    exploration: 'Exploration',
+  }
+
+  // Track allocation state
+  let tracks: TrackConfig[] = []
+
+  // Build track configuration from visible event types
+  const buildTracks = (filteredEvents: TimelineEvent[]): TrackConfig[] => {
+    const uniqueTypes = [...new Set(filteredEvents.map(e => e.type))]
+    return uniqueTypes.map((type, index) => ({
+      type,
+      label: EVENT_TYPE_LABELS[type],
+      index,
+    }))
+  }
+
+  // Get the Y coordinate center for an event based on its track assignment
+  const getEventTrackY = (event: TimelineEvent): number => {
+    const track = tracks.find(t => t.type === event.type)
+    const trackIndex = track ? track.index : 0
+    return trackIndex * (layout.trackHeight + layout.trackSpacing) + layout.trackHeight / 2
   }
 
   // Performance monitoring utilities
@@ -301,7 +336,7 @@ export const createTimelineVisualization = <TContainer extends HTMLElement>(
 
     for (const event of filteredEvents) {
       const eventX = xScale(event.date) + layout.margin.left
-      const eventY = layout.trackHeight / 2 + layout.margin.top
+      const eventY = getEventTrackY(event) + layout.margin.top
 
       const distance = Math.hypot(x - eventX, y - eventY)
 
@@ -416,7 +451,7 @@ export const createTimelineVisualization = <TContainer extends HTMLElement>(
     if (!canvasContext) return
 
     const x = xScale(event.date) + layout.margin.left
-    const y = layout.trackHeight / 2 + layout.margin.top
+    const y = getEventTrackY(event) + layout.margin.top
     const radius = layout.markerSize.width / 2
 
     // Apply zoom and pan transform
@@ -562,9 +597,18 @@ export const createTimelineVisualization = <TContainer extends HTMLElement>(
     const dateExtent = d3.extent(filteredEvents, d => d.date) as [Date, Date]
     xScale.domain(dateExtent)
 
-    // Update y-scale domain based on tracks (for now, single track)
-    const trackCount = 1 // TODO: Multiple tracks for different event types
+    // Build tracks from unique event types in the filtered data
+    const newTracks = buildTracks(filteredEvents)
+    const tracksChanged =
+      newTracks.length !== tracks.length || newTracks.some((t, i) => t.type !== tracks[i]?.type)
+    tracks = newTracks
+
+    const trackCount = Math.max(1, tracks.length)
     yScale.domain([0, trackCount])
+
+    if (tracksChanged) {
+      eventEmitter.emit('track-change', {tracks, trackCount})
+    }
   }, 'Failed to update timeline scales')
 
   // Render timeline events
@@ -583,7 +627,7 @@ export const createTimelineVisualization = <TContainer extends HTMLElement>(
       .attr('class', 'event-marker')
       .attr('r', layout.markerSize.width / 2)
       .attr('cx', d => xScale(d.date))
-      .attr('cy', layout.trackHeight / 2)
+      .attr('cy', d => getEventTrackY(d))
       .style('fill', d => {
         const baseColor = d.metadata?.color || '#2196F3'
         // Dim unwatched events and brighten watched events
@@ -626,7 +670,7 @@ export const createTimelineVisualization = <TContainer extends HTMLElement>(
       .append('text')
       .attr('class', 'progress-indicator')
       .attr('x', d => xScale(d.date))
-      .attr('y', layout.trackHeight / 2 + 5)
+      .attr('y', d => getEventTrackY(d) + 5)
       .attr('text-anchor', 'middle')
       .style('font-size', '12px')
       .style('fill', '#4CAF50')
@@ -650,7 +694,7 @@ export const createTimelineVisualization = <TContainer extends HTMLElement>(
       .append('text')
       .attr('class', 'event-label')
       .attr('x', d => xScale(d.date))
-      .attr('y', layout.trackHeight / 2 - 15)
+      .attr('y', d => getEventTrackY(d) - 15)
       .attr('text-anchor', 'middle')
       .style('font', layout.fonts.body)
       .style('fill', d => (d.isWatched ? '#333' : '#666'))
@@ -688,7 +732,7 @@ export const createTimelineVisualization = <TContainer extends HTMLElement>(
       .attr('transform', `translate(0, ${chartHeight})`)
       .call(xAxis as any)
 
-    // Y-axis (tracks) - minimal for now
+    // Y-axis (tracks) - show track labels
     const yAxis = d3.axisLeft(yScale).tickValues([])
 
     chartGroup
@@ -697,7 +741,61 @@ export const createTimelineVisualization = <TContainer extends HTMLElement>(
       .join('g')
       .attr('class', 'y-axis')
       .call(yAxis as any)
+
+    // Track labels on the left side
+    const trackLabels = chartGroup
+      .selectAll<SVGTextElement, TrackConfig>('.track-label')
+      .data(tracks, d => d.type)
+
+    trackLabels
+      .enter()
+      .append('text')
+      .attr('class', 'track-label')
+      .attr('x', -10)
+      .attr('y', d => d.index * (layout.trackHeight + layout.trackSpacing) + layout.trackHeight / 2)
+      .attr('text-anchor', 'end')
+      .attr('dominant-baseline', 'middle')
+      .style('font', layout.fonts.subtitle)
+      .style('fill', '#555')
+      .text(d => d.label)
+
+    trackLabels
+      .transition()
+      .duration(300)
+      .attr('y', d => d.index * (layout.trackHeight + layout.trackSpacing) + layout.trackHeight / 2)
+      .text(d => d.label)
+
+    trackLabels.exit().remove()
   }, 'Failed to render timeline axes')
+
+  // Render track lane backgrounds for visual separation
+  const renderTrackLanes = withSyncErrorHandling((): void => {
+    const chartWidth = layout.width - layout.margin.left - layout.margin.right
+
+    const trackLanes = chartGroup
+      .selectAll<SVGRectElement, TrackConfig>('.track-lane')
+      .data(tracks, d => d.type)
+
+    trackLanes
+      .enter()
+      .append('rect')
+      .attr('class', 'track-lane')
+      .attr('x', 0)
+      .attr('y', d => d.index * (layout.trackHeight + layout.trackSpacing))
+      .attr('width', chartWidth)
+      .attr('height', layout.trackHeight)
+      .style('fill', d => (d.index % 2 === 0 ? 'rgba(0, 0, 0, 0.03)' : 'rgba(0, 0, 0, 0.07)'))
+      .style('stroke', 'none')
+
+    trackLanes
+      .transition()
+      .duration(300)
+      .attr('y', d => d.index * (layout.trackHeight + layout.trackSpacing))
+      .attr('width', chartWidth)
+      .attr('height', layout.trackHeight)
+
+    trackLanes.exit().remove()
+  }, 'Failed to render track lanes')
 
   // Progress integration functions
   const updateEventWatchStatus = (): void => {
@@ -731,6 +829,7 @@ export const createTimelineVisualization = <TContainer extends HTMLElement>(
     } else {
       if (!svg) initializeVisualization()
       updateScales()
+      renderTrackLanes()
       renderAxes()
       renderEvents()
     }
