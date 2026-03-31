@@ -600,8 +600,7 @@ export const createTimelineVisualization = <TContainer extends HTMLElement>(
     // Build tracks from unique event types in the filtered data
     const newTracks = buildTracks(filteredEvents)
     const tracksChanged =
-      newTracks.length !== tracks.length ||
-      newTracks.some((t, i) => t.type !== tracks[i]?.type || t.index !== tracks[i]?.index)
+      newTracks.length !== tracks.length || newTracks.some((t, i) => t.type !== tracks[i]?.type)
     tracks = newTracks
 
     const trackCount = Math.max(1, tracks.length)
