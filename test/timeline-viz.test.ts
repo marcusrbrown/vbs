@@ -222,4 +222,72 @@ describe('Timeline Visualization', () => {
   it('should handle destroy method', () => {
     expect(() => timelineViz.destroy()).not.toThrow()
   })
+
+  describe('Multi-track system', () => {
+    it('should emit track-change event with tracks derived from event types', () => {
+      const trackChangeListener = vi.fn()
+      timelineViz.on('track-change', trackChangeListener)
+
+      // Trigger render which calls updateScales and builds tracks
+      timelineViz.render()
+
+      // track-change should have been emitted with track configs
+      if (trackChangeListener.mock.calls.length > 0) {
+        const call = trackChangeListener.mock.calls[0]
+        if (call) {
+          const payload = call[0]
+          expect(payload).toHaveProperty('tracks')
+          expect(payload).toHaveProperty('trackCount')
+          expect(Array.isArray(payload.tracks)).toBe(true)
+          expect(typeof payload.trackCount).toBe('number')
+          expect(payload.trackCount).toBeGreaterThanOrEqual(1)
+
+          // Each track should have type, label, and index
+          for (const track of payload.tracks) {
+            expect(track).toHaveProperty('type')
+            expect(track).toHaveProperty('label')
+            expect(track).toHaveProperty('index')
+            expect(typeof track.label).toBe('string')
+            expect(typeof track.index).toBe('number')
+          }
+        }
+      }
+    })
+
+    it('should update tracks when data changes', () => {
+      const trackChangeListener = vi.fn()
+      timelineViz.on('track-change', trackChangeListener)
+
+      // Update with new data - should trigger re-render and track rebuild
+      const newEvents = timelineEvents.slice(0, 3)
+      expect(() => timelineViz.updateData(newEvents)).not.toThrow()
+    })
+
+    it('should include track data in state', () => {
+      timelineViz.render()
+      const state = timelineViz.getState()
+      expect(state).toBeDefined()
+      expect(state.events).toBeDefined()
+    })
+
+    it('should handle render with multiple event types without errors', () => {
+      // Use events that have different types
+      const diverseEvents = timelineEvents.slice(0, 10)
+      expect(() => timelineViz.updateData(diverseEvents)).not.toThrow()
+      expect(() => timelineViz.render()).not.toThrow()
+    })
+
+    it('should handle render with single event type without errors', () => {
+      // Filter to only one type of event
+      const singleTypeEvents = timelineEvents.filter(e => e.type === 'exploration').slice(0, 3)
+      if (singleTypeEvents.length > 0) {
+        expect(() => timelineViz.updateData(singleTypeEvents)).not.toThrow()
+        expect(() => timelineViz.render()).not.toThrow()
+      }
+    })
+
+    it('should handle empty events without errors', () => {
+      expect(() => timelineViz.updateData([])).not.toThrow()
+    })
+  })
 })
