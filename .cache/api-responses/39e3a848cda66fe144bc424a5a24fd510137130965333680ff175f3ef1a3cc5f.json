@@ -1,0 +1,29 @@
+{
+  "data": {
+    "page": 1,
+    "results": [
+      {
+        "adult": false,
+        "backdrop_path": "/meqmvZjKpQ7WRhpZvIoKIAvioSD.jpg",
+        "genre_ids": [28, 12, 878, 53],
+        "id": 154,
+        "original_language": "en",
+        "original_title": "Star Trek II: The Wrath of Khan",
+        "overview": "The starship Enterprise and its crew is pulled back into action when old nemesis, Khan, steals a top secret device called Project Genesis.",
+        "popularity": 4.4639,
+        "poster_path": "/uPyLsKl8Z0LOoxeaFXsY5MxhR5s.jpg",
+        "release_date": "1982-06-04",
+        "title": "Star Trek II: The Wrath of Khan",
+        "video": false,
+        "vote_average": 7.449,
+        "vote_count": 2097
+      }
+    ],
+    "total_pages": 1,
+    "total_results": 1
+  },
+  "cachedAt": "2026-03-30T09:37:41.176Z",
+  "expiresAt": "2026-03-31T09:37:41.176Z",
+  "url": "https://api.themoviedb.org/3/search/movie?query=Star%20Trek%20II%3A%20The%20Wrath%20of%20Khan",
+  "key": "39e3a848cda66fe144bc424a5a24fd510137130965333680ff175f3ef1a3cc5f"
+}

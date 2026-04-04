@@ -1,0 +1,29 @@
+{
+  "data": {
+    "page": 1,
+    "results": [
+      {
+        "adult": false,
+        "backdrop_path": "/6z9w8eidKWDDXwZNSVNaRolAYEP.jpg",
+        "genre_ids": [878, 28, 12, 53],
+        "id": 201,
+        "original_language": "en",
+        "original_title": "Star Trek: Nemesis",
+        "overview": "En route to the honeymoon of William Riker to Deanna Troi on her home planet of Betazed, Captain Jean-Luc Picard and the crew of the U.S.S. Enterprise receives word from Starfleet that a coup has resulted in the installation of a new Romulan political leader, Shinzon, who claims to seek peace with the human-backed United Federation of Planets. Once in enemy territory, the captain and his crew make a startling discovery: Shinzon is human, a slave from the Romulan sister planet of Remus, and has a secret, shocking relationship to Picard himself.",
+        "popularity": 3.8406,
+        "poster_path": "/cldAwhvBmOv9jrd3bXWuqRHoXyq.jpg",
+        "release_date": "2002-12-13",
+        "title": "Star Trek: Nemesis",
+        "video": false,
+        "vote_average": 6.297,
+        "vote_count": 1559
+      }
+    ],
+    "total_pages": 1,
+    "total_results": 1
+  },
+  "cachedAt": "2026-03-30T09:37:42.035Z",
+  "expiresAt": "2026-03-31T09:37:42.035Z",
+  "url": "https://api.themoviedb.org/3/search/movie?query=Star%20Trek%3A%20Nemesis",
+  "key": "5c9a33bf2409834f94d09ecbc646d93ebdca0dfcfde8ee5c9199cfd26387b54a"
+}
