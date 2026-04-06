@@ -1,0 +1,198 @@
+{
+  "data": {
+    "adult": false,
+    "backdrop_path": "/kG7GwGBHpCI6lA6SaEydKHHOxkU.jpg",
+    "created_by": [
+      {
+        "id": 2166845,
+        "credit_id": "5c414c680e0a2655c49387ff",
+        "name": "Mike McMahan",
+        "original_name": "Mike McMahan",
+        "gender": 2,
+        "profile_path": "/xA65ktEUSlDNJ5AYqcnM0xinJF5.jpg"
+      }
+    ],
+    "episode_run_time": [27],
+    "first_air_date": "2020-08-06",
+    "genres": [
+      {
+        "id": 10765,
+        "name": "Sci-Fi & Fantasy"
+      },
+      {
+        "id": 16,
+        "name": "Animation"
+      },
+      {
+        "id": 35,
+        "name": "Comedy"
+      }
+    ],
+    "homepage": "https://www.paramountplus.com/shows/star-trek-lower-decks/",
+    "id": 85948,
+    "in_production": false,
+    "languages": ["en"],
+    "last_air_date": "2024-12-19",
+    "last_episode_to_air": {
+      "id": 5501769,
+      "name": "The New Next Generation (2)",
+      "overview": "Season finale where lots of wild stuff happens!",
+      "vote_average": 8.4,
+      "vote_count": 9,
+      "air_date": "2024-12-19",
+      "episode_number": 10,
+      "episode_type": "finale",
+      "production_code": "",
+      "runtime": 34,
+      "season_number": 5,
+      "show_id": 85948,
+      "still_path": "/1gCainIaYfxn7Sh3cGljmj0wwvV.jpg"
+    },
+    "name": "Star Trek: Lower Decks",
+    "next_episode_to_air": null,
+    "networks": [
+      {
+        "id": 1709,
+        "logo_path": "/rSWD2WoY26KJmOw7QHvZjC5OEWG.png",
+        "name": "CBS All Access",
+        "origin_country": "US"
+      },
+      {
+        "id": 4330,
+        "logo_path": "/fi83B1oztoS47xxcemFdPMhIzK.png",
+        "name": "Paramount+",
+        "origin_country": "US"
+      }
+    ],
+    "number_of_episodes": 50,
+    "number_of_seasons": 5,
+    "origin_country": ["US"],
+    "original_language": "en",
+    "original_name": "Star Trek: Lower Decks",
+    "overview": "The lives of the support crew serving on one of Starfleet's least important ships, the U.S.S. Cerritos, in 2380. Ensigns Mariner, Boimler, Rutherford and Tendi have to keep up with their duties and their social lives, often while the ship is being rocked by a multitude of sci-fi anomalies.",
+    "popularity": 18.9728,
+    "poster_path": "/i7Em3r7KCyNfkOwMkyqN8UMvK8S.jpg",
+    "production_companies": [
+      {
+        "id": 51670,
+        "logo_path": "/sFDn8bWLh9sE2dPxaa0xUUYL6zS.png",
+        "name": "Roddenberry Entertainment",
+        "origin_country": "US"
+      },
+      {
+        "id": 90517,
+        "logo_path": "/uq7itRpnnb1LX1VDDaJg64pKFmT.png",
+        "name": "Secret Hideout",
+        "origin_country": "US"
+      },
+      {
+        "id": 137359,
+        "logo_path": "/duSwrfPRKBl9aamUErJcOCH2osW.png",
+        "name": "219 Productions",
+        "origin_country": "US"
+      },
+      {
+        "id": 219756,
+        "logo_path": "/h60RNbOWoCCzmG64brLN7Lohfta.png",
+        "name": "Important Science",
+        "origin_country": "US"
+      },
+      {
+        "id": 4152,
+        "logo_path": "/v4eshD4MhQ1gBOBptaYTIuUzzaG.png",
+        "name": "Titmouse",
+        "origin_country": "US"
+      },
+      {
+        "id": 1081,
+        "logo_path": "/19kn4jVvpc3sAL3YpZNb3elhSMl.png",
+        "name": "CBS Studios",
+        "origin_country": "US"
+      }
+    ],
+    "production_countries": [
+      {
+        "iso_3166_1": "US",
+        "name": "United States of America"
+      }
+    ],
+    "seasons": [
+      {
+        "air_date": "2020-07-23",
+        "episode_count": 50,
+        "id": 158287,
+        "name": "Specials",
+        "overview": "Special installments of the series.",
+        "poster_path": "/rp4BLYCFUZA0fnIJF17TatdfscN.jpg",
+        "season_number": 0,
+        "vote_average": 0
+      },
+      {
+        "air_date": "2020-08-06",
+        "episode_count": 10,
+        "id": 116903,
+        "name": "Season 1",
+        "overview": "Meet the USS Cerritos and its quirky lower-deck crew as they tackle second-contact missions and unexpected challenges. The season blends humor with heartfelt moments, showcasing the crew's camaraderie and their unique approach to Starfleet duties.",
+        "poster_path": "/115b8vxm1DhFqzU8zVp1AjiHpoY.jpg",
+        "season_number": 1,
+        "vote_average": 7.3
+      },
+      {
+        "air_date": "2021-08-12",
+        "episode_count": 10,
+        "id": 189309,
+        "name": "Season 2",
+        "overview": "Follow the support crew on one of Starfleet's least important ships, the U.S.S. Cerritos, in 2380. Ensigns Mariner, Boimler, Rutherford and Tendi have to keep up with their duties and their social lives, often while the ship is being rocked by a multitude of sci-fi anomalies.",
+        "poster_path": "/gw6PbZmwu46ZlWqQXbmUCuMXUzP.jpg",
+        "season_number": 2,
+        "vote_average": 7.6
+      },
+      {
+        "air_date": "2022-08-25",
+        "episode_count": 10,
+        "id": 287050,
+        "name": "Season 3",
+        "overview": "Season three challenges the U.S.S. Cerritos ensigns in (hilarious) ways they could never imagine, starting with a shocking resolution for season two’s epic cliffhanger finale.",
+        "poster_path": "/aNnbTh6w4jtuKVXN3pI5IOvjrcG.jpg",
+        "season_number": 3,
+        "vote_average": 7.6
+      },
+      {
+        "air_date": "2023-09-07",
+        "episode_count": 10,
+        "id": 349749,
+        "name": "Season 4",
+        "overview": "The fourth season of Star Trek: Lower Decks finds the U.S.S. Cerritos ensigns being challenged in new ways and given new opportunities, while also learning they’ll be “lower decks” for a long time to come.",
+        "poster_path": "/pwnAsk9i1wmXWOjqCDn4r5bRxIt.jpg",
+        "season_number": 4,
+        "vote_average": 7.3
+      },
+      {
+        "air_date": "2024-10-24",
+        "episode_count": 10,
+        "id": 404216,
+        "name": "Season 5",
+        "overview": "In season five, the crew of the U.S.S. Cerritos is tasked with closing \"space potholes\" – subspace rifts that are causing chaos in the Alpha Quadrant. Pothole duty would be easy for Junior Officers Mariner, Boimler, Tendi and Rutherford ... If they didn't also have to deal with an Orion war, furious Klingons, diplomatic catastrophes, murder mysteries and scariest of all: their own career aspirations.",
+        "poster_path": "/gKfusipzJyKm2zn99I2Alr3ETX3.jpg",
+        "season_number": 5,
+        "vote_average": 7.5
+      }
+    ],
+    "spoken_languages": [
+      {
+        "english_name": "English",
+        "iso_639_1": "en",
+        "name": "English"
+      }
+    ],
+    "status": "Ended",
+    "tagline": "The adventure begins when their shift ends.",
+    "type": "Scripted",
+    "vote_average": 7.618,
+    "vote_count": 428
+  },
+  "cachedAt": "2026-04-06T09:34:03.472Z",
+  "expiresAt": "2026-04-07T09:34:03.472Z",
+  "url": "https://api.themoviedb.org/3/tv/85948",
+  "key": "7877121764819f256b7e590db8200a397a3ddac656cca9b72c38690ed84d074b"
+}

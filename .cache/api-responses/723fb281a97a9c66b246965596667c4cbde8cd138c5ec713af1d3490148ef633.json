@@ -1,0 +1,29 @@
+{
+  "data": {
+    "page": 1,
+    "results": [
+      {
+        "adult": false,
+        "backdrop_path": "/lodNd9ITHf32q8ybHArHqoWOcXf.jpg",
+        "genre_ids": [10765, 10759, 18],
+        "id": 85949,
+        "origin_country": ["US"],
+        "original_language": "en",
+        "original_name": "Star Trek: Picard",
+        "overview": "Set twenty years after the events of Star Trek Nemesis, we follow the now-retired Admiral Picard into the next chapter of his life.",
+        "popularity": 25.6674,
+        "poster_path": "/nIlAKIrLKxOeoEnc0Urb65yNCp.jpg",
+        "first_air_date": "2020-01-23",
+        "name": "Star Trek: Picard",
+        "vote_average": 7.258,
+        "vote_count": 1864
+      }
+    ],
+    "total_pages": 1,
+    "total_results": 1
+  },
+  "cachedAt": "2026-04-06T09:34:03.403Z",
+  "expiresAt": "2026-04-07T09:34:03.403Z",
+  "url": "https://api.themoviedb.org/3/search/tv?query=Star%20Trek%3A%20Picard",
+  "key": "723fb281a97a9c66b246965596667c4cbde8cd138c5ec713af1d3490148ef633"
+}
