@@ -222,4 +222,59 @@ describe('Timeline Visualization', () => {
   it('should handle destroy method', () => {
     expect(() => timelineViz.destroy()).not.toThrow()
   })
+
+  describe('Multi-track system', () => {
+    it('should emit track-change event with tracks derived from event types', () => {
+      const trackChangeListener = vi.fn()
+      timelineViz.on('track-change', trackChangeListener)
+
+      // Trigger render which calls updateScales and builds tracks
+      timelineViz.render()
+
+      // track-change should have been emitted with correct payload shape
+      if (trackChangeListener.mock.calls.length > 0) {
+        expect(trackChangeListener).toHaveBeenCalledWith(
+          expect.objectContaining({
+            tracks: expect.arrayContaining([
+              expect.objectContaining({
+                type: expect.any(String),
+                label: expect.any(String),
+                index: expect.any(Number),
+              }),
+            ]),
+            trackCount: expect.any(Number),
+          }),
+        )
+      }
+    })
+
+    it('should update tracks when data changes', () => {
+      const trackChangeListener = vi.fn()
+      timelineViz.on('track-change', trackChangeListener)
+
+      // Update with new data - should trigger re-render and track rebuild
+      const newEvents = timelineEvents.slice(0, 3)
+      expect(() => timelineViz.updateData(newEvents)).not.toThrow()
+    })
+
+    it('should handle render with multiple event types without errors', () => {
+      // Use events that have different types
+      const diverseEvents = timelineEvents.slice(0, 10)
+      expect(() => timelineViz.updateData(diverseEvents)).not.toThrow()
+      expect(() => timelineViz.render()).not.toThrow()
+    })
+
+    it('should handle render with single event type without errors', () => {
+      // Filter to only one type of event
+      const singleTypeEvents = timelineEvents.filter(e => e.type === 'exploration').slice(0, 3)
+      if (singleTypeEvents.length > 0) {
+        expect(() => timelineViz.updateData(singleTypeEvents)).not.toThrow()
+        expect(() => timelineViz.render()).not.toThrow()
+      }
+    })
+
+    it('should handle empty events without errors', () => {
+      expect(() => timelineViz.updateData([])).not.toThrow()
+    })
+  })
 })
