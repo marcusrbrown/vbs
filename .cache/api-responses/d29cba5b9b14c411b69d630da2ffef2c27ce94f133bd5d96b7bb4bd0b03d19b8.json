@@ -1,0 +1,45 @@
+{
+  "data": {
+    "page": 1,
+    "results": [
+      {
+        "adult": false,
+        "backdrop_path": "/9gsDmPZcOkmIv2bolHMs3hQEO0r.jpg",
+        "genre_ids": [99],
+        "id": 317907,
+        "origin_country": ["US"],
+        "original_language": "en",
+        "original_name": "Star Trek: The Original Series – The Roddenberry Vault",
+        "overview": "Fifty years after the original Star Trek first arrived on television, is there anything about Gene Roddenberry's space opera that hasn't been uncovered? Plenty! On December 13, 2016 fans can experience Star Trek: The Original Series - The Roddenberry Vault, a newly produced multi-part documentary featuring footage from the cutting room floor, long preserved in film canisters by the Roddenberry Estate. The origins of the classic series are explored with new interviews featuring cast and production personnel combined with newly-found deleted scenes, alternate angles, outtakes, behind the scenes moments, and original visual effects elements to tell the definitive story on the making and enduring legacy of Gene Roddenberry's creation.",
+        "popularity": 0.2673,
+        "poster_path": "/82HzzMvBBTjfZ5RI3SLKIPt3ih2.jpg",
+        "first_air_date": "2016-12-13",
+        "name": "Star Trek: The Original Series – The Roddenberry Vault",
+        "vote_average": 0,
+        "vote_count": 0
+      },
+      {
+        "adult": false,
+        "backdrop_path": "/ywK4VrR7vL56mDGXDLMtFypwqA8.jpg",
+        "genre_ids": [10765, 18],
+        "id": 253,
+        "origin_country": ["US"],
+        "original_language": "en",
+        "original_name": "Star Trek",
+        "overview": "Space. The Final Frontier. The U.S.S. Enterprise embarks on a five year mission to explore the galaxy. The Enterprise is under the command of Captain James T. Kirk with First Officer Mr. Spock, from the planet Vulcan. With a determined crew, the Enterprise encounters Klingons, Romulans, time paradoxes, tribbles and genetic supermen led by Khan Noonian Singh. Their mission is to explore strange new worlds, to seek new life and new civilizations, and to boldly go where no man has gone before.",
+        "popularity": 54.9247,
+        "poster_path": "/bPsxOpHVpVCX3hFz2fxnF1Vz3Dj.jpg",
+        "first_air_date": "1966-09-08",
+        "name": "Star Trek",
+        "vote_average": 8.004,
+        "vote_count": 1464
+      }
+    ],
+    "total_pages": 1,
+    "total_results": 2
+  },
+  "cachedAt": "2026-04-20T09:40:59.830Z",
+  "expiresAt": "2026-04-21T09:40:59.830Z",
+  "url": "https://api.themoviedb.org/3/search/tv?query=Star%20Trek%3A%20The%20Original%20Series",
+  "key": "d29cba5b9b14c411b69d630da2ffef2c27ce94f133bd5d96b7bb4bd0b03d19b8"
+}
