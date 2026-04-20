@@ -1,0 +1,144 @@
+{
+  "data": {
+    "adult": false,
+    "backdrop_path": "/n25Wk2skU5DqAqWdHkL6quI11mz.jpg",
+    "created_by": [
+      {
+        "id": 1745,
+        "credit_id": "52571e4019c2957114103cf5",
+        "name": "Gene Roddenberry",
+        "original_name": "Gene Roddenberry",
+        "gender": 2,
+        "profile_path": "/qY3gWqAMDrrvNVUrwZ8lSa4IKtS.jpg"
+      }
+    ],
+    "episode_run_time": [24],
+    "first_air_date": "1973-09-08",
+    "genres": [
+      {
+        "id": 16,
+        "name": "Animation"
+      },
+      {
+        "id": 18,
+        "name": "Drama"
+      },
+      {
+        "id": 10765,
+        "name": "Sci-Fi & Fantasy"
+      }
+    ],
+    "homepage": "https://intl.startrek.com/shows/star-trek-the-animated-series",
+    "id": 1992,
+    "in_production": false,
+    "languages": ["en"],
+    "last_air_date": "1974-10-12",
+    "last_episode_to_air": {
+      "id": 136187,
+      "name": "The Counter-Clock Incident",
+      "overview": "Stardate: 6770.3\n\nWith Commodore Robert April (the first commander of the Enterprise) on board, Kirk pursues a ship plunging into a supernova, and enters a universe where time runs backwards.",
+      "vote_average": 7.6,
+      "vote_count": 5,
+      "air_date": "1974-10-12",
+      "episode_number": 6,
+      "episode_type": "finale",
+      "production_code": "22023",
+      "runtime": 24,
+      "season_number": 2,
+      "show_id": 1992,
+      "still_path": "/4u3gH6PjmgtQ3ctokVRHiP74Av4.jpg"
+    },
+    "name": "Star Trek",
+    "next_episode_to_air": null,
+    "networks": [
+      {
+        "id": 6,
+        "logo_path": "/cm111bsDVlYaC1foL0itvEI4yLG.png",
+        "name": "NBC",
+        "origin_country": "US"
+      }
+    ],
+    "number_of_episodes": 22,
+    "number_of_seasons": 2,
+    "origin_country": ["US"],
+    "original_language": "en",
+    "original_name": "Star Trek",
+    "overview": "The animated adventures of Captain Kirk, Mr. Spock and the crew of the Starship Enterprise.",
+    "popularity": 5.3868,
+    "poster_path": "/kvWG0bsLVQt23gZO6DI1mPosLxZ.jpg",
+    "production_companies": [
+      {
+        "id": 9223,
+        "logo_path": "/40qzTBM38vokoWhLKurficZ5syV.png",
+        "name": "Paramount Television",
+        "origin_country": "US"
+      },
+      {
+        "id": 1506,
+        "logo_path": "/kn81D1txpA73a90z7CWJPvlP6iP.png",
+        "name": "Filmation Associates",
+        "origin_country": "US"
+      },
+      {
+        "id": 41097,
+        "logo_path": null,
+        "name": "Norway Productions",
+        "origin_country": ""
+      }
+    ],
+    "production_countries": [
+      {
+        "iso_3166_1": "US",
+        "name": "United States of America"
+      }
+    ],
+    "seasons": [
+      {
+        "air_date": "2006-11-21",
+        "episode_count": 2,
+        "id": 5914,
+        "name": "Specials",
+        "overview": "",
+        "poster_path": "/wm1cTmaZs67i9itYODuQ0U9Fe3y.jpg",
+        "season_number": 0,
+        "vote_average": 0
+      },
+      {
+        "air_date": "1973-09-08",
+        "episode_count": 16,
+        "id": 5912,
+        "name": "Season 1",
+        "overview": "",
+        "poster_path": "/4HzSH3fsCqA09HEXSyQNmtD5MhY.jpg",
+        "season_number": 1,
+        "vote_average": 7.1
+      },
+      {
+        "air_date": "1974-09-07",
+        "episode_count": 6,
+        "id": 5913,
+        "name": "Season 2",
+        "overview": "",
+        "poster_path": "/wiRoqHvTUNeBGbVRWkpAkAJGreQ.jpg",
+        "season_number": 2,
+        "vote_average": 7.1
+      }
+    ],
+    "spoken_languages": [
+      {
+        "english_name": "English",
+        "iso_639_1": "en",
+        "name": "English"
+      }
+    ],
+    "status": "Ended",
+    "tagline": "",
+    "type": "Scripted",
+    "vote_average": 6.787,
+    "vote_count": 169
+  },
+  "cachedAt": "2026-04-20T09:41:00.037Z",
+  "expiresAt": "2026-04-21T09:41:00.037Z",
+  "url": "https://api.themoviedb.org/3/tv/1992",
+  "key": "15eecdb5446cc12d51a0df3bf10c9a335081a0d8fb6c471ecd4542dbff75fe9e"
+}

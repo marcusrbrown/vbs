@@ -1,0 +1,29 @@
+{
+  "data": {
+    "page": 1,
+    "results": [
+      {
+        "adult": false,
+        "backdrop_path": "/nmT2Tgk9TZlYDCciQdQ4HI5rytl.jpg",
+        "genre_ids": [16, 10765, 10762],
+        "id": 106393,
+        "origin_country": ["US"],
+        "original_language": "en",
+        "original_name": "Star Trek: Prodigy",
+        "overview": "A motley crew of young rebellious aliens commandeer an old Starfleet ship and must figure out how to work together while navigating a greater galaxy, in search for a better future. These six young outcasts know nothing about the ship they have commandeered, but over the course of their adventures together, they will each be introduced to Starfleet and the ideals it represents.",
+        "popularity": 10.4981,
+        "poster_path": "/Aqub3PSzLm2F398vitkbkxjopjO.jpg",
+        "first_air_date": "2021-10-28",
+        "name": "Star Trek: Prodigy",
+        "vote_average": 7.245,
+        "vote_count": 186
+      }
+    ],
+    "total_pages": 1,
+    "total_results": 1
+  },
+  "cachedAt": "2026-04-20T09:41:00.180Z",
+  "expiresAt": "2026-04-21T09:41:00.180Z",
+  "url": "https://api.themoviedb.org/3/search/tv?query=Star%20Trek%3A%20Prodigy",
+  "key": "8072f9856218c07386079e705a5a5dea4cd8c43746ec91a02d62a3fb134f126c"
+}

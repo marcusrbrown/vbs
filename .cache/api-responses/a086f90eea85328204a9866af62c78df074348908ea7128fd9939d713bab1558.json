@@ -1,0 +1,29 @@
+{
+  "data": {
+    "page": 1,
+    "results": [
+      {
+        "adult": false,
+        "backdrop_path": "/qmliLoo6GVheM2FihatlAXxCKyF.jpg",
+        "genre_ids": [10765, 10759, 18, 9648],
+        "id": 655,
+        "origin_country": ["US"],
+        "original_language": "en",
+        "original_name": "Star Trek: The Next Generation",
+        "overview": "Follow the intergalactic adventures of Capt. Jean-Luc Picard and his loyal crew aboard the all-new USS Enterprise NCC-1701D, as they explore new worlds.",
+        "popularity": 48.7769,
+        "poster_path": "/vkLzXddgUKH5VcpnYiRzpJFrZhz.jpg",
+        "first_air_date": "1987-09-28",
+        "name": "Star Trek: The Next Generation",
+        "vote_average": 8.375,
+        "vote_count": 1731
+      }
+    ],
+    "total_pages": 1,
+    "total_results": 1
+  },
+  "cachedAt": "2026-04-20T09:40:59.830Z",
+  "expiresAt": "2026-04-21T09:40:59.830Z",
+  "url": "https://api.themoviedb.org/3/search/tv?query=Star%20Trek%3A%20The%20Next%20Generation",
+  "key": "a086f90eea85328204a9866af62c78df074348908ea7128fd9939d713bab1558"
+}
