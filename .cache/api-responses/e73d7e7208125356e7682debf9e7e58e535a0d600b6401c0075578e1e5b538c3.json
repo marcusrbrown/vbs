@@ -1,0 +1,30 @@
+{
+  "data": {
+    "page": 1,
+    "results": [
+      {
+        "adult": false,
+        "backdrop_path": "/cm3srKkyVn8zUK40ox8ZNjRJRdE.jpg",
+        "genre_ids": [10765, 10759, 18],
+        "id": 580,
+        "origin_country": ["US"],
+        "original_language": "en",
+        "original_name": "Star Trek: Deep Space Nine",
+        "overview": "At Deep Space Nine, a space station located next to a wormhole in the vicinity of the liberated planet of Bajor, Commander Sisko and crew welcome alien visitors, root out evildoers and solve all types of unexpected problems that come their way.",
+        "popularity": 41.976,
+        "poster_path": "/vE6138ykaEXQkCSEHyuBIgfGlUZ.jpg",
+        "first_air_date": "1993-01-03",
+        "softcore": false,
+        "name": "Star Trek: Deep Space Nine",
+        "vote_average": 7.885,
+        "vote_count": 943
+      }
+    ],
+    "total_pages": 1,
+    "total_results": 1
+  },
+  "cachedAt": "2026-04-27T09:51:16.586Z",
+  "expiresAt": "2026-04-28T09:51:16.586Z",
+  "url": "https://api.themoviedb.org/3/search/tv?query=Star%20Trek%3A%20Deep%20Space%20Nine",
+  "key": "e73d7e7208125356e7682debf9e7e58e535a0d600b6401c0075578e1e5b538c3"
+}
