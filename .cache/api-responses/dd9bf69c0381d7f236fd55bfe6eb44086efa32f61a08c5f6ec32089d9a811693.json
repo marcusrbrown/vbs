@@ -1,0 +1,47 @@
+{
+  "data": {
+    "page": 1,
+    "results": [
+      {
+        "adult": false,
+        "backdrop_path": "/mNdsbVuRdsyo8eitW2IBW2BWRkU.jpg",
+        "genre_ids": [878, 28, 12, 53],
+        "id": 193,
+        "title": "Star Trek: Generations",
+        "original_language": "en",
+        "original_title": "Star Trek: Generations",
+        "overview": "Captain Jean-Luc Picard and the crew of the Enterprise-D find themselves at odds with the renegade scientist Soran who is destroying entire star systems. Only one man can help Picard stop Soran's scheme...and he's been dead for seventy-eight years.",
+        "popularity": 2.8735,
+        "poster_path": "/gh0ZZRwSmlzEZTIZee3ZCN9Jssx.jpg",
+        "release_date": "1994-11-18",
+        "softcore": false,
+        "video": false,
+        "vote_average": 6.519,
+        "vote_count": 1476
+      },
+      {
+        "adult": false,
+        "backdrop_path": null,
+        "genre_ids": [99],
+        "id": 448638,
+        "title": "Your Guide to Star Trek: Generations",
+        "original_language": "en",
+        "original_title": "Your Guide to Star Trek: Generations",
+        "overview": "The making of Star Trek: Generations which was given away free with The Sun newspaper in 1993.",
+        "popularity": 0.9982,
+        "poster_path": "/uTYQAfcndlGjxquzUO39BN3ioH0.jpg",
+        "release_date": "1993-01-01",
+        "softcore": false,
+        "video": true,
+        "vote_average": 1,
+        "vote_count": 1
+      }
+    ],
+    "total_pages": 1,
+    "total_results": 2
+  },
+  "cachedAt": "2026-05-04T09:51:56.885Z",
+  "expiresAt": "2026-05-05T09:51:56.885Z",
+  "url": "https://api.themoviedb.org/3/search/movie?query=Star%20Trek%3A%20Generations",
+  "key": "dd9bf69c0381d7f236fd55bfe6eb44086efa32f61a08c5f6ec32089d9a811693"
+}

@@ -1,0 +1,30 @@
+{
+  "data": {
+    "page": 1,
+    "results": [
+      {
+        "adult": false,
+        "backdrop_path": "/fZJs6xgU9dqIg9phIXjZAZOInzy.jpg",
+        "genre_ids": [10765, 18],
+        "id": 103516,
+        "origin_country": ["US"],
+        "original_language": "en",
+        "original_name": "Star Trek: Strange New Worlds",
+        "overview": "Follow Captain Christopher Pike, Science Officer Spock and Number One in the years before Captain Kirk boarded the U.S.S. Enterprise, as they explore new worlds around the galaxy.",
+        "popularity": 22.9675,
+        "poster_path": "/w6KapI2JvrCkOPmQhkwYPJNjqeo.jpg",
+        "first_air_date": "2022-05-05",
+        "softcore": false,
+        "name": "Star Trek: Strange New Worlds",
+        "vote_average": 7.98,
+        "vote_count": 734
+      }
+    ],
+    "total_pages": 1,
+    "total_results": 1
+  },
+  "cachedAt": "2026-05-04T09:51:54.752Z",
+  "expiresAt": "2026-05-05T09:51:54.752Z",
+  "url": "https://api.themoviedb.org/3/search/tv?query=Star%20Trek%3A%20Strange%20New%20Worlds",
+  "key": "6342855e75291ccb85076dd7676622dca698462ecfb977b24774acff3b47e67e"
+}
