@@ -1,0 +1,30 @@
+{
+  "data": {
+    "page": 1,
+    "results": [
+      {
+        "adult": false,
+        "backdrop_path": "/nGJTamFPZ9V4JX5YpiOS0UDuwmx.jpg",
+        "genre_ids": [878, 28, 12, 53],
+        "id": 174,
+        "title": "Star Trek VI: The Undiscovered Country",
+        "original_language": "en",
+        "original_title": "Star Trek VI: The Undiscovered Country",
+        "overview": "After years of war, the Federation and the Klingon empire find themselves on the brink of a peace summit when a Klingon ship is nearly destroyed by an apparent attack from the Enterprise. Both worlds brace for what may be their deadliest encounter.",
+        "popularity": 2.4072,
+        "poster_path": "/tvTOJD7Gz668GLy2nNdLRQvpPsv.jpg",
+        "release_date": "1991-12-06",
+        "softcore": false,
+        "video": false,
+        "vote_average": 7.041,
+        "vote_count": 1412
+      }
+    ],
+    "total_pages": 1,
+    "total_results": 1
+  },
+  "cachedAt": "2026-05-11T10:19:47.699Z",
+  "expiresAt": "2026-05-12T10:19:47.699Z",
+  "url": "https://api.themoviedb.org/3/search/movie?query=Star%20Trek%20VI%3A%20The%20Undiscovered%20Country",
+  "key": "b757a81fc521b46a93615e80dd0625718681546c02d044e4b9d2747c9a368b5b"
+}
