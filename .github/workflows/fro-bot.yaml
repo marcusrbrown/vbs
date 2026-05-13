@@ -93,6 +93,8 @@ env:
     search for any other open issues with the exact title "Daily Maintenance Report"
     and close them with a brief comment (e.g., "Consolidating into the perpetual
     maintenance issue."). There must be exactly one open maintenance issue at all times.
+    (This duplicate-closing step is the sole exception to the "no individual
+    issue modifications" rule below.)
 
     Append a new dated section for each run using "## YYYY-MM-DD (UTC)".
     To keep the issue bounded: after appending today's section, replace any
@@ -251,9 +253,10 @@ env:
       only to an existing non-default PR branch you are repairing under
       category 1 or category 2.
     - Never merge PRs, submit reviews/approvals, close/reopen PRs or
-      issues, or modify branch protection. This workflow may only push
-      fixes, open/update PRs, open/update issues, and comment on PRs when
-      a fix was pushed.
+      issues, or modify branch protection, EXCEPT for closing duplicate
+      "Daily Autohealing Report" issues as described in the perpetual issue
+      hygiene section below. This workflow may only push fixes, open/update
+      PRs, open/update issues, and comment on PRs when a fix was pushed.
     - Never modify secrets, org settings, environments, or branch
       protection.
     - Never make checks pass by disabling tests, deleting failing
@@ -395,6 +398,14 @@ jobs:
       - name: Build project
         run: pnpm build
 
+      - name: Validate review mode inputs
+        if: github.event_name == 'workflow_dispatch' && inputs.mode == 'review'
+        run: |
+          if [ -z "${{ inputs.prompt }}" ]; then
+            echo "::error::Review mode requires a custom prompt. Provide one via the 'prompt' input, or choose a different mode."
+            exit 1
+          fi
+
       - name: Run Fro Bot
         uses: fro-bot/agent@1563f2987343b5e8d30ba818920d0ac563c617fa # v0.43.0
         env:
@@ -403,7 +414,7 @@ jobs:
             ${{
               (github.event_name == 'workflow_dispatch' && inputs.mode == 'maintenance' && env.MAINTENANCE_PROMPT)
               || (github.event_name == 'workflow_dispatch' && inputs.mode == 'both' && env.MAINTENANCE_PROMPT)
-              || (github.event_name == 'workflow_dispatch' && inputs.mode == 'review' && (inputs.prompt || ''))
+              || (github.event_name == 'workflow_dispatch' && inputs.mode == 'review' && inputs.prompt)
               || (github.event_name == 'schedule' && github.event.schedule == '30 15 * * *' && env.MAINTENANCE_PROMPT)
               || (github.event_name == 'pull_request' && env.PR_REVIEW_PROMPT)
               || ''
