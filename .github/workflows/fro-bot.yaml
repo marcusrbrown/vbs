@@ -347,9 +347,6 @@ jobs:
   fro-bot:
     name: Fro Bot
     runs-on: ubuntu-latest
-    concurrency:
-      group: fro-bot
-      cancel-in-progress: false
     if: >-
       (
         github.event.pull_request == null ||
