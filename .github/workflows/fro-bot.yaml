@@ -120,8 +120,10 @@ env:
       relevant findings exist)
     - Notes (use "data unavailable" for any inaccessible data source)
 
-    Do NOT comment on or modify individual issues/PRs. Do NOT apply labels.
-    Do NOT open PRs. This run must update ONE issue only.
+    Do NOT comment on or modify individual issues/PRs (except for closing
+    duplicate maintenance issues per the perpetual issue hygiene exception
+    above). Do NOT apply labels. Do NOT open PRs. This run must update ONE
+    primary issue only (duplicate closures are permitted as the sole exception).
 
   AUTOHEAL_PROMPT: |
     Perform daily repository autohealing for VBS (View By Stardate) — a
@@ -289,7 +291,8 @@ env:
     recent issue has a dated title, rename it to the perpetual title. There
     must be exactly one open autohealing issue at all times.
 
-    Append a new dated section for each run using "## YYYY-MM-DD (UTC)".
+    Append a new dated section for each run using
+    "## Daily Autohealing Report — YYYY-MM-DD (UTC)".
     To keep the issue bounded: after appending today's section, replace any
     individual daily sections older than 14 days with a single
     "## Historical Summary" section that lists only the count of prior runs
@@ -344,6 +347,9 @@ jobs:
   fro-bot:
     name: Fro Bot
     runs-on: ubuntu-latest
+    concurrency:
+      group: fro-bot
+      cancel-in-progress: false
     if: >-
       (
         github.event.pull_request == null ||
