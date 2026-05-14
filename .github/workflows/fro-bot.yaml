@@ -403,8 +403,10 @@ jobs:
 
       - name: Validate review mode inputs
         if: github.event_name == 'workflow_dispatch' && inputs.mode == 'review'
+        env:
+          PROMPT: ${{ inputs.prompt }}
         run: |
-          if [ -z "${{ inputs.prompt }}" ]; then
+          if [ -z "$PROMPT" ]; then
             echo "::error::Review mode requires a custom prompt. Provide one via the 'prompt' input, or choose a different mode."
             exit 1
           fi
