@@ -1,0 +1,30 @@
+{
+  "data": {
+    "page": 1,
+    "results": [
+      {
+        "adult": false,
+        "backdrop_path": "/2LiU13aDAWpU2mX25JdacTzBnyr.jpg",
+        "genre_ids": [878, 12],
+        "id": 168,
+        "title": "Star Trek IV: The Voyage Home",
+        "original_language": "en",
+        "original_title": "Star Trek IV: The Voyage Home",
+        "overview": "When a huge alien probe enters the galaxy and begins to vaporize Earth's oceans, Kirk and his crew must travel back in time in order to bring back whales and save the planet.",
+        "popularity": 4.225,
+        "poster_path": "/xY5TzGXJOB3L9rhZ1MbbPyVlW5J.jpg",
+        "release_date": "1986-11-26",
+        "softcore": false,
+        "video": false,
+        "vote_average": 7.171,
+        "vote_count": 1640
+      }
+    ],
+    "total_pages": 1,
+    "total_results": 1
+  },
+  "cachedAt": "2026-04-27T09:51:18.801Z",
+  "expiresAt": "2026-04-28T09:51:18.801Z",
+  "url": "https://api.themoviedb.org/3/search/movie?query=Star%20Trek%20IV%3A%20The%20Voyage%20Home",
+  "key": "e0efbe320d42804fd2041ebdb5075f3d77fa4cb47880e01393a44bf87314314e"
+}
