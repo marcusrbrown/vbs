@@ -589,6 +589,14 @@ export const createTimelineVisualization = <TContainer extends HTMLElement>(
     const filteredEvents = getFilteredEvents()
 
     if (filteredEvents.length === 0) {
+      const hadTracks = tracks.length > 0
+      tracks = []
+      yScale.domain([0, 1])
+
+      if (hadTracks) {
+        eventEmitter.emit('track-change', {tracks: [], trackCount: 0})
+      }
+
       console.warn('No events to display in timeline')
       return
     }
@@ -1228,8 +1236,8 @@ export const createTimelineVisualization = <TContainer extends HTMLElement>(
     enableAutoOptimization,
 
     // Generic EventEmitter methods for type-safe event handling
-    on: eventEmitter.on.bind(eventEmitter),
-    off: eventEmitter.off.bind(eventEmitter),
-    once: eventEmitter.once.bind(eventEmitter),
+    on: (eventName, listener) => eventEmitter.on(eventName, listener),
+    off: (eventName, listener) => eventEmitter.off(eventName, listener),
+    once: (eventName, listener) => eventEmitter.once(eventName, listener),
   }
 }
