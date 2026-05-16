@@ -2168,6 +2168,19 @@ export type TimelineEventType =
   | 'exploration' // Exploration missions
 
 /**
+ * Configuration for a single track lane in the multi-track timeline.
+ * Each track corresponds to one TimelineEventType and occupies a horizontal lane.
+ */
+export interface TrackConfig {
+  /** The event type this track displays */
+  type: TimelineEventType
+  /** Display label for the track lane */
+  label: string
+  /** Track index (0-based, determines vertical position) */
+  index: number
+}
+
+/**
  * Individual timeline event representing a specific point or period in Star Trek chronology.
  * Optimized for D3.js rendering with position, scale, and interaction properties.
  *
@@ -2394,6 +2407,8 @@ export interface TimelineEvents extends EventMap {
   'performance-update': {metrics: TimelinePerformanceMetrics}
   /** Fired when virtualization viewport changes */
   'viewport-change': {visibleEvents: TimelineEvent[]; totalEvents: number}
+  /** Fired when track configuration changes (event types added/removed) */
+  'track-change': {tracks: TrackConfig[]; trackCount: number}
 }
 
 /**

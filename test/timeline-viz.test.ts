@@ -2,7 +2,11 @@ import type {ProgressTrackerInstance, TimelineVisualizationInstance} from '../sr
 import {JSDOM} from 'jsdom'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {timelineEvents} from '../src/data/timeline-events.js'
-import {createTimelineVisualization} from '../src/modules/timeline-viz.js'
+import {
+  createTimelineVisualization,
+  TIMELINE_EVENT_TYPE_LABELS,
+  TIMELINE_EVENT_TYPE_ORDER,
+} from '../src/modules/timeline-viz.js'
 
 // Mock D3.js for testing
 vi.mock('d3', () => ({
@@ -221,5 +225,104 @@ describe('Timeline Visualization', () => {
 
   it('should handle destroy method', () => {
     expect(() => timelineViz.destroy()).not.toThrow()
+  })
+
+  describe('Multi-track system', () => {
+    it('should emit track-change event with tracks derived from event types', () => {
+      const trackChangeListener = vi.fn()
+      timelineViz.on('track-change', trackChangeListener)
+
+      // Trigger a guaranteed track change after listener registration
+      const singleTypeEvents = timelineEvents.filter(e => e.type === 'exploration').slice(0, 3)
+      expect(singleTypeEvents.length).toBeGreaterThan(0)
+      timelineViz.updateData(singleTypeEvents)
+
+      expect(trackChangeListener).toHaveBeenCalledTimes(1)
+      expect(trackChangeListener).toHaveBeenCalledWith(
+        expect.objectContaining({
+          tracks: expect.arrayContaining([
+            expect.objectContaining({
+              type: expect.any(String),
+              label: expect.any(String),
+              index: expect.any(Number),
+            }),
+          ]),
+          trackCount: expect.any(Number),
+        }),
+      )
+    })
+
+    it('should emit exact track-change payload for known dataset', () => {
+      const trackChangeListener = vi.fn()
+      timelineViz.on('track-change', trackChangeListener)
+
+      const expectedDataset = timelineEvents.filter(e => e.type === 'exploration').slice(0, 3)
+      expect(expectedDataset.length).toBeGreaterThan(0)
+      timelineViz.updateData(expectedDataset)
+
+      const expectedTypes = [...new Set(expectedDataset.map(event => event.type))].sort(
+        (a, b) => TIMELINE_EVENT_TYPE_ORDER.indexOf(a) - TIMELINE_EVENT_TYPE_ORDER.indexOf(b),
+      )
+
+      const expectedTracks = expectedTypes.map((type, index) => ({
+        type,
+        label: TIMELINE_EVENT_TYPE_LABELS[type],
+        index,
+      }))
+
+      expect(trackChangeListener).toHaveBeenCalledTimes(1)
+      expect(trackChangeListener).toHaveBeenCalledWith({
+        tracks: expectedTracks,
+        trackCount: expectedTracks.length,
+      })
+    })
+
+    it('should update tracks when data changes', () => {
+      const trackChangeListener = vi.fn()
+      timelineViz.on('track-change', trackChangeListener)
+
+      // Update with new data - should trigger re-render and track rebuild
+      const newEvents = timelineEvents.slice(0, 3)
+      expect(() => timelineViz.updateData(newEvents)).not.toThrow()
+    })
+
+    it('should handle render with multiple event types without errors', () => {
+      // Use events that have different types
+      const diverseEvents = timelineEvents.slice(0, 10)
+      expect(() => timelineViz.updateData(diverseEvents)).not.toThrow()
+      expect(() => timelineViz.render()).not.toThrow()
+    })
+
+    it('should handle render with single event type without errors', () => {
+      // Filter to only one type of event
+      const singleTypeEvents = timelineEvents.filter(e => e.type === 'exploration').slice(0, 3)
+      if (singleTypeEvents.length > 0) {
+        expect(() => timelineViz.updateData(singleTypeEvents)).not.toThrow()
+        expect(() => timelineViz.render()).not.toThrow()
+      }
+    })
+
+    it('should handle empty events without errors', () => {
+      expect(() => timelineViz.updateData([])).not.toThrow()
+    })
+
+    it('should emit track-change cleanup payload when data becomes empty', () => {
+      const trackChangeListener = vi.fn()
+      timelineViz.on('track-change', trackChangeListener)
+
+      const singleTypeEvents = timelineEvents.filter(e => e.type === 'exploration').slice(0, 3)
+      expect(singleTypeEvents.length).toBeGreaterThan(0)
+      timelineViz.updateData(singleTypeEvents)
+      expect(trackChangeListener).toHaveBeenCalledTimes(1)
+
+      trackChangeListener.mockClear()
+      timelineViz.updateData([])
+
+      expect(trackChangeListener).toHaveBeenCalledTimes(1)
+      expect(trackChangeListener).toHaveBeenCalledWith({
+        tracks: [],
+        trackCount: 0,
+      })
+    })
   })
 })
