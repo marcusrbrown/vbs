@@ -71,7 +71,7 @@ export interface NormalizedSeasonItem {
   year: string
   stardate: string
   episodes?: number
-  notes?: string
+  notes: string
   episodeData?: NormalizedEpisodeItem[]
 }
 

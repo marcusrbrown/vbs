@@ -1068,6 +1068,7 @@ const normalizeSeason = (
     year: airYear,
     stardate: `~${season.seasonNumber}.1-${season.seasonNumber}.${lastEpisodeNum}`,
     episodes: actualEpisodeCount,
+    notes: season.overview ?? `${seriesName} Season ${season.seasonNumber}`,
     episodeData: season.episodes.map(normalizeEpisode),
   }
 }
