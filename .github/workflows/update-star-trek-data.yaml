@@ -84,46 +84,58 @@ jobs:
         run: |
           set -e
 
+          summary_path="$RUNNER_TEMP/star-trek-data-summary.json"
+          diff_path="$RUNNER_TEMP/data-changes.diff"
+          generated_at="$(date -u +"%Y-%m-%d %H:%M:%S UTC")"
+
+          echo "summary_path=${summary_path}" >> "$GITHUB_OUTPUT"
+          echo "diff_path=${diff_path}" >> "$GITHUB_OUTPUT"
+          echo "generated_at=${generated_at}" >> "$GITHUB_OUTPUT"
+
           # Build command with options
-          CMD="pnpm exec jiti scripts/generate-star-trek-data.ts"
+          CMD=(
+            "pnpm" "exec" "jiti" "scripts/generate-star-trek-data.ts"
+            "--no-cache"
+            "--no-backup"
+            "--summary-output" "$summary_path"
+          )
 
           # Add mode flag (from manual input or default to 'full')
           MODE="${{ github.event.inputs.mode || 'full' }}"
-          CMD="$CMD --mode $MODE"
+          CMD+=("--mode" "$MODE")
 
           # Add series filter if specified
           if [ -n "${{ github.event.inputs.series }}" ]; then
-            CMD="$CMD --series ${{ github.event.inputs.series }}"
+            CMD+=("--series" "${{ github.event.inputs.series }}")
           fi
 
           # Add dry-run flag if specified
           if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
-            CMD="$CMD --dry-run"
+            CMD+=("--dry-run")
           fi
 
           # Add verbose logging for CI visibility
-          CMD="$CMD --verbose"
+          CMD+=("--verbose")
 
-          echo "Running: $CMD"
-          $CMD
+          printf 'Running command:'
+          printf ' %q' "${CMD[@]}"
+          echo
+          "${CMD[@]}"
+
+          if [ -f "$summary_path" ]; then
+            {
+              echo "summary_json<<EOF"
+              cat "$summary_path"
+              echo "EOF"
+            } >> "$GITHUB_OUTPUT"
+          fi
 
           # Capture generation status
           echo "status=success" >> $GITHUB_OUTPUT
 
-      - name: Run data validation
-        id: validate
-        if: steps.generate.outputs.status == 'success'
-        run: |
-          set -e
-
-          echo "Running validation on generated data..."
-          pnpm exec jiti scripts/validate-episode-data.ts --verbose
-
-          echo "validation_status=passed" >> $GITHUB_OUTPUT
-
       - name: Check for data changes
         id: changes
-        if: steps.validate.outputs.validation_status == 'passed' && github.event.inputs.dry_run != 'true'
+        if: steps.generate.outputs.status == 'success' && github.event.inputs.dry_run != 'true'
         run: |
           set -e
 
@@ -142,35 +154,8 @@ jobs:
             echo "EOF" >> $GITHUB_OUTPUT
 
             # Get detailed diff for review
-            git diff src/data/star-trek-data.ts > data-changes.diff
+            git diff src/data/star-trek-data.ts > "${{ steps.generate.outputs.diff_path }}"
           fi
-
-      - name: Generate quality report
-        id: quality
-        if: steps.changes.outputs.has_changes == 'true'
-        run: |
-          set -e
-
-          echo "Generating data quality report..."
-
-          # Use data-quality utilities to generate report
-          # This will be implemented in the generate-star-trek-data.ts script
-          # For now, create a placeholder report
-          cat > quality-report.txt << 'EOF'
-          ## Data Quality Report
-
-          ✅ All validation checks passed
-          ✅ No duplicate episode IDs detected
-          ✅ Chronology ordering verified
-          ✅ All required fields populated
-
-          Generated at: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
-          EOF
-
-          QUALITY_REPORT=$(cat quality-report.txt)
-          echo "report<<EOF" >> $GITHUB_OUTPUT
-          echo "$QUALITY_REPORT" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Create Pull Request
         id: create_pr
@@ -182,9 +167,11 @@ jobs:
           committer: '${{ steps.get-user-id.outputs.user-name }} <${{ steps.get-user-id.outputs.user-email }}>'
           author: '${{ steps.get-user-id.outputs.user-name }} <${{ steps.get-user-id.outputs.user-email }}>'
           sign-commits: true
-          branch: automated-data-update-${{ github.run_number }}
-          delete-branch: true
-          title: 'Update Star Trek data - ${{ github.run_number }}'
+          branch: automated-data-update
+          delete-branch: false
+          title: Update Star Trek data
+          add-paths: |
+            src/data/star-trek-data.ts
           body: |
             ## Automated Star Trek Data Update
 
@@ -200,18 +187,22 @@ jobs:
 
             - **Mode:** ${{ github.event.inputs.mode || 'full' }}
             - **Series Filter:** ${{ github.event.inputs.series || 'all' }}
-            - **Generated At:** ${{ github.run_number }}
+            - **Generated At:** ${{ steps.generate.outputs.generated_at }}
             - **Workflow Run:** [#${{ github.run_number }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
 
-            ### Quality Report
+            ### Quality Summary
 
-            ${{ steps.quality.outputs.report }}
+            - **Average Quality Score:** ${{ fromJson(steps.generate.outputs.summary_json).quality.averageQualityScorePercent }}%
+            - **Quality Threshold:** ${{ fromJson(steps.generate.outputs.summary_json).quality.qualityThresholdPercent }}%
+            - **Items Above Threshold:** ${{ fromJson(steps.generate.outputs.summary_json).quality.itemsAboveThreshold }}
+            - **Items Below Threshold:** ${{ fromJson(steps.generate.outputs.summary_json).quality.itemsBelowThreshold }}
+            - **Validation Issues:** ${{ fromJson(steps.generate.outputs.summary_json).quality.totalValidationIssues }}
+            - **Duplicate IDs:** ${{ fromJson(steps.generate.outputs.summary_json).validation.duplicateIds }}
 
             ### Validation Status
 
             ✅ Data generation completed successfully
-            ✅ Validation checks passed
-            ✅ TypeScript compilation verified
+            ✅ Integrated script quality validation completed
 
             ### Review Checklist
 
@@ -231,12 +222,28 @@ jobs:
           draft: false
           assignees: ${{ github.repository_owner }}
 
+      - name: Close superseded legacy data PRs
+        if: steps.create_pr.outputs.pull-request-number != ''
+        env:
+          GH_TOKEN: ${{ steps.get-app-token.outputs.token }}
+          CURRENT_PR_NUMBER: ${{ steps.create_pr.outputs.pull-request-number }}
+        run: |
+          set -e
+
+          gh pr list --state open --json number,title --limit 100 \
+            | jq -r '.[] | select(.title | startswith("Update Star Trek data -")) | .number' \
+            | while read -r pr_number; do
+                if [ "${pr_number}" != "${CURRENT_PR_NUMBER}" ]; then
+                  gh pr close "${pr_number}" --comment "Superseded by perpetual data update PR #${CURRENT_PR_NUMBER}."
+                fi
+              done
+
       - name: Upload diff artifact
         if: steps.changes.outputs.has_changes == 'true'
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: data-changes-diff
-          path: data-changes.diff
+          path: ${{ steps.generate.outputs.diff_path }}
           retention-days: 30
 
       - name: Summary
@@ -251,10 +258,12 @@ jobs:
             echo "❌ Data generation: **Failed**" >> $GITHUB_STEP_SUMMARY
           fi
 
-          if [ "${{ steps.validate.outputs.validation_status }}" = "passed" ]; then
-            echo "✅ Validation: **Passed**" >> $GITHUB_STEP_SUMMARY
-          elif [ -n "${{ steps.validate.outputs.validation_status }}" ]; then
-            echo "❌ Validation: **Failed**" >> $GITHUB_STEP_SUMMARY
+          if [ -n '${{ steps.generate.outputs.summary_json }}' ]; then
+            echo "### Data Quality Metrics" >> $GITHUB_STEP_SUMMARY
+            echo "- Average quality score: **${{ fromJson(steps.generate.outputs.summary_json).quality.averageQualityScorePercent }}%**" >> $GITHUB_STEP_SUMMARY
+            echo "- Validation issues: **${{ fromJson(steps.generate.outputs.summary_json).quality.totalValidationIssues }}**" >> $GITHUB_STEP_SUMMARY
+            echo "- Duplicate IDs: **${{ fromJson(steps.generate.outputs.summary_json).validation.duplicateIds }}**" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
           fi
 
           if [ "${{ steps.changes.outputs.has_changes }}" = "true" ]; then

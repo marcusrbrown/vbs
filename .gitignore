@@ -52,6 +52,13 @@ pids/
 # Optional eslint cache
 .eslintcache
 
+# Data generation transient files
+.cache/
+*.backup
+quality-report.txt
+data-changes.diff
+star-trek-data-summary.json
+
 # Temporary folders
 tmp/
 temp/
