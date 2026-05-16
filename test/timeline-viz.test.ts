@@ -2,7 +2,11 @@ import type {ProgressTrackerInstance, TimelineVisualizationInstance} from '../sr
 import {JSDOM} from 'jsdom'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {timelineEvents} from '../src/data/timeline-events.js'
-import {createTimelineVisualization} from '../src/modules/timeline-viz.js'
+import {
+  createTimelineVisualization,
+  TIMELINE_EVENT_TYPE_LABELS,
+  TIMELINE_EVENT_TYPE_ORDER,
+} from '../src/modules/timeline-viz.js'
 
 // Mock D3.js for testing
 vi.mock('d3', () => ({
@@ -86,29 +90,6 @@ vi.mock('d3', () => ({
 }))
 
 describe('Timeline Visualization', () => {
-  const eventTypeLabels = {
-    series: 'Series',
-    movie: 'Movies',
-    animated: 'Animated',
-    galactic_event: 'Galactic Events',
-    first_contact: 'First Contact',
-    war: 'Wars',
-    technology: 'Technology',
-    political: 'Political',
-    exploration: 'Exploration',
-  } as const
-  const eventTypeOrder = [
-    'series',
-    'movie',
-    'animated',
-    'galactic_event',
-    'first_contact',
-    'war',
-    'technology',
-    'political',
-    'exploration',
-  ] as const
-
   let container: HTMLElement
   let timelineViz: TimelineVisualizationInstance
   let mockProgressTracker: ProgressTrackerInstance
@@ -278,12 +259,12 @@ describe('Timeline Visualization', () => {
       timelineViz.updateData(expectedDataset)
 
       const expectedTypes = [...new Set(expectedDataset.map(event => event.type))].sort(
-        (a, b) => eventTypeOrder.indexOf(a) - eventTypeOrder.indexOf(b),
+        (a, b) => TIMELINE_EVENT_TYPE_ORDER.indexOf(a) - TIMELINE_EVENT_TYPE_ORDER.indexOf(b),
       )
 
       const expectedTracks = expectedTypes.map((type, index) => ({
         type,
-        label: eventTypeLabels[type],
+        label: TIMELINE_EVENT_TYPE_LABELS[type],
         index,
       }))
 

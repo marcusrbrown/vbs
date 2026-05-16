@@ -18,6 +18,30 @@ import {curry, pipe} from '../utils/composition.js'
 import {withErrorHandling, withSyncErrorHandling} from './error-handler.js'
 import {createEventEmitter} from './events.js'
 
+export const TIMELINE_EVENT_TYPE_LABELS: Record<TimelineEventType, string> = {
+  series: 'Series',
+  movie: 'Movies',
+  animated: 'Animated',
+  galactic_event: 'Galactic Events',
+  first_contact: 'First Contact',
+  war: 'Wars',
+  technology: 'Technology',
+  political: 'Political',
+  exploration: 'Exploration',
+}
+
+export const TIMELINE_EVENT_TYPE_ORDER: TimelineEventType[] = [
+  'series',
+  'movie',
+  'animated',
+  'galactic_event',
+  'first_contact',
+  'war',
+  'technology',
+  'political',
+  'exploration',
+]
+
 /**
  * Factory function to create an interactive D3.js timeline visualization instance.
  * Follows the VBS functional factory pattern with closure-based state management
@@ -157,40 +181,17 @@ export const createTimelineVisualization = <TContainer extends HTMLElement>(
   }
 
   // Event type display labels for track lanes
-  const EVENT_TYPE_LABELS: Record<TimelineEventType, string> = {
-    series: 'Series',
-    movie: 'Movies',
-    animated: 'Animated',
-    galactic_event: 'Galactic Events',
-    first_contact: 'First Contact',
-    war: 'Wars',
-    technology: 'Technology',
-    political: 'Political',
-    exploration: 'Exploration',
-  }
-  const EVENT_TYPE_ORDER: TimelineEventType[] = [
-    'series',
-    'movie',
-    'animated',
-    'galactic_event',
-    'first_contact',
-    'war',
-    'technology',
-    'political',
-    'exploration',
-  ]
-
   // Track allocation state
   let tracks: TrackConfig[] = []
 
   // Build track configuration from visible event types
   const buildTracks = (filteredEvents: TimelineEvent[]): TrackConfig[] => {
     const uniqueTypes = [...new Set(filteredEvents.map(e => e.type))].sort(
-      (a, b) => EVENT_TYPE_ORDER.indexOf(a) - EVENT_TYPE_ORDER.indexOf(b),
+      (a, b) => TIMELINE_EVENT_TYPE_ORDER.indexOf(a) - TIMELINE_EVENT_TYPE_ORDER.indexOf(b),
     )
     return uniqueTypes.map((type, index) => ({
       type,
-      label: EVENT_TYPE_LABELS[type],
+      label: TIMELINE_EVENT_TYPE_LABELS[type],
       index,
     }))
   }
