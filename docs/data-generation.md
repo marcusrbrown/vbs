@@ -436,6 +436,12 @@ const cache = createApiCache({
 - Clear cache with `--clear-cache` when testing API changes or data updates
 - Disable cache with `--no-cache` for final production data generation
 
+**CI Workflow**:
+
+- Use `--no-cache` and `--no-backup` to avoid committing transient cache/backup files
+- Use `--summary-output <path>` to pass machine-readable metrics to GitHub workflows
+- Prefer writing summaries/diffs to temporary runner paths instead of the repository working tree
+
 **Cache Maintenance**:
 
 - Expired entries are automatically cleaned up during operations
@@ -514,17 +520,20 @@ Content is organized into 7 Star Trek eras based on in-universe timeline:
 | `--dry-run` | boolean | `false` | Preview changes without writing files |
 | `--output <path>` | string | `src/data/star-trek-data.ts` | Output file path |
 | `--validate` | boolean | `true` | Run validation after generation |
+| `--no-backup` | boolean | `false` | Disable creation of `<output>.backup` when writing output |
 | `--verbose` | boolean | `false` | Enable detailed logging |
+| `--summary-output <path>` | string | - | Write machine-readable JSON summary for CI/workflows |
 | `--help` | boolean | - | Show help message |
 
 ### Caching Options
 
-| Option           | Type    | Default | Description                                               |
-| ---------------- | ------- | ------- | --------------------------------------------------------- |
-| `--enable-cache` | boolean | `true`  | Enable API response caching to reduce redundant requests  |
-| `--no-cache`     | boolean | `false` | Disable caching and fetch fresh data from all sources     |
-| `--clear-cache`  | boolean | `false` | Clear all cached responses before starting                |
-| `--cache-stats`  | boolean | `false` | Display cache statistics and exit without generating data |
+| Option | Type | Default | Description |
+| --- | --- | --- | --- |
+| `--enable-cache` | boolean | `true` | Enable API response caching to reduce redundant requests |
+| `--no-cache` | boolean | `false` | Disable caching and fetch fresh data from all sources |
+| `--clear-cache` | boolean | `false` | Clear all cached responses before starting |
+| `--cache-stats` | boolean | `false` | Display cache statistics and exit without generating data |
+| `--cache-dir <path>` | string | `.cache/api-responses` | Override cache directory (use temp directories in CI) |
 
 ### Future Options (Planned)
 
@@ -549,6 +558,7 @@ None - all variables are optional with graceful fallbacks.
 | `TMDB_API_KEY` | string | - | TMDB API Read Access Token (enables enhanced metadata) |
 | `DEBUG` | boolean | `false` | Enable verbose debug logging |
 | `MIN_METADATA_QUALITY` | number | `0.6` | Minimum quality threshold (0-1 scale) |
+| `VBS_SUMMARY_OUTPUT` | string | - | Fallback path for JSON summary output when `--summary-output` is not set |
 | `TMDB_RATE_LIMIT` | number | `30` | TMDB requests per minute |
 | `MEMORY_ALPHA_RATE_LIMIT` | number | `60` | Memory Alpha requests per minute |
 

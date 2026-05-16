@@ -40,7 +40,8 @@
 
 import type {MetadataSourceInstance} from '../src/modules/types.js'
 import type {ExportFormat} from './lib/data-export.js'
-import {resolve} from 'node:path'
+import {mkdir, writeFile} from 'node:fs/promises'
+import {dirname, resolve} from 'node:path'
 import process from 'node:process'
 import {withErrorHandling} from '../src/modules/error-handler.js'
 import {createLogger} from '../src/modules/logger.js'
@@ -307,10 +308,13 @@ interface GenerateDataOptions extends BaseCLIOptions {
   dryRun: boolean
   output: string
   validate: boolean
+  createBackup: boolean
   concurrency: number
   enableCache: boolean
+  cacheDir: string
   clearCache: boolean
   cacheStats: boolean
+  summaryOutput?: string | undefined
   // Phase 6 CLI flags
   patch?: string | undefined
   manifest?: string | boolean | undefined
@@ -379,10 +383,13 @@ const DEFAULT_OPTIONS: Omit<GenerateDataOptions, 'help' | 'verbose'> = {
   dryRun: false,
   output: 'src/data/star-trek-data.ts',
   validate: true,
+  createBackup: true,
   concurrency: DEFAULT_CONCURRENCY,
   enableCache: true,
+  cacheDir: '.cache/api-responses',
   clearCache: false,
   cacheStats: false,
+  summaryOutput: undefined,
   // Phase 6 defaults
   patch: undefined,
   manifest: undefined,
@@ -426,6 +433,9 @@ Options:
   --validate           Run validation after generation (default: true)
                        Uses existing validation tools to ensure data quality
 
+  --no-backup          Disable creating '<output>.backup' when writing output
+                       Recommended for CI to avoid transient backup files
+
   --verbose            Enable detailed logging with progress indicators
 
   --enable-cache       Enable API response caching (default: true)
@@ -440,6 +450,12 @@ Options:
 
   --cache-stats        Display cache statistics and exit
                        Shows hit rate, cache size, and entry counts
+
+  --cache-dir <path>   API cache directory (default: '.cache/api-responses')
+                       Useful for redirecting cache to temp directories in CI
+
+  --summary-output <path> Write machine-readable JSON summary to file
+                        Includes counts, quality metrics, validation stats, and status
 
   --patch <path>       Path to JSON patch file for targeted fixes
                        Apply manual corrections to episodes/seasons/movies
@@ -496,12 +512,15 @@ Environment Variables:
   CONCURRENCY          Number of parallel operations (default: 5, range: 1-10)
                        Overridden by --concurrency flag if provided
 
-Notes:
+  VBS_SUMMARY_OUTPUT   Path for machine-readable JSON summary output
+                       Used when --summary-output is not provided
+
+  Notes:
   - Script requires internet connection to fetch metadata
   - Rate limiting is enforced to respect API quotas
   - Parallel fetching improves performance while respecting rate limits
   - Generated files are formatted with Prettier/ESLint
-  - Backup of existing file is created automatically
+  - Backup of existing file is created automatically (disable with --no-backup)
   - Memory Alpha, TrekCore, and STAPI are always available
   - Phase 6 modules provide patches, overrides, and update detection
 `
@@ -577,6 +596,21 @@ const formatBytes = (bytes: number): string => {
   const sizes = ['Bytes', 'KB', 'MB', 'GB']
   const i = Math.floor(Math.log(bytes) / Math.log(k))
   return `${(bytes / k ** i).toFixed(2)} ${sizes[i]}`
+}
+
+const writeGenerationSummary = async (
+  summaryOutputPath: string | undefined,
+  summary: Record<string, unknown>,
+  logger: ReturnType<typeof createLogger>,
+): Promise<void> => {
+  if (!summaryOutputPath) {
+    return
+  }
+
+  const absoluteSummaryPath = resolve(summaryOutputPath)
+  await mkdir(dirname(absoluteSummaryPath), {recursive: true})
+  await writeFile(absoluteSummaryPath, `${JSON.stringify(summary, null, 2)}\n`, 'utf-8')
+  logger.info('Wrote machine-readable generation summary', {summaryOutput: absoluteSummaryPath})
 }
 
 /**
@@ -2028,6 +2062,7 @@ const parseArguments = (args: string[]): GenerateDataOptions => {
   const verbose = parseBooleanFlag(args, '--verbose')
   const dryRun = parseBooleanFlag(args, '--dry-run')
   const validate = !parseBooleanFlag(args, '--no-validate')
+  const createBackup = !parseBooleanFlag(args, '--no-backup')
 
   const modeStr = parseStringValue(args, '--mode') ?? DEFAULT_OPTIONS.mode
   const mode = modeStr === 'incremental' ? 'incremental' : 'full'
@@ -2043,8 +2078,15 @@ const parseArguments = (args: string[]): GenerateDataOptions => {
     : DEFAULT_OPTIONS.concurrency
 
   const enableCache = !parseBooleanFlag(args, '--no-cache')
+  const cacheDirValue = parseStringValue(args, '--cache-dir')
+  const cacheDir =
+    cacheDirValue && !cacheDirValue.startsWith('--') ? cacheDirValue : DEFAULT_OPTIONS.cacheDir
   const clearCache = parseBooleanFlag(args, '--clear-cache')
   const cacheStats = parseBooleanFlag(args, '--cache-stats')
+  const summaryOutputValue =
+    parseStringValue(args, '--summary-output') ?? process.env.VBS_SUMMARY_OUTPUT
+  const summaryOutput =
+    summaryOutputValue && !summaryOutputValue.startsWith('--') ? summaryOutputValue : undefined
 
   const patchValue = parseStringValue(args, '--patch')
   const patch = patchValue && !patchValue.startsWith('--') ? patchValue : undefined
@@ -2139,6 +2181,20 @@ const parseArguments = (args: string[]): GenerateDataOptions => {
     )
   }
 
+  if (
+    args.includes('--cache-dir') &&
+    (cacheDirValue === undefined || cacheDirValue.startsWith('--'))
+  ) {
+    showErrorAndExit(`--cache-dir requires a directory path.`, EXIT_CODES.INVALID_ARGUMENTS)
+  }
+
+  if (args.includes('--summary-output') && summaryOutput === undefined) {
+    showErrorAndExit(
+      `--summary-output requires a file path argument (e.g., --summary-output /tmp/summary.json).`,
+      EXIT_CODES.INVALID_ARGUMENTS,
+    )
+  }
+
   return {
     help: false,
     verbose,
@@ -2148,10 +2204,13 @@ const parseArguments = (args: string[]): GenerateDataOptions => {
     dryRun,
     output,
     validate,
+    createBackup,
     concurrency,
     enableCache,
+    cacheDir,
     clearCache,
     cacheStats,
+    summaryOutput,
     patch,
     manifest,
     override,
@@ -2462,7 +2521,7 @@ const main = async (): Promise<void> => {
 
   // Initialize API response cache
   const apiCache = createApiCache({
-    cacheDir: '.cache/api-responses',
+    cacheDir: options.cacheDir,
     defaultTtl: 24 * 60 * 60 * 1000, // 24 hours
     enabled: options.enableCache,
     verbose: options.verbose,
@@ -2521,6 +2580,10 @@ const main = async (): Promise<void> => {
     dryRun: options.dryRun,
     output: options.output,
     validate: options.validate,
+    createBackup: options.createBackup,
+    enableCache: options.enableCache,
+    cacheDir: options.cacheDir,
+    summaryOutput: options.summaryOutput,
   })
 
   if (options.verbose) {
@@ -3035,6 +3098,11 @@ const main = async (): Promise<void> => {
       mergingFunctions: ['mergeEpisodeFromSources', 'mergeMovieFromSources', 'resolveConflict'],
     })
 
+    let validationErrors = 0
+    let validationWarnings = 0
+    let outputVerified = false
+    let fileWritten = false
+
     if (options.dryRun) {
       logger.info('Dry-run mode: No files will be modified')
       logger.info('Preview of generated data:', {
@@ -3063,12 +3131,13 @@ const main = async (): Promise<void> => {
       logger.debug('Formatting TypeScript code with Prettier')
       const formattedCode = await formatTypeScriptCode(generatedCode)
 
-      logger.debug('Writing file atomically with backup creation')
-      await writeTextFileAtomic(resolve(options.output), formattedCode, true)
+      logger.debug('Writing file atomically', {createBackup: options.createBackup})
+      await writeTextFileAtomic(resolve(options.output), formattedCode, options.createBackup)
+      fileWritten = true
 
       logger.info('File written successfully', {
         outputPath: resolve(options.output),
-        backupPath: `${resolve(options.output)}.backup`,
+        ...(options.createBackup ? {backupPath: `${resolve(options.output)}.backup`} : {}),
         fileSize: formattedCode.length,
       })
 
@@ -3076,9 +3145,6 @@ const main = async (): Promise<void> => {
         logger.info('Running data validation')
 
         const {validateEpisodeWithReporting} = await import('./lib/data-validation.js')
-
-        let validationErrors = 0
-        let validationWarnings = 0
 
         for (const era of normalizedData.eras) {
           for (const item of era.items) {
@@ -3173,6 +3239,7 @@ const main = async (): Promise<void> => {
           eraIds,
           fileValid: true,
         })
+        outputVerified = true
       } catch (error) {
         logger.error('Output verification failed', {
           errorMessage: error instanceof Error ? error.message : String(error),
@@ -3259,6 +3326,56 @@ const main = async (): Promise<void> => {
           'Automatic fallback to alternative sources was attempted during enrichment.',
       })
     }
+
+    const totalItems = normalizedData.eras.reduce((sum, era) => sum + era.items.length, 0)
+    const averageQualityScorePercent = Number(
+      (qualityReport.summary.averageQualityScore * 100).toFixed(2),
+    )
+    const qualityThresholdPercent = Number(
+      (qualityReport.summary.qualityThreshold * 100).toFixed(2),
+    )
+    const generationSummary = {
+      generatedAt: new Date().toISOString(),
+      mode: options.mode,
+      dryRun: options.dryRun,
+      outputPath: resolve(options.output),
+      counts: {
+        eras: normalizedData.eras.length,
+        items: totalItems,
+        episodes: normalizedData.metadata.episodeCount,
+        movies: normalizedData.metadata.movieCount,
+        series: normalizedData.metadata.seriesCount,
+      },
+      quality: {
+        averageQualityScorePercent,
+        qualityThresholdPercent,
+        itemsAboveThreshold: qualityReport.summary.itemsAboveThreshold,
+        itemsBelowThreshold: qualityReport.summary.itemsBelowThreshold,
+        totalValidationIssues: qualityReport.validation.totalValidationIssues,
+      },
+      validation: {
+        duplicateIds: duplicateIds.length,
+        validationErrors,
+        validationWarnings,
+      },
+      status: {
+        fileWritten,
+        outputVerified,
+      },
+      errors: {
+        total: errorTracker.totalErrors,
+        errorRatePercent:
+          normalizedData.metadata.episodeCount > 0
+            ? Number(
+                ((errorTracker.totalErrors / normalizedData.metadata.episodeCount) * 100).toFixed(
+                  2,
+                ),
+              )
+            : 0,
+      },
+    }
+
+    await writeGenerationSummary(options.summaryOutput, generationSummary, logger)
 
     logger.info('Data generation completed successfully', {
       mode: options.mode,
