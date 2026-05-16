@@ -1,0 +1,30 @@
+{
+  "data": {
+    "page": 1,
+    "results": [
+      {
+        "adult": false,
+        "backdrop_path": "/ePr0k72sypMpZYubz6w34dcW68Y.jpg",
+        "genre_ids": [10765, 10759, 18],
+        "id": 67198,
+        "origin_country": ["US"],
+        "original_language": "en",
+        "original_name": "Star Trek: Discovery",
+        "overview": "Follow the voyages of Starfleet on their missions to discover new worlds and new life forms, and one Starfleet officer who must learn that to truly understand all things alien, you must first understand yourself.",
+        "popularity": 26.2339,
+        "poster_path": "/xwpOHgym48Ftz7fbJq5te5xoiwu.jpg",
+        "first_air_date": "2017-09-24",
+        "softcore": false,
+        "name": "Star Trek: Discovery",
+        "vote_average": 6.968,
+        "vote_count": 2004
+      }
+    ],
+    "total_pages": 1,
+    "total_results": 1
+  },
+  "cachedAt": "2026-05-11T10:19:46.978Z",
+  "expiresAt": "2026-05-12T10:19:46.978Z",
+  "url": "https://api.themoviedb.org/3/search/tv?query=Star%20Trek%3A%20Discovery",
+  "key": "699f81ebdf4ad13603d1df858ed5d9dcfec57552bc213d180ed63d8d32770feb"
+}
