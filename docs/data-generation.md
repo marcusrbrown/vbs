@@ -558,6 +558,7 @@ None - all variables are optional with graceful fallbacks.
 | `TMDB_API_KEY` | string | - | TMDB API Read Access Token (enables enhanced metadata) |
 | `DEBUG` | boolean | `false` | Enable verbose debug logging |
 | `MIN_METADATA_QUALITY` | number | `0.6` | Minimum quality threshold (0-1 scale) |
+| `VBS_SUMMARY_OUTPUT` | string | - | Fallback path for JSON summary output when `--summary-output` is not set |
 | `TMDB_RATE_LIMIT` | number | `30` | TMDB requests per minute |
 | `MEMORY_ALPHA_RATE_LIMIT` | number | `60` | Memory Alpha requests per minute |
 

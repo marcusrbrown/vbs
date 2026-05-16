@@ -512,6 +512,9 @@ Environment Variables:
   CONCURRENCY          Number of parallel operations (default: 5, range: 1-10)
                        Overridden by --concurrency flag if provided
 
+  VBS_SUMMARY_OUTPUT   Path for machine-readable JSON summary output
+                       Used when --summary-output is not provided
+
   Notes:
   - Script requires internet connection to fetch metadata
   - Rate limiting is enforced to respect API quotas
@@ -2075,7 +2078,9 @@ const parseArguments = (args: string[]): GenerateDataOptions => {
     : DEFAULT_OPTIONS.concurrency
 
   const enableCache = !parseBooleanFlag(args, '--no-cache')
-  const cacheDir = parseStringValue(args, '--cache-dir') ?? DEFAULT_OPTIONS.cacheDir
+  const cacheDirValue = parseStringValue(args, '--cache-dir')
+  const cacheDir =
+    cacheDirValue && !cacheDirValue.startsWith('--') ? cacheDirValue : DEFAULT_OPTIONS.cacheDir
   const clearCache = parseBooleanFlag(args, '--clear-cache')
   const cacheStats = parseBooleanFlag(args, '--cache-stats')
   const summaryOutputValue =
@@ -2176,7 +2181,10 @@ const parseArguments = (args: string[]): GenerateDataOptions => {
     )
   }
 
-  if (args.includes('--cache-dir') && cacheDir.startsWith('--')) {
+  if (
+    args.includes('--cache-dir') &&
+    (cacheDirValue === undefined || cacheDirValue.startsWith('--'))
+  ) {
     showErrorAndExit(`--cache-dir requires a directory path.`, EXIT_CODES.INVALID_ARGUMENTS)
   }
 

@@ -234,7 +234,7 @@ jobs:
             | jq -r '.[] | select(.title | startswith("Update Star Trek data -")) | .number' \
             | while read -r pr_number; do
                 if [ "${pr_number}" != "${CURRENT_PR_NUMBER}" ]; then
-                  gh pr close "${pr_number}" --comment "Superseded by perpetual data update PR #${CURRENT_PR_NUMBER}."
+                  gh pr close "${pr_number}" --comment "Superseded by perpetual data update PR #${CURRENT_PR_NUMBER}"
                 fi
               done
 
@@ -258,7 +258,7 @@ jobs:
             echo "❌ Data generation: **Failed**" >> $GITHUB_STEP_SUMMARY
           fi
 
-          if [ -n '${{ steps.generate.outputs.summary_json }}' ]; then
+          if [ -n "${{ steps.generate.outputs.summary_json }}" ]; then
             echo "### Data Quality Metrics" >> $GITHUB_STEP_SUMMARY
             echo "- Average quality score: **${{ fromJson(steps.generate.outputs.summary_json).quality.averageQualityScorePercent }}%**" >> $GITHUB_STEP_SUMMARY
             echo "- Validation issues: **${{ fromJson(steps.generate.outputs.summary_json).quality.totalValidationIssues }}**" >> $GITHUB_STEP_SUMMARY
