@@ -1,0 +1,29 @@
+{
+  "data": {
+    "page": 1,
+    "results": [
+      {
+        "adult": false,
+        "backdrop_path": "/vsjuHP9RQZJgYUvvSlO3mjJpXkq.jpg",
+        "genre_ids": [878, 28, 12, 53],
+        "id": 200,
+        "original_language": "en",
+        "original_title": "Star Trek: Insurrection",
+        "overview": "When an alien race and factions within Starfleet attempt to take over a planet that has \"regenerative\" properties, it falls upon Captain Picard and the crew of the Enterprise to defend the planet's people as well as the very ideals upon which the Federation itself was founded.",
+        "popularity": 3.6912,
+        "poster_path": "/xQCMAHeg5M9HpDIqanYbWdr4brB.jpg",
+        "release_date": "1998-12-11",
+        "title": "Star Trek: Insurrection",
+        "video": false,
+        "vote_average": 6.443,
+        "vote_count": 1335
+      }
+    ],
+    "total_pages": 1,
+    "total_results": 1
+  },
+  "cachedAt": "2026-04-06T09:34:05.988Z",
+  "expiresAt": "2026-04-07T09:34:05.988Z",
+  "url": "https://api.themoviedb.org/3/search/movie?query=Star%20Trek%3A%20Insurrection",
+  "key": "b7234b70784e81036e50a4f7cb42cafcf76d95333e3762e39fe10255cd6a8ab7"
+}

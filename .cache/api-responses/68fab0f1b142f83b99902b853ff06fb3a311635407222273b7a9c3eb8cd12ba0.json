@@ -1,0 +1,29 @@
+{
+  "data": {
+    "page": 1,
+    "results": [
+      {
+        "adult": false,
+        "backdrop_path": "/n25Wk2skU5DqAqWdHkL6quI11mz.jpg",
+        "genre_ids": [16, 18, 10765],
+        "id": 1992,
+        "origin_country": ["US"],
+        "original_language": "en",
+        "original_name": "Star Trek",
+        "overview": "The animated adventures of Captain Kirk, Mr. Spock and the crew of the Starship Enterprise.",
+        "popularity": 7.5804,
+        "poster_path": "/kvWG0bsLVQt23gZO6DI1mPosLxZ.jpg",
+        "first_air_date": "1973-09-08",
+        "name": "Star Trek",
+        "vote_average": 6.837,
+        "vote_count": 166
+      }
+    ],
+    "total_pages": 1,
+    "total_results": 1
+  },
+  "cachedAt": "2026-04-06T09:34:03.058Z",
+  "expiresAt": "2026-04-07T09:34:03.058Z",
+  "url": "https://api.themoviedb.org/3/search/tv?query=Star%20Trek%3A%20The%20Animated%20Series",
+  "key": "68fab0f1b142f83b99902b853ff06fb3a311635407222273b7a9c3eb8cd12ba0"
+}
