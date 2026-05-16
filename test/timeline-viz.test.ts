@@ -97,6 +97,17 @@ describe('Timeline Visualization', () => {
     political: 'Political',
     exploration: 'Exploration',
   } as const
+  const eventTypeOrder = [
+    'series',
+    'movie',
+    'animated',
+    'galactic_event',
+    'first_contact',
+    'war',
+    'technology',
+    'political',
+    'exploration',
+  ] as const
 
   let container: HTMLElement
   let timelineViz: TimelineVisualizationInstance
@@ -266,14 +277,9 @@ describe('Timeline Visualization', () => {
       const expectedDataset = timelineEvents.filter(e => e.type === 'exploration').slice(0, 3)
       timelineViz.updateData(expectedDataset)
 
-      const expectedTypes = [
-        ...new Set(
-          expectedDataset
-            .slice()
-            .sort((a, b) => a.date.getTime() - b.date.getTime())
-            .map(event => event.type),
-        ),
-      ]
+      const expectedTypes = [...new Set(expectedDataset.map(event => event.type))].sort(
+        (a, b) => eventTypeOrder.indexOf(a) - eventTypeOrder.indexOf(b),
+      )
 
       const expectedTracks = expectedTypes.map((type, index) => ({
         type,

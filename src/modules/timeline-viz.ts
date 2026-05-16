@@ -168,13 +168,26 @@ export const createTimelineVisualization = <TContainer extends HTMLElement>(
     political: 'Political',
     exploration: 'Exploration',
   }
+  const EVENT_TYPE_ORDER: TimelineEventType[] = [
+    'series',
+    'movie',
+    'animated',
+    'galactic_event',
+    'first_contact',
+    'war',
+    'technology',
+    'political',
+    'exploration',
+  ]
 
   // Track allocation state
   let tracks: TrackConfig[] = []
 
   // Build track configuration from visible event types
   const buildTracks = (filteredEvents: TimelineEvent[]): TrackConfig[] => {
-    const uniqueTypes = [...new Set(filteredEvents.map(e => e.type))]
+    const uniqueTypes = [...new Set(filteredEvents.map(e => e.type))].sort(
+      (a, b) => EVENT_TYPE_ORDER.indexOf(a) - EVENT_TYPE_ORDER.indexOf(b),
+    )
     return uniqueTypes.map((type, index) => ({
       type,
       label: EVENT_TYPE_LABELS[type],
