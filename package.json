@@ -39,26 +39,26 @@
     "d3": "^7.9.0"
   },
   "devDependencies": {
-    "@bfra.me/eslint-config": "0.51.0",
-    "@bfra.me/prettier-config": "0.16.8",
-    "@bfra.me/tsconfig": "0.13.0",
+    "@bfra.me/eslint-config": "0.51.1",
+    "@bfra.me/prettier-config": "0.16.9",
+    "@bfra.me/tsconfig": "0.13.1",
     "@types/d3": "7.4.3",
     "@types/jsdom": "27.0.0",
-    "@types/node": "24.12.2",
-    "@vitest/coverage-v8": "4.1.4",
-    "@vitest/ui": "4.1.4",
+    "@types/node": "24.12.4",
+    "@vitest/coverage-v8": "4.1.6",
+    "@vitest/ui": "4.1.6",
     "dotenv": "17.4.2",
     "eslint": "9.39.4",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-prettier": "5.5.5",
-    "jiti": "2.6.1",
+    "jiti": "2.7.0",
     "jsdom": "27.4.0",
     "lint-staged": "16.4.0",
     "prettier": "^3.6.2",
     "simple-git-hooks": "2.13.1",
     "typescript": "5.9.3",
-    "vite": "^7.0.6",
-    "vitest": "4.1.4"
+    "vite": "^7.3.2",
+    "vitest": "4.1.6"
   },
   "packageManager": "pnpm@10.33.4"
 }
