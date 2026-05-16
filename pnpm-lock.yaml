@@ -22,55 +22,55 @@ importers:
         specifier: ^0.13.0
         version: 0.13.0
       '@types/d3':
-        specifier: ^7.4.3
+        specifier: 7.4.3
         version: 7.4.3
       '@types/jsdom':
-        specifier: ^27.0.0
+        specifier: 27.0.0
         version: 27.0.0
       '@types/node':
-        specifier: ^24.1.0
+        specifier: 24.12.2
         version: 24.12.2
       '@vitest/coverage-v8':
-        specifier: ^4.0.0
+        specifier: 4.1.4
         version: 4.1.4(vitest@4.1.4)
       '@vitest/ui':
-        specifier: ^4.0.0
+        specifier: 4.1.4
         version: 4.1.4(vitest@4.1.4)
       dotenv:
-        specifier: ^17.2.3
+        specifier: 17.4.2
         version: 17.4.2
       eslint:
-        specifier: ^9.32.0
+        specifier: 9.39.4
         version: 9.39.4(jiti@2.6.1)
       eslint-config-prettier:
-        specifier: ^10.1.8
+        specifier: 10.1.8
         version: 10.1.8(eslint@9.39.4(jiti@2.6.1))
       eslint-plugin-prettier:
-        specifier: ^5.5.3
+        specifier: 5.5.5
         version: 5.5.5(eslint-config-prettier@10.1.8(eslint@9.39.4(jiti@2.6.1)))(eslint@9.39.4(jiti@2.6.1))(prettier@3.8.3)
       jiti:
-        specifier: ^2.5.1
+        specifier: 2.6.1
         version: 2.6.1
       jsdom:
-        specifier: ^27.0.0
+        specifier: 27.4.0
         version: 27.4.0
       lint-staged:
-        specifier: ^16.1.4
+        specifier: 16.4.0
         version: 16.4.0
       prettier:
         specifier: ^3.6.2
         version: 3.8.3
       simple-git-hooks:
-        specifier: ^2.13.1
+        specifier: 2.13.1
         version: 2.13.1
       typescript:
-        specifier: ^5.9.2
+        specifier: 5.9.3
         version: 5.9.3
       vite:
         specifier: ^7.0.6
         version: 7.3.2(@types/node@24.12.2)(jiti@2.6.1)(yaml@2.8.3)
       vitest:
-        specifier: ^4.0.0
+        specifier: 4.1.4
         version: 4.1.4(@types/node@24.12.2)(@vitest/coverage-v8@4.1.4)(@vitest/ui@4.1.4)(jsdom@27.4.0)(vite@7.3.2(@types/node@24.12.2)(jiti@2.6.1)(yaml@2.8.3))
 
 packages:
