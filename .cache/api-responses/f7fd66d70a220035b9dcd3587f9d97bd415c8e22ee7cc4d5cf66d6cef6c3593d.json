@@ -1,0 +1,29 @@
+{
+  "data": {
+    "page": 1,
+    "results": [
+      {
+        "adult": false,
+        "backdrop_path": "/kG7GwGBHpCI6lA6SaEydKHHOxkU.jpg",
+        "genre_ids": [10765, 16, 35],
+        "id": 85948,
+        "origin_country": ["US"],
+        "original_language": "en",
+        "original_name": "Star Trek: Lower Decks",
+        "overview": "The lives of the support crew serving on one of Starfleet's least important ships, the U.S.S. Cerritos, in 2380. Ensigns Mariner, Boimler, Rutherford and Tendi have to keep up with their duties and their social lives, often while the ship is being rocked by a multitude of sci-fi anomalies.",
+        "popularity": 29.5603,
+        "poster_path": "/i7Em3r7KCyNfkOwMkyqN8UMvK8S.jpg",
+        "first_air_date": "2020-08-06",
+        "name": "Star Trek: Lower Decks",
+        "vote_average": 7.6,
+        "vote_count": 426
+      }
+    ],
+    "total_pages": 1,
+    "total_results": 1
+  },
+  "cachedAt": "2026-03-30T09:37:38.918Z",
+  "expiresAt": "2026-03-31T09:37:38.918Z",
+  "url": "https://api.themoviedb.org/3/search/tv?query=Star%20Trek%3A%20Lower%20Decks",
+  "key": "f7fd66d70a220035b9dcd3587f9d97bd415c8e22ee7cc4d5cf66d6cef6c3593d"
+}
