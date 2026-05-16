@@ -1,0 +1,29 @@
+{
+  "data": {
+    "page": 1,
+    "results": [
+      {
+        "adult": false,
+        "backdrop_path": "/rPaOAtK6OpnHQ9r61WPM4WWNxaH.jpg",
+        "genre_ids": [878, 12, 9648],
+        "id": 152,
+        "original_language": "en",
+        "original_title": "Star Trek: The Motion Picture",
+        "overview": "When an unidentified alien destroys three powerful Klingon cruisers, Captain James T. Kirk returns to the newly transformed U.S.S. Enterprise to take command.",
+        "popularity": 7.617,
+        "poster_path": "/wfiAfNwH6CMKxz4vRaW8CPTabtk.jpg",
+        "release_date": "1979-12-07",
+        "title": "Star Trek: The Motion Picture",
+        "video": false,
+        "vote_average": 6.479,
+        "vote_count": 1912
+      }
+    ],
+    "total_pages": 1,
+    "total_results": 1
+  },
+  "cachedAt": "2026-04-20T09:41:02.320Z",
+  "expiresAt": "2026-04-21T09:41:02.320Z",
+  "url": "https://api.themoviedb.org/3/search/movie?query=Star%20Trek%3A%20The%20Motion%20Picture",
+  "key": "0d03342811bad7eb8d629cd2a0727b469bcbbd049f9eece88b380cb8b2797c0d"
+}
