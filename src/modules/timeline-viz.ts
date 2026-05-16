@@ -1236,8 +1236,8 @@ export const createTimelineVisualization = <TContainer extends HTMLElement>(
     enableAutoOptimization,
 
     // Generic EventEmitter methods for type-safe event handling
-    on: (eventName, listener) => eventEmitter.on(eventName, listener),
-    off: (eventName, listener) => eventEmitter.off(eventName, listener),
-    once: (eventName, listener) => eventEmitter.once(eventName, listener),
+    on: eventEmitter.on.bind(eventEmitter),
+    off: eventEmitter.off.bind(eventEmitter),
+    once: eventEmitter.once.bind(eventEmitter),
   }
 }
