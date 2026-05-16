@@ -234,6 +234,7 @@ describe('Timeline Visualization', () => {
 
       // Trigger a guaranteed track change after listener registration
       const singleTypeEvents = timelineEvents.filter(e => e.type === 'exploration').slice(0, 3)
+      expect(singleTypeEvents.length).toBeGreaterThan(0)
       timelineViz.updateData(singleTypeEvents)
 
       expect(trackChangeListener).toHaveBeenCalledTimes(1)
@@ -256,6 +257,7 @@ describe('Timeline Visualization', () => {
       timelineViz.on('track-change', trackChangeListener)
 
       const expectedDataset = timelineEvents.filter(e => e.type === 'exploration').slice(0, 3)
+      expect(expectedDataset.length).toBeGreaterThan(0)
       timelineViz.updateData(expectedDataset)
 
       const expectedTypes = [...new Set(expectedDataset.map(event => event.type))].sort(
@@ -309,6 +311,7 @@ describe('Timeline Visualization', () => {
       timelineViz.on('track-change', trackChangeListener)
 
       const singleTypeEvents = timelineEvents.filter(e => e.type === 'exploration').slice(0, 3)
+      expect(singleTypeEvents.length).toBeGreaterThan(0)
       timelineViz.updateData(singleTypeEvents)
       expect(trackChangeListener).toHaveBeenCalledTimes(1)
 
