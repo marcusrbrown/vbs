@@ -575,6 +575,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'The Enterprise, under Captain Jonathan Archer, sets off on its maiden voyage with a mission to return a wounded Klingon to his people.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s1_e03_314',
@@ -585,6 +588,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Captain Archer wants to convert curiosity into deeds and decides to enter a ship floating in space. Hoshi has trouble adjusting to life on Enterprise.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s1_e04_314',
@@ -595,6 +601,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Archer sends an away team to a habitable, luscious planet for observation. But when a storm occurs, the team begins to experience paranoid delusions.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s1_e05_314',
@@ -605,6 +614,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "When Trip is dispatched to assist a Xyrillian ship with its power source problems, he is delighted to have a friendly encounter with one of the ship's female engineers. However, shortly after returning to Enterprise, he discovers that their seemingly innocuous interaction has led to a surprising result.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s1_e06_314',
@@ -615,6 +627,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'The Enterprise crew alters course to investigate the mystery of Terra Nova, a legendary Earth colony whose inhabitants mysteriously disappeared decades ago. But when they arrive, they confront descendents of the colonists who have become more alien than Archer could ever have imagined.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s1_e07_314',
@@ -625,6 +640,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Enterprise visits an ancient Vulcan spiritual sanctuary, despite T'Pol's concerns that her human colleagues will be an awkward and disruptive presence there. Upon landing, they discover that the monastery has been forcibly taken over by the Andorians, a paranoid and highly excitable race of aliens with a long history of conflict with the Vulcans.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s1_e08_314',
@@ -634,6 +652,9 @@ export const starTrekData = [
             airDate: '2001-11-07',
             stardate: 'None',
             synopsis: "A Vulcan starship interferes with Archer's probe of an oversized comet.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s1_e09_314',
@@ -644,6 +665,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Captain Archer and the crew discover a fully inhabited, civilized though less advanced Earth-like planet. Disguised to look like its inhabitants, they pay the planet an exploratory visit where they learn that a pernicious illness is afflicting the local population. As Archer seeks to help them find the malady's source, he finds himself in a close encounter with a comely female alien.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s1_e10_314',
@@ -654,6 +678,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "The Enterprise crew is dispatched by Starfleet Command to assist Fortunate, a human freight vessel that has been attacked by Nausicaan pirates. On arriving, they are surprised to find that Fortunate's crew is resistant to Archer's efforts to help them and determined to seek revenge against their attackers, no matter the repercussions.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s1_e11_314',
@@ -664,6 +691,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'When the Enterprise comes in contact with an alien vessel transporting stargazers to observe a spectacular stellar event, Archer invites them aboard the ship not realizing that Silik, a Suliban enemy, is among them. Archer quickly realizes that Silik is engaged in a nefarious time-travelling mission and must stop him before he can tamper with the course of history.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s1_e12_314',
@@ -674,6 +704,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "When Enterprise is attacked by an unidentified enemy ship, the crew must work frantically to get their new phase canons to operate. Meanwhile, the captain charges Hoshi with finding out Malcolm's favorite food in time for a surprise birthday dinner.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s1_e13_314',
@@ -684,6 +717,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'The crew discovers a new planet with two races, one in desperate need of medical and scientific assistance. In the course of trying to help, Dr. Phlox recalls his own Denobulan past to address the ethical dilemmas that arise in the present.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s1_e14_314',
@@ -694,6 +730,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "While investigating a gas giant, Enterprise comes across a damaged vessel hovering in the atmosphere, and T'Pol, Hoshi and Malcolm board the vessel to investigate. However, once aboard, they are ambushed by a hostile female Klingon who hijacks their shuttlepod and strands them on the Klingon ship, which threatens to implode under the pressure of the planet's atmosphere.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s1_e15_314',
@@ -704,6 +743,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Archer and the crew are disappointed to discover that T'Pol has been ordered by the Vulcan High Command to leave Enterprise--and equally frustrated at her seeming indifference to leaving their ranks. T'Pol's last mission as a Starfleet officer, however, proves eventful when she and Archer are kidnapped by a militant faction on an alien planet.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s1_e16_314',
@@ -714,6 +756,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Tucker and Reed set out on a mission in a shuttlepod, as Enterprise is busy investigating an asteroid field. Disaster strikes while the pair are away, leaving the shuttlepod damaged and the warp drive inoperable. They manage to make it back to the rendezvous coordinates only to discover Enterprise was apparently destroyed when it crashed into an asteroid. With the ship seemingly no more, the pair are left abandoned in the middle of nowhere with only a few days of air remaining.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s1_e17_314',
@@ -724,6 +769,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Enterprise encounters a group of Vulcan civilians who have split off from the normal way of Vulcan life in an effort to explore their emotions. T'Pol is disturbed by the new visitors and warns the Captain that all attempts in the past to integrate Vulcan emotions into their lives has proven disastrous. Meanwhile, a message from Admiral Forrest leaves the Captain with the difficult task of trying to convince one of the visiting Vulcans to call home to speak with his dying father.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s1_e18_314',
@@ -734,6 +782,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'While exploring an uncharted planet, Enterprise crew members encounter a group of aliens who are hunting down indigenous creatures for recreation. During their exploration, Archer is mesmerized by visions of an elusive, yet familiar woman who needs his help.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s1_e19_314',
@@ -744,6 +795,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Enterprise encounters Ferengi pirates who use a booby-trapped artifact to gas the crew into unconsciousness, then pillage the ship for treasures. But they haven't counted on Tucker, who happens to be in the decon chamber and avoids the gas, and attempts to win back the ship from the pirates.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s1_e20_314',
@@ -754,6 +808,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'While exploring a crashed vessel on a desolate planet, the Enterprise crew is haunted by some ghostly figures, and they encounter an alien race that has survived despite insurmountable odds. Trip helps repair their derelict vessel and is befriended by Liana, an attractive humanoid alien who develops feelings for him.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s1_e21_314',
@@ -764,6 +821,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "While exploring a planet, Archer and Mayweather enter a “military zone” and are detained in an internment prison by an alien race called Tandarans, who are at war with the Suliban. While the Enterprise crew's previous encounters with the Suliban have been disastrous, Archer and Mayweather find themselves sharing a cell with some Suliban detainees who they believe may be wrongly imprisoned.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s1_e22_314',
@@ -774,6 +834,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "A strange, alien creature comes aboard Enterprise, and captures several crew members in its cocoon-like web. With her crewmates' lives in jeopardy, Hoshi faces her biggest challenge yet, in trying to communicate with the lifeform, in order to return it to its home planet.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s1_e23_314',
@@ -784,6 +847,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Enterprise is sent to the planet Mazar to pick up a Vulcan ambassador who has been expelled for misconduct.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s1_e24_314',
@@ -794,6 +860,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "When Archer and Trip are invited to a desert-like planet by an alien leader, they discover he is a terrorist who has lured them there under false pretences. Meanwhile, T'Pol, while in command, faces a tough decision when she cannot locate Archer and Trip in the desert.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s1_e25_314',
@@ -804,6 +873,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Archer, Hoshi, Travis, Malcolm and Trip have decidedly different experiences during shore leave on Risa. Meanwhile, on Enterprise, Phlox enters his annual hibernation cycle.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s1_e26_314',
@@ -814,6 +886,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Starfleet orders Enterprise to return home when the crew seemingly causes the destruction of an alien planet. However, a visit from Crewman Daniels leads Archer to believe that this disaster was the plot of one of the factions from the temporal cold war.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
         ],
       },
@@ -836,6 +911,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Daniels and Archer must find a way back to the 22nd century in order to make sure history plays out as it should. Meanwhile, on board Enterprise, the Suliban have taken over the ship, but Reed, Trip, and T'Pol formulate a plan to eject the aliens.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s2_e02_314',
@@ -846,6 +924,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "After Archer and Trip become curious about a visit she made to a Pennsylvania mining town called Carbon Creek, T'Pol explains to them that Vulcans actually had their first contact with humans in 1957. That year, a Vulcan ship crashed on Earth and three crew members survived, including T'Pol's great grandmother. They pose as humans in Carbon Creek and take on jobs while waiting for rescue and soon find themselves becoming more involved with the town's residents.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s2_e03_314',
@@ -856,6 +937,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "When attempting to explore a new planet, Enterprise triggers a cloaked mine. While the crew deal with the resulting damage, it's discovered another mine is stuck to the hull. During Reed's attempt to disarm it, a spike is driven into his leg, trapping him out there. While Archer goes out on the hull to help him, the rest of the crew learn they are in a minefield belonging to the Romulan Star Empire, who demand Enterprise leave or face destruction.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s2_e04_314',
@@ -866,6 +950,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Suffering from damage inflicted in the Romulan minefield and unable to complete repairs on their own, Archer orders a distress call to be put out. A response leads Enterprise to a repair station, which surprisingly has no crew aboard it and is run by computer. Repairs on Enterprise are carried out quite efficiently and quickly, though the price for all this is much higher than the crew could've guessed.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s2_e05_314',
@@ -876,6 +963,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Archer spends a night in sickbay with Dr. Phlox after Porthos contracts a deadly virus on the Kreetassan homeworld. Crew members suspect Archer's increased stress level is due to Porthos' illness, but Dr. Phlox suspects it has to do with Archer's repressed sexual tension.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s2_e06_314',
@@ -886,6 +976,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'In need of fuel, the Enterprise arrives at a Quonset mining colony for deuterium supplies. They discover that Klingons are forcing the colonists to give up all their deuterium. Archer and the rest of the crew work to train the colonists so they can fight back against the Klingons.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s2_e07_314',
@@ -896,6 +989,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Archer, Mayweather and T'Pol travel to an arctic world to apprehend a fugitive, when T'Pol is contacted by Vulcan High Command. The mission takes a dangerous turn when T'Pol begins having flashbacks that suggest the events she remembers about a former mission may not accurately relate to what happened.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s2_e08_314',
@@ -906,6 +1002,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Archer and Reed return to a pre-warp society, that is on the verge of war, to recover a lost communicator from an undercover survey mission.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s2_e09_314',
@@ -916,6 +1015,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'While Enterprise is surveying a black hole in a trinary star system, the stellar phenomenon causes strange effects on the crew.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s2_e10_314',
@@ -926,6 +1028,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Hoshi experiences her first transporter experience and strange aftereffects lead her to believe she wasn't reassembled correctly.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s2_e11_314',
@@ -936,6 +1041,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Trip boards an alien cargo vessel to help repair a stasis pod, which holds a beautiful woman in suspended animation. When the woman accidentally wakes up, she reveals she's not a passenger, but a prisoner.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s2_e12_314',
@@ -946,6 +1054,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "When a lethal neutronic storm approaches faster than Enterprise can escape, the crew take shelter in the maintenance shafts inside the warp nacelles. They also provide refuge to a group of aliens, who aren't exactly honest about themselves.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s2_e13_314',
@@ -956,6 +1067,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'During a solo test mission on Shuttlepod One, Trip is attacked by a territorial alien and forced to land on the night side of a moon. As he tries contacting Enterprise, he discovers his alien foe has made an emergency landing nearby. The two contend with each other as an extremely hot sun rises and threatens both their lives.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s2_e14_314',
@@ -966,6 +1080,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Enterprise visits a planet where an Interspecies Medical Exchange conference is being held. Dr. Phlox tries to obtain research on a terminal disease from the Vulcan contingency, without revealing T'Pol has been infected by it.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s2_e15_314',
@@ -976,6 +1093,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Both the Vulcans and the Andorians make a claim to a small planet and military conflict soon erupts. As the fighting goes on, the Vulcans announce they are willing to discuss cease fire terms. However, Imperial Guard officer Shran believes only Captain Archer can be trusted to mediate the situation, which drags the Enterprise crew into the tense situation.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s2_e16_314',
@@ -986,6 +1106,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'The Enterprise crew find a small craft drifting in space and are surprised to find it contains a human corpse. More questions arise when the Suliban and Tholians make claims to the craft.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s2_e17_314',
@@ -996,6 +1119,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Archer and Tucker are arrested and placed on a prisoner transport heading for a penal colony, Canamar. They won't have a chance to correct this error, as one of the inmates plots a takeover of the ship.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s2_e18_314',
@@ -1005,6 +1131,9 @@ export const starTrekData = [
             airDate: '2003-04-02',
             stardate: 'None',
             synopsis: 'Noncorporeal aliens possess the bodies of the Enterprise crew.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s2_e19_314',
@@ -1015,6 +1144,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'In a Klingon tribunal, Archer stands accused of aiding fugitives of the Empire and faces death if found guilty.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s2_e20_314',
@@ -1025,6 +1157,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Mayweather discovers his father has died and that things on his old home, the E.C.S. Horizon, have greatly changed.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s2_e21_314',
@@ -1035,6 +1170,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'When militants take over a world, the Enterprise crew move to evacuate Denobulan geologists that are deep underground. Meanwhile, Phlox has to save a dying Antaran that refuses treatment due to the history of their races.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s2_e22_314',
@@ -1045,6 +1183,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "The Enterprise crew makes first contact with the Vissians, a species with three genders. Trip meets one of the species' third gender, known as Cogenitor, and learns how badly Vissians treat all Cogenitors. Trip attempts to help the Cogenitor, even though it interferes with Vissian culture.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s2_e23_314',
@@ -1055,6 +1196,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "The remnants of an alien ship and two frozen cybernetic bodies are uncovered in the arctic by a research team. These aliens soon thaw out and flee Earth, taking the research team with them. Starfleet orders Enterprise to find them, but the crew aren't prepared for just how dangerous these aliens really are.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s2_e24_314',
@@ -1065,6 +1209,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Archer tells T'Pol the story of when he and a rival named A.G. Robinson were in competition for breaking the Warp 2 barrier.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s2_e25_314',
@@ -1075,6 +1222,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Archer learns the Klingons have put a price on his head when he is captured by a Tellarite bounty hunter. As Enterprise pursues, a virus causes T'Pol to go into premature Pon Farr.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s2_e26_314',
@@ -1085,6 +1235,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'An alien race known as the Xindi launch an attack on Earth, causing great casualties and massive damage. As Enterprise heads back home, an unlikely source informs Archer about the Xindi and that their next attack will destroy Earth.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
         ],
       },
@@ -1107,6 +1260,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Captain Archer and his crew set out to gain information about the mysterious and antagonistic Xindi race.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s3_e02_314',
@@ -1117,6 +1273,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Enterprise starts experiencing effects of the spatial distortions pervading the Delphic Expanse, and falls victim to predatory aliens.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s3_e03_314',
@@ -1127,6 +1286,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'On a mission to investigate an abandoned Xindi vessel on a jungle planet, Archer, Reed and Hoshi succumb to a virus that mutates them into a primal life form.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s3_e04_314',
@@ -1137,6 +1299,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'The NX-01 gets closer to a showdown with the Xindi when Captain Archer takes on an enigmatic passenger: a beautiful slave named Rajiin.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s3_e05_314',
@@ -1147,6 +1312,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'When Enterprise responds to a distress call from a Vulcan ship stranded in the Delphic Expanse, Archer and his boarding team are attacked by insane zombie-like Vulcans.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s3_e06_314',
@@ -1157,6 +1325,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'A powerful telepath makes contact with Hoshi and offers to help Enterprise find the Xindi ... for a price.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s3_e07_314',
@@ -1167,6 +1338,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Archer, Reed and Major Hayes infiltrate a Xindi-Sloth industrial colony to learn more about the weapon of mass destruction that will be used against Earth.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s3_e08_314',
@@ -1177,6 +1351,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'A spatial distortion leaves Archer unable to form any new long-term memories. Years in the future, he wakes up one morning and is stunned to learn the outcome of the human-Xindi conflict.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s3_e09_314',
@@ -1187,6 +1364,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'When a settlement of humans living a 19th-century Western lifestyle is discovered on a Delphic Expanse planet, Archer and crew set out to learn how they got there.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s3_e10_314',
@@ -1197,6 +1377,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'When Trip suffers a catastrophic injury, his only hope for survival is a transplant from a "mimetic symbiont" which Phlox grows from one of his exotic creatures.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s3_e11_314',
@@ -1206,6 +1389,9 @@ export const starTrekData = [
             airDate: '2003-11-26',
             stardate: 'None',
             synopsis: "Archer and T'Pol travel back in time to 2004 Detroit to stop a Xindi plot.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s3_e12_314',
@@ -1216,6 +1402,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Religious zealots hijack Enterprise to use it as a weapon against the enemies of their faith.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s3_e13_314',
@@ -1226,6 +1415,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'An Andorian ship led by Commander Shran arrives in the Delphic Expanse to help Enterprise hone in on the Xindi super-weapon.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s3_e14_314',
@@ -1236,6 +1428,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Archer finds himself face-to-face with Degra, the designer of the Xindi superweapon, and tries to get him to reveal its location.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s3_e15_314',
@@ -1246,6 +1441,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'As Archer tries to unravel the mystery of a rescued alien, long-simmering feelings explode among his senior officers.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s3_e16_314',
@@ -1256,6 +1454,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "The fate of Enterprise is in Dr. Phlox's hands as the rest of the crew must be induced into a coma in order to survive a trans-dimensional disturbance.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s3_e17_314',
@@ -1266,6 +1467,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Archer goes to extreme lengths to save an abandoned nest of Xindi-Insectoid eggs ready to hatch.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s3_e18_314',
@@ -1276,6 +1480,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Archer sets out on a suicide mission to destroy the Xindi superweapon as Enterprise faces a brutal attack.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s3_e19_314',
@@ -1286,6 +1493,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'While dissension among Xindi ranks festers, Enterprise tries to recover from a devastating attack.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s3_e20_314',
@@ -1296,6 +1506,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Two high-ranking Xindi offer to stop the launch of their superweapon if Archer can prove they've been manipulated. Meanwhile, the crew mourns their lost mates.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s3_e21_314',
@@ -1306,6 +1519,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'An attempt to use a Xindi subspace corridor leads the Enterprise crew to a bizarre encounter with their own descendants.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s3_e22_314',
@@ -1316,6 +1532,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Archer and Hoshi stand before the Xindi Council as T'Pol and Reed lead a team into the heart of a Sphere.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s3_e23_314',
@@ -1326,6 +1545,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'With help from Xindi allies, the Enterprise crew attempts to stop the arming of the Weapon aimed toward Earth.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s3_e24_314',
@@ -1336,6 +1558,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Archer puts his life on the line in a risky gambit to intercept the Xindi superweapon and disarm it from within.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
         ],
       },
@@ -1358,6 +1583,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Archer and the NX-01 find themselves in Earth's past, with events of World War II altered by the Temporal Cold War.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s4_e02_314',
@@ -1368,6 +1596,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "With Silik's help, Archer hones in on the temporal operative who altered Earth's past and threatens to destroy all of time.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s4_e03_314',
@@ -1378,6 +1609,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Once the NX-01 finally returns to Earth, the weary crewmen face repercussions of their journeys, both positive and negative.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s4_e04_314',
@@ -1388,6 +1622,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'When genetic supermen left over from the Eugenics Wars hijack a Klingon ship, Archer must rely on their creator, the criminal Dr. Arik Soong, to help hunt them down.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s4_e05_314',
@@ -1398,6 +1635,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Arik Soong leads his band of Augments to a medical facility where hundreds of genetically enhanced embryos are still stored, intending to retrieve them and bring them to life.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s4_e06_314',
@@ -1408,6 +1648,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'In defiance of their "father," Arik Soong\'s Augments devise a heinous plot against the Klingons which will surely lead to interstellar war.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s4_e07_314',
@@ -1418,6 +1661,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Earth's embassy on Vulcan is bombed, and the ensuing investigation puts Archer and T'Pol on the trail of a Vulcan religious faction hiding in a treacherous desert.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s4_e08_314',
@@ -1428,6 +1674,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Archer and T'Pol encounter the Syrrannites, a radical group hiding in the Vulcan desert, while the NX-01 crew contends with Vulcan power ploys.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s4_e09_314',
@@ -1438,6 +1687,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Archer, T'Pol and T'Pau attempt to bring the Kir'Shara — an artifact believed to contain Surak's original writings — to the Vulcan capital, as the NX-01 gets involved in a Vulcan-Andorian military clash.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s4_e10_314',
@@ -1448,6 +1700,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'The inventor of the transporter, Emory Erickson, comes aboard Enterprise for a risky experiment.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s4_e11_314',
@@ -1458,6 +1713,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Non corporeal aliens study the Enterprise crew as they respond to a fatal viral infection brought on board from an away mission.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s4_e12_314',
@@ -1468,6 +1726,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Enterprise journeys to Babel with a Tellarite ambassador on board for peace talks with the Andorians, when a distress call from Shran is received.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s4_e13_314',
@@ -1478,6 +1739,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Archer tries to unify the Andorians, Tellarites and Vulcans in a plan to capture a marauder ship threatening to destabilize the region.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s4_e14_314',
@@ -1488,6 +1752,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Archer visits Shran's icy homeworld to find an Andorian subspecies called the Aenar, to determine their connection to the marauder destroying ships in the region.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s4_e15_314',
@@ -1498,6 +1765,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'While Enterprise visits Earth for the launch of Columbia, Phlox is kidnapped and forced to help the Klingons deal with a grave threat toward their species.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s4_e16_314',
@@ -1508,6 +1778,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "With Columbia's help, the Enterprise crew grapples with sabotage to their ship as they pursue the truth behind the kidnapping of Phlox.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s4_e17_314',
@@ -1518,6 +1791,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'As a gift for negotiating with the Orion Syndicate, Captain Archer receives three Orion Slave Girls.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s4_e18_314',
@@ -1528,6 +1804,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'In the mirror universe, Commander Archer mutinies against Captain Forrest in order to capture a future Earth ship found in Tholian space.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s4_e19_314',
@@ -1538,6 +1817,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'In the mirror universe, Archer commandeers the 23rd-century Defiant from the Tholians and uses it in a nefarious power grab.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s4_e20_314',
@@ -1548,6 +1830,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'A xenophobic faction of humanity threatens to undermine talks to form a new coalition of planets.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s4_e21_314',
@@ -1558,6 +1843,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'A human isolationist leader threatens to destroy Starfleet Command unless all aliens leave Earth immediately.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ent_s4_e22_314',
@@ -1568,6 +1856,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Six years in the future, an emotional Captain Archer and the crew return to Earth to face the decommission of Enterprise and signing of the Federation charter.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
         ],
       },
@@ -1644,6 +1935,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'While patrolling Federation space, the U.S.S. Shenzhou encounters an object of unknown origin, putting First Officer Michael Burnham to her greatest test yet.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'dis_s1_e02_67198',
@@ -1654,6 +1948,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Face to face with Klingon vessels, the U.S.S. Shenzhou prepares for the possibility of war if negotiations fail. Amidst the turmoil, Burnham looks back to her Vulcan upbringing for guidance.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'dis_s1_e03_67198',
@@ -1664,6 +1961,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Burnham finds herself aboard the U.S.S. Discovery where she quickly realizes things are not as they seem, including the mysterious Captain Gabriel Lorca.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'dis_s1_e04_67198',
@@ -1674,6 +1974,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'With tensions and stakes high as Starfleet continues in their efforts to end the war with Klingons, Burnham begins to settle in to her new position aboard the U.S.S. Discovery.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'dis_s1_e05_67198',
@@ -1684,6 +1987,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Lorca unexpectedly finds himself in the company of a prisoner of war, Starfleet Lieutenant Ash Tyler, and a notorious intergalactic criminal, Harry Mudd. Meanwhile, Burnham voices her concerns about the repercussions of the spore drive jumps on “Ripper.”',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'dis_s1_e06_67198',
@@ -1694,6 +2000,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "The U.S.S. Discovery crew is intrigued by new addition, Lt. Ash Tyler. Sarek seeks Burnham's help, rekindling memories from her past. Admiral Cornwell questions Lorca's tactics.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'dis_s1_e07_67198',
@@ -1704,6 +2013,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'As the U.S.S. Discovery crew attempts to let loose at a party, an unwelcome visitor comes aboard bringing about a problematic and twisted sequence of events.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'dis_s1_e08_67198',
@@ -1714,6 +2026,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "The U.S.S. Discovery is tasked with a high priority mission to planet Pahvo and learn the science behind the Klingon's cloaking technology.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'dis_s1_e09_67198',
@@ -1724,6 +2039,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Bypassing Starfleet's orders, Lorca uses the U.S.S. Discovery crew's ultimate asset, the ship itself, in an effort to end the war with the Klingons once and for all.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'dis_s1_e10_67198',
@@ -1734,6 +2052,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'While in unfamiliar territory, the U.S.S. Discovery crew is forced to get creative in their next efforts to survive opposing and unprecedented forces and return home.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'dis_s1_e11_67198',
@@ -1744,6 +2065,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'The crew continues their guise, and Burnham is ordered on a merciless mission to end the resistance in hopes of returning home. Meanwhile, Tilly works on restoring Stamets’ neurofunction.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'dis_s1_e12_67198',
@@ -1754,6 +2078,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Burnham heads to the ISS Charon with a special "gift" for the Emperor. With the help of an unexpected source, Stamets gains clarity while trapped inside the mycelial network. Saru asks for L\'Rell\'s help.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'dis_s1_e13_67198',
@@ -1764,6 +2091,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Lorca plans to move forward with a coup against the Emperor, propelling Burnham to make a quick decision to save not only herself, but the U.S.S. Discovery.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'dis_s1_e14_67198',
@@ -1774,6 +2104,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Burnham and the U.S.S. Discovery crew are faced with the harsh reality of the war during their absence. In order to move forward, Starfleet must use unconventional tactics and sources to take their next action against the Klingons.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'dis_s1_e15_67198',
@@ -1784,6 +2117,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'With Georgiou at the helm of the plan to end the Klingon war once and for all, the U.S.S. Discovery crew struggles to fathom and tolerate her hostile tactics. Memories of past hardships are rekindled within Burnham.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
         ],
       },
@@ -1806,6 +2142,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'After answering a distress signal from the U.S.S. Enterprise, the U.S.S. Discovery welcomes aboard Captain Christopher Pike and begins a new mission to investigate the meaning behind seven mysterious red signals. Michael Burnham grapples with her past growing up on Vulcan with her foster parents and brother Spock.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'dis_s2_e02_67198',
@@ -1816,6 +2155,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "A new signal appears, prompting Stamets' emotional return to the mycelial network and leading Burnham, Pike and Owosekun to a pre-warp planet, where they face a complex ethical dilemma. Tilly's overeagerness lands her in trouble but when the planet - and Discovery's landing party - are threatened, her curiosity may be the one thing that can save them.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'dis_s2_e03_67198',
@@ -1826,6 +2168,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "A surprise visitor to the U.S.S. Discovery brings shocking news about Spock and dredges up past regrets for Burnham. Following the asteroid incident, Tilly struggles to keep a grip on her reality. L'Rell's authority on Qo'noS is threatened.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'dis_s2_e04_67198',
@@ -1836,6 +2181,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "A mysterious sphere threatens the U.S.S. Discovery even as May, in her original form, implements a plan that puts Tilly's life in danger. Saru and Burnham's bond grows when Saru is forced to acknowledge a deeply unsettling Kelpien truth. Pike receives new intel on Spock from a loyal friend.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'dis_s2_e05_67198',
@@ -1846,6 +2194,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Burnham and the crew navigate a dangerous alien landscape in a race against time to save Tilly's life, but Stamets is not at all prepared for what they find in the process. Section 31 is assigned to help track down Spock, much to Pike's dismay.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'dis_s2_e06_67198',
@@ -1856,6 +2207,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "When a new signal appears over Saru's home planet, Burnham, Saru and the crew embark on a perilous mission that puts Saru in danger and raises questions about the Red Angel's intentions. Hugh struggles to come to terms with his new reality.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'dis_s2_e07_67198',
@@ -1866,6 +2220,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Burnham goes to Vulcan in search of Spock, where she unearths surprising family secrets. In researching what is left of the Red Angel's signal over Kaminar, Pike and Tyler end up in battle with time itself. Georgiou has a few tricks up her sleeve for Leland and Section 31.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'dis_s2_e08_67198',
@@ -1876,6 +2233,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Spock and Burnham head to Talos IV, where the process of healing Spock forces the siblings to confront their troubled past. Stamets desperately tries to reconnect with Hugh, while Tyler struggles to shed the crew's suspicions of him due to his past as Voq.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'dis_s2_e09_67198',
@@ -1886,6 +2246,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "When the Discovery crew infiltrates Section 31's headquarters, suspicions arise that the crew may have a traitor in their midst. Burnham tries to help Spock but her efforts don't go as planned.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'dis_s2_e10_67198',
@@ -1896,6 +2259,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Burnham is stunned when she learns her ties to Section 31 run deeper than she ever fathomed. Armed with the identity of the Red Angel, the U.S.S. Discovery goes to work on its most critical mission to date.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'dis_s2_e11_67198',
@@ -1906,6 +2272,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Burnham receives the reunion she's been longing for, but it doesn't go quite as she imagined. Georgiou and Tyler sense a disturbing change in Leland.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'dis_s2_e12_67198',
@@ -1916,6 +2285,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'A fourth signal leads the U.S.S. Discovery to a world where Pike is forced to make a life-changing choice. Burnham and Spock investigate a Section 31 ship gone rogue, leading to a discovery with catastrophic consequences.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'dis_s2_e13_67198',
@@ -1926,6 +2298,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "When the U.S.S. Discovery's crucial mission does not go according to plan, Burnham realizes what must ultimately be done. The crew prepares for the battle of a lifetime as Leland's Control ships get closer.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'dis_s2_e14_67198',
@@ -1936,6 +2311,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'The U.S.S. Discovery battles against Control in a fight not only for their lives but for the future, with a little help from some unexpected friends. Spock and Burnham discern vital new connections between the red signals while Burnham faces one of life’s harshest truths: the right decisions are often the hardest to make.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
         ],
       },
@@ -1958,6 +2336,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'When one of Pike’s officers goes missing while on a secret mission for Starfleet, Pike has to come out of self-imposed exile. He must navigate how to rescue his officer, while struggling with what to do with the vision of the future he’s been given.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'snw_s1_e02_103516',
@@ -1968,6 +2349,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'While on a survey mission, the U.S.S. Enterprise discovers a comet is going to strike an inhabited planet. They try to re-route the comet, only to find that an ancient alien relic buried on the comet’s icy surface is somehow stopping them. As the away team try to unlock the relic’s secrets, Pike and Number One deal with a group of zealots who want to prevent the U.S.S. Enterprise from interfering.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'snw_s1_e03_103516',
@@ -1978,6 +2362,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'The U.S.S. Enterprise encounters a contagion that ravages the ship. One by one, the entire crew is incapacitated except for Number One, Una Chin-Riley, who must now confront a secret she’s been hiding as she races to find a cure.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'snw_s1_e04_103516',
@@ -1988,6 +2375,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'While on a routine supply mission to a colony planet, the U.S.S. Enterprise comes under an attack from an unknown malevolent force. Pike brings all his heart and experience to bear in facing the crisis, but the security officer warns him that the enemy cannot be dealt with by conventional Starfleet means.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'snw_s1_e05_103516',
@@ -1998,6 +2388,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'It’s a comedy of manners when Spock has a personal visit in the middle of Spock and Captain Pike’s crucial negotiations with an unusual alien species.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'snw_s1_e06_103516',
@@ -2008,6 +2401,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'A threat to an idyllic planet reunites Captain Pike with the lost love of his life. To protect her and a scientific holy child from a conspiracy, Pike offers his help and is forced to face unresolved feelings of his past.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'snw_s1_e07_103516',
@@ -2018,6 +2414,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'While on a dangerous humanitarian mission, the crew of the U.S.S. Enterprise stumbles into a harrowing game of leverage with the quadrant’s deadliest space pirate.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'snw_s1_e08_103516',
@@ -2028,6 +2427,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'The U.S.S. Enterprise becomes stuck in a nebula that is home to an alien consciousness that traps the crew in a fairy tale.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'snw_s1_e09_103516',
@@ -2038,6 +2440,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'The U.S.S. Enterprise crew comes face-to-face with their demons – and scary monsters too – when their landing party is stranded on a barren planet with a ravenous enemy.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'snw_s1_e10_103516',
@@ -2048,6 +2453,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Just as Captain Pike thinks he's figured out how to escape his fate, he's visited by his future self, who shows him the consequences of his actions.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
         ],
       },
@@ -2070,6 +2478,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'A distress call from Lt. Noonien-Singh compels Spock to disobey orders and take the U.S.S. Enterprise and its crew into disputed space, risking renewed hostilities with the Klingons in a bid to aid their shipmate.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'snw_s2_e02_103516',
@@ -2080,6 +2491,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Commander Una faces court-martial along with possible imprisonment and dishonorable dismissal from Starfleet, and her defense is in the hands of a lawyer who’s also a childhood friend with whom she had a terrible falling out.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'snw_s2_e03_103516',
@@ -2090,6 +2504,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "La'an travels back in time to twenty-first-century Earth to prevent an attack which will alter humanity’s future history—and bring her face to face with her own contentious legacy.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'snw_s2_e04_103516',
@@ -2100,6 +2517,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Returning to a planet that dredges up tragic memories, Captain Pike and his landing party find themselves forgetting everything, including their own identities as he confronts a ghost from his past.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'snw_s2_e05_103516',
@@ -2110,6 +2530,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "A shuttle accident leads to Spock's Vulcan DNA being removed by aliens, making him fully human and completely unprepared to face T'Pring's family during an important ceremonial dinner.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'snw_s2_e06_103516',
@@ -2120,6 +2543,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Uhura seems to be the only one who can hear a strange sound. When the noise triggers terrifying hallucinations, she enlists an unlikely assistant to help her track down the source.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'snw_s2_e07_103516',
@@ -2130,6 +2556,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'An accident while investigating a time portal sends Ensign Brad Boimler through time from the twenty-fourth century, and Captain Pike and his crew must get him back where he belongs before he can somehow alter the timeline.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'snw_s2_e08_103516',
@@ -2140,6 +2569,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Captain Pike and his crew welcome a Klingon defector aboard the U.S.S. Enterprise, but his presence triggers the revelation of some shocking secrets.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'snw_s2_e09_103516',
@@ -2150,6 +2582,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'An accident with an experimental quantum probability field causes everyone on the U.S.S. Enterprise to break uncontrollably into song, but the real danger is that the field is expanding and beginning to impact other ships—allies and enemies alike.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'snw_s2_e10_103516',
@@ -2160,6 +2595,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'When the U.S.S. Enterprise investigates an attack on a colony at the edge of Federation space, Captain Pike and his crew face the return of a formidable enemy.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
         ],
       },
@@ -2182,6 +2620,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Pike leads a risky rescue behind enemy lines as the landing party flees a deadly enemy.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'snw_s3_e02_103516',
@@ -2192,6 +2633,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "At a Federation celebration, an uninvited guest disrupts Spock and the crew's reflections.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'snw_s3_e03_103516',
@@ -2202,6 +2646,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Pike and M'Benga enter Klingon space for Batel's cure as M'Benga's past returns on a deadly world.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'snw_s3_e04_103516',
@@ -2211,6 +2658,9 @@ export const starTrekData = [
             airDate: '2025-07-31',
             stardate: 'None',
             synopsis: "La'An tests a prototype holodeck with a fictional case only she can solve.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'snw_s3_e05_103516',
@@ -2221,6 +2671,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Chapel and Korby's quest leads the Enterprise to ancient ruins hiding a dark secret.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'snw_s3_e06_103516',
@@ -2231,6 +2684,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Kirk's first day as captain turns disastrous when a Scavenger Ship seizes the Enterprise.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'snw_s3_e07_103516',
@@ -2241,6 +2697,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'While aiding a war-torn planet, Pike and crew face scrutiny from a probing journalist.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'snw_s3_e08_103516',
@@ -2251,6 +2710,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'After a mission turns crew members into Vulcans, trouble arises when they try to revert to human.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'snw_s3_e09_103516',
@@ -2260,6 +2722,9 @@ export const starTrekData = [
             airDate: '2025-09-04',
             stardate: 'None',
             synopsis: 'Stranded on a toxic moon, Ortegas must defy her deepest beliefs to survive.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'snw_s3_e10_103516',
@@ -2270,6 +2735,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'When an ancient evil resurfaces, Pike faces a life-altering choice to stop it.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
         ],
       },
@@ -2291,6 +2759,9 @@ export const starTrekData = [
             airDate: '2026-07-23',
             stardate: 'None',
             synopsis: '',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'snw_s4_e02_103516',
@@ -2300,6 +2771,9 @@ export const starTrekData = [
             airDate: '2026-07-30',
             stardate: 'None',
             synopsis: '',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'snw_s4_e03_103516',
@@ -2309,6 +2783,9 @@ export const starTrekData = [
             airDate: '2026-08-06',
             stardate: 'None',
             synopsis: '',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'snw_s4_e04_103516',
@@ -2318,6 +2795,9 @@ export const starTrekData = [
             airDate: '2026-08-13',
             stardate: 'None',
             synopsis: '',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'snw_s4_e05_103516',
@@ -2327,6 +2807,9 @@ export const starTrekData = [
             airDate: '2026-08-20',
             stardate: 'None',
             synopsis: '',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'snw_s4_e06_103516',
@@ -2336,6 +2819,9 @@ export const starTrekData = [
             airDate: '2026-08-27',
             stardate: 'None',
             synopsis: '',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'snw_s4_e07_103516',
@@ -2345,6 +2831,9 @@ export const starTrekData = [
             airDate: '2026-09-03',
             stardate: 'None',
             synopsis: '',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'snw_s4_e08_103516',
@@ -2354,6 +2843,9 @@ export const starTrekData = [
             airDate: '2026-09-10',
             stardate: 'None',
             synopsis: '',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'snw_s4_e09_103516',
@@ -2363,6 +2855,9 @@ export const starTrekData = [
             airDate: '2026-09-17',
             stardate: 'None',
             synopsis: '',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'snw_s4_e10_103516',
@@ -2372,6 +2867,9 @@ export const starTrekData = [
             airDate: '2026-09-24',
             stardate: 'None',
             synopsis: '',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
         ],
       },
@@ -2874,6 +3372,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 5521.3\n\nIn orbit around a dead star, the Enterprise comes across a huge starship inhabited by a parasitic life form that threatens the entire ship.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tos_s1_e02_1992',
@@ -2884,6 +3385,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 5373.4\n\nSpock travels back in time to prevent his death as a young Vulcan.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tos_s1_e03_1992',
@@ -2894,6 +3398,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 5371.3\n\nThe crew of the Enterprise races to find a way to stop a cloud from destroying inhabited planets.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tos_s1_e04_1992',
@@ -2904,6 +3411,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 5483.7\n\nFemale crew members must take over the Enterprise when the men are incapacitated by a race of sirens.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tos_s1_e05_1992',
@@ -2913,6 +3423,9 @@ export const starTrekData = [
             airDate: '1973-10-06',
             stardate: 'None',
             synopsis: 'Stardate: 5392.4\n\nCyrano Jones introduces tribbles that cannot reproduce.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tos_s1_e06_1992',
@@ -2922,6 +3435,9 @@ export const starTrekData = [
             airDate: '1973-10-13',
             stardate: 'None',
             synopsis: 'Stardate: 5143.3\n\nThe Enterprise finds a long-lost explorer.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tos_s1_e07_1992',
@@ -2932,6 +3448,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 5554.4\n\nA race of plant people, and their master, have a plan to force peace onto the galaxy.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tos_s1_e08_1992',
@@ -2942,6 +3461,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 1254.4\n\nAt the center of the galaxy, the Enterprise discovers a race of powerful aliens.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tos_s1_e09_1992',
@@ -2952,6 +3474,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 5591.2\n\nKirk returns to the "shore leave" planet, but it\'s not as peaceful as it was when they last saw it.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tos_s1_e10_1992',
@@ -2962,6 +3487,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 4978.5\n\nSpace con artist Harry Mudd returns, selling a fake love potion.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tos_s1_e11_1992',
@@ -2972,6 +3500,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 5577.3\n\nThe Enterprise crew begins to shrink after radiation exposure.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tos_s1_e12_1992',
@@ -2982,6 +3513,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 5267.6\n\nThe Enterprise crew must work with Klingons to escape from a pocket universe.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tos_s1_e13_1992',
@@ -2992,6 +3526,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 5499.9\n\nWhile exploring the planet Argo, Kirk and Spock are turned into water breathers.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tos_s1_e14_1992',
@@ -3002,6 +3539,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 4187.3\n\nSpock, Sulu, and Uhura discover a time capsule from an ancient and technologically advanced race. However, it draws some unwanted attention.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tos_s1_e15_1992',
@@ -3011,6 +3551,9 @@ export const starTrekData = [
             airDate: '1974-01-05',
             stardate: 'None',
             synopsis: 'Stardate: 5501.2\n\nTelepathic aliens put Kirk, Spock and McCoy in a zoo.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tos_s1_e16_1992',
@@ -3021,6 +3564,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 5683.1\n\nKirk and Spock are recruited for a heist to recover a stolen relic, which if not recovered could spark an galactic jihad.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
         ],
       },
@@ -3042,6 +3588,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 6334.1\n\nWith Spock stricken down by a fatal disease, the Enterprise must track down the drug that can cure him before it is too late.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tos_s2_e02_1992',
@@ -3052,6 +3601,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 7403.6\n\nThe Enterprise crew is joined by a unpredictable alien called Ari bn Bem, an independent observer from the planet Pandro.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tos_s2_e03_1992',
@@ -3062,6 +3614,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 3183.3\n\nThe computer of the Enterprise gains partial sentience and starts playing practical jokes on the crew.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tos_s2_e04_1992',
@@ -3072,6 +3627,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 5275.6\n\nDr. McCoy is arrested and held responsible for causing a plague that ravaged the planet Dramia II, where he performed a mass-innoculation 19 years earlier.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tos_s2_e05_1992',
@@ -3082,6 +3640,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 6063.4\n\nThe Enterprise runs into a being that once visited Earth and influenced the Mayan culture.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tos_s2_e06_1992',
@@ -3092,6 +3653,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 6770.3\n\nWith Commodore Robert April (the first commander of the Enterprise) on board, Kirk pursues a ship plunging into a supernova, and enters a universe where time runs backwards.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
         ],
       },
@@ -3345,6 +3909,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 41153.7. The new commander of the recently built U.S.S. Enterprise (NCC1701-D), Captain Jean-Luc Picard  takes the crew on their first mission to discover the secret of Farpoint Station. During their journey, they encounter an omnipotent being known as Q. Q accuses humanity of barbarism, and places humanity on trial. Jean-Luc must prove otherwise or the human race will be annihilated.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s1_e02_655',
@@ -3355,6 +3922,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 41209.2. The crew of the Enterprise are infected with a virus contracted by the away team while they were investigating  the mysterious deaths of the entire crew of the Starship Tsilkovsky.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s1_e03_655',
@@ -3365,6 +3935,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 41235.25. Tasha Yar must fight for her life and a vaccine to save a race of people when she is kidnapped and forced to battle with her abductor's wife.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s1_e04_655',
@@ -3375,6 +3948,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 41386.4. A powerful entity disables the Enterprise and a Ferengi ship. Their only means of escape is if they can correctly answer the riddles he asks.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s1_e05_655',
@@ -3385,6 +3961,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 41263.1. The Enterprise is flung across space into a distant galaxy billions of light years away when a propulsion engineer and his mysterious companion, attempt to re-design the ship's engine systems.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s1_e06_655',
@@ -3395,6 +3974,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 41249.3. Picard's mind is taken over by an energy field that the Enterprise passes through.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s1_e07_655',
@@ -3405,6 +3987,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 41255.6. Picard is forced to choose between friendship and the Prime Directive when Wesley Crusher is sentenced to death for accidentally breaking the law on Rubicon III.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s1_e08_655',
@@ -3415,6 +4000,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 41723.9. The Ferengi hand over an old ship which Picard once captained, the U.S.S. Stargazer. The Ferengi have installed a mind altering device that alters Picard's mind to make him think that he is reliving a past battle, and the target is the Enterprise.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s1_e09_655',
@@ -3425,6 +4013,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 41590.5. Q places the senior crew of the Enterprise in a war game that pits them against a boar-faced, Napoleonic enemy.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s1_e10_655',
@@ -3435,6 +4026,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 41294.5. The mother of Deanna Troi, Lwaxana,  pays a surprise visit to the Enterprise and announces the prearranged marriage of Deanna to the son of her mother's late husband's best friend.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s1_e11_655',
@@ -3445,6 +4039,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 41997.7. Picard, Dr. Crusher and Data are placed in great danger when the holodeck malfunctions while they are running a Dixon Hill program, which pits them against 1940's mobsters.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s1_e12_655',
@@ -3455,6 +4052,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 41242.4.  While exploring his homeworld, the crew of the Enterprise find android parts that are identical to Data's. When assembled, an 'evil' twin of Data named Lore is revived.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s1_e13_655',
@@ -3465,6 +4065,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 41636.9. The Enterprise discovers the male crew of a crashed Federation freighter are hiding as fugitives on the planet Angel One, which is dominated and ruled by women.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s1_e14_655',
@@ -3475,6 +4078,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 41365.9. While undergoing repairs, the Bynar Engineers steal the Enterprise to save their planet from destruction.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s1_e15_655',
@@ -3485,6 +4091,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 41309.5. The aging and terminally ill Starfleet Admiral Mark Jameson, who is negotiating the release of hostages, suddenly begins growing younger through an unexplained phenomenon.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s1_e16_655',
@@ -3495,6 +4104,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 41509.1. The children of the Enterprise, including Wesley Crusher, are abducted by a race of sterile people who are unable to have children of their own.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s1_e17_655',
@@ -3505,6 +4117,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 41463.9. The members of an away team investigating the death of an engineer encounter vengeful microscopic life forms.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s1_e18_655',
@@ -3515,6 +4130,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 41416.2. While Wesley takes the entrance exam to Starfleet Academy, the Enterprise is investigated by the Inspector General's office and Picard's competency is questioned.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s1_e19_655',
@@ -3525,6 +4143,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 41503.7. Two Klingons, rescued by the Enterprise, try to take over the ship.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s1_e20_655',
@@ -3535,6 +4156,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 41798.2. The crew encounters bizarre phenomena while searching for the missing U.S.S. Drake.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s1_e21_655',
@@ -3545,6 +4169,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. Picard attempts to break an ancient co-dependency between two species on one planet without violating the Prime Directive.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s1_e22_655',
@@ -3555,6 +4182,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 41601.3. When Troi's shuttle crashes on an alien planet, a new being is discovered: an entity that thrives on the suffering of others.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s1_e23_655',
@@ -3565,6 +4195,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 41697.9. Picard meets an old flame, whose husband has created a haywire dimensional experiment.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s1_e24_655',
@@ -3575,6 +4208,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 41775.5. The strange behavior of high-ranking officers leads Picard to uncover a twisted alien conspiracy within Starfleet.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s1_e25_655',
@@ -3585,6 +4221,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 41986.0. A derelict satellite is found with cryonically frozen humans aboard as the USS Enterprise is sent to investigate the destruction of outposts near Romulan space.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
         ],
       },
@@ -3607,6 +4246,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 42073.1. Troi undergoes a mysterious pregnancy when the Enterprise tries to escape from a system that has recently fallen victim to a deadly plague.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s2_e02_655',
@@ -3617,6 +4259,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 42193.6. A mysterious life form known as the 'Nagilum' threatens the life of the crew in his attempt to understand humanity.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s2_e03_655',
@@ -3627,6 +4272,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 42286.3. Data and Geordi become involved with a holodeck program about Sherlock Holmes and his investigations, when they create Sherlock's arch nemesis, Moriarty; however, modifications to the Moriarty character include the capability of out-smarting Data, which leads to some unexpected consequences.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s2_e04_655',
@@ -3637,6 +4285,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 42402.7. The Enterprise is placed in a compromising situation when the captain of a disabled starship places the crew in the middle of a love triangle.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s2_e05_655',
@@ -3647,6 +4298,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 42477.2. A deaf-mute mediator meets with disaster while being escorted by the Enterprise.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s2_e06_655',
@@ -3657,6 +4311,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 42437.5. Data is possessed by the consciousness of a brilliant scientist. However, it has a disturbing impact on Data's personality.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s2_e07_655',
@@ -3667,6 +4324,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 42494.8. A mysterious hyper-ageing sickness kills the crew of a Federation cargo ship, and Dr. Pulaski must race against time to find a cure.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s2_e08_655',
@@ -3677,6 +4337,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Commander Riker participates in an officer's exchange program which lands him an assignment on a Klingon Bird-of-Prey.  Meanwhile, a Bezite ensign has trouble assimilating to the routines of the Enterprise.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s2_e09_655',
@@ -3687,6 +4350,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 42523.7. When Data's rights as a sentient individual are placed under trial, Starfleet forces Riker into a position where he must prove that Data is only an Android.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s2_e10_655',
@@ -3697,6 +4363,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 42568.8. Wesley falls in love with a passenger the Enterprise is escorting, who has the secret ability to shape-shift.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s2_e11_655',
@@ -3707,6 +4376,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 42609.1. A strange power source disables the Enterprise's computer systems, damages Data's programming and leaves the ship and crew vulnerable to a Romulan attack.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s2_e12_655',
@@ -3717,6 +4389,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 42625.4. An away team is trapped in an alien environment based around a novel entitled 'The Hotel Royale.'",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s2_e13_655',
@@ -3727,6 +4402,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 42679.2. Picard encounters his double from six hours in the future, whose Enterprise had been destroyed.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s2_e14_655',
@@ -3737,6 +4415,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 42686.4. Riker is promoted to Captain of another Federation ship. Worf must confront his past and his Klingon heritage.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s2_e15_655',
@@ -3747,6 +4428,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 42695.3. Wesley must investigate the causes of strange tectonic activity on the planet where Data's pen pal lives.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s2_e16_655',
@@ -3757,6 +4441,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 42761.3. Q hurls the Enterprise into the Delta Quadrant and introduces the Federation to a powerful new enemy that may destroy the Alpha Quadrant: The Borg.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s2_e17_655',
@@ -3767,6 +4454,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 42779.1. A race known as the Pakleds kidnap Geordi La Forge. Picard must face surgery when he is left in a near-dead state.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s2_e18_655',
@@ -3777,6 +4467,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 42823.2. Picard must convince two dying civilizations that they must co-exist on the same planet to survive, however, they have other plans to ensure their survival: in the form of clones of the Enterprise crew.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s2_e19_655',
@@ -3787,6 +4480,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 42859.2. While being escorted to a Federation conference by the Enterprise, Lwaxana hunts for a man to satisfy her needs when her sex-drive is quadrupled during a natural mid-life cycle.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s2_e20_655',
@@ -3797,6 +4493,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 42901.3. Worf is re-united with his former lover, K'Ehleyr, while the Enterprise is ordered to intercept a Klingon ship whose crew has been in stasis for a century.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s2_e21_655',
@@ -3807,6 +4506,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 42923.4. Trouble begins when a Ferengi warship stumbles over a war simulation between Riker and Picard, each on different ships, and begins attacking them.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s2_e22_655',
@@ -3817,6 +4519,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 42976.1. Riker is infected with an alien organism that takes over his mind. Dr. Pulaski must force Riker's mind back to a state where it can access primitive survival skills.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
         ],
       },
@@ -3839,6 +4544,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 43125.8. A system-wide computer malfunction places the crew of the U.S.S. Enterprise in grave danger while they are escorting a scientist to a star in the process of exploding.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s3_e02_655',
@@ -3849,6 +4557,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 43133.3. A human colony is forced to evacuate a planet when the original inhabitants return and threaten the colonists with annihilation if they do not leave within four days.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s3_e03_655',
@@ -3859,6 +4570,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 43152.4. The Enterprise discovers a planet that has had all life eradicated, except for two mysterious residents and their home, which has been left in perfect condition.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s3_e04_655',
@@ -3869,6 +4583,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 43173.5. An away team inadvertently breaks the Prime Directive and reveal themselves to a primitive culture on Mintaka III, causing the inhabitants believe that Captain Picard is a God.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s3_e05_655',
@@ -3879,6 +4596,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Worf and Wesley must help a 12 year old boy cope with the death of his mother; an archaeologist killed during an away mission to a deserted planet.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s3_e06_655',
@@ -3889,6 +4609,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 43205.6. While investigating an ancient ship left adrift in space, the Enterprise accidentally trips the ancient booby trap that disabled the old vessel over 1000 years ago.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s3_e07_655',
@@ -3899,6 +4622,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate:43349.2. A blind Geordie is trapped on a hazardous planet with a paranoid and severely injured Romulan. In orbit, a Romulan Warbird is preventing the Enterprise from attempting a rescue mission.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s3_e08_655',
@@ -3909,6 +4635,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 43385.6. The Enterprise hosts the negotiations for the rights to a newly discovered, stable wormhole to the Delta Quadrant. One of the negotiators, Devinoni Ral, becomes attracted to Deanna Troi, but he holds a dubious secret.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s3_e09_655',
@@ -3919,6 +4648,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 43421.9. The Enterprise crew tries to mend the relationship between a race known as the Acamarians and a faction known as the Gatherers.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s3_e10_655',
@@ -3929,6 +4661,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 43462.5. A defecting Romulan warns the Federation about an impending attack by the Romulans, who are secretly establishing bases within the Neutral Zone.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s3_e11_655',
@@ -3939,6 +4674,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 43489.2. A potentially new member of the Federation enlists the help of the Enterprise to track down a wanted criminal who has a reputation for his excessive violence. However, the fugitive's actions may not be of his own will.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s3_e12_655',
@@ -3949,6 +4687,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 43510.7. Dr. Crusher is abducted by a group of terrorists while delivering crucial medical supplies to a planet ravaged by civil war.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s3_e13_655',
@@ -3959,6 +4700,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 43539.1. A Calamarian starts attacking the Enterprise while seeking revenge on a powerless Q.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s3_e14_655',
@@ -3969,6 +4713,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 43610.4. Riker is accused of murder when a scientist is killed in an explosion. Picard must recreate the recent events in the holodeck to prove his commander's innocence.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s3_e15_655',
@@ -3979,6 +4726,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 43625.2. A rift in the space/time continuum brings the U.S.S. Enterprise - C forward into the 24th Century, and alters the timeline. In this future, the Federation is at war with the Klingons, Tasha Yar is on the bridge, Worf did not join the Federation, and only Guinan's unique perception of reality may restore the timeline.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s3_e16_655',
@@ -3989,6 +4739,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 43657.0. Data becomes a father when he creates a Soong-type android in the form of a daughter named Lal. Issues are complicated when Lal starts showing signs of a more evolved consciousness, including the ability to feel emotions, which attracts the attention of Starfleet scientists who want to take her away from Data and examine her advanced systems.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s3_e17_655',
@@ -3999,6 +4752,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 43685.2. Worf is reunited with his long-lost brother when their father is charged with treason for helping the Romulans. Together they make an appeal to the Klingon High Council to challenge the charges, and have them revoked.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s3_e18_655',
@@ -4009,6 +4765,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 43714.1. Picard is secretly abducted and switched with an alien double. The crews' suspicions are raised when he starts exhibiting unusual behaviour, and is relieved of command.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s3_e19_655',
@@ -4019,6 +4778,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 43745.2. While on vacation on Risa, Captain Picard encounters two Vorgons from the 27th Century who claim they are searching for a powerful weapon hidden somewhere on the planet.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s3_e20_655',
@@ -4029,6 +4791,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 43779.3. The Enterprise encounters a 'living' ship in the Neutral Zone, and risks breaking the Romulan Federation alliance in order to bring it into contact with a Betazoid emissary.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s3_e21_655',
@@ -4039,6 +4804,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 43807.4. A nervous and insecure officer, Lt. Reginald Barclay, places the Enterprise in great danger when he neglects his duties in Engineering, and instead spends his time acting out his fantasies on the holodeck.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s3_e22_655',
@@ -4049,6 +4817,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 43872.2. The crew are shattered by the apparent death of Data in a shuttle explosion, and are prevented from carrying out a detailed investigation when Starfleet gives them orders for a new mission elsewhere. However, the crew don't realize that he was actually abducted and placed on display as part of a collection of rare and valuable items held by a disreputable character.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s3_e23_655',
@@ -4059,6 +4830,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 43917.4. Spock's Vulcan father, Sarek, boards the Enterprise to negotiate political relations with the Legaran. However, Sarek has contract Bendii syndrome, which causes a Vulcan to gradually lose control, and become overpowered with emotions.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s3_e24_655',
@@ -4069,6 +4843,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 43930.7. Riker and Deanna, both on shoreleave, are unexpectedly joined by Deanna's mother, Lwaxana, on Betazed. Shortly, all three are kidnapped by the Ferengi who want to study Lwaxana's telepathic abilities.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s3_e25_655',
@@ -4079,6 +4856,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 43957.2. Dr. Crusher becomes attracted to an injured alien with mysterious powers, who is being tracked down by his government like a wanted criminal.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s3_e26_655',
@@ -4089,6 +4869,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 43989.1  An Starfleet expert on the Borg, Lt. Cmdr. Shelby, is assigned to the Enterprise to investigate the disappearance of a Federation colony. Picard is abducted by the Borg and assimilated into the Collective, which forces Riker to attempt a rescue mission.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
         ],
       },
@@ -4111,6 +4894,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 44001.4. Riker must pull out all the stops in order to save Earth from a Borg invasion being lead by none other than Locutus - otherwise known as Captain Jean-Luc Picard.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s4_e02_655',
@@ -4121,6 +4907,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate 44012.3. Picard meets with his older brother in France, and contemplates resigning his Starfleet commission after his ordeal with the Borg. Worf's adoptive parents spend time with their son on the Enterprise, and succeed in embarrassing him in front of his crewmates.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s4_e03_655',
@@ -4131,6 +4920,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 44085.7  While escorting a seriously ill boy to the closest Federation Starbase for treatment, Data mysteriously takes control of the Enterprise and takes it to a distant planet. He learns that his creator has summoned him for an important meeting that could change his life. However, Dr. Soong unknowingly summoned Data's twin brother Lore, into the bargain.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s4_e04_655',
@@ -4141,6 +4933,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 44143.7. A custody battle between Picard and a child's adoptive father arises when a boy showing evidence of abuse is discovered.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s4_e05_655',
@@ -4151,6 +4946,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 44161.2. Dr. Crusher begins to question her sanity when members of the crew start disappearing one by one, and all evidence of their existence is erased.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s4_e06_655',
@@ -4161,6 +4959,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 44215.2. The Enterprise is caught in the middle of a civil war when they encounter Tasha Yar's long-lost younger sister, Ishara.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s4_e07_655',
@@ -4171,6 +4972,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 44246.3. Picard is asked to choose between two candidates to succeed the current Chancellor of the Klingon High Council as the new ruler of the Empire. Worf is disturbed by unexpected news when he is paid a visit by his former lover.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s4_e08_655',
@@ -4181,6 +4985,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 44286.5. Riker awakens one morning to discover he is suddenly 16 years in the future as the captain of the Enterprise, and negotiating a peace treaty with the Romulans with no recollection of how he arrived at that point in time, or of any recent events.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s4_e09_655',
@@ -4191,6 +4998,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 44307.3. Wesley must keep Captain Picard alive on the eve of his entrance exam to Starfleet Academy when their shuttle crashes on a barren moon.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s4_e10_655',
@@ -4201,6 +5011,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 44356.9. Troi loses her empathic abilities when the Enterprise is caught in the gravitational pull of a black hole.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s4_e11_655',
@@ -4211,6 +5024,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 44356.9. A Vulcan Ambassador being escorted by the Enterprise starts exhibiting suspicious behavior. Miles O'Brien marries his fiancée, Keiko Ishikawa in Ten-Forward.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s4_e12_655',
@@ -4221,6 +5037,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 44429.6. When the Cardassians start re-arming themselves, a Federation Captain takes it upon himself to remove a potential threat before it escalated. Now, Picard must fight for the Cardassians and stop the renegade from slaughtering innocents.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s4_e13_655',
@@ -4231,6 +5050,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 44474.5. The crew of the Enterprise must defend the planet Ventax from a mythological Devil who re-appears when a 1000 year long era of peace comes to an end.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s4_e14_655',
@@ -4241,6 +5063,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 44502.7. Picard orders a secret investigation when the crew suspects Data of lying about the discovery of a wormhole.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s4_e15_655',
@@ -4251,6 +5076,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Riker is abducted by a xenophobic race of aliens during a first contact mission. They believe the Enterprise is a scout for an invasion.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s4_e16_655',
@@ -4261,6 +5089,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 44614.6. Geordi must work with the real Leah Brahms when she arrives on the Enterprise when a space-borne alien life form thinks the ship is its mother. Tensions rise when she learns that Geordi created a holographic version of her several months before in order to save the ship from danger.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s4_e17_655',
@@ -4271,6 +5102,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 44631.2. Troi faces a recurring nightmare when the Enterprise is caught in a rift in space. Soon, the crew begins to slip into insanity through dream deprivation.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s4_e18_655',
@@ -4281,6 +5115,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 44664.5. Geordi and a former crew mate begin evolving into bizarre creatures when they return to a planet both of them were on during an Away Mission five years earlier.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s4_e19_655',
@@ -4291,6 +5128,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 44704.2. An alien probe transforms Barclay from a shy, awkward character into an arrogant super-genius who is able to interface with the Enterprise's computer through the holodeck.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s4_e20_655',
@@ -4301,6 +5141,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate:44741.9. Q places Vash and the senior Enterprise crew in a recreation of Robin Hood and his merry men.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s4_e21_655',
@@ -4311,6 +5154,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 44769.2. Picard is accused of treason when an explosion aboard the Enterprise is investigated by a ruthless and paranoid Starfleet Admiral.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s4_e22_655',
@@ -4321,6 +5167,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 44805.3. Lwaxana Troi falls in love with a man who must return home to commit suicide, as is customary for their race when they reach a certain age.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s4_e23_655',
@@ -4331,6 +5180,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Startdate: 44821.3. Dr. Crusher falls in love with a Trill Ambassador, until she discovers the Trill's symbiotic relationship.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s4_e24_655',
@@ -4341,6 +5193,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 44885.5. While en route to Risa for shore leave, Geordi is abducted by the Romulans and brainwashed into becoming an assassin.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s4_e25_655',
@@ -4351,6 +5206,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 44932.3. Data experiences the complexities of love when a fellow crewmate becomes attracted to him.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s4_e26_655',
@@ -4361,6 +5219,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 44995.3. Worf must choose between his people and the Federation when a civil war threatens to destroy the Klingon Empire.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
         ],
       },
@@ -4383,6 +5244,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 45020.4. Picard suspects a Romulan influence in the recent Klingon civil war, and must force the Federation to intervene before the Empire collapses.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s5_e02_655',
@@ -4393,6 +5257,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 45047.2. Picard must find a way to communicate with the newly discovered Tamarians, who speak entirely in metaphors, when a Tamarian Captain is brutally killed.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s5_e03_655',
@@ -4403,6 +5270,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 45076.3. Picard exposes a planned genocidal attack on the Bajorans with the help of a new officer, Ensign Ro Laren.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s5_e04_655',
@@ -4413,6 +5283,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 45122.3. Picard attempts communications with the Crystalline Entity - a life form responsible for hundreds of deaths throughout the Alpha Quadrant. However, a scientist on board the Enterprise has plans of revenge over the death of her only son at the hands of the Entity.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s5_e05_655',
@@ -4423,6 +5296,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 45156.1. A natural disaster leaves Troi in command of the Enterprise, Picard stuck in a turbo lift with three small children and Keiko O'Brien stuck in Ten-Forward giving birth with an anxious Worf.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s5_e06_655',
@@ -4433,6 +5309,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 45208.2. An addictive game is distributed among the crew of the Enterprise, however, it appears that this game interferes with a person's logic and reason, which leaves the crew open to manipulation. Only a young Ensign and a vacationing Wesley Crusher are able to think for themselves, and must find a way to reverse the damage before the ship falls into the wrong hands.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s5_e07_655',
@@ -4443,6 +5322,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 45233.1. Ambassador Spock has disappeared and intelligence finds him on Romulus.  Captain Picard is sent to Romulus to find Spock.  Meanwhile Riker and the rest of the crew investigate the fragments of a Vulcan ship discovered in the wreck of a Ferengi vessel.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s5_e08_655',
@@ -4453,6 +5335,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 45245.8. Picard and Data find Spock and discover the reason behind the secret meetings. However, a darker scheme planned by the Romulans is also uncovered in the process.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s5_e09_655',
@@ -4463,6 +5348,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 45349.1. While on a mission to help a planet recently struck by an asteroid, the Enterprise is paid a visit by a man who claims to be from the future.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s5_e10_655',
@@ -4473,6 +5361,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 45376.3. Worf's son, Alexander, unexpectedly arrives on the Enterprise to stay with his father. However, Alexander wants to stay permanently.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s5_e11_655',
@@ -4483,6 +5374,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 45397.3. The Enterprise investigates the cause of an explosion that destroyed a small ship and its entire crew, except for a small boy.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s5_e12_655',
@@ -4493,6 +5387,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 45429.3. While escorting a group of telepaths, crew members on board the Enterprise suddenly start to slip into comas.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s5_e13_655',
@@ -4503,6 +5400,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 45470.1. A natural disaster in the core of a system's sun threatens to destroy a colony of genetically engineered people on an otherwise desolate planet. However, the crew's intervention may cause more harm than good.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s5_e14_655',
@@ -4513,6 +5413,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 45494.2. The Enterprise crew unknowingly receives a new first officer who claims that the Federation is at war with another species.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s5_e15_655',
@@ -4523,6 +5426,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 45571.2. While en route to the source of a subspace distress signal coming from a desolate moon, Data, Troi and O'Brien take over the bridge and force the ship to change course.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s5_e16_655',
@@ -4533,6 +5439,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 45587.3. When Worf is paralysed in an accident he must undergo drastic back surgery. However, this experimental technique may cost him his life.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s5_e17_655',
@@ -4543,6 +5452,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 45614.6. While investigating the disappearance of a J'naii shuttlecraft, the crew finds reason to believe the missing ship is stranded in an abnormal pocket called \"null space.\" Riker and Soren, a member of the J'naii race, begin preparing to rescue the craft, and the two strike up a friendship. Their relationship develops quickly as the pair question each other about mating habits, since the J'naii are androgynous and do not identify themselves as either male or female. Despite this difference, sparks begin to fly between them.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s5_e18_655',
@@ -4553,6 +5465,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 45652.1. While exploring the Typhon Expanse, the Enterprise is caught in a time warp in which they are repeatedly destroyed while colliding with another starship.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s5_e19_655',
@@ -4563,6 +5478,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 45703.9. Wesley is involved in a cover-up at Starfleet Academy when a cadet is killed and five shuttles are destroyed during a forbidden maneuver performed by Starfleet Academy's best cadets.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s5_e20_655',
@@ -4573,6 +5491,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 45733.6. Deanna's mother pays a surprise visit to the Enterprise with even more surprising news: she plans to marry a man she has never met. After destroying an asteroid, the ship becomes infected with parasites that eat away at the ship's hull.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s5_e21_655',
@@ -4583,6 +5504,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 45761.3. The Ferengi try to abduct an empathic Metamorph who could bring peace between two warring worlds.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s5_e22_655',
@@ -4593,6 +5517,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 45832.1. While exploring a strange form of energy in a region of space, a little girl's imaginary friend becomes real and places the Enterprise in great danger.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s5_e23_655',
@@ -4603,6 +5530,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 45854.2. An injured Borg is discovered and brought back to the Enterprise where he is 'repaired' by Dr. Crusher and befriended by Geordi, who names him 'Hugh.' Soon, Hugh starts showing signs of individuality while Picard must choose between destroying him or returning him to the collective.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s5_e24_655',
@@ -4613,6 +5543,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 45092.4. While the Enterprise helps a Romulan science vessel, an accident occurs which forces Geordi LaForge and Ro Laren slightly out of 'phase', causing them to become undetectable to everyone but each other. As a result, the crew thinks they are dead and make arrangements for their funerals, even though they are closer than the crew realise.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s5_e25_655',
@@ -4623,6 +5556,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 45944.1. Picard awakes to find himself living in a small village where he is a well-known member of the community who is suffering from a delusion of being a starship captain.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s5_e26_655',
@@ -4633,6 +5569,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 45959.1. Data's head is uncovered in an archaeological dig on Earth, where evidence is also found that aliens may have been on Earth as early as the 19th Century. Using modified technology, an away team follows Data into the late 1890s to investigate.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
         ],
       },
@@ -4655,6 +5594,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 46001.3. The away team's investigations are hampered by a nosy Samuel Clemens. Picard discovers that he originally met Guinan in the 1890s on Earth.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s6_e02_655',
@@ -4665,6 +5607,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 46041.1. Lt. Barclay's fear of using transporters is eerily justified when he sees bizarre aliens within the transporter beam.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s6_e03_655',
@@ -4675,6 +5620,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 46071.6. Deanna becomes attracted to an alien ambassador. Shortly thereafter, she starts ageing rapidly and starts becoming violent.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s6_e04_655',
@@ -4685,6 +5633,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 46125.3. Montgomery 'Scotty' Scott is discovered suspended in a transporter beam 75 years after he disappeared. After the Enterprise crew re-materialise him, he has a hard time adjusting to the new society.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s6_e05_655',
@@ -4695,6 +5646,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 46154.2. Members of the crew are secretly abducted from the Enterprise to be used in bizarre experiments where they are dismembered and re-assembled without anyone's knowledge - including their own. The only signs that anything is wrong is a strange form of tiredness and no recollection of having slept well the night before.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s6_e06_655',
@@ -4705,6 +5659,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 46192.3. A young intern visiting the Enterprise captures the interest of Q when she starts displaying Q-like powers.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s6_e07_655',
@@ -4715,6 +5672,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 46235.7. A transporter accident transforms Picard, Ro Laren, Guinan and Keiko O'Brien into small children who appear to be about 12 years old. Matters are complicated when the Ferengi seize the Enterprise.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s6_e08_655',
@@ -4725,6 +5685,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 46271.5. Worf and his son, Alexander, become trapped in the holodeck when their Wild West program malfunctions. However, they must find a way to defeat the holographic bandits who have Data's appearance and abilities.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s6_e09_655',
@@ -4735,6 +5698,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 46315.2. Data discovers that the maintenance robots built by Dr. Farallon may have become sentient.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s6_e10_655',
@@ -4745,6 +5711,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 46357.4. Picard resigns as Captain of the Enterprise to lead a top-secret espionage mission into Cardassia with Worf and Dr. Crusher.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s6_e11_655',
@@ -4755,6 +5724,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 46360.8. Picard is captured and tortured by the Cardassians, while Riker tries to prevent a Federation attack on Cardassia.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s6_e12_655',
@@ -4765,6 +5737,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 46424.1. While performing holodeck maintenance, Barclay accesses the stored hologram of Professor Moriarty, who wreaks havoc on board the Enterprise.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s6_e13_655',
@@ -4775,6 +5750,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 46461.3. Geordie falls in love with a lieutenant who is the prime suspect in a murder case.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s6_e14_655',
@@ -4785,6 +5763,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 46519.1. Troi is abducted and surgically altered by the Romulans as part of a ploy to smuggle intelligence operatives into the Federation.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s6_e15_655',
@@ -4795,6 +5776,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. A mortally wounded Picard is forced into re-living a time of his life when he was back in Starfleet Academy, with the intervention of Q.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s6_e16_655',
@@ -4805,6 +5789,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 46578.4. While visiting Deep Space Nine, Worf learns that his father is still alive and being held captive in a secret Romulan prison camp.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s6_e17_655',
@@ -4815,6 +5802,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 46759.2. Worf is captured by the Romulans where he learns why the other captives did not attempt an escape years before.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s6_e18_655',
@@ -4825,6 +5815,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 46682.4. The crew evacuates the Enterprise when the ship needs to be cleaned of particles that have built up over the ship's hull. However, Picard accidentally stumbles over a terrorist group who plan on destroying the ship. He only has a short time to stop their attempts before the ship is swept by a beam of radiation to remove the particles that is lethal to all forms of life.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s6_e19_655',
@@ -4835,6 +5828,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 46693.1. Picard must choose between love and command when he must make a decision that could place the woman he loves in a potentially deadly and high-risk mission.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s6_e20_655',
@@ -4845,6 +5841,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 46731.5. Picard's old archaeology professor is found murdered, the crew try to complete his research. Soon, the crew must compete with Romulans and Klingons and Cardassians to uncover the truth behind his discoveries.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s6_e21_655',
@@ -4855,6 +5854,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 46778.1. Riker questions his sanity when his reality seems to shift between an alien psychiatric hospital and a play he is performing with other members of the crew.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s6_e22_655',
@@ -4865,6 +5867,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 46830.1. Dr. Crusher puts her career on the line when she tries to clear the name of a murdered scientist whose invention could allow starships to pass through a sun's corona.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s6_e23_655',
@@ -4875,6 +5880,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 46852.2. While on a quest to summon a vision of Kahless, Worf questions his faith when the real Kahless rises from the dead to lead the Empire.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s6_e24_655',
@@ -4885,6 +5893,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 46915.2. Riker discovers that eight years ago, an exact clone of him was created when he beamed through a planet's surface while returning to his starship. This clone, named Thomas Riker, has secretly remained on the planet for the past eight years, and still has romantic feelings for Troi.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s6_e25_655',
@@ -4895,6 +5906,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 46944.2. Picard, Geordi, Troi and Data return from a Federation conference to find the Enterprise frozen in time and under attack from a frozen Romulan Warbird.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s6_e26_655',
@@ -4905,6 +5919,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 46982.1. The Borg return to threaten the Federation under the new leadership of Lore. Data experiences a disturbing facet of human emotions - he feels pleasure after killing a Borg drone.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
         ],
       },
@@ -4927,6 +5944,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 46379.1.  Commander Benjamin Sisko and a new crew of Starfleet and Bajoran officers take command of an abandoned Cardassian space station and make an incredible discovery that will change the galaxy and Sisko's future.\n\nA new crew is assigned to a former Cardassian space station: Deep Space Nine. It is a joint Federation/Bajoran force, with Commander Sisko in charge, but his life is dramatically changed when he is declared the Emissary to the Prophets by a Bajoran priest.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s1_e02_580',
@@ -4937,6 +5957,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown.  Kira finds her loyalties divided when a Bajoran extremist wanted by the Cardassians comes to the station with questionable intentions.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s1_e03_580',
@@ -4947,6 +5970,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 46421.5.  When the return of a man Odo sent to prison years earlier leads to his murder aboard the station, Odo becomes the prime suspect and a target for harassment.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s1_e04_580',
@@ -4957,6 +5983,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 46423.7.  A deadly virus created by the Bajorans 18 years earlier inadvertently breaks loose aboard the station, and prompts a race against the clock to find a cure.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s1_e05_580',
@@ -4967,6 +5996,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown.  When O'Brien befriends the station's first visitor from the Gamma Quadrant, he learns that the mysterious alien is on the run from determined pursuers.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s1_e06_580',
@@ -4977,6 +6009,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 46531.2.  Vash arrives from the Gamma Quadrant as Q plagues the station and an unknown force threatens to destroy it.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s1_e07_580',
@@ -4987,6 +6022,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 46910.1.  Jadzia Dax is charged with a murder that her symbiont's previous host Curzon allegedly committed. Now an extradition hearing may decide whether Jadzia can be held responsible for the actions of a previous life.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s1_e08_580',
@@ -4997,6 +6035,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown.  A dangerous killer dies in an apparent accident, but the security officer providing his transport to prison believes the criminal's consciousness may have yet survived.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s1_e09_580',
@@ -5007,6 +6048,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'The Wadi from the Gamma Quadrant are to make first contact and decide to visit DS9. When they catch Quark cheating they let him off by playing a special game.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s1_e10_580',
@@ -5017,6 +6061,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown.  Grand Nagus Zek, the leader of Ferengi society, comes to DS9 to oversee the introduction of a Ferengi business presence in the Gamma Quadrant and announce Quark as his successor.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s1_e11_580',
@@ -5027,6 +6074,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown.  A wanted man from the Gamma Quadrant with questionable motives reveals to Odo stories about other "Changelings," which may hold clues to Odo\'s mysterious origin.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s1_e12_580',
@@ -5037,6 +6087,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown.  Sisko, Kira, and Bashir take Kai Opaka through the wormhole for a brief excursion in the Gamma Quadrant. But when they crash-land on a desolate planet, they find a divided, warring penal colony where no one ever dies.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s1_e13_580',
@@ -5047,6 +6100,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 46729.1.  When O'Brien and Bashir beam down to a Bajoran village, the community selects O'Brien as their next Sirah - expecting him to save them from a menacing entity.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s1_e14_580',
@@ -5057,6 +6113,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 46844.3.  Kira finds herself in a difficult moral situation when her job demands she force an adamant Bajoran man from his home in the name of progress.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s1_e15_580',
@@ -5067,6 +6126,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 46853.2.  The DS9 crew's own imaginations cause mysterious beings with unknown intentions to appear on the station.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s1_e16_580',
@@ -5077,6 +6139,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 46925.1.  Odo and Lwaxanna Troi come to a mutual understanding when a computer malfunction causes them to become trapped in a turbolift.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s1_e17_580',
@@ -5087,6 +6152,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 46922.3.  An alien "telepathic matrix" causes the DS9 crew to re-enact an ancient power struggle, leading Kira to attempt mutiny and overthrow Sisko.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s1_e18_580',
@@ -5097,6 +6165,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'A Cardassian suffering from Kalla-Nohra, a disease that indicates he served in a labor camp, visits DS9. Kira is determined to convict him as a war criminal.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s1_e19_580',
@@ -5107,6 +6178,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown.  The Federation and Bajoran people of DS9 fall into conflict when a Bajoran religious extremist comes to the station and challenges the secular teachings of Keiko O'Brien's school.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
         ],
       },
@@ -5129,6 +6203,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. Word that a previously thought dead Bajoran resistance legend is still alive sends Kira and Chief O\'Brien to Cardassia IV to rescue him; meanwhile "The Circle", a sect of the Bajoran provisional government that is intent on wiping out alien influence, is sneaking into power.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s2_e02_580',
@@ -5139,6 +6216,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. Kira spends time with Vedek Bareil on Bajor just as "The Circle" begins arming themselves from a mysterious source.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s2_e03_580',
@@ -5149,6 +6229,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. As a "Circle"-led Bajoran military tries to occupy the station, a skeleton crew led by Sisko fight to reveal "The Circle\'s" big secret before they are forced to evacuate themselves. Meanwhile, Kira and Dax lead a mission to reveal the truth about "The Circle" on Bajor.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s2_e04_580',
@@ -5159,6 +6242,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 47182.1. A jealous Trill, who had waited his entire life to receive a symbiont but never had, decides to steal one. . . Dax's!",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s2_e05_580',
@@ -5169,6 +6255,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 47177.2. Political heat rises on the station as Bajorans enter the station with orphaned Cardassians they have adopted.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s2_e06_580',
@@ -5179,6 +6268,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 47229.1. A new arrival to the station with a special gravity-based disability appeals to Bashir's heart; meanwhile an old associate of Quark's comes to the station to kill the barkeep.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s2_e07_580',
@@ -5189,6 +6281,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. A female Ferengi, posing as a male to be available to participate in business (a rule STRICTLY forbidden by the Ferengi government), falls for Quark during very important negotiations between the Ferengi and a Gamma Quadrant race.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s2_e08_580',
@@ -5199,6 +6294,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 47282.5. Odo relives some terrible and tragic memories of a past investigation when he was the constable on Cardassian-occupied Deep Space Nine, then named Terok Nor.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s2_e09_580',
@@ -5209,6 +6307,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 47329.4. While noted scientist Gideon Seyetik is preparing for an ambitious project, re-igniting a star, Sisko is intrigued by a woman who keeps disappearing.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s2_e10_580',
@@ -5219,6 +6320,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 47391.2. A race that has been conquered twice over, one of the conquerors being the mysterious Dominion, comes to the station seeking aid and a new home.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s2_e11_580',
@@ -5229,6 +6333,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. Quark meets his match when a new rival opens a casino opposite Quark's Bar on the Promenade; meanwhile the station is suffering issues of high improbability.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s2_e12_580',
@@ -5239,6 +6346,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 47391.7. Odo and Dr. Mora Pol, Odo's 'father', discover a life form similar to Odo on a Gamma Quadrant planet.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s2_e13_580',
@@ -5249,6 +6359,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 47529.4. Chief O'Brien, who still doesn't like the good Doctor Bashir, must rely on him when the two are stranded on a planet and O'Brien is infected with a deadly, fast moving disease.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s2_e14_580',
@@ -5259,6 +6372,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 47581.2. Chief O'Brien's world is turned upside down when for no reason whatsoever he is being ignored by his family and friends and is being closed out of every essential job on the station.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s2_e15_580',
@@ -5269,6 +6385,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 47573.1. Sisko and Chief O'Brien discover a colony that lives without technology.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s2_e16_580',
@@ -5279,6 +6398,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 47603.3. Odo and Dax investigate the mysterious disappearance of people from a village. Kira tries to keep a close eye on Quark, while Vedek Bareil unexpectedly visits.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s2_e17_580',
@@ -5289,6 +6411,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. A Trill named Arjin comes to DS9 to learn what it is to be a Trill with a symbiont but finds his teacher, Dax, to be less than he expected.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s2_e18_580',
@@ -5299,6 +6424,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. A Cardassian woman, who was once a former flame of Quark's, visits the station under dubious circumstances.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s2_e19_580',
@@ -5309,6 +6437,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. Three legendary Klingons come to DS9 to see if Jadzia Dax will participate in a Blood Oath they made with Jadzia's previous host Curzon.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s2_e20_580',
@@ -5319,6 +6450,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. The destruction of a Cardassian ship leads Sisko, Dukat, and Sisko's old friend Cal Hudson to the fact that there is an unofficial war between the Maquis and the Cardassians.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s2_e21_580',
@@ -5329,6 +6463,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. Sisko tries to resolve the Maquis crisis by preventing a war, freeing Gul Dukat and offering the defected Hudson the chance to return.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s2_e22_580',
@@ -5339,6 +6476,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. Dr. Bashir fights to save Garak's life when a malfunctioning  Cardassian brain implant threatens to kill him.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s2_e23_580',
@@ -5349,6 +6489,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 47879.2. Kira and Bashir find themselves in an alternate universe.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s2_e24_580',
@@ -5359,6 +6502,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. Vedek Bareil is accused of having betrayed his people to the Cardassians during the occupation, and Major Kira is desperate to prove his innocence.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s2_e25_580',
@@ -5369,6 +6515,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 47944.2. Chief O'Brien goes through the horrific Cardassian judicial system when he is charged for an unknown crime.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s2_e26_580',
@@ -5379,6 +6528,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. Sisko and Quark and a strange telepathic woman are arrested by Jem'Hadar, soldiers of the Dominion.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
         ],
       },
@@ -5401,6 +6553,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 47025.4. Data abducts Picard, Troi and Geordi and holds them prisoners of the Borg, while he derives pleasure from being evil. Dr. Crusher is left in command of the Enterprise as it comes under attack from a Borg vessel.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s7_e02_655',
@@ -5411,6 +6566,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. During an exchange program, Picard's shuttle crashes on an unknown planet where he is rescued by the sole survivor of another crash.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s7_e03_655',
@@ -5421,6 +6579,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 47215.5. Geordi defies direct orders from Captain Picard in an attempt to rescue his mother who had recently been reported as missing.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s7_e04_655',
@@ -5431,6 +6592,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 47135.2. An away team investigates the apparent death of Jean-Luc Picard who was supposedly killed in a bar fight. When Riker is abducted by a band of criminals who loot archaeological digs, he is shocked to find Picard alive and well, and undercover as a renegade archaeologist.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s7_e05_655',
@@ -5441,6 +6605,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 47160.1. Picard and Riker covertly work together in an attempt to find out why the criminals are looting archaeological digs.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s7_e06_655',
@@ -5451,6 +6618,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 47225.7. Data's new dream subroutine causes him to experience nightmares which provide a unique insight into strange events that are occurring on board the Enterprise.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s7_e07_655',
@@ -5461,6 +6631,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 47254.1. Lwaxana Troi collapses with a repressed memory related illness. Her only chance for survival is if Deanna can probe her subconscious and find out what is killing her. However, the secret Lwaxana holds is deeper than Deanna imagined.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s7_e08_655',
@@ -5471,6 +6644,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 47304.2. While on a a diplomatic mission, Dr. Crusher and Picard are captured and imprisoned. As a result, they are linked together via a telepathic device.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s7_e09_655',
@@ -5481,6 +6657,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 47310.2. The Enterprise is drawn to a region of space where many starships have been mysteriously disabled. They soon learn that a brother and sister team has been working together to bring attention to the fact that frequent high-warp travel is damaging the very fabric of space/time.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s7_e10_655',
@@ -5491,6 +6670,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 47410.2. Data is disturbed by the claims of a woman who says she is Noonien Soong's ex-wife.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s7_e11_655',
@@ -5501,6 +6683,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 47391.2. Worf returns from a Klingon competition to find that he is shifting through different realities.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s7_e12_655',
@@ -5511,6 +6696,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 47457.1. Riker is placed on a covert mission to find the missing starship he was once a member aboard, but the mission holds a secret that could destroy the peace treaty between the Federation and the Romulans.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s7_e13_655',
@@ -5521,6 +6709,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 47423.9. Worf's adoptive brother violates the Prime Directive to save an alien society whose planet is dying.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s7_e14_655',
@@ -5531,6 +6722,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. Dr. Crusher attends her grandmother's funeral, to find that she had been in romantic encounters with a mysterious man who had been haunting the Howard family women for generations.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s7_e15_655',
@@ -5541,6 +6735,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 47566.7. Four young ensigns compete for a promotion that only one of them will receive. However, they are soon placed on a top secret mission that places some of their lives in danger.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s7_e16_655',
@@ -5551,6 +6748,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 47611.2. Data find himself mysteriously stranded on a planet with no recollection of who he is or how he arrived there. Soon he is accused of spreading a plague among the inhabitants. Troi takes the bridge officer's test in an attempt to gain the rank of Commander.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s7_e17_655',
@@ -5561,6 +6761,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 47615.2. The Enterprise is slowly transformed into an ancient alien temple when Data discovers an alien archive full of information about an ancient culture. Shortly after opening the archive, Data becomes possessed with several different personalities.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s7_e18_655',
@@ -5571,6 +6774,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 47622.1. While investigating the mysterious suicide of a crew member, Troi and Worf begin to show romantic feeling towards one another.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s7_e19_655',
@@ -5581,6 +6787,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 47653.2. Upon returning from an away mission, Picard and Data find the ship drifting in space, and the crew de-evolving into their animal ancestors.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s7_e20_655',
@@ -5591,6 +6800,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 47751.2. Under the terms of the new Federation/Cardassian alliance, Picard is ordered to evacuate a colony of native Americans, but protests from Wesley hamper the process. Wesley's destiny is finally revealed to him when the Traveler returns.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s7_e21_655',
@@ -5601,6 +6813,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 47779.4. A disinterested Alexander must face his first Right of Ascension passage, but a mysterious warrior by the name of K'Mtar brings with him a disturbing request.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s7_e22_655',
@@ -5611,6 +6826,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 47829.1. Picard tries to save his newly-discovered son from the retaliation of a vengeful Ferengi whose only son was killed by Picard during the Battle of Maxia many years before.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s7_e23_655',
@@ -5621,6 +6839,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 47869.2. The Enterprise's computer systems starts having repeated malfunctions, leading the crew to believe that it may be evolving into a new life form.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s7_e24_655',
@@ -5631,6 +6852,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 47941.7. Fresh from Starfleet's Advanced Tactical Training course, Ro Laren is assigned to infiltrate the Maquis. However, over time she begins to sympathize with them, which forces her to choose between her loyalty to the Federation, and her new friends in the Maquis.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'tng_s7_e25_655',
@@ -5641,6 +6865,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 47988.0. Shortly after Picard is diagnosed with a long-term, potentially debilitating brain disorder, he starts experiencing bizarre shifts into three main time periods: 25 years into the future, a few days before the Enterprise-D is sent on its mission to Farpoint station, and the present. Picard realizes that Q is behind these shifts through time.\n\nStardate:  47988.1. After his encounter with Q, Picard assembles the senior staff, and wonders if Q is actually giving him a chance to save humanity by showing him that the spatial anomaly also exists in the past. As they talk, the ship reaches the Neutral Zone, then Picard returns to the future, where Beverly's ship is also on the edge of the Neutral Zone. He convinces a reluctant Worf to accompany the group into Klingon territory, and then travels to the past, where he orders the crew into the Devron system.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
         ],
       },
@@ -5663,6 +6890,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 48213.1. Instead of waiting for the Jem'Hadar to attack, Sisko wants to try a different approach. He wants to take a new class starship to try to find the Founders.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s3_e02_580',
@@ -5673,6 +6903,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 48213.1. Odo has found his home and is introduced. Meanwhile Sisko finds out peace talks between the Dominion and the Federation have already started.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s3_e03_580',
@@ -5683,6 +6916,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. Quark tries to boost his reputation by taking credit for the accidental death of a Klingon in his bar, but lands himself in the middle of a Klingon political struggle.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s3_e04_580',
@@ -5693,6 +6929,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. The Trill homeworld is the setting, as Sisko and Bashir take Jadzia home for treatment when she begins experiencing hallucinations after playing a tune she can't recall.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s3_e05_580',
@@ -5703,6 +6942,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. Kira finds herself on Cardassia as a Cardassian. She is told she is called Iliana Ghemor and was a Cardassian spy.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s3_e06_580',
@@ -5713,6 +6955,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. Odo tries to bond with an alien child Quark finds in a load of salvage, while Sisko tries to break his son's relationship with a 20 year old Dabo girl.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s3_e07_580',
@@ -5723,6 +6968,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. The station goes into lockdown and the crew is endangered when an old Cardassian security program is accidentally activated.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s3_e08_580',
@@ -5733,6 +6981,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 48423.2. Dax falls in love with one of the residents of a multi-dimensional planet, while on DS9 an alien requests a holosuite program of Kira from Quark.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s3_e09_580',
@@ -5743,6 +6994,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 48467.3. The DS9 crew welcomes a visit from William Riker of the Enterprise, but the lieutenant’s hidden agenda leads to a tense standoff deep in Cardassian space.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s3_e10_580',
@@ -5753,6 +7007,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. As Lwaxanna Troi visits the station for a Bajoran festival, the crew is stricken with intense romantic attractions to one another.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s3_e11_580',
@@ -5763,6 +7020,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 48481.2. Sisko, Bashir and Dax are accidentally sent to San Francisco in the 21st century due to a transporter malfunction, and must figure out how to get back without changing the time line.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s3_e12_580',
@@ -5773,6 +7033,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 48481.2. Sisko is forced to take the place of a key historical figure on Earth in 2024 in order to preserve the timeline.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s3_e13_580',
@@ -5783,6 +7046,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 48498.4. Dr. Bashir must use extraordinary measures to prolong Vedek Bareil's life long enough to allow Bareil to complete sensitive peace negotiations between the Bajorans and the Cardassians.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s3_e14_580',
@@ -5793,6 +7059,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 48521.5. After chasing a fugitive into a cave, Kira gets stuck and is slowly encapsulated by a growing crystal stone while Odo tries to figure out how to free her.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s3_e15_580',
@@ -5803,6 +7072,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 48543.2. Sisko faces a conflict between his Starfleet duties and his role as the Bajoran Emissary when an ancient Bajoran prophecy predicts that a joint Federation-Cardassian project will lead to the destruction of the wormhole.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s3_e16_580',
@@ -5813,6 +7085,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. Grand Nagus Zek is acting bizarre by giving away money and rewriting the Rules of Acquisition. Quark attempts to get the old Nagus back.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s3_e17_580',
@@ -5823,6 +7098,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. While a Romulan delegation tries to get information about the Dominion, O'Brien gets visions of unpleasant things that are about to happen in the future.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s3_e18_580',
@@ -5833,6 +7111,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. After being attacked in the infirmary, Dr. Bashir has a dual mystery on his hands: what has happened to the station while he was out and why is he aging so rapidly now?',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s3_e19_580',
@@ -5843,6 +7124,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. Sisko is kidnapped to impersonate his deceased, mirror universe self to gain Jennifer Sisko's loyalty in the Rebel Alliance.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s3_e20_580',
@@ -5853,6 +7137,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. After an attempt is made on Garak's life, Odo conducts the investigation on who tried to murder the Cardassian tailor - and why.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s3_e21_580',
@@ -5863,6 +7150,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. Now rejoined with his former mentor, Garak is ordered to interrogate Odo about the secrets of his people, while the joined Romulan/Cardassian attack fleet moves towards the Founders' home world on a mission of destruction.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s3_e22_580',
@@ -5873,6 +7163,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. Sisko rebuilds an ancient Bajoran space vessel from the blueprints, and he and Jake take the ship on a trip, attempting to prove that the ancient Bajorans went beyond their solar system without warp drive.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s3_e23_580',
@@ -5883,6 +7176,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. Quark and Rom return to the Ferengi home world because their mother has broken the law - by wearing clothes and earning profits, forbidden for women in Ferengi society.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s3_e24_580',
@@ -5893,6 +7189,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. News arrives that Kai Winn has also become Bajor's political leader. She asks Kira to negotiate with an old resistance friend about returning soil reclamators.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s3_e25_580',
@@ -5903,6 +7202,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. Dax asks the crew to join her Zhian'tara ritual. The memories of her former hosts will take over their bodies. Nog is preparing for Starfleet Academy.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s3_e26_580',
@@ -5913,6 +7215,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 48959.1. The Defiant is off to show the Federation's presence to the new Tzenkethi government. While underway the ship malfunctions and Bashir is suspected of sabotage.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
         ],
       },
@@ -5935,6 +7240,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 48315.6. The USS Voyager, led by Captain Kathryn Janeway, is sent into the dangerous Badlands in pursuit of a Maquis ship, only for both ships to find themselves 70,000 light years from home in the uncharted Delta Quadrant.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s1_e02_1855',
@@ -5945,6 +7253,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 48439.7. As the Maquis crewmembers begin to integrate themselves into the Starfleet crew, Voyager becomes trapped in a quantum singularity.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s1_e03_1855',
@@ -5955,6 +7266,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. After being hit by the shockwave of a devastating planet-wide explosion, Voyager investigates. While on the surface, Janeway and Paris are accidentally 'shifted' one day into the past.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s1_e04_1855',
@@ -5965,6 +7279,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 48532.4. During an away mission, Neelix is attacked and his lungs are surgically removed. His only hope for survival is if the crew of Voyager can get them back.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s1_e05_1855',
@@ -5975,6 +7292,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 48546.2. Janeway tries to figure out what her dynamic with the crew should be while all stuck in the Delta Quadrant together. Voyager tries to harvest omicron particles to refuel the ship, but inadvertently injures a spacefaring organism.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s1_e06_1855',
@@ -5985,6 +7305,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 48579.4. The discovery of a wormhole leading to the Alpha Quadrant elates the crew, however, their only contact within range is a skeptical and paranoid Romulan.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s1_e07_1855',
@@ -5995,6 +7318,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. Tom Paris is accused of a murder he claims he did not commit. His sentence is to re-live the last few moments of his victim's life every 14 hours through a memory transplant.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s1_e08_1855',
@@ -6005,6 +7331,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 48623.5. A transporter accident swaps Harry Kim with a dying woman from another dimension. Harry finds himself among aliens who believe he’s returned from their afterlife, while the woman, expecting paradise, wakes up on the Voyager.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s1_e09_1855',
@@ -6015,6 +7344,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 48642.5. The Voyager crew are offered luxurious shore leave by the advanced and gregarious Sikarians, who have a device that could send Voyager 40,000 light years closer to home. However, Sikarian law strictly prohibits sharing their technology with others.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s1_e10_1855',
@@ -6025,6 +7357,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 48658.2. When stolen Federation technology is found on a severely damaged Kazon Nistrim ship, Seska becomes the prime suspect. The evidence is further reinforced when questions arise regarding her true heritage.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s1_e11_1855',
@@ -6035,6 +7370,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 48693.2. Harry Kim disappears from the holodeck during his holo-novel, "Beowulf." According to the characters, he died at the hands of a mystical beast known as "Grendel". When Chakotay and Tuvok also disappear, the Doctor is transferred to the holodeck to investigate.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s1_e12_1855',
@@ -6045,6 +7383,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 48734.2. After Chakotay and Tuvok are injured in a shuttle accident, a non-corporeal life form begins to wreak havoc on Voyager by infiltrating the minds of the crew and altering the ship's systems one by one.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s1_e13_1855',
@@ -6055,6 +7396,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 48784.2. The Vidiians capture Paris, Torres and Durst while on an away mission. Torres is taken to a lab and 'split' into two people: one human, and one Klingon.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s1_e14_1855',
@@ -6065,6 +7409,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 48832.1. The inventor of a weapon that slaughtered Neelix’s people contacts Neelix to warn of a fatal disease he may have contracted as a side effect.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s1_e15_1855',
@@ -6075,6 +7422,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 48846.5. In order to bring some rebellious Maquis crewmembers into line, Tuvok gives them a Starfleet Academy crash course. Meanwhile, the crew investigate a series of failures affecting the Voyager’s bio-neural systems.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
         ],
       },
@@ -6097,6 +7447,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 48975.1. The crew happen upon a 1936 Ford truck adrift in space, leading to the discovery of a cryogenic chamber of humans abducted in the 1930s, including Amelia Earhart.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s2_e02_1855',
@@ -6107,6 +7460,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 49005.3. A young Kazon, desperate to prove himself and earn his name, tries to attack Chakotay.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s2_e03_1855',
@@ -6117,6 +7473,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 48892.1. The Emergency Medical Hologram is activated during a red alert and finds the ship has been abandoned after an unknown emergency. As he explores, evidence mounts that the Doctor may in fact be the only real human in a holo-program called Voyager.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s2_e04_1855',
@@ -6127,6 +7486,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 48921.3. While the crew of Voyager investigate a cluster of space-borne life forms, Kes begins exhibiting strange intense symptoms.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s2_e05_1855',
@@ -6137,6 +7499,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 49011. Harry Kim arises one morning to find he is back in San Francisco on Earth with his girlfriend Libby. In order to help him restore reality, he enlists the help of a shady figure in France by the name of Tom Paris, who has no idea who Harry is.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s2_e06_1855',
@@ -6147,6 +7512,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. Voyager enters a spatial distortion ring, which causes the ship’s layout to shift in confusing ways.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s2_e07_1855',
@@ -6157,6 +7525,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. Tom Paris and Neelix, while fighting over Kes’s affections, crash-land on a dangerous planet and become responsible for a sickly baby creature.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s2_e08_1855',
@@ -6167,6 +7538,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. Captain Janeway starts seeing characters and objects from her holo-novel around the ship. Soon afterwards the crew begins entering a catatonic state one by one, while only Kes and the Doctor remain unaffected.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s2_e09_1855',
@@ -6177,6 +7551,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. Upon discovering a cultural symbol drawn in the ground on a planet that was used by his ancestors to 'heal the land', Chakotay tries to contact the beings his tribe called the 'Sky Spirits.'",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s2_e10_1855',
@@ -6187,6 +7564,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 49164.8. The crew of Voyager make contact with the Caretaker's mate, Suspiria, and a community of Ocampa that have been living on her Array. One of the Ocampa begins to train Kes in growing her psychic abilities, but pushes her to become more powerful than she can control.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s2_e11_1855',
@@ -6197,6 +7577,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. After the Kazon steal some Federation technology Chakotay goes after them on his own and is captured.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s2_e12_1855',
@@ -6207,6 +7590,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. Tuvok and B'Elanna are captured and imprisoned after an away mission to obtain a chemical vital to Voyager's systems from a black market go wrong. Janeway is knocked unconscious and is rescued by a man who believes that she is his daughter.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s2_e13_1855',
@@ -6217,6 +7603,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. After finding and repairing a robot found drifting in space, B'Elanna is abducted and forced to design a new prototype or Voyager will be destroyed.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s2_e14_1855',
@@ -6227,6 +7616,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. Janeway tries to make an alliance with a Kazon sect for their own protection and so they can continue their journey through the Delta Quadrant.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s2_e15_1855',
@@ -6237,6 +7629,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. After finding a type of dilithium that can survive at a higher temperatures, Tom Paris comes up with the ingenious idea of attempting to cross the transwarp threshold in an attempt to find a way to get home faster.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s2_e16_1855',
@@ -6247,6 +7642,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. In order to help out Lon Suder, a psychopath who killed a crewmember, Tuvok performs a mind meld. Soon after, he begins showing violent tendencies, which develop until he loses control.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s2_e17_1855',
@@ -6257,6 +7655,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 49447. When Voyager encounters a Cardassian missile ship in the Delta Quadrant named 'Dreadnought', B'Elanna must disarm it before it destroys a planet with millions of innocent people.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s2_e18_1855',
@@ -6267,6 +7668,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 49301.2. A suicidal Q threatens the future of the Q-Continuum after he requests asylum aboard Voyager.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s2_e19_1855',
@@ -6277,6 +7681,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 46504.3. After receiving a Vidiian patient who is about to die from the Phage, the doctor transfers her consciousness into the ship's computer and creates a holographic body. He soon finds himself becoming deeply attracted to her.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s2_e20_1855',
@@ -6287,6 +7694,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 49485.2. After weeks of erratic behavior, Tom Paris leaves Voyager and joins a Talaxian convoy.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s2_e21_1855',
@@ -6297,6 +7707,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 49548.7. An accident in a plasma cloud duplicates Voyager after they are attacked by the Vidiians. During the aftermath, the ship is severely damaged, Ensign Wildman's baby dies and Harry Kim is sucked into space through a hull breach.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s2_e22_1855',
@@ -6307,6 +7720,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. When Tuvok crashes on a moon, he discovers three small children who believe they are about to die.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s2_e23_1855',
@@ -6317,6 +7733,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. The crew of Voyager encounters a planet that has recently entered an ice age. They discover a series of stasis chambers where a small group of people are mentally connected to an artificial environment that turned horribly wrong.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s2_e24_1855',
@@ -6327,6 +7746,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 49655.2. A transporter accident merges Tuvok and Neelix into one new being who calls himself 'Tuvix.'",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s2_e25_1855',
@@ -6337,6 +7759,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 49690.1. When Captain Janeway and Chakotay contract an incurable virus they are left on a planet that shield them from its effects. While Janeway searches for a cure, she begins to form a deeper relationship with her first officer. Onboard Voyager, Tuvok, who is now in command, faces a near mutiny.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s2_e26_1855',
@@ -6347,6 +7772,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. Voyager receives a distress signal from Seska, who claims that Maje Cullah is going to take her baby away from her, a baby she says is Chakotay's. Chakotay is skeptical, but can't take the risk of abandoning his child, should it really prove to be his. Janeway authorises a mission to rescue Chakotay's child and the ship moves deep into Kazon Nistrim territory. However: was Seska for real, or is this all an elaborate trap?",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
         ],
       },
@@ -6369,6 +7797,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 49011.4.  When the Klingons bring a task force to DS9, Captain Sisko sends for Starfleet's lone Klingon officer, Worf, to uncover the mysterious intentions of their presence.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s4_e02_580',
@@ -6379,6 +7810,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. Melanie, an aspiring writer, wants to know why Jake Sisko stopped writing at 40. Jake tells how his father died in an accident and then suddenly reappeared.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s4_e03_580',
@@ -6389,6 +7823,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 49066.5. Bashir is asked to help a group of renegade Jem'Hadar break their addiction to ketracel white. Meanwhile Worf is dissatisfied with the way Odo runs security.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s4_e04_580',
@@ -6399,6 +7836,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. Kira and Gul Dukat go after the lost prison ship Ravinok. Dukat has a secret. Meanwhile Kasidy Yates tries to find work near Bajor, leaving Sisko uncomfortable.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s4_e05_580',
@@ -6409,6 +7849,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 49195.5. Lenara Kahn, the new host of the wife of Dax's former host Torias, comes to the station. While they're not allowed to renew their relation, there's still a spark.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s4_e06_580',
@@ -6419,6 +7862,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 49263.5. A damaged Defiant must play a dangerous game of cat-and-mouse with two Jem'hadar ships inside a gas giant.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s4_e07_580',
@@ -6429,6 +7875,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. Quark and Rom take Nog to Earth and Starfleet Academy, but a malfunction with the ship takes the crew back in time, to Roswell New Mexico in 1947.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s4_e08_580',
@@ -6439,6 +7888,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. Worf, Dax and the Klingon Dahar master Kor set out to find an ancient lost relic: the Sword of Kahless.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s4_e09_580',
@@ -6449,6 +7901,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. When an transporter emergency turns the command crew into holosuite characters, Bashir's James Bond fantasy takes on a deadly reality.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s4_e10_580',
@@ -6459,6 +7914,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 49170.65. Sisko travels to Earth when a bombing at a Federation conference is determined to be the work of Changelings.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s4_e11_580',
@@ -6469,6 +7927,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. When Starfleet institutes martial law to combat the Changeling Menace, Sisko begins to question if the Dominion is the real threat.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s4_e12_580',
@@ -6479,6 +7940,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. First Minister Shakaar visits the station, despite a threat of assassination. He falls in love with Kira much to Odo's dismay.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s4_e13_580',
@@ -6489,6 +7953,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. Dukat returns, stripped of his prestige, to escort Kira to a Cardassian conference about the Dominion. But an attack by a Klingon raider may give Dukat a chance to redeem himself in the eyes of his government.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s4_e14_580',
@@ -6499,6 +7966,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 49556.2. Worf's brother Kurn asks him to perform a death rite to regain his lost honor. Meanwhile Kira and O'Brien investigate Klingon activity near the Bajoran border.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s4_e15_580',
@@ -6509,6 +7979,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. Unfair working conditions and pay cuts cause Rom to organize a union of the employees of Quark's Bar. Meanwhile Worf still finds it hard to settle on the station.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s4_e16_580',
@@ -6519,6 +7992,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. A man claiming to be the emissary comes through the wormhole. Sisko is happy to give up his position. Meanwhile Keiko returns and O'Brien stops spending time with Bashir.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s4_e17_580',
@@ -6529,6 +8005,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 49665.3. When Worf destroys a civilian shuttle during an engagement with the Klingons, an extradition hearing is held to see if he must face charges.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s4_e18_580',
@@ -6539,6 +8018,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. O'Brien tries to re-integrate to life on the station after serving 20 years in a virtual prison.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s4_e19_580',
@@ -6549,6 +8031,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. When the Mirror Universe counterpart of Sisko's deceased wife lures Jake to the other side, Sisko must follow and help the human resistance against the Alliance's forces.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s4_e20_580',
@@ -6559,6 +8044,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. A mysterious woman approaches Jake about his future as a writer. Odo promises to do whatever it takes to help Lwaxana Troi keep her baby over the father's wishes - even if it means marrying her himself.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s4_e21_580',
@@ -6569,6 +8057,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. Sisko must face betrayal when evidence surfaces that Kasidy is smuggling for the Maquis. Meanwhile Garak makes acquaintance with Ziyal.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s4_e22_580',
@@ -6579,6 +8070,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 49904.2. A renegade group of Jem'Hadar plunders Deep Space Nine. Sisko agrees to a combat operation with loyal Jem'Hadar to prevent the renegades completing a planetary gateway.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s4_e23_580',
@@ -6589,6 +8083,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. Bashir tries to help a planet in the grips of a Dominion-engineered plague that guarantees a painful death.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s4_e24_580',
@@ -6599,6 +8096,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. Quarks hears on Ferenginar he is going to die. Rom convinces him to sell his remains. After an accident, Bashir has to move Keiko's baby to Kira's womb.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s4_e25_580',
@@ -6609,6 +8109,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 49962.4. Odo is suddenly struck by illness. He is barely able to hold shape. Bashir and Odo see no other alternative then going to the Founders. Garak wants to come along.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
         ],
       },
@@ -6631,6 +8134,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 50023.4. Voyager is captured by the Kazon and the crew are dumped on a planet in its early stages of evolution.  As only Tom Paris and Lon Suder have evaded capture, it's up to them and the EMH to come up with a plan to retake the ship.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s3_e02_1855',
@@ -6641,6 +8147,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 50126.4. After falling ill to what appears to be a repressed memory Tuvok must perform a mind-meld with Captain Janeway in order to survive. The meld takes them back to when Tuvok was a junior science officer aboard the U.S.S. Excelsior under the command of Captain Hikaru Sulu.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s3_e03_1855',
@@ -6651,6 +8160,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 50156.2. Paris and Kim are sent to an Akritian prison after being accused of a terrorist bombing.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s3_e04_1855',
@@ -6661,6 +8173,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 50252.3. Voyager must cross through the territory of a mysterious and fiercely isolationist species.  Meanwhile, B’Ellana tries to help the Doctor when he begins losing his memory.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s3_e05_1855',
@@ -6671,6 +8186,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 50074.3. The crew encounter a Bronze Age culture ruled by two “Sages” – a pair of Ferengi who arrived through a wormhole from the Alpha Quadrant.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s3_e06_1855',
@@ -6681,6 +8199,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 50203.1. After Voyager encounter a telepathic species, B'Elanna starts having powerful dreams that depict the life of a woman and her lover in a time of great political and social upheaval.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s3_e07_1855',
@@ -6691,6 +8212,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 50063.2. Captain Janeway has to undergo a rigorous ritual in order to save Kes' life when she is knocked unconscious.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s3_e08_1855',
@@ -6701,6 +8225,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. Voyager is attacked by a Timeship from 500 years in the future, but the two ships are hurled into the past and Voyager is stranded in the year 1996.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s3_e09_1855',
@@ -6711,6 +8238,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 50312.5. While trying to rescue Paris and Tuvok, Torres and Chakotay are captured by a gang of weapons smugglers who believe that they are from the government.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s3_e10_1855',
@@ -6721,6 +8251,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 50348.1. A dying warlord transfers his consciousness to Kes’s body and uses her to stage a bloody coup on his home world.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s3_e11_1855',
@@ -6731,6 +8264,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 50384.2. Q begins courting Captain Janeway, claiming that her having his child is the only way to end a civil war wracking the Q Continuum.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s3_e12_1855',
@@ -6741,6 +8277,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. After returning from a first contact mission, Janeway, Neelix and the Doctor must retake Voyager from an infestation of microorganisms that grow to an alarming size.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s3_e13_1855',
@@ -6751,6 +8290,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. Voyager arrives at the dangerous and uncharted Nekrit Expanse. Neelix, feeling useless now that he can’t guide them, reaches out to a shady contact to find the crew a map.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s3_e14_1855',
@@ -6761,6 +8303,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 50460.3. Ensign Kim asks for Tuvok’s help controlling his emotions when he finds himself desperately in love with a holodeck character.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s3_e15_1855',
@@ -6771,6 +8316,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 50518.6. Captain Janeway and Chakotay are trapped in a time loop, reliving the same disastrous shuttle crash.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s3_e16_1855',
@@ -6781,6 +8329,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 50537.2. Ensign Vorik expresses his desire to mate with B'Elanna during his Pon-Farr. After they get in a brawl over the matter, Torres begins showing signs of the Pon-Farr herself.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s3_e17_1855',
@@ -6791,6 +8342,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 50614.2. During an away mission, Chakotay discovers a Federation hailing signature coming from an alien planet. After landing, he learns that all is not peaceful, and those helping him have not been entirely honest about their true origins.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s3_e18_1855',
@@ -6801,6 +8355,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 50693.2. When the doctor tries to improve his personality by incorporating the psychological profiles of famous and historical people, he is overwhelmed by their dark sides and begins exhibiting signs of a split personality, one the regular doctor, and the other dark and evil. Kes asks to leave Voyager when they encounter a race with vast knowledge of the region of space they are currently exploring.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s3_e19_1855',
@@ -6811,6 +8368,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. Neelix is pushed to the limits when Tuvok's attitude becomes too much to bear while the pair is on an away mission to help evacuate a Nezu planet, which is being bombarded with asteroids.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s3_e20_1855',
@@ -6821,6 +8381,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 50732.4. Harry Kim experiences strong senses of deja vu in an unknown region of space. He soon learns that he is native to this region and that he is T'Karian, not human.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s3_e21_1855',
@@ -6831,6 +8394,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 50973. Kes begins traveling backwards through time from the moment of her death. With each shift, she comes closer to a solution but she also grows months and years younger at a time.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s3_e22_1855',
@@ -6841,6 +8407,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 50863.2. The Doctor decides he should create a holographic family in order to expand himself. When B'Elanna is disgusted by its unrealistic perfectionism, she alters the program to include random events and outcomes with interesting and devastating results.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s3_e23_1855',
@@ -6851,6 +8420,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. An alien palaeontologist discovers a common ancestral link between his people and humans. He believes that this proves that his people (the Voth) evolved on Earth and migrated to the Delta Quadrant millions of years ago, but his government is not as willing to believe his interpretation of the evidence.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s3_e24_1855',
@@ -6861,6 +8433,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 50912.4. Crew members are replaced one-by-one with aliens from an unknown race.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s3_e25_1855',
@@ -6871,6 +8446,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 50953.4. B'Elanna Torres discovers a holodeck program where Chakotay and the Maquis rebel against Janeway.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s3_e26_1855',
@@ -6881,6 +8459,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 50984.3. Voyager finally enters Borg space, only to discover a threat more powerful than the Borg themselves.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
         ],
       },
@@ -6903,6 +8484,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. With the war between Klingons and Federation intensifying, Sisko must make a plan to expose Gowron as a changeling. Odo is still having trouble with becoming a solid.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s5_e02_580',
@@ -6913,6 +8497,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 50049.3. The crew find a crashed Jem’Hadar ship and work to repair it and capture it for the Federation, but are confronted by a Dominion force determined to recover the ship’s cargo.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s5_e03_580',
@@ -6923,6 +8510,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. While Worf helps Quark to pursue his former wife Grilka, O'Brien and Kira grow uncomfortably close to each other.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s5_e04_580',
@@ -6933,6 +8523,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. Jake, reporting from the front lines, sees what war truly is.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s5_e05_580',
@@ -6943,6 +8536,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. An alien entity has possessed Keiko's body and is holding it hostage until O'Brien completes an assignment for it.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s5_e06_580',
@@ -6953,6 +8549,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 4523.7. In this celebration of the 30th anniversary of The Original Series, the disgraced Klingon spy Darvin travels back in time to undo his century-old defeat by James Kirk. The DS9 crew must track him down and stop him, while blending in with the crew of the original Enterprise NCC-1701.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s5_e07_580',
@@ -6963,6 +8562,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. While vacationing on Risa, Worf and Dax meet a group of fundamentalist protesters who claim that the Federation has gone soft.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s5_e08_580',
@@ -6973,6 +8575,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. Sisko, Dax, Odo and Garak find themselves in the past when the Cardassians controlled the station, and a crime that Odo investigated may be the key.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s5_e09_580',
@@ -6983,6 +8588,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. When Odo and Quark crash land, they must put aside their differences to climb a mountain to signal for help. Jake and Nog try to be roommates, but their different styles clash.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s5_e10_580',
@@ -6993,6 +8601,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. After a brain injury, Sisko begins experiencing powerful visions through time. He dives fully into the role of the Emissary, while becoming obsessed with finding a legendary Bajoran ruin.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s5_e11_580',
@@ -7003,6 +8614,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 50416.2. A mysterious assassin begins wiping out all the members of Kira's old resistance cell.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s5_e12_580',
@@ -7013,6 +8627,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. The discovery of an infant Changeling gives Odo a chance to put right the trauma of his own upbringing, while his “father” Dr. Mora insists on a more clinical approach.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s5_e13_580',
@@ -7023,6 +8640,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 50485.2. When the traitorous Eddington returns, Sisko will go to any lengths to capture him.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s5_e14_580',
@@ -7033,6 +8653,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. A coded message from the Gamma Quadrant leads Garak to believe his mentor, Enabran Tain, is still alive. He and Worf seek him out, only to discover something much worse: a Dominion invasion fleet poised to attack the Alpha Quadrant.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s5_e15_580',
@@ -7043,6 +8666,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 50564.2. The station readies for a Dominion attack. Worf and Garak meet some unexpected friends in a Dominion Prison camp.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s5_e16_580',
@@ -7053,6 +8679,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. Dr. Bashir is selected to be the model for the next-generation of Emergency Medical Hologram (EMH). But he balks when his parents are invited to the station to be interviewed by the EMH programmer, Dr. Zimmerman. There is a dark secret in his family that he's afraid that his parents will reveal.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s5_e17_580',
@@ -7063,6 +8692,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Odo helps a woman hiding on the station from organized criminals, but quickly develops a personal interest in the case.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s5_e18_580',
@@ -7073,6 +8705,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. Quark must wrestle with his conscience when he becomes involved with arms merchants.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s5_e19_580',
@@ -7083,6 +8718,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 50712.2. When a Cardassian official that thinks of Kira as his daughter is dying, he agrees to reveal all he knows to her. But the experience dredges up Kira's memories of her own father's death.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s5_e20_580',
@@ -7093,6 +8731,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. Quark doesn't know whether to be panicked or overjoyed when he learns that his mother is the new lover of the Grand Nagus.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s5_e21_580',
@@ -7103,6 +8744,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. Dax and Worf accompany Martok on his first command since being held by the Dominion. But the ship they are given hasn't seen victory in months and the crew is near mutinous.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s5_e22_580',
@@ -7113,6 +8757,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 50814.2. The DS9 crew discovers a colony that, due to a time travel accident, turns out to be inhabited by the crew's own descendants.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s5_e23_580',
@@ -7123,6 +8770,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. Sisko learns that the Maquis are planning a devastating attack on Cardassia, and must rely on the traitor Eddington to help him prevent it.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s5_e24_580',
@@ -7133,6 +8783,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. While salvaging components from DS9\'s sister station, the crew run afoul of a "surprise" left behind by the Cardassians.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s5_e25_580',
@@ -7143,6 +8796,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 50929.4. Jake has his heart set on a vintage Willie Mays baseball card as a present to cheer up his father, whose spirits are flagging from the ongoing conflict.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s5_e26_580',
@@ -7153,6 +8809,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 50975.2. Sisko decides to mine the wormhole to prevent further Dominion ships crossing into the Alpha Quadrant. This provokes an attack by the Dominion and the Cardassians, and a desperate last stand on Deep Space Nine.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
         ],
       },
@@ -7175,6 +8834,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 51003.7. The Voyager crew, allied with the Borg, prepare to battle the sinister alien Species 8472. But can an alliance between opinionated individuals and a collective race of consumers survive such fundamental differences?',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s4_e02_1855',
@@ -7185,6 +8847,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 51008. Janeway begins the process of integrating Seven of Nine into the Voyager crew. Meanwhile, Kes begins to experience extreme advances in her mental powers.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s4_e03_1855',
@@ -7195,6 +8860,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. When Voyager is forced to eject its warp core, Torres and Paris take a shuttle to retrieve it. But when the shuttle is damaged, the two officers are forced to abandon it—and find themselves alone in space with a rapidly depleting oxygen supply.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s4_e04_1855',
@@ -7205,6 +8873,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 51082.4. Chakotay is stranded on a planet where two races are trying to wipe each other out in a massive, planet-wide war.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s4_e05_1855',
@@ -7215,6 +8886,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 51186.2. Torres and the Doctor assist a holographic ship's servant whose crew has been killed. Meanwhile, when Kim and Seven of Nine are assigned to work on a project together, the ensign attempts to get to know the person inside the mysterious former-Borg.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s4_e06_1855',
@@ -7225,6 +8899,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. Seven of Nine steals a shuttlecraft and flees Voyager in an attempt to answer a mysterious homing beacon and return to the Borg Collective.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s4_e07_1855',
@@ -7235,6 +8912,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 51244.3. When members of the crew begin suffering from bizarre mutations, Seven of Nine may be the only one who can uncover the reasons why.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s4_e08_1855',
@@ -7245,6 +8925,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 51268.4. The Voyager crew finds its determination and morale challenged when trying to survive a brutal, long-lasting conflict with a race called the Krenim.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s4_e09_1855',
@@ -7255,6 +8938,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 51425.4. While Chakotay and Paris remain on board Annorax's time ship, Janeway attempts to repair Voyager enough to pursue her crew members' abductors.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s4_e10_1855',
@@ -7265,6 +8951,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 51367.2. After making contact with a race of telepaths, the Voyager crew must help defuse a volatile situation when a local citizen acts on a random, violent thought inadvertently tranferred from Torres.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s4_e11_1855',
@@ -7275,6 +8964,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 51386.4. Janeway and the hologram of Leonardo da Vinci must work together to retrieve Voyager's main computer processor, which has been stolen by alien thieves.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s4_e12_1855',
@@ -7285,6 +8977,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 51449.2. Neelix is killed during an away mission, but Seven of Nine is able to revive him using Borg technology, leading him into a crisis of faith regarding the afterlife.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s4_e13_1855',
@@ -7295,6 +8990,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 51471.3. The crew is 'attacked' by a species of alien that live in the human dream state. It is up to Chakotay, with extensive knowledge about the dream state, to save the ship and its crew.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s4_e14_1855',
@@ -7305,6 +9003,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. When Seven discovers an alien communications array, the crew devises a way of sending the Doctor's program across it into the Alpha Quadrant, where he finds himself aboard a Starfleet vessel that has been commandeered by the Romulans.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s4_e15_1855',
@@ -7315,6 +9016,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 51501.4. As letters from the Alpha Quadrant come trickling through the communications array, the Voyager crew learns of an assortment of joyous, disturbing, and inevitable news.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s4_e16_1855',
@@ -7325,6 +9029,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 51652.3. The crew rescues a critically injured but aggressive Hirogen hunter, who threatens to have his allies destroy Voyager if Janeway comes between him the hunt for his latest prey: a single creature from Species 8472.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s4_e17_1855',
@@ -7335,6 +9042,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 51658.2. While re-fitting Voyager's systems with newly traded weapons, Seven of Nine claims to have been assaulted by Kovin, the weapons dealer. The Doctor soon makes a surprising discovery about the situation.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s4_e18_1855',
@@ -7345,6 +9055,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. After having taken over Voyager, the Hirogen supply the crew members with artificial identities and subject them to violent holodeck simulations.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s4_e19_1855',
@@ -7355,6 +9068,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 51715.2. The crew must stop an artificial holodeck rendition of a World War II battle from spilling onto the decks of the ship while simultaneously dealing with a Hirogen takeover.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s4_e20_1855',
@@ -7365,6 +9081,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 51762.4. An alien test pilot who has the capability of switching bodies manages to take Tom's place aboard Voyager in order to escape the law.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s4_e21_1855',
@@ -7375,6 +9094,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 51781.2. When the Voyager computer detects a mysterious, powerful, and extremely dangerous substance, Janeway must risk all to attempt destroying it.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s4_e22_1855',
@@ -7385,6 +9107,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. An alien woman who requests asylum on board Voyager claims that she was onboard the ship a month ago, and she fell in love with Chakotay.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s4_e23_1855',
@@ -7395,6 +9120,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. 700 years into the future the Doctor must defend the crew of Voyager and set history straight when an alien race claims that the Warship Voyager was responsible for war crimes commited against their race.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s4_e24_1855',
@@ -7405,6 +9133,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. Kim and Paris beam down to a hellish, barren planet to search for deuterium, a crucial energy source required to keep the ship running.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s4_e25_1855',
@@ -7415,6 +9146,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 51929.3. The crew goes into stasis during a month-long journey through a nebula, leaving Seven and the Doctor in sole charge of running the ship.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s4_e26_1855',
@@ -7425,6 +9159,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 51978.2. When an alien helps the Voyager crew decode the mysterious encrypted message from Starfleet, the crew learns the whereabouts of a secret experimental starship that may be able to get them back to the Alpha Quadrant within a mere matter of months.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
         ],
       },
@@ -7447,6 +9184,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. As the war between the Federation and the Dominion continues, Sisko and his crew are reassigned from the Defiant, while Kira and Odo cope with the bureaucracy of the station's occupation.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s6_e02_580',
@@ -7457,6 +9197,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. Sisko and his crew are marooned on a barren planet with a squadron of Jem'Hadar soldiers and their wounded Vorta overseer. But when the Vorta seeks out Sisko to make a deal, can he be trusted? And should Sisko accept the treacherous proposal?",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s6_e03_580',
@@ -7467,6 +9210,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. Worf and his son Alexander must come to terms with one another when Alexander is assigned to the Rotarran and voices his intentions to become a warrior. Meanwhile, Kira finds herself between friend and foe when Ziyal returns to the station and reconciles with her father.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s6_e04_580',
@@ -7477,6 +9223,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 51145.3. Odo finds his priorities at odds with Kira's resistance efforts when the Female Changeling comes to him and offers to guide him in learning about the Great Link.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s6_e05_580',
@@ -7487,6 +9236,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. On the eve of Dukat successfully disabling the minefield, Sisko coordinates a massive assault to retake Deep Space Nine.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s6_e06_580',
@@ -7497,6 +9249,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. The Federation's only hope of stopping massive Dominion reinforcements from entering the Alpha Quadrant relies on Sisko's suicide mission to reach DS9 before the minefield is destroyed.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s6_e07_580',
@@ -7507,6 +9262,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 51247.5. Dax and Worf find their wedding plans threatened when Martok's wife challenges Jadzia's worthiness to be admitted into their house.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s6_e08_580',
@@ -7517,6 +9275,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. Kira finds herself falling in love with the mirror-universe version of Bareil, who has crossed the reality plane to begin a new life.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s6_e09_580',
@@ -7527,6 +9288,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. Bashir agrees to counsel a group of eccentric, genetically enhanced humans ... and finds himself reevaluating his own enhanced nature when they calculate a disastrous prediction for the outcome of the Dominion War.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s6_e10_580',
@@ -7537,6 +9301,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. When Quark and Rom's mother is abducted by the Dominion, the two brothers recruit an all-Ferengi team to embark on a dangerous mission to get her back.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s6_e11_580',
@@ -7547,6 +9314,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 51408.6. After being attacked by Cardassian forces, Sisko gets stranded with a very psychotic Gul Dukat, who was being transported to his trial. Meanwhile the crew of the Defiant races to rescue survivors.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s6_e12_580',
@@ -7556,6 +9326,9 @@ export const starTrekData = [
             airDate: '1998-02-04',
             stardate: 'None',
             synopsis: "Stardate: Unknown. A former patron of Quark's bequeaths everything to him.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s6_e13_580',
@@ -7566,6 +9339,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. Captain Sisko has a full sensory vision of himself as an under-appreciated science fiction magazine writer in 1950s America.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s6_e14_580',
@@ -7576,6 +9352,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 51474.2. An attack by the Dominion on Sisko's ship endangers Dax and her crew aboard as she leads them into an anomaly that shrinks them to a very minute size. Unfortunately, they were being held stable by Sisko within a tractor beam, which was discontinued during the attack.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s6_e15_580',
@@ -7586,6 +9365,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. Chief O'Brien goes undercover to infiltrate an Orion crime ring.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s6_e16_580',
@@ -7596,6 +9378,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 51597.2. Worf and Jadzia travel to the badlands to procure some information on the Dominion from a traitorous Cardassian. Bashir wants to engage in a holo-suite spy simulation, but O'Brien prefers to brush up on his tongo game after watching Jadzia lose to Quark.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s6_e17_580',
@@ -7606,6 +9391,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. After receiving some disturbing information from Gul Dukat, Major Kira seeks Sisko's approval as Emissary to travel back in time to find out the truth about her mother. Meanwhile, Chief O'Brien and Dr. Bashir discuss a holosuite program surrounding the Battle of the Alamo.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s6_e18_580',
@@ -7616,6 +9404,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. Dr. Bashir's plans to attend a medical conference at a breezy resort are canceled when Starfleet Intelligence boards DS9, suspecting the doctor of treason.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s6_e19_580',
@@ -7626,6 +9417,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 51721.3. To save the Federation in a critical scheme, Sisko comes to realize that he must violate its fundamental principles to do so.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s6_e20_580',
@@ -7636,6 +9430,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. Odo is schooled in the ways of romance by a holographic programmed lounge singer.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s6_e21_580',
@@ -7646,6 +9443,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. Sisko runs afoul of Kai Winn when he removes a Bajoran artifact from an archaeological dig after he receives a vision from the Prophets.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s6_e22_580',
@@ -7656,6 +9456,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 51825.4. Jake and Nog's runabout comes under attack from the Jem'Hadar. They are rescued by the Valiant, a ship manned by Red Squad, a elite group of young Starfleet cadets.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s6_e23_580',
@@ -7666,6 +9469,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. Quark's mother and the Grand Nagus show up on DS9, announcing a new amendment to the Bill of Opportunities he has instituted on the home planet of Ferenganar, and then follows up with the announcement, that, due to the new amendment, chaos has followed and he has been deposed.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s6_e24_580',
@@ -7676,6 +9482,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. The Chief's daughter gets caught in a time displacement and when they get her back, she is considerably older.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s6_e25_580',
@@ -7686,6 +9495,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 51948.3. As the Defiant races to a shipwrecked officer who is days away, the crew keeps in contact with her. Meanwhile, Jake follows Quark's latest scheme for story research.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s6_e26_580',
@@ -7696,6 +9508,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. When Sisko is picked to head up an attack on the Cardassian homeworld, the Prophets appear to him in a vision, warning him of impending doom if he leaves the station.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
         ],
       },
@@ -7718,6 +9533,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 52081.2. Traveling through a large area of space completely devoid of stars and civilizations, the Voyager crew copes with the prospect of long-term isolation.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s5_e02_1855',
@@ -7728,6 +9546,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. A transporter accident merges some of Seven of Nine's nanoprobes with The Doctor's mobile emitter to create a 29th century Borg drone.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s5_e03_1855',
@@ -7738,6 +9559,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. In order to retrieve a probe stuck in a hazardous atmosphere, Tom Paris designs a new type of shuttlecraft named the 'Delta Flyer'. Torres begins to exhibit reckless behavior by engaging in dangerous holodeck programs.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s5_e04_1855',
@@ -7748,6 +9572,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. The crew discovers an outpost manned by a group of Species 8472, who have taken human form as a training measure for an invasion of the Alpha Quadrant.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s5_e05_1855',
@@ -7758,6 +9585,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. While Voyager searches for the crew of the crashed Delta Flyer carrying Tuvok, Paris and Ensign Wildman, Neelix must keep Naomi occupied. When it is discovered that Samantha is badly injured, he must decide how much he should tell her daughter.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s5_e06_1855',
@@ -7768,6 +9598,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. In the future, Harry Kim attempts to correct a mistake he made 15 years earlier, which had resulted in the loss of Voyager during use of experimental engine technology.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s5_e07_1855',
@@ -7778,6 +9611,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. A transmission emanating from surviving technology from a destroyed Borg vessel induces multiple personality disorder in Seven of Nine.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s5_e08_1855',
@@ -7788,6 +9624,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. A moral dilemma arises when the Doctor is forced to consult the specialized medical database of a Cardassian war criminal in order to save Torres' life.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s5_e09_1855',
@@ -7798,6 +9637,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. Tom Paris is demoted to ensign and is sentenced to thirty days in the brig for disobeying orders. While serving his sentence, Tom writes a letter to his father about the events that led to his demotion.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s5_e10_1855',
@@ -7808,6 +9650,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. When trying to transport illegal refugees through the territory of a xenophobic civilization, Janeway must put her trust in a defector who offers his help.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s5_e11_1855',
@@ -7818,6 +9663,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. A gap in The Doctor's memory uncovers clues to a mystery involving the nature of his existence.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s5_e12_1855',
@@ -7828,6 +9676,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. Trans-dimensional photonic lifeforms become entangled in a war with the characters from Tom Paris\' "Captain Proton" program after mistaking Voyager\'s holodeck for reality.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s5_e13_1855',
@@ -7838,6 +9689,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. Stranded on a planet with little hope for rescue, Tuvok and Paris are befriended by a woman who becomes enamored with Tuvok.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s5_e14_1855',
@@ -7848,6 +9702,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. The Voyager crew is lured into a giant space creature that consumes starships as food, and only Seven and the Doctor may have the ability to save the ship.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s5_e15_1855',
@@ -7858,6 +9715,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 52619.2. When Janeway hatches a daring plan to steal technology from a crippled Borg ship, Seven is coerced into returning to the Borg collective.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s5_e16_1855',
@@ -7868,6 +9728,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. Unable to resist his strong feelings for an alien woman, Ensign Kim breaks Starfleet protocol and engages in a torrid affair that lands him in hot water with the captain.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s5_e17_1855',
@@ -7878,6 +9741,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. The entire ship and crew begin to disintegrate, leading to a discovery that they aren't what they seem.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s5_e18_1855',
@@ -7888,6 +9754,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. While boxing on the holodeck, Chakotay is contacted by a telepathic species. However, prolonged communication may leave him insane or braindead.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s5_e19_1855',
@@ -7898,6 +9767,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. With Voyager pinned down by a fleet of bounty hunters, Janeway receives an offer from a group of geniuses infamous for solving unsolvable problems but asking unconventional prices.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s5_e20_1855',
@@ -7908,6 +9780,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. An accident on a Malon freighter becomes a countdown to an explosive toxic-waste disaster, and preventing the explosion depends on Torres' ability to take control of a volatile mission.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s5_e21_1855',
@@ -7918,6 +9793,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. Under the guidance of the Doctor, Seven of Nine learns some social aspects of human dating.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s5_e22_1855',
@@ -7928,6 +9806,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. Captain Janeway relates the story of her distant ancestor Shannon O'Donnell during the construction of the Millennium Gate on Earth during New Year's Eve 1999. She must convince the last holdout, local bookstore owner Henry Janeway to approve the plan.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s5_e23_1855',
@@ -7938,6 +9819,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. The crew of a time ship from the future recruits Seven to attempt preventing Voyager's forthcoming destruction.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s5_e24_1855',
@@ -7948,6 +9832,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. After Kim beams an alien missile onboard Voyager it links up to the Doctor's systems and requests that it is allowed to complete its mission of mass destruction.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s5_e25_1855',
@@ -7958,6 +9845,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. Voyager encounters another Federation starship, the USS Equinox, in the Delta Quadrant. But as an alien presence prepares an attack, Janeway begins to uncover the Equinox's sinister secret.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
         ],
       },
@@ -7980,6 +9870,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. As Kira begins working with a Romulan presence aboard the station, Sisko looks for answers in a vision he receives from the Prophets, leading him to uncover a family secret.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s7_e02_580',
@@ -7990,6 +9883,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 52152.6. As Sisko searches for the Orb of the Emissary, Kira prepares a blockade opposing the Romulans near the Bajoran moon Durna. Meanwhile, Worf and Martok lead a suicide mission in Jadzia's name.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s7_e03_580',
@@ -8000,6 +9896,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. Ezri Dax finds difficulty in trying to settle into a new life, as Jadzia's memories and relationships provide her with one emotional challenge after another.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s7_e04_580',
@@ -8010,6 +9909,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. Sisko is challenged by a Vulcan captain to a competitive match in an Earth game of skill known as ... baseball.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s7_e05_580',
@@ -8020,6 +9922,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. Bashir begins falling in love with a genetically engineered patient whom he helped bring out of her state of introversion.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s7_e06_580',
@@ -8030,6 +9935,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. A clone of Weyoun seeking asylum submits himself to Odo as a prisoner, offering invaluable information about the Dominion.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s7_e07_580',
@@ -8040,6 +9948,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. With nowhere to turn and old age having made him obsolete, Klingon legend Kor asks Worf to help him find one last glorious battle.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s7_e08_580',
@@ -8050,6 +9961,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. Sisko's crew is diverted to the front lines, where, alongside war-torn Starfleet officers, they must make a stand against a Jem'Hadar assault.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s7_e09_580',
@@ -8060,6 +9974,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. Kira is kidnapped by a Bajoran Pah-wraith cult led by Dukat.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s7_e10_580',
@@ -8070,6 +9987,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. Mentally and emotionally scarred by his combat injuries, Nog seeks comfort in the holographic fantasy world of Vic Fontaine.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s7_e11_580',
@@ -8080,6 +10000,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. A search for O'Brien, who has gone missing somewhere near Ezri's home world, reunites Ezri with her family and their troubles.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s7_e12_580',
@@ -8090,6 +10013,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. The Grand Nagus goes missing in the mirror universe, leading Quark and Rom on a mission to track him down.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s7_e13_580',
@@ -8100,6 +10026,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. A murder investigation prompts Ezri to confront the repressed memories of Joran, a former Dax host who had killed three people.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s7_e14_580',
@@ -8110,6 +10039,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 51474.2. A shapeshifter, one of "the hundred" sent from the Link centuries ago to explore the galaxy, tries to convince Odo to abandon his life as a humanoid in favor of a grander quest.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s7_e15_580',
@@ -8120,6 +10052,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. A surprise programming feature brings mobsters to take over Vic's lounge, leading the DS9 crew to devise a plan to get rid of them.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s7_e16_580',
@@ -8130,6 +10065,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. When the mysterious Sloan attempts to recruit Bashir for an undercover mission on Romulus, Sisko orders Bashir to go along with the plan, in hopes of learning more about Section 31.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s7_e17_580',
@@ -8140,6 +10078,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 52576.2. While Ezri goes searching for Worf, who has been missing since a Dominion attack on his ship, Sisko proposes marriage to Kasidy and begins plans to build a house on Bajor.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s7_e18_580',
@@ -8150,6 +10091,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. Sisko must decide whether to oppose the Prophets and marry Kasidy. Meanwhile, Dukat comes to DS9 with a Bajoran identity and a plan to manipulate Kai Winn; and Worf and Ezri are held captive by the Breen.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s7_e19_580',
@@ -8160,6 +10104,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. A new alliance between the Dominion and the Breen further appalls Damar. Meanwhile, Winn finds her spirituality thrown into chaos when she has a vision from the Pah-wraiths.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s7_e20_580',
@@ -8170,6 +10117,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. As Winn begins studying her uncertain role in following the path of the Pah-wraiths, the Federation engages in battle for the first time against the Dominion and their new Breen allies.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s7_e21_580',
@@ -8180,6 +10130,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. As Kira leads a mission to help organize Damar's resistance forces, Bashir learns that Odo has been infected with the disease sweeping through the Great Link.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s7_e22_580',
@@ -8190,6 +10143,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. As tensions mount within Kira and Damar's resistance cell, Worf realizes he must take action to prevent Gowron from making a key strategic mistake.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s7_e23_580',
@@ -8200,6 +10156,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 52645.7. Bashir and O'Brien capture Sloan and probe his mind in a search for the cure to Odo's disease.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s7_e24_580',
@@ -8210,6 +10169,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 52861.3. With the Cardassian resistance movement crushed, Kira, Damar, and Garak find themselves trapped behind enemy lines. Meanwhile, Grand Nagus Zek announces his retirement and plans to name Quark his successor.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ds9_s7_e25_580',
@@ -8220,6 +10182,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 52902.0. As the war careens toward a final showdown on Cardassia, Sisko's definitive action as the Emissary draws near.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
         ],
       },
@@ -8242,6 +10207,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. As Janeway's determination to capture Captain Ransom becomes an obsession, Ransom begins having second thoughts about his methods.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s6_e02_1855',
@@ -8252,6 +10220,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 53049.2. The arrival of three mysterious "individuals" among an influx of visitors to Voyager has mysterious consequences for Seven, who must relive a Borg experience from eight years earlier.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s6_e03_1855',
@@ -8262,6 +10233,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. A near-death experience sends Torres into the apparent Klingon afterlife, and leaves her searching for answers when she returns.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s6_e04_1855',
@@ -8272,6 +10246,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. The Doctor programs himself with the ability to daydream, but quickly loses track of the line between reality and fantasy. Meanwhile, an alien attempts to spy on Voyager through the Doctor’s eyes but takes his imaginings for reality.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s6_e05_1855',
@@ -8282,6 +10259,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. Tom Paris buys a beaten-up old hot-rod of a ship to restore, but B’Ellana begins to worry as Tom grows increasingly obsessed with the ship.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s6_e06_1855',
@@ -8292,6 +10272,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. A mysterious alien attack leaves Tuvok's brain damaged and his personality altered, leaving Neelix to try to rehabilitate him.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s6_e07_1855',
@@ -8302,6 +10285,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. The ship is placed in danger when it comes under attack from a territorial race of aliens known as the Turei. While sheltering on a planet, Captain Janeway tries to make an alliance with its inhabitants, the Vaadwaur. However, she soon begins to think that the Vaadwaur may pose a bigger threat than the enemy above.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s6_e08_1855',
@@ -8311,6 +10297,9 @@ export const starTrekData = [
             airDate: '1999-11-17',
             stardate: 'None',
             synopsis: 'Stardate: Unknown. Voyager searches for a long-lost Mars spacecraft.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s6_e09_1855',
@@ -8321,6 +10310,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. Seven of Nine obsessively investigate pursues a conspiracy theory about Voyager’s arrival in the Delta Quadrant.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s6_e10_1855',
@@ -8331,6 +10323,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. On Earth, Lt. Reginald Barclay works on a way to contact Voyager, but grows  increasingly obsessed with his own holodeck simulation of the crew.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s6_e11_1855',
@@ -8341,6 +10336,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. As the crew enjoys time off in a holo-program created by Tom Paris, and set in an Irish village named 'Fair Haven,' Captain Janeway falls for a handsome holo-character specifically designed for her. A deadly neutrino wave approaching Voyager shortly bring the festivities to a halt as this wave may prove to be more dangerous than they first imagined.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s6_e12_1855',
@@ -8351,6 +10349,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. Voyager becomes the target of a society it inadvertently helped to create within a short period of time.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s6_e13_1855',
@@ -8361,6 +10362,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. When the Doctor's singing talents are discovered by a technologically superior race, his new found popularity makes him consider resigning his commission to stay on the alien world with his millions of adoring fans.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s6_e14_1855',
@@ -8371,6 +10375,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. The crew of Voyager experience vivid memories and dreams of a battle they don't remember having, with an enemy they have never encountered.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s6_e15_1855',
@@ -8381,6 +10388,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. Seven of Nine is kidnapped and forced into the ring in a violent combat sport.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s6_e16_1855',
@@ -8391,6 +10401,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. Voyager encounters a damaged Borg cube run by immature would-be drones cut off from the Collective.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s6_e17_1855',
@@ -8401,6 +10414,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. The inhabitants of the holo-city of Fair Haven suspect the Voyager crew of having mystical powers when they witness the use of their futuristic technology.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s6_e18_1855',
@@ -8411,6 +10427,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. Ensign Lindsay Ballard returns to Voyager after being killed during a previous away mission. An alien race known as the Kobali, whose only method of reproduction is 'resurrection' of the dead through genetic engineering had revived her and taken her as a new member of their race. When the full extent of her new Kobali genes are activated, they reach a point where she must choose between her old home on the ship, or her new home with her adoptive Kobali family.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s6_e19_1855',
@@ -8421,6 +10440,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. Seven's feelings and maternal instincts are awakened when the crew locates the parents of one of the Borg children to whom Seven has grown attached.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s6_e20_1855',
@@ -8431,6 +10453,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. Captain Janeway takes three crewmen with poor performance records on an away mission in the Delta Flyer in an attempt to bring them to Starfleet standards. However, an unexpected collision with a Dark Matter comet leaves the crew in a perilous situation.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s6_e21_1855',
@@ -8441,6 +10466,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. A group of con artists impersonate Captain Janeway and the crew of Voyager. The crew must find the imposters soon, or they, themselves will be punished for the con artists' crimes.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s6_e22_1855',
@@ -8451,6 +10479,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. An alien poet discovers an unconscious B'Elanna Torres after her crash landing in the Delta Flyer. However, this poet intends on using her in a play based on her life on Voyager to win favour with his Warlord.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s6_e23_1855',
@@ -8461,6 +10492,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. Kes returns to Voyager in a state of rage, blaming Captain Janeway for her past. Using her expanded Ocampan powers in a fit of revenge, she travels through time to deliver the crew to the Vidiians.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s6_e24_1855',
@@ -8471,6 +10505,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: Unknown. News reaches Voyager through the up-and-running Pathfinder project that the Doctor's creator, Lewis Zimmerman, is critically ill. In an attempt to save his life, the Doctor's program is transmitted to the Alpha Quadrant, but once there, he finds Zimmerman does not want to be examined by an 'obsolete' EMH program.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s6_e25_1855',
@@ -8481,6 +10518,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. When Voyager encounters some engineering problems, Neelix keeps the Borg children entertained by telling the story of an adventure that the crew experienced several months ago, with the ghost that lives on deck twelve.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s6_e26_1855',
@@ -8491,6 +10531,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown. Seven of Nine is contacted by Borg drones who have the ability to exist in a virtual realm that gives them freedom as individuals.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
         ],
       },
@@ -8513,6 +10556,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 54014.4 - Partially transformed into Borg drones, Janeway, Tuvok, and Torres run a covert operation on board a Borg ship to infect the collective with a virus that will free subdued individuals from the hive's control.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s7_e02_1855',
@@ -8523,6 +10569,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 54129.4 - A key Borg component in Seven's brain begins shutting down, leading to the possibility that she may be facing the equivalent of a terminal illness.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s7_e03_1855',
@@ -8533,6 +10582,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 54058.6 - Torres and Paris' relationship takes a twist on the eve of a shuttle racing event Paris has entered, celebrating the anniversary of a peace treaty in a former war zone.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s7_e04_1855',
@@ -8543,6 +10595,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 54090.4 - An investigation of mysterious attacks on members of the crew uncovers a buried plot involving Tuvok and a Maquis fanatic.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s7_e05_1855',
@@ -8553,6 +10608,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown - The Doctor is abducted from Voyager and forced to work in a hospital where patients are treated based on their social status.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s7_e06_1855',
@@ -8563,6 +10621,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 54208.3 - The Voyager crew receives a transmission from the Alpha Quadrant that contains an interactive holographic program of Lieutenant Barclay, who informs them that Starfleet has found Voyager a way home.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s7_e07_1855',
@@ -8573,6 +10634,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 54283.3 - In a region of space where holograms are prohibited, the Doctor is forced to hide by transferring his program into Seven's mind, upon which he takes over control of her body.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s7_e08_1855',
@@ -8583,6 +10647,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 54274.7 - Ensign Kim finds himself making the hard choices of mission commander when he agrees to help the crew of a ship in need.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s7_e09_1855',
@@ -8593,6 +10660,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 54337.5 - Voyager answers a distress call from a Hirogen outpost – only to find carnage caused by holographic technology that Captain Janeway has given them.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s7_e10_1855',
@@ -8603,6 +10673,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 54337.5 - Voyager secretly trails two Hirogen ships in pursuit of the renegade hologram ship. Iden, the band's self-appointed leader, begins showing signs of delusional behaviour when he considers himself as the 'saviour of his people', and believes that his people will worship him as a God in their new settlement. With Voyager and the Hirogen ships trailing close behind, the Doctor and Torres must find a way to disable the ships and the holograms before they come under attack from the Hirogen, and before Iden can execute his plan.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s7_e11_1855',
@@ -8613,6 +10686,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown - A spatial anomaly divides Voyager into various time frames of the past and future, leaving Chakotay as the only person who may be able to put the pieces back together.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s7_e12_1855',
@@ -8623,6 +10699,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 54452.6 - When B'Elanna learns she is pregnant, she tries to proactively repress her child's Klingon heritage on the basis of her own troubled past.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s7_e13_1855',
@@ -8633,6 +10712,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 54474.6 - When Voyager provides emergency transportation for alien prisoners sentenced to die, a medical procedure unexpectedly and radically changes the values and temperament of one of the prisoners.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s7_e14_1855',
@@ -8643,6 +10725,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 54518.2 - The captain of a Klingon ship on a generational holy mission believes Torres' unborn child may lead them to a new era of enlightenment.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s7_e15_1855',
@@ -8653,6 +10738,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 54553.4 - Voyager is pulled into a barren spatial void where survival is based on preying upon others.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s7_e16_1855',
@@ -8663,6 +10751,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 54584.3 - The Voyager crew is abducted to an alien world, where their memories are altered and they are dropped into the large population of an industrial labor force.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s7_e17_1855',
@@ -8673,6 +10764,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Stardate: 54622.4 - It's up to Chakotay, Kim, and the Doctor to liberate the Voyager crew and help uncover a conspiracy of illegal labor practices.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s7_e18_1855',
@@ -8683,6 +10777,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: Unknown - Seven of Nine runs a series of holodeck simulations to explore her untapped emotions.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s7_e19_1855',
@@ -8693,6 +10790,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 54704.5 - Q comes to Voyager and asks Janeway to help him teach lessons of responsibility to his troublesome son.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s7_e20_1855',
@@ -8703,6 +10803,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 54732.3 - When the Doctor arranges to have his recently completed holodeck novel published in the Alpha Quadrant, certain aspects of the story hit too close to home among his shipmates.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s7_e21_1855',
@@ -8713,6 +10816,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 54775.4 - The Voyager crew, on a mission to track down a historic Earth probe designed to contact intelligent life, finds the probe had indeed crossed paths with another civilization, but with catastrophic results.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s7_e22_1855',
@@ -8723,6 +10829,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 54817.5 - Chakotay and Seven find themselves trapped with a primitive culture that is separated from the rest of its world by an energy field designed to protect them.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s7_e23_1855',
@@ -8733,6 +10842,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 54868.6 - Neelix finds he must make hard choices when he becomes involved in the struggle of Talaxian refugees whose home in an asteroid belt is threatened by alien miners.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s7_e24_1855',
@@ -8743,6 +10855,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 54890.7 - The Doctor is forced to carry out a secret mission where he must impersonate members of the Voyager crew.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'voy_s7_e25_1855',
@@ -8753,6 +10868,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Stardate: 54973.4 - Twenty-six years in the future, a regretful Admiral Janeway hatches an audacious plan to bring Voyager home sooner, rather than have it spend an additional sixteen years making its journey.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
         ],
       },
@@ -8865,6 +10983,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'At the end of the 24th Century, and 14 years after his retirement from Starfleet, Jean-Luc Picard is living a quiet life on his vineyard, Chateau Picard. When he is sought out by a mysterious young woman, in need of his help, he soon realizes she may have personal connections to his own past.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pic_s1_e02_85949',
@@ -8875,6 +10996,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Picard begins investigating the mystery of Dahj as well as what her very existence means to the Federation. Without Starfleet's support, Picard is left leaning on others for help, including Dr. Agnes Jurati and an estranged former colleague, Raffi Musiker. Meanwhile, hidden enemies are also interested in where Picard's search for the truth about Dahj will lead.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pic_s1_e03_85949',
@@ -8885,6 +11009,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Completely unaware of her special nature, Soji continues her work and captures the attention of the Borg cube research project’s executive director. After rehashing past events with a reluctant Raffi, Picard seeks others willing to join his search for Bruce Maddox, including pilot and former Starfleet officer Cristóbal Rios.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pic_s1_e04_85949',
@@ -8895,6 +11022,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "The crew's journey to Freecloud takes a detour when Picard orders a stop at the planet Vashti, where Picard and Raffi relocated Romulan refugees fourteen years earlier. Upon arrival, Picard reunites with Elnor, a young Romulan he befriended during the relocation. Meanwhile, Narek continues his attempts to learn more about Soji while Narissa's impatience with his lack of progress grows.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pic_s1_e05_85949',
@@ -8905,6 +11035,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'The La Sirena crew begins an unpredictable and lively expedition on Freecloud to search for Bruce Maddox. When they learn that Maddox has found himself in a precarious situation, a familiar face offers her assistance.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pic_s1_e06_85949',
@@ -8915,6 +11048,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Picard and the crew track Soji to the Borg cube in Romulan space, resurfacing haunting memories for Picard. Meanwhile, Narek believes he finally found a way to safely exploit Soji for information.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pic_s1_e07_85949',
@@ -8925,6 +11061,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Picard and Soji transport to the planet Nepenthe, home to some old and trusted friends. As the rest of the La Sirena crew attempt to join them, Picard helps Soji make sense of her recently unlocked memories. Meanwhile, Hugh and Elnor are left on the Borg cube and must face an angered Narissa.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pic_s1_e08_85949',
@@ -8935,6 +11074,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'When devastating truths behind the Mars attack are revealed, Picard realizes just how far many will go to preserve secrets stretching back generations, all while the La Sirena crew grapples with secrets and revelations of their own. Narissa directs her guards to capture Elnor, setting off an unexpected chain of events on the Borg cube.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pic_s1_e09_85949',
@@ -8945,6 +11087,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Following an unconventional and dangerous transit, Picard and the crew finally arrive at Soji's home world, Coppelius. However, with Romulan warbirds on their tail, their arrival brings only greater danger as the crew discovers more than expected about the planet’s inhabitants.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pic_s1_e10_85949',
@@ -8955,6 +11100,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'A final confrontation on the synthetics’ homeworld, Coppelius pits Picard and his team against the Romulans, as well as the synths who seek to safeguard their existence at all costs.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
         ],
       },
@@ -8977,6 +11125,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Ensign Tendi has her first day of work on Starfleet's USS Cerritos, where she meets fellow support crew members. Boimler is tasked with a secret special assignment. Rutherford attempts to keep his dating life intact while a disaster strikes the ship.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ld_s1_e02_85948',
@@ -8987,6 +11138,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Ensigns Boimler and Mariner embark on a shuttle mission to a Klingon compound while Ensigns Tendi and Rutherford spend time together back on the USS Cerritos.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ld_s1_e03_85948',
@@ -8997,6 +11151,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'A new work protocol eliminating "buffer time" has the Lower Decks crew running ragged as they try to keep up with their tightened schedules. Ensign Mariner and Commander Ransom\'s mutual lack of respect comes to a head during an away mission.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ld_s1_e04_85948',
@@ -9007,6 +11164,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Captain Freeman seeks the ultimate payback after Mariner blatantly disrespects her in front of the crew. A well-meaning Tendi accidentally messes up a Lieutenant's attempt at spiritual ascension and tries to make it right.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ld_s1_e05_85948',
@@ -9017,6 +11177,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Ensign Boimler welcomes his girlfriend Barb onto the USS Cerritos, much to Ensign Mariner’s dismay — while Ensigns Ruthford and Tendi have starship envy when the Cerritos rendezvous with the more-advanced USS Vancouver.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ld_s1_e06_85948',
@@ -9027,6 +11190,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'The lovable but awkward Ensign Fletcher makes work difficult for Mariner and Boimler. Rutherford introduces Tendi to a holodeck training program he created.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ld_s1_e07_85948',
@@ -9037,6 +11203,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Mariner tries to impress her best friend from Starfleet Academy who is now a visiting Captain. Boimler is sent to a Starfleet medical ship after a transporter accident puts him “out of phase.”',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ld_s1_e08_85948',
@@ -9047,6 +11216,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Mariner, Boimler, Tendi and Rutherford are caught off guard when aliens force them to testify about a series of seemingly unrelated events.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ld_s1_e09_85948',
@@ -9057,6 +11229,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Mariner repurposes Boimler's holodeck program to cast herself as the villain in a Lower Decks style movie.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ld_s1_e10_85948',
@@ -9067,6 +11242,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'The USS Cerritos encounters a familiar enemy. Tendi helps a struggling recruit find her footing.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
         ],
       },
@@ -9089,6 +11267,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'A group of lawless teens, exiled on a mining colony outside Federation space, discover a derelict Starfleet ship. Dal must gather an unlikely crew for their newfound ship if they are going to escape Tars Lamora, but the Diviner and his daughter Gwyn have other plans.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pro_s1_e03_106393',
@@ -9099,6 +11280,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Even with the guidance of their hologram advisor Janeway, the crew of The Protostar is tested when their ship is on a dangerous cosmic collision course.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pro_s1_e04_106393',
@@ -9109,6 +11293,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'The crew has their first away mission on an undiscovered planet that manifests their deepest desires, only to realize the planet has desires of its own.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pro_s1_e05_106393',
@@ -9119,6 +11306,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Marooned on a deadly planet, the crew must work together with their captive Gwyn to stay alive…except the planet isn’t the only thing in pursuit.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pro_s1_e06_106393',
@@ -9129,6 +11319,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'As Gwyn struggles to find her role aboard the U.S.S. Protostar, Dal tests his leadership skills in the newly discovered holodeck.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pro_s1_e07_106393',
@@ -9139,6 +11332,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'When a mentor from Dal’s past persuades him to use their Federation cover for personal gain, they quickly discover Starfleet has protocols for a reason.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pro_s1_e08_106393',
@@ -9149,6 +11345,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'When the U.S.S. Protostar is fractured in time by an anomaly, Hologram Janeway must synchronize the disjointed crew and save their ship before it destructs.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pro_s1_e09_106393',
@@ -9159,6 +11358,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'The crew forgo their dreams of Starfleet to return to Tars Lamora in a no-win scenario.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pro_s1_e10_106393',
@@ -9169,6 +11371,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'When the plan goes awry, the crew must improvise. Meanwhile, Gwyn discovers a dark truth that will forever jeopardize their quest toward salvation.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pro_s1_e11_106393',
@@ -9179,6 +11384,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'At the edge of Federation space, the crew applies for asylum at a comm relay outpost, only for their starship to reveal its shocking true purpose.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pro_s1_e12_106393',
@@ -9189,6 +11397,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'When the crew encounters a dormant Borg Cube, Zero risks everything to save their ship.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pro_s1_e13_106393',
@@ -9199,6 +11410,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "The crew answers a distress call to find a colony trapped in Starfleet's past.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pro_s1_e14_106393',
@@ -9209,6 +11423,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'When the crew attempts to secure transport to the Federation, they unwittingly cross paths with the Vice Admiral who is hunting them.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pro_s1_e15_106393',
@@ -9219,6 +11436,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Trapped in the Neutral Zone, the crew encounters a rogue geneticist who sheds light on Dal’s past.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pro_s1_e16_106393',
@@ -9229,6 +11449,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "A Starfleet Admiral digs into the past of the Protostar crew. Meanwhile, the Diviner recalls his life's mission.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pro_s1_e17_106393',
@@ -9239,6 +11462,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "When the crew gets trapped in the holodeck by a mysterious malfunction, they aren't sure what's programmed or what's real.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pro_s1_e18_106393',
@@ -9249,6 +11475,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Desperate to warn Starfleet of their dilemma, a daring experiment goes awry as Dal inadvertently swaps minds with a Starfleet Vice Admiral.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pro_s1_e19_106393',
@@ -9259,6 +11488,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Surrounded by the Federation armada, the crew attempts to stop their ship from destroying all of Starfleet.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pro_s1_e20_106393',
@@ -9269,6 +11501,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "As the Federation hangs in the balance, the crew must make the ultimate sacrifice to save Starfleet's future.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
         ],
       },
@@ -9291,6 +11526,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Approximately three months after the events of the season one finale, the U.S.S. Cerritos is dispatched on a mission where it ends up in a sci-fi event resulting in "strange energy," which Commander Ransom inadvertently absorbs.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ld_s2_e02_85948',
@@ -9301,6 +11539,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Our Lower Deckers have trouble bonding with Ensign Jet Manhaver, who has been assigned Boimler’s bunk and shift duties. Meanwhile, we get a glimpse of Boimler’s life on the U.S.S. Titan, which is more intense than he thought it would be.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ld_s2_e03_85948',
@@ -9311,6 +11552,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Assigned a special task by Dr. T'Ana, Tendi enlists Mariner for help. On the U.S.S. Cerritos, Rutherford is consumed by a bridge crew mystery.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ld_s2_e04_85948',
@@ -9321,6 +11565,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'The U.S.S. Cerritos is dispatched to a planet to investigate an unexplained sighting of a dangerous Mugato.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ld_s2_e05_85948',
@@ -9331,6 +11578,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Mariner and Boimler try to track down the location of a legendary Starfleet party while the bridge crew deals with an insecure alien diplomat.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ld_s2_e06_85948',
@@ -9341,6 +11591,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Anomaly consolidation day on the U.S.S. Cerritos leaves the Lower Deckers with mixed emotions. Captain Freeman attempts to negotiate peace on the Pakled home world.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ld_s2_e07_85948',
@@ -9351,6 +11604,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Mariner and Boimler are stranded on an uninhabited planet with a sentient computer. On the Cerritos, Lt. Commander Billups must prove his engineering abilities to an old adversary.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ld_s2_e08_85948',
@@ -9361,6 +11617,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'A consultant arrives on the U.S.S. Cerritos to run drills that require the lower deckers and bridge crew to swap duties.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ld_s2_e09_85948',
@@ -9371,6 +11630,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Boimler tries to find a friend from the bridge, while the crew of the USS Cerritos has free time during a long warp trip.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ld_s2_e10_85948',
@@ -9381,6 +11643,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'In the season two finale, the U.S.S. Cerritos is tasked to aid another class starship on a first contact mission.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
         ],
       },
@@ -9403,6 +11668,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Starfleet must once again call on legendary Jean-Luc Picard after members of his former crew – Cristóbal Rios, Seven of Nine, Raffi Musiker, and Dr. Agnes Jurati – discover an anomaly in space that threatens the galaxy.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pic_s2_e02_85949',
@@ -9413,6 +11681,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Picard finds himself transported to an alternate timeline in the year 2400 where his longtime nemesis, Q, has orchestrated one final “trial.” Picard searches for his trusted crew as he attempts to find the cause of this dystopian future.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pic_s2_e03_85949',
@@ -9423,6 +11694,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Picard and the crew travel back to 2024 Los Angeles in search of the “Watcher,” who can help them identify the point at which time diverged. Seven, Raffi and Rios venture out into an unfamiliar world 400 years in their past, while Picard and Jurati attempt to gather information from an unlikely, and dangerous, ally.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pic_s2_e04_85949',
@@ -9433,6 +11707,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'With time running out to save the future, Picard takes matters into his own hands and seeks out an old friend for help. Meanwhile, Rios ends up on the wrong side of the law and Jurati makes a deal with the Borg Queen.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pic_s2_e05_85949',
@@ -9443,6 +11720,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Picard discovers an important person from his past may be integral to the divergence in the timeline. Q continues his manipulation of the timeline, taking an interest in Dr. Adam Soong. Seven and Raffi attempt a daring rescue of Rios, while Jurati faces the consequences of her deal with the Borg Queen.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pic_s2_e06_85949',
@@ -9453,6 +11733,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'With the help of Tallinn, Picard and the crew infiltrate a gala on the eve of a joint space mission, to protect one of the astronauts they believe to be integral to the restoration of the timeline – Renee Picard. Kore makes a startling discovery about her father’s work.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pic_s2_e07_85949',
@@ -9463,6 +11746,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Tallinn ventures inside Picard’s subconscious mind to help wake him from a coma and face both his darkest secrets and deepest fears. Seven and Raffi go in search of Jurati whom they fear has succumbed to the monster inside. Rios struggles to hide the truth of who he really is from Teresa.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pic_s2_e08_85949',
@@ -9473,6 +11759,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "With time running out before the launch of the Europa Mission, Picard and Guinan must free themselves from FBI custody. Seven and Raffi come face-to-face with Jurati and the horror of what she's become.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pic_s2_e09_85949',
@@ -9483,6 +11772,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Picard and his crew fight for their lives as they come under attack from a new incarnation of an old enemy. But to survive, Picard must first face the ghosts of his past. Seven and Raffi have a final showdown with Jurati.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pic_s2_e10_85949',
@@ -9493,6 +11785,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'With just hours until the Europa launch, Picard and the crew find themselves in a race against time to save the future.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
         ],
       },
@@ -9515,6 +11810,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Mariner enlists her friends on a rogue mission to exonerate her mother, as Captain Freeman faces a military tribunal for the destruction of Pakled Planet.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ld_s3_e02_85948',
@@ -9525,6 +11823,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'On a tropical paradise planet, Mariner questions Commander Ransom on how he structures his away team. Boimler makes a bold career decision.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ld_s3_e03_85948',
@@ -9535,6 +11836,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'On a remote science outpost, stone orbs are bringing fantasies to life. Tendi starts her first day as a Senior Science Officer Trainee.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ld_s3_e04_85948',
@@ -9545,6 +11849,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Mariner, Boimler and Tendi clash with their arch-rivals: Delta Shift. The Cerritos engineers go on mandatory relaxation leave.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ld_s3_e05_85948',
@@ -9555,6 +11862,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Mariner and Boimler work the Starfleet recruitment booth at an alien job fair, Rutherford challenges himself.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ld_s3_e06_85948',
@@ -9564,6 +11874,9 @@ export const starTrekData = [
             airDate: '2022-09-29',
             stardate: 'None',
             synopsis: 'The Cerritos crew unexpectedly spends a day on Deep Space Nine.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ld_s3_e07_85948',
@@ -9573,6 +11886,9 @@ export const starTrekData = [
             airDate: '2022-10-06',
             stardate: 'None',
             synopsis: 'A wayward Starfleet ensign struggles to find a path to redemption.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ld_s3_e08_85948',
@@ -9582,6 +11898,9 @@ export const starTrekData = [
             airDate: '2022-10-13',
             stardate: 'None',
             synopsis: "Boimler's holodeck movie sequel tries to live up to the original.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ld_s3_e09_85948',
@@ -9591,6 +11910,9 @@ export const starTrekData = [
             airDate: '2022-10-20',
             stardate: 'None',
             synopsis: 'A visiting reporter on the Cerritos puts Captain Freeman on edge.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ld_s3_e10_85948',
@@ -9600,6 +11922,9 @@ export const starTrekData = [
             airDate: '2022-10-27',
             stardate: 'None',
             synopsis: 'The Cerritos crew must prove their worth in a mission race.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
         ],
       },
@@ -9622,6 +11947,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'After receiving a cryptic, urgent distress call from Dr. Beverly Crusher, Admiral Jean-Luc Picard enlists help from generations old and new to embark on one final adventure: a daring mission that will change Starfleet, and his old crew forever.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pic_s3_e02_85949',
@@ -9632,6 +11960,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Aided by Seven of Nine and the crew of the U.S.S. Titan, Picard makes a shocking discovery that will alter his life forever – and puts him on a collision course with the most cunning enemy he’s ever encountered. Meanwhile, Raffi races to track a catastrophic weapon – and collides with a familiar ally.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pic_s3_e03_85949',
@@ -9642,6 +11973,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Picard grapples with an explosive, life-altering revelation, while the Titan and her crew try to outmaneuver a relentless Vadic in a lethal game of nautical cat and mouse. Meanwhile, Raffi and Worf uncover a nefarious plot from a vengeful enemy Starfleet has long since forgotten.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pic_s3_e04_85949',
@@ -9652,6 +11986,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'With time running out, Picard, Riker and crew must confront the sins of their past and heal fresh wounds, while the Titan, dead in the water, drifts helplessly toward certain destruction within a mysterious space anomaly.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pic_s3_e05_85949',
@@ -9662,6 +11999,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Caught by Starfleet and facing court martial, paranoia grows as Picard struggles to uncover whether a prodigal crewman from his past has returned as an ally – or an enemy hellbent on destroying them all.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pic_s3_e06_85949',
@@ -9672,6 +12012,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Now on the run, Picard and the skeleton crew of the U.S.S. Titan must break into Starfleet's most top-secret facility to expose a plot that could destroy the Federation. Picard must turn to the only soul in the galaxy who can help: an old friend.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pic_s3_e07_85949',
@@ -9682,6 +12025,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Crippled, cornered, and out of options, Picard stages a gambit to trap Vadic and reveal her true motive – a gamble that puts the Titan in the crosshairs and forces Picard and Beverly to question every moral code they’ve ever held.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pic_s3_e08_85949',
@@ -9692,6 +12038,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Vadic forces Picard to make an impossible choice: deliver what he can never give... or watch his crew perish. Their only salvation lies in the mind of an old friend and old foe.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pic_s3_e09_85949',
@@ -9702,6 +12051,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'A devastating revelation about Jack alters the course of Picard’s life forever – and uncovers a truth that threatens every soul in the Federation. The final battle begins as Picard and his crew race to save the galaxy from annihilation – but not without a gut-wrenching cost.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pic_s3_e10_85949',
@@ -9712,6 +12064,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'In a desperate last stand, Jean-Luc Picard and generations of crews both old and new fight together to save the galaxy from the greatest threat they’ve ever faced.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
         ],
       },
@@ -9734,6 +12089,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'The Cerritos ensigns must assist a caretaker on the voyage of a historically significant starship.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ld_s4_e02_85948',
@@ -9744,6 +12102,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Mariner tries to get demoted, Rutherford tries to get promoted, and Boimler makes a big move.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ld_s4_e03_85948',
@@ -9753,6 +12114,9 @@ export const starTrekData = [
             airDate: '2023-09-14',
             stardate: 'None',
             synopsis: 'Boimler leads his first away mission on an alien megastructure.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ld_s4_e04_85948',
@@ -9762,6 +12126,9 @@ export const starTrekData = [
             airDate: '2023-09-21',
             stardate: 'None',
             synopsis: 'Tendi is summoned back to Orion for a wedding.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ld_s4_e05_85948',
@@ -9771,6 +12138,9 @@ export const starTrekData = [
             airDate: '2023-09-28',
             stardate: 'None',
             synopsis: 'A trio of Betazoids cause chaos on the Cerritos.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ld_s4_e06_85948',
@@ -9780,6 +12150,9 @@ export const starTrekData = [
             airDate: '2023-10-05',
             stardate: 'None',
             synopsis: 'The Cerritos visits the Ferengi homeworld.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ld_s4_e07_85948',
@@ -9789,6 +12162,9 @@ export const starTrekData = [
             airDate: '2023-10-12',
             stardate: 'None',
             synopsis: 'Three computerized villains return to cause problems for the Cerritos crew.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ld_s4_e08_85948',
@@ -9798,6 +12174,9 @@ export const starTrekData = [
             airDate: '2023-10-19',
             stardate: 'None',
             synopsis: 'The Lower Deckers go on a classic cave mission.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ld_s4_e09_85948',
@@ -9808,6 +12187,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Captain Freeman assigns the Lower Deckers an overly safe mission to try and keep a self-destructive Mariner out of danger.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ld_s4_e10_85948',
@@ -9817,6 +12199,9 @@ export const starTrekData = [
             airDate: '2023-11-02',
             stardate: 'None',
             synopsis: 'Mariner faces her past.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
         ],
       },
@@ -9839,6 +12224,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Dal and his friends board Janeway's starship to investigate the wormhole created by the Protostar. Tired of his training, Dal longs for some action.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pro_s2_e02_106393',
@@ -9849,6 +12237,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Gwyn runs into a familiar foe on the planet Solum. Janeway reveals the true stakes of their mission to Dal and his friends.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pro_s2_e03_106393',
@@ -9859,6 +12250,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Traveling through the time rift, Dal and the crew search for Chakotay on Solum. With the support of her father, Gwyn challenges Asencia.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pro_s2_e04_106393',
@@ -9869,6 +12263,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Although separated by decades, the Infinity and the Voyager crews band together to save Gwyn's life. A mysterious messenger reaches out to Gwyn.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pro_s2_e05_106393',
@@ -9879,6 +12276,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Reunited on the Voyager and under strict supervision, the gang must decode a secret message their mysterious benefactor left with Murf.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pro_s2_e06_106393',
@@ -9889,6 +12289,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Hoping to hijack the Infinity before its scheduled destruction, Dal and the crew create hologram doubles to cover for their absence.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pro_s2_e07_106393',
@@ -9899,6 +12302,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'After using a Borg conduit to travel through time faster, Dal and his friends find themselves at the mercy of a demanding Kazon.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pro_s2_e08_106393',
@@ -9909,6 +12315,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "The crew detours to a colony of non-corporeal entities, who offer Zero an opportunity to obtain a physical body. Janeway discovers Dal's real intentions.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pro_s2_e09_106393',
@@ -9919,6 +12328,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Finally arriving at the coordinates, the Infinity crew discovers a hidden planet – and the long-awaited identity of their mysterious messenger.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pro_s2_e10_106393',
@@ -9929,6 +12341,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'On the run from their time-erasing pursuers, the Infinity crew and their new ally search for an escape. The Voyager embarks on a rescue mission.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pro_s2_e11_106393',
@@ -9939,6 +12354,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Thanks to Wesley Crusher's timely intervention, the cadets find the Protostar — but the ship's marooned guardian isn't eager for their assistance.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pro_s2_e12_106393',
@@ -9949,6 +12367,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Chakotay and the cadets devise a bold but perilous plan to relaunch the Protostar. Before the ship can fly, however, it will first have to sail.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pro_s2_e13_106393',
@@ -9959,6 +12380,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'While harvesting bosonite on a barren world, the crew encounters aggressive, genetically-modified tribbles — and the Klingon scientist who created them.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pro_s2_e14_106393',
@@ -9969,6 +12393,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "The Protostar's reunion with Voyager has unexpected side effects, bouncing the crew between alternate realities — including the Mirror Universe.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pro_s2_e15_106393',
@@ -9979,6 +12406,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Just as the Protostar and Voyager crews bring their mission to a close, a former enemy suddenly resurfaces with surprising new powers.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pro_s2_e16_106393',
@@ -9989,6 +12419,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Overwhelmed by Asencia's mysteriously advanced weaponry, the Protostar and Voyager crews take a series of calculated risks that endanger the cadets.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pro_s2_e17_106393',
@@ -9999,6 +12432,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'As war looms between the Federation and Solum, Gwyn proposes to lead the cadets on an undercover mission to gather intelligence and rescue Ilthuran.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pro_s2_e18_106393',
@@ -10009,6 +12445,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Admiral Janeway devises a clever plan to liberate her crew from Asencia's prison, where they're trapped with an angry captive from the Loom.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pro_s2_e19_106393',
@@ -10019,6 +12458,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'A desperate Asencia launches an all-out attack on the Federation that will destroy subspace, while Wesley and the cadets try to correct the timeline.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'pro_s2_e20_106393',
@@ -10029,6 +12471,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'The cadets fight Asencia in a battle for control of Solum and the future — but a sudden invasion by a destructive species complicates their end-game.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
         ],
       },
@@ -10051,6 +12496,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'A spatial anomaly forces the Cerritos crew to face their own faces. Tendi pirates.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ld_s5_e02_85948',
@@ -10061,6 +12509,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Tendi races to stop a conflict while Boimler & Mariner race to stop capitalists.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ld_s5_e03_85948',
@@ -10070,6 +12521,9 @@ export const starTrekData = [
             airDate: '2024-10-31',
             stardate: 'None',
             synopsis: 'The Lower Deckers hunt nanites on a resort...in space?!',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ld_s5_e04_85948',
@@ -10080,6 +12534,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Dr. Migleemo cooks up some hot dishes while Mariner prefers hers served cold.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ld_s5_e05_85948',
@@ -10090,6 +12547,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Ransom uses too much disinfectant gel while Mariner gets paranoid about curses.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ld_s5_e06_85948',
@@ -10100,6 +12560,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Mariner teams up with a troubled ensign while the Cerritos hosts peace talks between civilizations.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ld_s5_e07_85948',
@@ -10109,6 +12572,9 @@ export const starTrekData = [
             airDate: '2024-11-28',
             stardate: 'None',
             synopsis: "It's a pre-warp society undercover Girls Trip!",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ld_s5_e08_85948',
@@ -10118,6 +12584,9 @@ export const starTrekData = [
             airDate: '2024-12-05',
             stardate: 'None',
             synopsis: 'The Lower Deckers have a pumpkin carving party.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ld_s5_e09_85948',
@@ -10127,6 +12596,9 @@ export const starTrekData = [
             airDate: '2024-12-12',
             stardate: 'None',
             synopsis: 'Fissures must be closed before they get inflamed.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'ld_s5_e10_85948',
@@ -10136,6 +12608,9 @@ export const starTrekData = [
             airDate: '2024-12-19',
             stardate: 'None',
             synopsis: 'Season finale where lots of wild stuff happens!',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
         ],
       },
@@ -10194,6 +12669,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Arriving 930 years in the future, Burnham navigates a galaxy she no longer recognizes while searching for the rest of the U.S.S. Discovery crew.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'dis_s3_e02_67198',
@@ -10204,6 +12682,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'The crew of the Discovery races to repair their ship after they crash. Tilly & Saru make a first contact looking for Burnham.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'dis_s3_e03_67198',
@@ -10214,6 +12695,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Reunited with Burnham, Discovery heads to Earth to find out what has happened to the Federation in the last thousand years.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'dis_s3_e04_67198',
@@ -10224,6 +12708,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Burnham and Adira visit the Trill homeworld while Saru's efforts on the Discovery to help the crew reconnect yield surprises.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'dis_s3_e05_67198',
@@ -10234,6 +12721,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'After reuniting with what remains of Starfleet and the Federation, the U.S.S. Discovery and its crew must prove that a 930 year old crew and starship are exactly what this new future needs.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'dis_s3_e06_67198',
@@ -10244,6 +12734,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'After receiving a message from Book, Burnham and Georgiou embark on a rogue mission to find him, leaving Saru to pick up the pieces with Admiral Vance. Meanwhile, Stamets forms an unexpected bond with Adira.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'dis_s3_e07_67198',
@@ -10254,6 +12747,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'While grappling with the fallout of her recent actions, and what her future might hold, Burnham agrees to represent the Federation in an intense debate about the release of politically sensitive - but highly valuable - Burn data.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'dis_s3_e08_67198',
@@ -10264,6 +12760,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Osyraa attacks Book's home planet and the Discovery travels there to help. Stamets and Adira investigate The Burn.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'dis_s3_e09_67198',
@@ -10274,6 +12773,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "The U.S.S. Discovery crew journey to a mysterious planet in hopes of finding a cure for Georgiou's deteriorating condition. Stamets and Adira make a stunning breakthrough with the newly acquired Burn data.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'dis_s3_e10_67198',
@@ -10284,6 +12786,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Georgiou uncovers the true depths of the plot against her, leading her to a revelation about how deeply her time on the U.S.S. Discovery truly changed her.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'dis_s3_e11_67198',
@@ -10294,6 +12799,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Discovery ventures to the Verubin Nebula, where Burnham, Saru, and Culber make a shocking realization about the origin of the Burn. The rest of the crew faces an unexpected threat.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'dis_s3_e12_67198',
@@ -10304,6 +12812,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'After capturing the U.S.S. Discovery, Osyraa seeks a meeting with Admiral Vance while Burnham and the crew must overcome unimaginable odds as they attempt to regain command of their ship.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'dis_s3_e13_67198',
@@ -10314,6 +12825,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'As the Emerald Chain tightens its grip and the mystery of the Burn is finally solved, Burnham and the crew have one last chance to save themselves - and the Federation.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
         ],
       },
@@ -10336,6 +12850,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'After months spent reconnecting the Federation with distant worlds, Captain Michael Burnham and the crew of the U.S.S. Discovery are sent to assist a damaged space station – a seemingly routine mission that reveals the existence of a terrifying new threat.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'dis_s4_e02_67198',
@@ -10346,6 +12863,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Saru returns to help the U.S.S. Discovery uncover the mystery of an unusually destructive new force. As Burnham leads the crew, she must also find a way to help Book cope with an unimaginable loss.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'dis_s4_e03_67198',
@@ -10356,6 +12876,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Burnham and Tilly hunt the killer of a Starfleet officer as Stamets and the science team race against the clock to prevent the anomaly from killing anyone else.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'dis_s4_e04_67198',
@@ -10366,6 +12889,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Tilly and Adira lead a team of Starfleet Academy cadets on a training mission that takes a dangerous turn. Meanwhile, Burnham is pulled into tense negotiations on Ni’Var.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'dis_s4_e05_67198',
@@ -10376,6 +12902,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Burnham and Book race to evacuate a group of stranded colonists in the anomaly’s path as one of the Federation’s brightest scientists comes aboard the U.S.S. Discovery to do high-stakes research with Saru and Stamets.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'dis_s4_e06_67198',
@@ -10386,6 +12915,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Seeking answers, the U.S.S. Discovery ventures into a subspace rift created by the Dark Matter Anomaly. Meanwhile, Book faces a strange visitor from his past.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'dis_s4_e07_67198',
@@ -10396,6 +12928,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Tensions rise as representatives from across the galaxy gather to confront the threat of the Dark Matter Anomaly. Zora's new sentience raises difficult questions.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'dis_s4_e08_67198',
@@ -10406,6 +12941,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Following a hunch, Captain Burnham tracks Book to an old haunt from their courier days and gets drawn into a high-stakes competition for a powerful weapon.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'dis_s4_e09_67198',
@@ -10416,6 +12954,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Captain Burnham and the U.S.S. Discovery race to stop Book and Ruon Tarka from launching a rogue plan that could inadvertently endanger the galaxy.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'dis_s4_e10_67198',
@@ -10426,6 +12967,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'Captain Burnham and her crew must go where few have gone before: beyond the Galactic Barrier. Meanwhile, Book learns the truth of what drives Ruon Tarka.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'dis_s4_e11_67198',
@@ -10436,6 +12980,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'While Captain Burnham leads an away mission to a planet that was once home to the aliens responsible for the DMA, Book and Tarka secretly infiltrate the U.S.S. Discovery.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'dis_s4_e12_67198',
@@ -10446,6 +12993,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'As the DMA approaches Earth and Ni’Var, Captain Burnham and the crew of the U.S.S. Discovery attempt to make First Contact with the powerful species responsible before it’s too late.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'dis_s4_e13_67198',
@@ -10456,6 +13006,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'The DMA approaches Earth and Ni’Var. With evacuations underway, Burnham and the team aboard the U.S.S. Discovery must find a way to communicate and connect with a species far different from their own before time runs out.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
         ],
       },
@@ -10478,6 +13031,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Captain Burnham and the U.S.S. Discovery are sent to retrieve a mysterious 800-year-old Romulan vessel; until the artifact hidden inside is stolen, leading to an epic chase. Meanwhile, Saru is offered the position of a lifetime, and Tilly's efforts to help pull her into a tangled web of secrecy.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'dis_s5_e02_67198',
@@ -10488,6 +13044,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "On Saru's last mission as Captain Burnham's Number One, the team ventures to a seemingly abandoned planet to hunt for what might be the greatest treasure in the galaxy.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'dis_s5_e03_67198',
@@ -10498,6 +13057,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "On Trill, Captain Burnham, Book, and Culber must pass a dangerous test to prove themselves worthy of the next clue. Adira reconnects with Gray and Saru’s first day as ambassador is complicated by his engagement to T'Rina.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'dis_s5_e04_67198',
@@ -10508,6 +13070,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               'On the way to the next clue, the U.S.S. Discovery is sabotaged by a mysterious weapon, leaving Captain Burnham, Rayner, and Stamets as the only crew members who can possibly save the ship in time.',
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'dis_s5_e05_67198',
@@ -10518,6 +13083,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Captain Burnham and Book journey into extradimensional space in search of the next clue to the location of the Progenitors' power. Meanwhile, Rayner navigates his first mission in command of the U.S.S. Discovery, and Culber opens up to Tilly.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'dis_s5_e06_67198',
@@ -10528,6 +13096,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "While undercover in a pre-warp society, Captain Burnham is forced to consider breaking the Prime Directive when a local tradition threatens Tilly's life. Meanwhile, Culber tries to connect with Stamets, and Adira steps up when Rayner assigns them a position on the bridge.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'dis_s5_e07_67198',
@@ -10538,6 +13109,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "With Moll and L'ak finally in custody, the Federation is pulled into a diplomatic and ethical firestorm when the Breen arrive and demand they be handed over. Meanwhile, a frustrated Book looks for ways to help as Tilly, Adira, and Reno work to decipher the latest clue.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'dis_s5_e08_67198',
@@ -10548,6 +13122,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "When Captain Burnham is trapped within a “mindscape” designed to test her worthiness to retrieve the Progenitor's powerful technology, Book, Rayner, and the crew of the U.S.S. Discovery must hold off the Breen long enough for her to escape.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'dis_s5_e09_67198',
@@ -10558,6 +13135,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "After Moll and the Breen capture a mysterious structure that contains the Progenitors' power, Captain Burnham must lead a covert mission to retrieve it before the Breen figure out how to use it.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
           {
             id: 'dis_s5_e10_67198',
@@ -10568,6 +13148,9 @@ export const starTrekData = [
             stardate: 'None',
             synopsis:
               "Trapped inside a mysterious alien portal that defies familiar rules of time, space, and gravity, Captain Burnham must fight Moll – and the environment itself – in order to locate the Progenitors' technology and secure it for the Federation. Meanwhile, Book puts himself in harm's way to help Burnham survive and Rayner leads the U.S.S. Discovery in an epic winner-takes-all battle against Breen forces.",
+            plotPoints: [],
+            guestStars: [],
+            connections: [],
           },
         ],
       },
