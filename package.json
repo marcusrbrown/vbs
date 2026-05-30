@@ -57,8 +57,8 @@
     "prettier": "3.8.3",
     "simple-git-hooks": "2.13.1",
     "typescript": "5.9.3",
-    "vite": "7.3.2",
+    "vite": "7.3.3",
     "vitest": "4.1.7"
   },
-  "packageManager": "pnpm@10.34.0"
+  "packageManager": "pnpm@10.34.1"
 }
