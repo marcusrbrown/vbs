@@ -13,7 +13,10 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review, review_requested]
   schedule:
+    # Daily autoheal at 03:30 UTC — staggered off other repos in the portfolio
+    # (marcusrbrown: 04:30, tokentoilet: 03:30, update-repo-settings: 02:55).
     - cron: '30 3 * * *'
+    # Maintenance report at 15:30 UTC — 1h before marcusrbrown's 16:30 run.
     - cron: '30 15 * * *'
   workflow_dispatch:
     inputs:
@@ -24,8 +27,7 @@ on:
           - review
           - maintenance
           - autoheal
-          - both
-        default: review
+        default: autoheal
       prompt:
         description: Custom prompt for review mode
         required: false
@@ -40,6 +42,7 @@ concurrency:
       github.event.issue.number ||
       github.event.pull_request.number ||
       github.event.discussion.number ||
+      (github.event_name == 'schedule' && github.event.schedule) ||
       github.run_id
     }}
   cancel-in-progress: false
@@ -51,18 +54,43 @@ env:
     Read AGENTS.md for full project conventions before reviewing.
 
     Focus your review on:
-    - Correctness and edge cases
-    - Security implications (credentials, localStorage, API keys)
-    - Breaking changes to public factory APIs or event maps
-    - Test coverage for new/changed behavior
-    - VBS-specific violations:
-      * Missing `.js` extensions in imports (runtime breakage)
-      * Use of `any` instead of `unknown` + type guards
-      * Class-based patterns instead of functional factories
-      * `this` binding instead of closure-based state
-      * Missing `destroy()` on components/factories with listeners
-      * Inline styles instead of CSS custom properties (`--vbs-` prefix)
-      * Missing event map types in `src/modules/types.ts`
+
+    1. CORRECTNESS & EDGE CASES
+       - Logic errors, off-by-one, null/undefined paths
+       - Async race conditions in event handling and storage operations
+       - Closure captures in factory functions (stale state risks)
+       - Workflow gating (if: conditions, needs: chains, the skipped-needs
+         trap — finalize jobs that depend on conditional prepare jobs MUST
+         use !cancelled() to bypass the implicit success() guard)
+       - Silent failure paths: continue-on-error: true on local deterministic
+         steps is a red flag (use it only for external-API fetches with
+         clear fallback behavior)
+
+    2. SECURITY
+       - Credentials, localStorage access, API keys — never hardcoded
+       - No `eval()` or `Function()` constructors near user-supplied data
+       - Token scopes minimum-necessary in any workflow changes
+
+    3. BREAKING CHANGES
+       - Public factory API signatures (arguments, return shape)
+       - Event map types in `src/modules/types.ts`
+       - Storage schema changes without version migration
+
+    4. TEST COVERAGE
+       - New/changed behavior must have test coverage
+       - Factory instantiation patterns in `beforeEach`
+       - Type-level tests in `.test-d.ts` for generic API changes
+
+    5. VBS-SPECIFIC VIOLATIONS
+       - Missing `.js` extensions in imports (runtime breakage in ESM)
+       - Use of `any` instead of `unknown` + type guards
+       - Class-based patterns instead of functional factories
+       - `this` binding instead of closure-based state
+       - Missing `destroy()` on components/factories with listeners
+       - Inline styles instead of CSS custom properties (`--vbs-` prefix)
+       - Missing event map types in `src/modules/types.ts`
+       - No `withErrorHandling()` / `withSyncErrorHandling()` on public methods
+
     Skip style nits — the linter handles those.
 
     Do NOT push commits, modify code, or create branches. Review only.
@@ -82,26 +110,37 @@ env:
 
   MAINTENANCE_PROMPT: |
     Perform daily repository maintenance for VBS (View By Stardate) and update
-    a SINGLE rolling issue titled "Daily Maintenance Report" in this repository.
+    a SINGLE perpetual issue titled "Daily Maintenance Report" in this repository.
 
-    Search for an issue with this exact title. If multiple matches exist,
-    use the most recently updated one. If no open issue exists, create it.
-    If the most recent matching issue is closed, reopen it instead of creating
-    a new one.
+    Read AGENTS.md for full project conventions before analyzing.
+
+    Finding the perpetual issue:
+    1. Search for an open issue titled "Daily Maintenance Report" (exact match).
+    2. If found, use that issue for all updates.
+    3. If not found, create a new issue with that exact title.
+    4. If the most recent matching issue is closed, reopen it instead of creating
+       a new one.
 
     Perpetual issue hygiene: after selecting the single rolling issue,
     search for any other open issues with the exact title "Daily Maintenance Report"
-    and close them with a brief comment (e.g., "Consolidating into the perpetual
-    maintenance issue."). There must be exactly one open maintenance issue at all times.
+    or "Daily Maintenance Report — YYYY-MM-DD" and close them with a brief
+    comment (e.g., "Consolidating into the perpetual maintenance issue.").
+    There must be exactly one open maintenance issue at all times.
     (This duplicate-closing step is the sole exception to the "no individual
     issue modifications" rule below.)
 
-    Append a new dated section for each run using "## YYYY-MM-DD (UTC)".
-    To keep the issue bounded: after appending today's section, replace any
+    PREPEND a new dated section to the TOP of the issue body using
+    "## YYYY-MM-DD (UTC)". Newest update is always first.
+
+    To keep the issue bounded: after prepending today's section, replace any
     individual daily sections older than 14 days with a single
     "## Historical Summary" section that lists only the count of prior runs
     and any items that remained unresolved across those runs. If a Historical
     Summary already exists, update it in place — do not create a second one.
+
+    When the issue body approaches 50,000 characters, archive older updates by
+    removing all but the 30 most recent daily sections, and note the archival in a
+    line like: "_[Archived N older updates on YYYY-MM-DD]_"
 
     Include links only (no full content duplication). Keep it concise and
     actionable. Flag items that appear in the stale list for the first time
@@ -112,12 +151,15 @@ env:
       issues/PRs count, main branch check status, security alerts if accessible)
     - Stale issues (no activity >30 days; recommend next step)
     - Stale PRs (no activity >7 days; stale >14 days)
+    - Automation health (workflow runs over last 7 days: success/failure/
+      skipped counts per workflow; flag any workflow with >50% failure rate
+      or any workflow that has produced zero successful runs when it should have)
     - Unassigned bugs (label bug, no assignee)
-    - Recommended actions (bulleted checklist)
     - Cross-project intelligence (check marcusrbrown/yield-farmer and
       marcusrbrown/poly for similar maintenance items, security advisories,
       or convention improvements that could benefit VBS; include only if
       relevant findings exist)
+    - Recommended actions (bulleted checklist)
     - Notes (use "data unavailable" for any inaccessible data source)
 
     Do NOT comment on or modify individual issues/PRs (except for closing
@@ -157,6 +199,12 @@ env:
     security fix. Do NOT modify package.json versions outside category 2
     security remediation.
 
+    TRUSTED AUTHORS
+    Trusted PR authors for branch repair are Marcus and these automation bots:
+    - renovate[bot]
+    - dependabot[bot]
+    - fro-bot
+
     1. ERRORED PRs
        Find open PRs with failing CI checks. Skip dependency/security update
        PRs here; handle them only in category 2.
@@ -173,8 +221,12 @@ env:
        b. Read the failing check logs to diagnose the root cause.
        c. Fix the issue (type errors, lint failures, test regressions,
           build breaks).
-       d. Commit with a clear message and push to the PR branch.
+       d. Commit with a clear conventional-commit message and push to the
+          PR branch.
        e. Comment on the PR explaining what failed and what was fixed.
+       f. Never modify .github/workflows/ or this prompt while repairing
+          an errored PR. If the failing run appears caused by the Fro Bot
+          workflow, skip the PR and log it under "Needs Human Attention".
 
     2. SECURITY
        Review Dependabot/Renovate alerts and open PRs for vulnerable deps.
@@ -199,6 +251,11 @@ env:
        - Scan for stale TODO/FIXME/HACK annotations older than 90 days
          (use git blame). Collect them into a single issue or update an
          existing "Stale TODOs" issue.
+       - Workflow health: check the last 7 days of runs for each workflow.
+         Flag any workflow where >50% of expected runs failed, or where
+         scheduled runs produced zero successful runs when they should have.
+         (Caught a 1.5-year silent outage in marcusrbrown/marcusrbrown in
+         May 2026; we want it caught fast in this repo too.)
        - Verify VBS convention compliance:
          * No `any`, `@ts-ignore`, or `@ts-expect-error` in src/
          * No class-based patterns (functional factories with closures only)
@@ -221,8 +278,25 @@ env:
        found in category 3.
        Open a PR for all fixes — never commit directly to the default
        branch. Group related lint/format/convention fixes into a single PR.
+       Use a clear conventional-commit title like
+       `chore(lint): apply auto-fixes from autohealing run`.
 
-    5. DATA QUALITY
+    5. QUALITY GATES VERIFICATION
+       Verify the project's quality gates pass on the default branch:
+       a. `pnpm lint` — 0 errors
+       b. `pnpm exec tsc --noEmit` — type check passes
+       c. `pnpm test` — all unit tests passing
+       d. `pnpm build` — successful tsc + vite build
+       e. `pnpm exec jiti scripts/validate-episode-data.ts` — data validation
+          passes
+
+       For each failing gate:
+       - Identify the root cause from command output.
+       - If the fix is minimal and safe, include it in a category 4 PR.
+       - If the fix is complex, open an issue with diagnosis and
+         recommended approach.
+
+    6. DATA QUALITY
        Validate Star Trek dataset integrity:
        - Run `pnpm exec jiti scripts/validate-episode-data.ts --verbose`
          and report any validation failures.
@@ -238,16 +312,61 @@ env:
        For content corrections, open an issue referencing the data-curator
        agent (.github/agents/data-curator.agent.md).
 
-    6. CROSS-PROJECT INTELLIGENCE & SELF-IMPROVEMENT
-       Check the latest Daily Maintenance Report and Daily Autohealing Report
-       issues (or equivalent perpetual summary issues) in
-       marcusrbrown/yield-farmer and marcusrbrown/poly. If those repos have
-       recently fixed a class of issue (e.g., a shared dependency security
-       advisory, a CI configuration improvement, or a convention change) that
-       also applies to VBS, apply the same fix here or open an issue with the
-       details. If you identify a recurring pattern that could be prevented by
-       updating this workflow prompt or AGENTS.md, open a PR with the proposed
-       improvement. This ensures progressive improvement across all projects.
+    7. CROSS-PROJECT INTELLIGENCE & SELF-IMPROVEMENT
+       Survey Marcus's other repos for patterns, tooling, and conventions
+       that could improve THIS repo. The goal is inbound intelligence —
+       what can we learn from the portfolio to make VBS better?
+
+       Use `gh` CLI for all queries. Observation only — never modify
+       other repos.
+
+       Focus repos (check these every run):
+       - `marcusrbrown/yield-farmer` — Fro Bot prompt evolution, CI safety
+         practices, security advisories
+       - `marcusrbrown/poly` — Python/TypeScript shared patterns, CI
+         safety practices, convention improvements
+       - `marcusrbrown/tokentoilet` — single-issue autohealing patterns,
+         Fro Bot prompt evolution
+       - `marcusrbrown/marcusrbrown` — prompt hygiene strategies, upstream
+         modernization watch patterns
+       - `marcusrbrown/renovate-config` — dependency governance preset
+         evolution (VBS extends it)
+       - `fro-bot/agent` — Fro Bot/OpenCode runtime capabilities and
+         release notes
+
+       For each focus repo, check:
+       a. Fro Bot version: compare `fro-bot/agent@` SHA if present.
+       b. CI patterns: any workflow improvements worth adopting?
+       c. Renovate config: any preset evolution worth adopting?
+       d. Prompt evolution: any new categories, hygiene rules, or scope
+          caps in sibling autoheal/maintenance prompts worth porting?
+
+       If you identify a recurring pattern that could be prevented by
+       updating this workflow prompt or AGENTS.md, open a PR with the
+       proposed improvement. This ensures progressive improvement across
+       all projects.
+
+       Hard boundaries:
+       - NEVER modify other repositories. Observation only.
+       - NEVER open PRs, issues, or comments in other repositories.
+       - All findings go into the perpetual summary issue in THIS repo only.
+
+    8. UPSTREAM MODERNIZATION WATCH (SUNDAYS UTC ONLY)
+       On Sundays UTC, review release notes for pinned upstreams:
+       - `fro-bot/agent` used by .github/workflows/fro-bot.yaml
+       - `actions/checkout`, `pnpm/action-setup`, and other actions
+         pinned across .github/workflows/
+       - Renovate config preset updates from `marcusrbrown/renovate-config`
+
+       Identify new hardening or observability features worth adopting.
+       Do not bump versions or modify workflows in this category. Document
+       findings in the perpetual issue.
+
+       Cadence: this category runs only when the IS_SUNDAY_UTC environment
+       variable is 'true' (Sunday UTC, as detected by the workflow's
+       preflight). Before doing any category 8 work, read this variable.
+       On other days, skip entirely and omit the corresponding section
+       from the daily summary.
 
     Hard boundaries:
     - Never force-push, rewrite history, or delete branches.
@@ -266,6 +385,9 @@ env:
       or editing workflows/configuration only to suppress failures.
     - If the smallest safe fix would weaken a guardrail or reduce
       validation, skip it and log it under "Needs Human Attention".
+    - Cross-project intelligence (category 7) MUST NOT modify other repos.
+    - Upstream modernization watch (category 8) MUST NOT bump pinned
+      versions (Renovate-owned) or modify upstream repositories.
     - Do not create multiple summary issues.
 
     Project conventions (MUST follow for code changes):
@@ -282,8 +404,14 @@ env:
     - YAML extension: .yaml, not .yml
 
     OUTPUT FORMAT — SINGLE PERPETUAL ISSUE
-    After completing all work, find or create a SINGLE rolling issue titled
-    "Daily Autohealing Report" (no date in the title).
+    Manage a SINGLE perpetual issue titled "Daily Autohealing Report".
+
+    Finding the perpetual issue:
+    1. Search for an open issue titled "Daily Autohealing Report" (exact match).
+    2. If found, use that issue for all updates.
+    3. If not found, create a new issue with that exact title.
+    4. If the most recent matching issue is closed, reopen it instead of
+       creating a new one.
 
     Perpetual issue hygiene: search for any other open issues with titles
     matching "Daily Autohealing Report" or "Daily Autohealing Report — YYYY-MM-DD"
@@ -291,28 +419,22 @@ env:
     recent issue has a dated title, rename it to the perpetual title. There
     must be exactly one open autohealing issue at all times.
 
-    Append a new dated section for each run using
-    "## Daily Autohealing Report — YYYY-MM-DD (UTC)".
-    To keep the issue bounded: after appending today's section, replace any
-    individual daily sections older than 14 days with a single
-    "## Historical Summary" section that lists only the count of prior runs
-    and any items that remained unresolved across those runs. If a Historical
-    Summary already exists, update it in place — do not create a second one.
+    Updating the issue:
+    PREPEND a new dated section to the TOP of the issue body. Newest
+    update is always first. If a section has no rows, do not emit an
+    empty table — write "None." directly under that heading.
 
-    The issue body MUST use this structure. If a section has no rows, do
-    not emit an empty table — write "None." directly under that heading.
-
-    ## Daily Autohealing Report — YYYY-MM-DD (UTC)
+    ## Update — YYYY-MM-DD (UTC)
 
     ### Errored PRs
     | PR | Failure | Fix | Status |
     | --- | --- | --- | --- |
-    | #N | [root cause] | [what was fixed] | ✅ Fixed / ⚠️ Needs review |
+    | #N | [root cause] | [what was fixed] | ✅ Fixed / ⚠️ Needs review / ⏭️ Skipped |
 
     ### Security
     | Advisory / PR | Severity | Action Taken |
     | --- | --- | --- |
-    | [advisory or #N] | Critical/High/Medium | [fix pushed / PR created / skipped] |
+    | [advisory or #N] | Critical/High/Medium | [fix pushed / PR created / skipped / unavailable] |
 
     ### Code Quality & Repo Hygiene
     | Check | Result | Action |
@@ -321,10 +443,20 @@ env:
     | Test coverage | ✅ Healthy / ⚠️ Regressed | [details or #N] |
     | Stale TODOs | N found | [#N or None] |
     | Convention drift | ✅ Clean / ⚠️ Issues | [details or #N] |
+    | Workflow health | ✅ Healthy / ⚠️ Degraded | [workflow names with stats] |
     | AGENTS.md accuracy | ✅ Current / ⚠️ Drifted | [#N or None] |
 
     ### Developer Experience
     - [list of each PR or commit-sized fix with summary link]
+
+    ### Quality Gates
+    | Gate | Status | Details |
+    | --- | --- | --- |
+    | Lint | ✅ / ❌ | [error count or clean] |
+    | Type check (tsc) | ✅ / ❌ | [error count or clean] |
+    | Tests | ✅ / ❌ | [pass/fail count] |
+    | Build | ✅ / ❌ | [details] |
+    | Data validation | ✅ / ❌ | [details] |
 
     ### Data Quality
     | Check | Result | Action |
@@ -335,18 +467,37 @@ env:
     | Chronological order | ✅ Correct / ⚠️ Issues | [details or #N] |
 
     ### Cross-Project Intelligence
-    - [any patterns or fixes imported from yield-farmer or poly, or "None"]
+    | Repo | Finding | Actionable for VBS? | Priority |
+    | --- | --- | --- | --- |
+    | [repo] | [what they do that we don't] | [specific action or monitor] | High/Med/Low |
+
+    ### Upstream Modernization Watch
+    [Sunday-only section. On Sundays UTC, include findings or write "Scan
+    clean" if no actionable items. On other days, omit this entire section.]
 
     ### Needs Human Attention
     - [items that could not be auto-fixed, with context]
 
-    Do NOT create multiple issues. Do NOT comment on individual issues.
-    Produce exactly one summary issue per run.
+    Rules for the perpetual issue:
+    - DO NOT create new daily issues. Always update the perpetual issue.
+    - DO NOT close the perpetual issue.
+    - ALWAYS prepend new updates to existing content (newest at top).
+    - When the issue body approaches 50,000 characters, archive older
+      updates by removing all but the 30 most recent daily sections, and
+      note the archival in a line like:
+      "_[Archived N older updates on YYYY-MM-DD]_"
+    - DO NOT comment on individual issues or PRs unless category 1 fixed
+      a failing PR (then ONLY post the fix-summary comment on that PR).
 
 jobs:
   fro-bot:
     name: Fro Bot
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+      discussions: write
     if: >-
       (
         github.event.pull_request == null ||
@@ -358,21 +509,16 @@ jobs:
         (
           github.event_name == 'issues' &&
           !endsWith(github.event.issue.user.login || '', '[bot]') &&
-          (github.event.issue.user.login || '') != 'fro-bot'
+          (github.event.issue.user.login || '') != 'fro-bot' &&
+          contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.issue.author_association || '')
         ) ||
         (
           github.event_name == 'pull_request' &&
           !endsWith(github.event.pull_request.user.login || '', '[bot]') &&
           (github.event.pull_request.user.login || '') != 'fro-bot'
         ) ||
-        (
-          github.event_name == 'schedule' &&
-          github.event.schedule == '30 15 * * *'
-        ) ||
-        (
-          github.event_name == 'workflow_dispatch' &&
-          contains(fromJSON('["review", "maintenance", "both"]'), inputs.mode || 'review')
-        ) ||
+        github.event_name == 'schedule' ||
+        github.event_name == 'workflow_dispatch' ||
         (
           (github.event_name == 'issue_comment' ||
            github.event_name == 'pull_request_review_comment' ||
@@ -383,23 +529,30 @@ jobs:
         )
       )
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          fetch-depth: 0
-          ref: >-
-            ${{
-              (github.event.issue.pull_request && format('refs/pull/{0}/head', github.event.issue.number))
-              || github.event.pull_request.head.sha
-              || ''
-            }}
-          token: ${{ secrets.FRO_BOT_PAT }}
+      - name: Refuse fork PR heads from comment triggers
+        # issue_comment events carry no pull_request payload, so the
+        # job-level fork guard does not see comment-triggered checkouts
+        # of PR heads. Resolve the PR via the API and refuse fork heads
+        # before any code from that ref runs.
+        if: github.event_name == 'issue_comment' && github.event.issue.pull_request
+        env:
+          GH_TOKEN: ${{ secrets.FRO_BOT_PAT }}
+        run: |
+          pr_number="${{ github.event.issue.number }}"
+          is_fork=$(gh api "repos/${{ github.repository }}/pulls/${pr_number}" --jq '.head.repo.fork // "unknown"')
+          if [ "$is_fork" != "false" ]; then
+            echo "::error::Refusing to check out fork PR head from comment trigger (PR #${pr_number}, fork=${is_fork})."
+            exit 1
+          fi
 
-      - name: Setup pnpm
-        uses: ./.github/actions/setup-pnpm
-
-      - name: Build project
-        run: pnpm build
+      - name: Detect Sunday UTC for category 8 cadence
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        run: |
+          if [ "$(date -u +%u)" = "7" ]; then
+            echo "IS_SUNDAY_UTC=true" >> "$GITHUB_ENV"
+          else
+            echo "IS_SUNDAY_UTC=false" >> "$GITHUB_ENV"
+          fi
 
       - name: Validate review mode inputs
         if: github.event_name == 'workflow_dispatch' && inputs.mode == 'review'
@@ -411,49 +564,18 @@ jobs:
             exit 1
           fi
 
-      - name: Run Fro Bot
-        uses: fro-bot/agent@54ee81400cf87d287dd4c10c49acea12364bf47d # v0.47.0
-        env:
-          OPENCODE_PROMPT_ARTIFACT: 'true'
-          PROMPT: >-
-            ${{
-              (github.event_name == 'workflow_dispatch' && inputs.mode == 'maintenance' && env.MAINTENANCE_PROMPT)
-              || (github.event_name == 'workflow_dispatch' && inputs.mode == 'both' && env.MAINTENANCE_PROMPT)
-              || (github.event_name == 'workflow_dispatch' && inputs.mode == 'review' && inputs.prompt)
-              || (github.event_name == 'schedule' && github.event.schedule == '30 15 * * *' && env.MAINTENANCE_PROMPT)
-              || (github.event_name == 'pull_request' && env.PR_REVIEW_PROMPT)
-              || ''
-            }}
-        with:
-          auth-json: ${{ secrets.OPENCODE_AUTH_JSON }}
-          github-token: ${{ secrets.FRO_BOT_PAT }}
-          model: ${{ vars.FRO_BOT_MODEL }}
-          omo-providers: ${{ secrets.OMO_PROVIDERS }}
-          opencode-config: ${{ secrets.OPENCODE_CONFIG }}
-          prompt: ${{ env.PROMPT }}
-          timeout: 0
-
-  fro-bot-autoheal:
-    name: Fro Bot Autoheal
-    runs-on: ubuntu-latest
-    concurrency:
-      group: fro-bot-autoheal
-      cancel-in-progress: false
-    if: >-
-      (
-        github.event_name == 'schedule' &&
-        github.event.schedule == '30 3 * * *'
-      ) ||
-      (
-        github.event_name == 'workflow_dispatch' &&
-        contains(fromJSON('["autoheal", "both"]'), inputs.mode || 'autoheal')
-      )
-    steps:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0
+          ref: >-
+            ${{
+              (github.event.issue.pull_request && format('refs/pull/{0}/head', github.event.issue.number))
+              || github.event.pull_request.head.sha
+              || ''
+            }}
           token: ${{ secrets.FRO_BOT_PAT }}
+          persist-credentials: false
 
       - name: Setup pnpm
         uses: ./.github/actions/setup-pnpm
@@ -465,7 +587,18 @@ jobs:
         uses: fro-bot/agent@54ee81400cf87d287dd4c10c49acea12364bf47d # v0.47.0
         env:
           OPENCODE_PROMPT_ARTIFACT: 'true'
-          PROMPT: ${{ env.AUTOHEAL_PROMPT }}
+          IS_SUNDAY_UTC: ${{ env.IS_SUNDAY_UTC || 'false' }}
+          PROMPT: >-
+            ${{
+              (github.event_name == 'workflow_dispatch' && inputs.mode == 'review' && inputs.prompt)
+              || (github.event_name == 'workflow_dispatch' && inputs.mode == 'maintenance' && env.MAINTENANCE_PROMPT)
+              || (github.event_name == 'workflow_dispatch' && inputs.mode == 'autoheal' && env.AUTOHEAL_PROMPT)
+              || (github.event_name == 'workflow_dispatch' && !inputs.mode && env.AUTOHEAL_PROMPT)
+              || (github.event_name == 'schedule' && github.event.schedule == '30 15 * * *' && env.MAINTENANCE_PROMPT)
+              || (github.event_name == 'schedule' && github.event.schedule == '30 3 * * *' && env.AUTOHEAL_PROMPT)
+              || (github.event_name == 'pull_request' && env.PR_REVIEW_PROMPT)
+              || ''
+            }}
         with:
           auth-json: ${{ secrets.OPENCODE_AUTH_JSON }}
           github-token: ${{ secrets.FRO_BOT_PAT }}
