@@ -45,8 +45,8 @@
     "@types/d3": "7.4.3",
     "@types/jsdom": "27.0.0",
     "@types/node": "24.12.4",
-    "@vitest/coverage-v8": "4.1.7",
-    "@vitest/ui": "4.1.7",
+    "@vitest/coverage-v8": "4.1.8",
+    "@vitest/ui": "4.1.8",
     "dotenv": "17.4.2",
     "eslint": "9.39.4",
     "eslint-config-prettier": "10.1.8",
@@ -58,7 +58,7 @@
     "simple-git-hooks": "2.13.1",
     "typescript": "5.9.3",
     "vite": "7.3.3",
-    "vitest": "4.1.7"
+    "vitest": "4.1.8"
   },
   "packageManager": "pnpm@10.34.1"
 }
