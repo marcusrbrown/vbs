@@ -15,6 +15,8 @@ Functional core of VBS. Closure-based factories managing state, events, and pers
 | **Metadata** | `metadata-sources.ts`, `metadata-queue.ts`, `metadata-scheduler.ts`, `metadata-storage.ts`, `metadata-quality.ts`, `conflict-resolution.ts` | Pipeline: sources -> queue -> scheduler -> storage; quality scoring + conflict resolution |
 | **Streaming** | `streaming-api.ts`, `cache-warming.ts` | Service availability, proactive caching |
 | **Infrastructure** | `events.ts`, `types.ts`, `storage.ts`, `version-manager.ts`, `error-handler.ts`, `logger.ts`, `migration.ts`, `progress-validation.ts` | EventEmitter, types, persistence, versioning, error boundaries, logging, migration |
+| **Timeline** | `timeline.ts`, `timeline-viz.ts` | Chronological timeline logic and D3.js visualization; `timeline-viz.ts` CSS resides in `src/components/timeline-viz.css` |
+| **External Types** | `external-api-types.ts` | TypeScript interfaces for TMDB, Memory Alpha, and other external API response formats; used by metadata pipeline |
 
 ## CONVENTIONS
 
