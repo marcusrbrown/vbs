@@ -288,13 +288,7 @@ export interface ConflictResolutionRecord {
  * Supported metadata source types.
  */
 export type MetadataSourceType =
-  | 'memory-alpha'
-  | 'tmdb'
-  | 'imdb'
-  | 'manual'
-  | 'trekcore'
-  | 'stapi'
-  | 'startrek-com'
+  'memory-alpha' | 'tmdb' | 'imdb' | 'manual' | 'trekcore' | 'stapi' | 'startrek-com'
 
 /**
  * Represents a single Star Trek content item (series, movie, or animated content).
@@ -4327,14 +4321,7 @@ export interface LoggerConfig {
   maxEntries: number
   /** Categories to include (empty = all categories) */
   enabledCategories: (
-    | 'metadata'
-    | 'sync'
-    | 'queue'
-    | 'cache'
-    | 'api'
-    | 'performance'
-    | 'error'
-    | 'settings'
+    'metadata' | 'sync' | 'queue' | 'cache' | 'api' | 'performance' | 'error' | 'settings'
   )[]
   /** Whether to persist logs to IndexedDB */
   persistLogs: boolean
