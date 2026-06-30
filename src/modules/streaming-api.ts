@@ -351,34 +351,32 @@ export const createStreamingApi = (): StreamingApiInstance => {
   const transformAvailabilityData = (watchmodeData: any[]): StreamingAvailability[] => {
     if (!Array.isArray(watchmodeData)) return []
 
-    return watchmodeData.map(
-      (item): StreamingAvailability => ({
-        contentId: item.content_id || '',
-        contentType: item.content_type || 'series',
-        platform: {
-          id: item.source_id || '',
-          name: item.name || '',
-          logo: item.logo_100px || '',
-          url: item.web_url || '',
-          requiresSubscription: item.type === 'subscription',
-          regions: item.regions || ['US'],
-        },
+    return watchmodeData.map((item): StreamingAvailability => ({
+      contentId: item.content_id || '',
+      contentType: item.content_type || 'series',
+      platform: {
+        id: item.source_id || '',
+        name: item.name || '',
+        logo: item.logo_100px || '',
         url: item.web_url || '',
-        type: item.type || 'subscription',
-        ...(item.price
-          ? {
-              price: {
-                amount: Number.parseFloat(item.price),
-                currency: item.currency || 'USD',
-              },
-            }
-          : {}),
-        quality: item.format || ['HD'],
+        requiresSubscription: item.type === 'subscription',
         regions: item.regions || ['US'],
-        lastUpdated: new Date().toISOString(),
-        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24 hours
-      }),
-    )
+      },
+      url: item.web_url || '',
+      type: item.type || 'subscription',
+      ...(item.price
+        ? {
+            price: {
+              amount: Number.parseFloat(item.price),
+              currency: item.currency || 'USD',
+            },
+          }
+        : {}),
+      quality: item.format || ['HD'],
+      regions: item.regions || ['US'],
+      lastUpdated: new Date().toISOString(),
+      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24 hours
+    }))
   }
 
   /**
