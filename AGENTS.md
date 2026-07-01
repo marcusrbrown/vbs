@@ -16,12 +16,12 @@ vbs/
 │   ├── components/             # UI component factories with co-located CSS
 │   ├── data/                   # Star Trek dataset (~570 lines)
 │   ├── modules/                # Core logic: factories, events, storage, metadata
-│   └── utils/                  # composition.ts (3000+ lines), validation, geographic
+│   └── utils/                  # composition.ts (3000+ lines), download, validation, geographic
 ├── scripts/
 │   ├── generate-star-trek-data.ts  # Multi-source data generation CLI
 │   ├── validate-episode-data.ts    # Data quality validation CLI
 │   └── lib/                        # Shared CLI utilities
-├── test/                       # Flat Vitest suite (42 files), mirrors src/ structure
+├── test/                       # Flat Vitest suite (57 files), mirrors src/ structure
 ├── docs/                       # ADRs, architecture guides, API docs
 └── .github/
     ├── workflows/deploy.yaml   # Build + deploy to GitHub Pages
@@ -93,7 +93,7 @@ pnpm exec jiti scripts/validate-episode-data.ts
 - **Manual chunks**: `star-trek-data.ts` bundled separately for caching
 - **Source maps**: enabled in production
 - **Node.js 24.x** in CI (cutting-edge)
-- **pnpm@10.31.0** — never use npm/yarn
+- **pnpm@11.x** — never use npm/yarn
 - **Renovate** (not Dependabot) for dependency updates, extends `marcusrbrown/renovate-config`
 - **No release automation** — manual deploy via GitHub Actions on push to main
 - **Test environment**: jsdom; globals enabled; type checking for `.test-d.ts` files
