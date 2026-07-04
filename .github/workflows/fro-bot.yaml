@@ -590,7 +590,7 @@ jobs:
           IS_SUNDAY_UTC: ${{ env.IS_SUNDAY_UTC || 'false' }}
           PROMPT: >-
             ${{
-              (github.event_name == 'workflow_dispatch' && inputs.mode == 'review' && inputs.prompt)
+              (github.event_name == 'workflow_dispatch' && inputs.prompt)
               || (github.event_name == 'workflow_dispatch' && inputs.mode == 'maintenance' && env.MAINTENANCE_PROMPT)
               || (github.event_name == 'workflow_dispatch' && inputs.mode == 'autoheal' && env.AUTOHEAL_PROMPT)
               || (github.event_name == 'workflow_dispatch' && !inputs.mode && env.AUTOHEAL_PROMPT)
