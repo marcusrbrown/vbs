@@ -12,3 +12,6 @@ shamefullyHoist: true
 shellEmulator: true
 
 strictPeerDependencies: false
+
+overrides:
+  fast-uri: ^3.1.3
