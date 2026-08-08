@@ -2758,26 +2758,28 @@ export const starTrekData = [
             episode: 1,
             airDate: '2026-07-23',
             stardate: 'None',
-            synopsis: '',
+            synopsis:
+              'Pike leads the crew into a stellar storm, sending the Enterprise back 65 million years.',
             plotPoints: [],
             guestStars: [],
             connections: [],
           },
           {
             id: 'snw_s4_e02_103516',
-            title: 'Griffin Incident',
+            title: 'The Griffin Incident',
             season: 4,
             episode: 2,
             airDate: '2026-07-30',
             stardate: 'None',
-            synopsis: '',
+            synopsis:
+              "La'An, Spock, and Kirk get trapped on a mysterious, long-lost Federation ship.",
             plotPoints: [],
             guestStars: [],
             connections: [],
           },
           {
             id: 'snw_s4_e03_103516',
-            title: 'Episode 3',
+            title: 'Human Best Friend',
             season: 4,
             episode: 3,
             airDate: '2026-08-06',
@@ -2789,7 +2791,7 @@ export const starTrekData = [
           },
           {
             id: 'snw_s4_e04_103516',
-            title: 'Episode 4',
+            title: 'A Case of Chiaroscuro',
             season: 4,
             episode: 4,
             airDate: '2026-08-13',
@@ -2801,7 +2803,7 @@ export const starTrekData = [
           },
           {
             id: 'snw_s4_e05_103516',
-            title: 'Episode 5',
+            title: 'Level Five Transporter Accident',
             season: 4,
             episode: 5,
             airDate: '2026-08-20',
@@ -2813,7 +2815,7 @@ export const starTrekData = [
           },
           {
             id: 'snw_s4_e06_103516',
-            title: 'Episode 6',
+            title: 'Off-Hour',
             season: 4,
             episode: 6,
             airDate: '2026-08-27',
@@ -2825,7 +2827,7 @@ export const starTrekData = [
           },
           {
             id: 'snw_s4_e07_103516',
-            title: 'Episode 7',
+            title: 'Like Chronitons Through the Hourglass',
             season: 4,
             episode: 7,
             airDate: '2026-09-03',
@@ -2837,7 +2839,7 @@ export const starTrekData = [
           },
           {
             id: 'snw_s4_e08_103516',
-            title: 'Episode 8',
+            title: 'Orders of Magnitude',
             season: 4,
             episode: 8,
             airDate: '2026-09-10',
@@ -2849,7 +2851,7 @@ export const starTrekData = [
           },
           {
             id: 'snw_s4_e09_103516',
-            title: 'Episode 9',
+            title: "Once La'an a Time",
             season: 4,
             episode: 9,
             airDate: '2026-09-17',
@@ -2861,7 +2863,7 @@ export const starTrekData = [
           },
           {
             id: 'snw_s4_e10_103516',
-            title: 'Episode 10',
+            title: "Tomorrow's Enterprise",
             season: 4,
             episode: 10,
             airDate: '2026-09-24',
@@ -5516,7 +5518,7 @@ export const starTrekData = [
             airDate: '1992-05-04',
             stardate: 'None',
             synopsis:
-              "Stardate: 45832.1. While exploring a strange form of energy in a region of space, a little girl's imaginary friend becomes real and places the Enterprise in great danger.",
+              "Stardate: 45852.1. While exploring a strange form of energy in a region of space, a little girl's imaginary friend becomes real and places the Enterprise in great danger.",
             plotPoints: [],
             guestStars: [],
             connections: [],
@@ -5542,7 +5544,7 @@ export const starTrekData = [
             airDate: '1992-05-18',
             stardate: 'None',
             synopsis:
-              "Stardate: 45092.4. While the Enterprise helps a Romulan science vessel, an accident occurs which forces Geordi LaForge and Ro Laren slightly out of 'phase', causing them to become undetectable to everyone but each other. As a result, the crew thinks they are dead and make arrangements for their funerals, even though they are closer than the crew realise.",
+              "Stardate: 45892.4. While the Enterprise helps a Romulan science vessel, an accident occurs which forces Geordi LaForge and Ro Laren slightly out of 'phase', causing them to become undetectable to everyone but each other. As a result, the crew thinks they are dead and make arrangements for their funerals, even though they are closer than the crew realise.",
             plotPoints: [],
             guestStars: [],
             connections: [],
