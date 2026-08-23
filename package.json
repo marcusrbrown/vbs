@@ -39,8 +39,8 @@
     "d3": "^7.9.0"
   },
   "devDependencies": {
-    "@bfra.me/eslint-config": "0.51.1",
-    "@bfra.me/prettier-config": "0.16.9",
+    "@bfra.me/eslint-config": "0.51.2",
+    "@bfra.me/prettier-config": "0.16.10",
     "@bfra.me/tsconfig": "0.13.1",
     "@types/d3": "7.4.3",
     "@types/jsdom": "27.0.0",
