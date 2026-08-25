@@ -14,7 +14,7 @@ vbs/
 │   ├── main.ts                 # App factory: createStarTrekViewingGuide()
 │   ├── style.css               # Global styles + Star Trek theme tokens
 │   ├── components/             # UI component factories with co-located CSS
-│   ├── data/                   # Star Trek dataset (~570 lines)
+│   ├── data/                   # Star Trek dataset (star-trek-data.ts ~13,200 lines, timeline-events.ts, metadata-sources-config.ts)
 │   ├── modules/                # Core logic: factories, events, storage, metadata
 │   └── utils/                  # composition.ts (3000+ lines), download, validation, geographic
 ├── scripts/
