@@ -39,9 +39,9 @@
     "d3": "^7.9.0"
   },
   "devDependencies": {
-    "@bfra.me/eslint-config": "0.51.2",
+    "@bfra.me/eslint-config": "0.52.1",
     "@bfra.me/prettier-config": "0.16.11",
-    "@bfra.me/tsconfig": "0.13.1",
+    "@bfra.me/tsconfig": "0.13.2",
     "@types/d3": "7.4.3",
     "@types/jsdom": "27.0.0",
     "@types/node": "24.13.3",
@@ -55,10 +55,10 @@
     "jsdom": "27.4.0",
     "lint-staged": "16.4.0",
     "prettier": "3.9.6",
-    "simple-git-hooks": "2.13.1",
+    "simple-git-hooks": "2.14.0",
     "typescript": "5.9.3",
     "vite": "7.3.6",
     "vitest": "4.1.11"
   },
-  "packageManager": "pnpm@11.22.0"
+  "packageManager": "pnpm@11.25.0"
 }
