@@ -111,6 +111,12 @@ describe('Episode ID Validation (TASK-027)', () => {
       expect(validateEpisodeId('ds9_s2_e26')).toBe(true) // DS9 has digit in series code
     })
 
+    it('should validate episode ID with trailing TMDB numeric suffix', () => {
+      // Live dataset appends a trailing TMDB show ID (e.g., 'tos_s1_e01_253')
+      expect(validateEpisodeId('tos_s1_e01_253')).toBe(true)
+      expect(validateEpisodeId('ds9_s2_e10_4567')).toBe(true)
+    })
+
     it('should reject invalid episode ID formats', () => {
       expect(validateEpisodeId('invalid')).toBe(false)
       expect(validateEpisodeId('TOS_S1_E01')).toBe(false)
