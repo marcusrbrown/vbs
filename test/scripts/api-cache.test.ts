@@ -132,8 +132,9 @@ describe('API Cache', () => {
       // Wait for expiration
       await new Promise(resolve => setTimeout(resolve, 150))
 
-      // Add entry that won't expire
-      await cache.set('https://api.example.com/fresh', {id: 3})
+      // Add entry that won't expire (long custom TTL avoids flakiness under
+      // coverage instrumentation overhead)
+      await cache.set('https://api.example.com/fresh', {id: 3}, 60_000)
 
       const result = await cache.cleanupExpired()
       expect(result.removedEntries).toBe(2)
