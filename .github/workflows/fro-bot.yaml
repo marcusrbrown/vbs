@@ -584,7 +584,7 @@ jobs:
         run: pnpm build
 
       - name: Run Fro Bot
-        uses: fro-bot/agent@335e4f8a9c74f7fe7a40565d23acfbf321dc983e # v0.105.0
+        uses: fro-bot/agent@67b8c41aa60f6da45d2a7c3e8be4783f1e0454a4 # v0.113.1
         env:
           OPENCODE_PROMPT_ARTIFACT: 'true'
           IS_SUNDAY_UTC: ${{ env.IS_SUNDAY_UTC || 'false' }}
