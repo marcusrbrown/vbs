@@ -265,9 +265,10 @@ export interface MetadataProvenance {
 
 /**
  * Episode ID format pattern: series_s{season}_e{episode}
- * Series codes can include digits and optional TMDB suffix (e.g., 'ds9', 'unk_123456')
+ * Series codes can include digits and optional TMDB series ID suffix (e.g., 'ds9', 'unk_123456').
+ * Also supports an optional trailing TMDB numeric suffix (e.g., 'tos_s1_e01_253').
  */
-const EPISODE_ID_PATTERN = /^[a-z0-9]+(?:_[a-z0-9]+)?_s\d+_e\d+$/
+const EPISODE_ID_PATTERN = /^[a-z0-9]+(?:_[a-z0-9]+)?_s\d+_e\d+(?:_\d+)?$/
 
 /**
  * Season ID format pattern: series_s{season}
