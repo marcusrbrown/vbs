@@ -288,8 +288,7 @@ export const createEpisodeManager = (
     episodeId: string,
     requestedSpoilerLevel: 'safe' | 'moderate' | 'full' = spoilerLevel,
   ): void => {
-    const episode = allEpisodes.find(ep => ep.id === episodeId)
-    if (!episode) return
+    if (!allEpisodes.some(ep => ep.id === episodeId)) return
 
     eventEmitter.emit('episode-detail-toggle', {
       episodeId,
