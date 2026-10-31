@@ -13,11 +13,10 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review, review_requested]
   schedule:
-    # Daily autoheal at 03:30 UTC — staggered off other repos in the portfolio
-    # (marcusrbrown: 04:30, tokentoilet: 03:30, update-repo-settings: 02:55).
+    # Daily oversight + autohealing pass at 03:30 UTC — staggered off other
+    # repos in the portfolio (marcusrbrown: 04:30, tokentoilet: 03:30,
+    # update-repo-settings: 02:55).
     - cron: '30 3 * * *'
-    # Maintenance report at 15:30 UTC — 1h before marcusrbrown's 16:30 run.
-    - cron: '30 15 * * *'
   workflow_dispatch:
     inputs:
       mode:
@@ -25,7 +24,6 @@ on:
         type: choice
         options:
           - review
-          - maintenance
           - autoheal
         default: autoheal
       prompt:
@@ -36,13 +34,15 @@ on:
 permissions:
   contents: read
 
+# Scheduled and dispatched daily passes share one slot so they never
+# overlap on the daily report or autoheal branches.
 concurrency:
   group: >-
     fro-bot-${{
       github.event.issue.number ||
       github.event.pull_request.number ||
       github.event.discussion.number ||
-      (github.event_name == 'schedule' && github.event.schedule) ||
+      ((github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.mode == 'autoheal')) && 'daily') ||
       github.run_id
     }}
   cancel-in-progress: false
@@ -108,87 +108,83 @@ env:
     If a section has no items, write "None" under the heading.
     Do not omit any heading.
 
-  MAINTENANCE_PROMPT: |
-    Perform daily repository maintenance for VBS (View By Stardate) and update
-    a SINGLE perpetual issue titled "Daily Maintenance Report" in this repository.
-
-    Read AGENTS.md for full project conventions before analyzing.
-
-    Finding the perpetual issue:
-    1. Search for an open issue titled "Daily Maintenance Report" (exact match).
-    2. If found, use that issue for all updates.
-    3. If not found, create a new issue with that exact title.
-    4. If the most recent matching issue is closed, reopen it instead of creating
-       a new one.
-
-    Perpetual issue hygiene: after selecting the single rolling issue,
-    search for any other open issues with the exact title "Daily Maintenance Report"
-    or "Daily Maintenance Report — YYYY-MM-DD" and close them with a brief
-    comment (e.g., "Consolidating into the perpetual maintenance issue.").
-    There must be exactly one open maintenance issue at all times.
-    (This duplicate-closing step is the sole exception to the "no individual
-    issue modifications" rule below.)
-
-    PREPEND a new dated section to the TOP of the issue body using
-    "## YYYY-MM-DD (UTC)". Newest update is always first.
-
-    To keep the issue bounded: after prepending today's section, replace any
-    individual daily sections older than 14 days with a single
-    "## Historical Summary" section that lists only the count of prior runs
-    and any items that remained unresolved across those runs. If a Historical
-    Summary already exists, update it in place — do not create a second one.
-
-    When the issue body approaches 50,000 characters, archive older updates by
-    removing all but the 30 most recent daily sections, and note the archival in a
-    line like: "_[Archived N older updates on YYYY-MM-DD]_"
-
-    Include links only (no full content duplication). Keep it concise and
-    actionable. Flag items that appear in the stale list for the first time
-    (not present in the previous dated section) with a ★ marker.
-
-    Sections (in order):
-    - Summary metrics (issues opened since last run, currently open PRs, stale
-      issues/PRs count, main branch check status, security alerts if accessible)
-    - Stale issues (no activity >30 days; recommend next step)
-    - Stale PRs (no activity >7 days; stale >14 days)
-    - Automation health (workflow runs over last 7 days: success/failure/
-      skipped counts per workflow; flag any workflow with >50% failure rate
-      or any workflow that has produced zero successful runs when it should have)
-    - Unassigned bugs (label bug, no assignee)
-    - Cross-project intelligence (check marcusrbrown/yield-farmer and
-      marcusrbrown/poly for similar maintenance items, security advisories,
-      or convention improvements that could benefit VBS; include only if
-      relevant findings exist)
-    - Recommended actions (bulleted checklist)
-    - Notes (use "data unavailable" for any inaccessible data source)
-
-    Do NOT comment on or modify individual issues/PRs (except for closing
-    duplicate maintenance issues per the perpetual issue hygiene exception
-    above). Do NOT apply labels. Do NOT open PRs. This run must update ONE
-    primary issue only (duplicate closures are permitted as the sole exception).
-
-  AUTOHEAL_PROMPT: |
-    Perform daily repository autohealing for VBS (View By Stardate) — a
-    local-first Star Trek chronological viewing guide built with TypeScript +
-    Vite + D3.js, using functional factory architecture with closure-based
+  SCHEDULE_PROMPT: |
+    Run the daily Fro Bot pass for marcusrbrown/vbs — VBS (View By Stardate),
+    a local-first Star Trek chronological viewing guide built with TypeScript
+    + Vite + D3.js, using functional factory architecture with closure-based
     state and generic EventEmitters. Deployed to GitHub Pages at /vbs/.
-    Read AGENTS.md for full project conventions before making changes.
+    Read AGENTS.md (and src/modules/AGENTS.md and src/components/AGENTS.md
+    when touching those directories) before making changes.
+
+    This single run does BOTH proactive oversight (detect and report) AND
+    reactive autohealing (fix what is safe). Prioritize minimal, reversible
+    changes. Every run must leave the project measurably better or report
+    precisely why it could not.
 
     EXECUTION MODEL
-    Analyze all categories independently, but perform write actions serially.
-    Do not keep multiple branches checked out at once. Complete one mutation,
+    Analyze every category, but perform write actions serially. Never keep
+    more than one branch checked out at a time — complete one mutation,
     return to a clean working tree, then continue.
+    Create every new fix branch from the latest default branch
+    (`git fetch origin main` then `git switch -c <branch> origin/main`),
+    never from whatever ref the run checked out.
+
+    CONTINUITY (read before acting)
+    1. Read the previous daily report: the most recent issue whose title
+       starts with "Daily Fro Bot Report —" (open or closed). If none
+       exists, read the newest "Daily Autohealing Report" and "Daily
+       Maintenance Report" issues instead.
+    2. Carry forward every unresolved item from its "Tasks for Agents"
+       and "Needs Human Attention" sections. Mark items new since the
+       previous report with ★ and items resolved since then with ✅.
+    3. If the same finding appears unresolved in 3 or more consecutive
+       reports, escalate it under "Needs Human Attention" with the count
+       of consecutive runs and a single recommended decision.
 
     DEDUPLICATION (applies to ALL categories)
-    Before creating any new PR or issue, search for an existing open
-    bot-authored PR/issue for the same root cause. Reuse or update the
-    existing item instead of creating a duplicate.
+    Before creating any PR or issue, list every open fro-bot PR and issue
+    (`gh pr list --author fro-bot --state open`, `gh issue list --author
+    fro-bot --state open`). Match on root cause AND on touched files. If an
+    open fro-bot PR already addresses the same root cause or edits the same
+    files for the same purpose, update that PR (push to its branch; merge
+    or rebase the default branch into it if it conflicts) instead of
+    opening a new one.
+    Name new fix branches `autoheal/<root-cause-slug>` with no date or run
+    suffix, so the same root cause always maps to the same branch. If that
+    branch already exists, reuse it.
+
+    REVIEW BACKLOG CAP
+    Marcus reviews every PR by hand. If 3 or more fro-bot PRs are open and
+    awaiting review after SELF-CLEANUP, do not open new non-security PRs.
+    Record each would-be fix under "Tasks for Agents" instead. Exempt:
+    repairs to existing fro-bot PRs, critical/high security remediation,
+    and fixes for a quality gate that fails on the default branch.
+
+    SELF-CLEANUP (own PRs only)
+    You may close a fro-bot-authored PR only when ALL of these hold:
+    every commit on it is authored by fro-bot, marcusrbrown has not
+    commented on or reviewed it, and one of the following is true:
+    a. Another open fro-bot PR addresses the same root cause (keep the
+       most complete mergeable one; close the rest).
+    b. The fix is already on the default branch, or the failure it
+       targets no longer reproduces on the default branch.
+    Leave a one-line closing comment linking the surviving PR or the
+    commit on main. Never close any other PR. Never delete branches.
+
+    DECLINED FIXES (learn from rejection)
+    Before proposing any fix, list fro-bot PRs closed without merge in the
+    last 90 days (`gh pr list --author fro-bot --state closed`) and read the
+    closing comment from marcusrbrown. Never re-propose a declined fix in
+    the same form. If the closing comment prescribes a different approach,
+    apply that approach instead. If a declined fix was redundant, verify
+    the problem still exists on main before acting on the same finding
+    again.
 
     SCOPE CAP
-    If the smallest safe fix is not clearly minimal and reversible (e.g.,
-    broad refactor, architecture change, or many-file edit), do not
-    auto-heal it. Open or update an issue and log it under "Needs Human
-    Attention".
+    Only auto-heal a fix that is clearly minimal and reversible. If the
+    smallest safe fix is a broad refactor, an architecture change, or a
+    many-file edit, do NOT auto-heal it — record it under "Tasks for
+    Agents" (see AGENT NOTES).
 
     DEPENDENCY OWNERSHIP
     Renovate owns routine dependency/version bumps (configured via
@@ -205,6 +201,8 @@ env:
     - dependabot[bot]
     - fro-bot
 
+    CATEGORIES (work in order)
+
     1. ERRORED PRs
        Find open PRs with failing CI checks. Skip dependency/security update
        PRs here; handle them only in category 2.
@@ -216,6 +214,7 @@ env:
        If the PR touches workflows, automation prompts, package-manager
        config, lockfiles, or execution scripts, do not run project commands
        from that branch. Skip it and log why.
+       Respect SCOPE CAP: a large in-flight migration PR is report-only.
        For each fixable PR:
        a. Check out the PR branch.
        b. Read the failing check logs to diagnose the root cause.
@@ -223,17 +222,20 @@ env:
           build breaks).
        d. Commit with a clear conventional-commit message and push to the
           PR branch.
-       e. Comment on the PR explaining what failed and what was fixed.
+       e. Comment on the PR: root cause, fix applied, remaining risk.
        f. Never modify .github/workflows/ or this prompt while repairing
           an errored PR. If the failing run appears caused by the Fro Bot
           workflow, skip the PR and log it under "Needs Human Attention".
 
     2. SECURITY
        Review Dependabot/Renovate alerts and open PRs for vulnerable deps.
+       - Before acting on any advisory, confirm the vulnerable version is
+         still resolved on main (`pnpm why <pkg>` or the lockfile). Skip
+         advisories main already resolves.
        - If a security update PR exists but has conflicts or failures,
          fix and push to that PR branch.
        - For unaddressed critical/high advisories with no existing PR,
-         create a new PR with the remediation.
+         create one dedicated remediation PR.
        - Do NOT bulk-update unrelated deps in a security PR.
        If security advisory/alert data is unavailable to the token or CLI,
        skip this category and note "security alerts unavailable" under
@@ -249,13 +251,8 @@ env:
          events, episode-tracker), open or update a single issue with
          failing metrics and top contributing files.
        - Scan for stale TODO/FIXME/HACK annotations older than 90 days
-         (use git blame). Collect them into a single issue or update an
-         existing "Stale TODOs" issue.
-       - Workflow health: check the last 7 days of runs for each workflow.
-         Flag any workflow where >50% of expected runs failed, or where
-         scheduled runs produced zero successful runs when they should have.
-         (Caught a 1.5-year silent outage in marcusrbrown/marcusrbrown in
-         May 2026; we want it caught fast in this repo too.)
+         (use git blame). Update the existing "Stale TODOs" issue rather
+         than creating another.
        - Verify VBS convention compliance:
          * No `any`, `@ts-ignore`, or `@ts-expect-error` in src/
          * No class-based patterns (functional factories with closures only)
@@ -270,7 +267,8 @@ env:
          Report findings but put actual code fixes into category 4.
        - Check that AGENTS.md files (root, src/modules/, src/components/)
          accurately reflect the current directory structure. If drift is
-         found, open a PR with corrections.
+         found, open a PR with corrections; never delete a row for a
+         directory that exists.
 
     4. DEVELOPER EXPERIENCE
        Ensure consistent linting, formatting, and static analysis.
@@ -293,7 +291,7 @@ env:
        For each failing gate:
        - Identify the root cause from command output.
        - If the fix is minimal and safe, include it in a category 4 PR.
-       - If the fix is complex, open an issue with diagnosis and
+       - If the fix is complex, open or update one issue with diagnosis and
          recommended approach.
 
     6. DATA QUALITY
@@ -312,83 +310,126 @@ env:
        For content corrections, open an issue referencing the data-curator
        agent (.github/agents/data-curator.agent.md).
 
-    7. CROSS-PROJECT INTELLIGENCE & SELF-IMPROVEMENT
-       Survey Marcus's other repos for patterns, tooling, and conventions
-       that could improve THIS repo. The goal is inbound intelligence —
-       what can we learn from the portfolio to make VBS better?
+    7. REPOSITORY OVERSIGHT (report-only)
+       Never comment on or modify individual issues/PRs in this category,
+       and never apply labels. Report:
+       - Summary metrics: issues opened since the last run, open PRs,
+         stale issue/PR counts, main branch check status.
+       - Stale issues: no activity >30 days; recommend one next step each.
+       - Stale PRs: no activity >7 days; mark stale >14 days.
+       - Duplicate open issues (same or near-identical titles or scope).
+       - Unassigned bugs: open issues labelled `bug` with no assignee.
+       - Workflow health: last 7 days of runs per workflow (success/
+         failure/skipped). Flag any workflow with >50% failures and any
+         workflow whose scheduled runs produced zero successes when they
+         should have. (A silent 1.5-year outage went unnoticed in
+         marcusrbrown/marcusrbrown; catch it fast here.)
 
-       Use `gh` CLI for all queries. Observation only — never modify
-       other repos.
+    8. WORKFLOW INTEGRITY (report-only)
+       Audit .github/workflows/*.yaml and .github/actions/**:
+       - SHA pinning: every third-party action is pinned to a full commit
+         SHA with a version comment (@<sha> # vX.Y.Z).
+       - Least privilege: workflows and jobs declare minimal permissions.
+       - Fork safety: flag any path that runs fork-controlled code with
+         secrets present.
+       - Gating traps: finalize jobs that depend on conditional jobs use
+         !cancelled(); no continue-on-error on local deterministic steps.
+       - `fro-bot/agent` pin vs latest release (Renovate owns the bump).
+       Open or update one issue for anything actionable. Never edit
+       workflows in a scheduled run.
 
-       Focus repos (check these every run):
-       - `marcusrbrown/yield-farmer` — Fro Bot prompt evolution, CI safety
-         practices, security advisories
-       - `marcusrbrown/poly` — Python/TypeScript shared patterns, CI
-         safety practices, convention improvements
-       - `marcusrbrown/tokentoilet` — single-issue autohealing patterns,
-         Fro Bot prompt evolution
-       - `marcusrbrown/marcusrbrown` — prompt hygiene strategies, upstream
-         modernization watch patterns
-       - `marcusrbrown/renovate-config` — dependency governance preset
-         evolution (VBS extends it)
-       - `fro-bot/agent` — Fro Bot/OpenCode runtime capabilities and
-         release notes
+    9. PROGRESSIVE IMPROVEMENT (report-only)
+       Track the project's forward trajectory:
+       - Open tracking work: test coverage gaps, convention-drift issues,
+         data-quality issues, and `techdebt:` / `todo:` issues. Report what
+         moved since the previous report and name the single next
+         unblocked step for each.
+       - Recurring findings escalated per CONTINUITY.
+       - Declined fixes honored per DECLINED FIXES.
+       - Patterns from category 10 worth adopting, ranked by payoff.
 
-       For each focus repo, check:
-       a. Fro Bot version: compare `fro-bot/agent@` SHA if present.
-       b. CI patterns: any workflow improvements worth adopting?
-       c. Renovate config: any preset evolution worth adopting?
-       d. Prompt evolution: any new categories, hygiene rules, or scope
-          caps in sibling autoheal/maintenance prompts worth porting?
+    10. CROSS-PROJECT INTELLIGENCE (INBOUND ONLY)
+        Survey Marcus's other repos for patterns, tooling, and conventions
+        that could improve THIS repo. Use `gh` CLI for all queries.
+        Observation only — never modify other repos.
 
-       If you identify a recurring pattern that could be prevented by
-       updating this workflow prompt or AGENTS.md, open a PR with the
-       proposed improvement. This ensures progressive improvement across
-       all projects.
+        Focus repos (the list should evolve — drop repos that consistently
+        have nothing actionable, add repos that become relevant, and say so
+        in the report):
+        - `marcusrbrown/gpt` — React/Vite/TypeScript patterns, Fro Bot
+          daily-pass prompt, CI safety practices
+        - `marcusrbrown/marcusrbrown.github.io` — Vite/TypeScript patterns,
+          workflow integrity, Fro Bot prompt evolution
+        - `marcusrbrown/panthea` — Fro Bot daily-pass prompt, agent notes,
+          docs/solutions learnings structure
+        - `marcusrbrown/mothership` — CI safety practices, rulesets,
+          progressive-improvement categories
+        - `marcusrbrown/tokentoilet` — CI safety practices, single-issue
+          reporting
+        - `marcusrbrown/renovate-config` — dependency governance preset
+          evolution (VBS extends it)
+        - `fro-bot/agent` — runtime capabilities, example workflows, and
+          release notes
 
-       Hard boundaries:
-       - NEVER modify other repositories. Observation only.
-       - NEVER open PRs, issues, or comments in other repositories.
-       - All findings go into the perpetual summary issue in THIS repo only.
+        For each focus repo, check:
+        a. Its `.github/workflows/fro-bot.yaml`: compare the `fro-bot/agent`
+           pin and the daily prompt strategy with ours; report any strategy
+           this repo lacks.
+        b. CI and tooling patterns we could adopt.
+        c. Renovate preset evolution.
+        d. New conventions worth evaluating.
+        Keep findings specific to this repo. Skip repos with nothing notable.
 
-    8. UPSTREAM MODERNIZATION WATCH (SUNDAYS UTC ONLY)
-       On Sundays UTC, review release notes for pinned upstreams:
-       - `fro-bot/agent` used by .github/workflows/fro-bot.yaml
-       - `actions/checkout`, `pnpm/action-setup`, and other actions
-         pinned across .github/workflows/
-       - Renovate config preset updates from `marcusrbrown/renovate-config`
+    11. UPSTREAM MODERNIZATION WATCH (SUNDAYS UTC ONLY)
+        Runs only on Sundays UTC: run `date -u +%u` first and continue only
+        if it prints 7. On other days skip this category and omit its
+        section and Run Summary row.
+        Review release notes for pinned upstreams:
+        - `fro-bot/agent`, `actions/checkout`, `pnpm/action-setup`, and
+          other actions pinned across .github/workflows/
+        - Vite, TypeScript, D3.js, Vitest — majors and breaking changes
+        - Renovate config preset updates from `marcusrbrown/renovate-config`
+        - OpenCode/Fro Bot runtime docs relevant to configured tools,
+          skills, agents, hooks, and durable session state
+        Identify hardening or observability features worth adopting. Do not
+        bump versions or modify workflows in this category.
 
-       Identify new hardening or observability features worth adopting.
-       Do not bump versions or modify workflows in this category. Document
-       findings in the perpetual issue.
+    AGENT NOTES (instead of per-agent follow-up tasks)
+    Do NOT create follow-up tasks addressed to a specific agent (no "for
+    Fro Bot", "for Copilot", or similar). Write every deferred item so any
+    LLM agent can pick it up cold:
+    - Context: issue/PR links and exact file paths (with line numbers when
+      known)
+    - Root cause, stated as a verified fact or labelled as a hypothesis
+    - Smallest safe fix
+    - Constraints and "do not retry" warnings (including declined
+      approaches)
+    - Verification: the exact commands and expected results
+    Collect all deferred, actionable work in one "Tasks for Agents"
+    section. Reserve "Needs Human Attention" for decisions only Marcus can
+    make.
 
-       Cadence: this category runs only when the IS_SUNDAY_UTC environment
-       variable is 'true' (Sunday UTC, as detected by the workflow's
-       preflight). Before doing any category 8 work, read this variable.
-       On other days, skip entirely and omit the corresponding section
-       from the daily summary.
-
-    Hard boundaries:
+    HARD BOUNDARIES
     - Never force-push, rewrite history, or delete branches.
-    - Never push directly to the default branch. Direct pushes are allowed
-      only to an existing non-default PR branch you are repairing under
-      category 1 or category 2.
-    - Never merge PRs, submit reviews/approvals, close/reopen PRs or
-      issues, or modify branch protection, EXCEPT for closing duplicate
-      "Daily Autohealing Report" issues as described in the perpetual issue
-      hygiene section below. This workflow may only push fixes, open/update
-      PRs, open/update issues, and comment on PRs when a fix was pushed.
+    - Never push directly to the default branch. Pushes are allowed only to
+      a new `autoheal/*` branch you create for a PR, or to an existing
+      non-default PR branch you are repairing under category 1 or
+      category 2.
+    - Never merge PRs, submit reviews/approvals, enable automerge, reopen
+      PRs, or modify branch protection. The only closures allowed are
+      older daily report issues (see OUTPUT) and fro-bot PRs that meet
+      SELF-CLEANUP.
     - Never modify secrets, org settings, environments, or branch
       protection.
     - Never make checks pass by disabling tests, deleting failing
-      assertions, lowering coverage budgets, weakening lint/type rules,
-      or editing workflows/configuration only to suppress failures.
-    - If the smallest safe fix would weaken a guardrail or reduce
-      validation, skip it and log it under "Needs Human Attention".
-    - Cross-project intelligence (category 7) MUST NOT modify other repos.
-    - Upstream modernization watch (category 8) MUST NOT bump pinned
-      versions (Renovate-owned) or modify upstream repositories.
-    - Do not create multiple summary issues.
+      assertions, lowering coverage budgets, weakening lint/type rules, or
+      editing configuration only to suppress failures. If the smallest safe
+      fix would weaken a guardrail, skip it and log it under "Tasks for
+      Agents".
+    - Never modify .github/workflows/ or automation prompt files in a
+      scheduled run. Report workflow findings under category 8.
+    - Categories 10 and 11 MUST NOT modify other repos or bump pinned
+      versions.
 
     Project conventions (MUST follow for code changes):
     - TypeScript strict mode: no `any`, no `@ts-ignore`, no `@ts-expect-error`
@@ -403,91 +444,62 @@ env:
     - Package manager: pnpm (not npm/yarn)
     - YAML extension: .yaml, not .yml
 
-    OUTPUT FORMAT — SINGLE PERPETUAL ISSUE
-    Manage a SINGLE perpetual issue titled "Daily Autohealing Report".
+    OUTPUT — ONE DATED DAILY REPORT ISSUE
+    Creating, updating, and closing the daily report issue is authorized in
+    this run. The branch-pr delivery mode covers only code fixes; never
+    commit the report to the repository or open a PR for it.
+    Maintain exactly one open daily report. Follow this order so the run
+    is idempotent even if it overlaps another run:
+    1. Search open issues whose exact title is
+       "Daily Fro Bot Report — YYYY-MM-DD (UTC)" for today's UTC date.
+    2. If one or more exist, pick the LOWEST issue number as canonical and
+       edit its body in place. If none exist, create it.
+    3. Close every OTHER open issue whose title starts with "Daily Fro Bot
+       Report —" (older dates and same-day duplicates), plus any open
+       legacy report issue — the perpetual "Daily Autohealing Report"
+       (#563), the perpetual "Daily Maintenance Report" (#429), and any
+       dated "Daily Autohealing Report — YYYY-MM-DD (UTC)" or "Daily
+       Maintenance Report — YYYY-MM-DD" issue — each with a one-line
+       closing comment linking the canonical report.
+    There must be exactly one open daily report when the run finishes.
+    Never close the canonical issue you just selected.
 
-    Finding the perpetual issue:
-    1. Search for an open issue titled "Daily Autohealing Report" (exact match).
-    2. If found, use that issue for all updates.
-    3. If not found, create a new issue with that exact title.
-    4. If the most recent matching issue is closed, reopen it instead of
-       creating a new one.
-
-    Perpetual issue hygiene: search for any other open issues with titles
-    matching "Daily Autohealing Report" or "Daily Autohealing Report — YYYY-MM-DD"
-    and close them, keeping only the most recently updated one. If the most
-    recent issue has a dated title, rename it to the perpetual title. There
-    must be exactly one open autohealing issue at all times.
-
-    Updating the issue:
-    PREPEND a new dated section to the TOP of the issue body. Newest
-    update is always first. If a section has no rows, do not emit an
-    empty table — write "None." directly under that heading.
-
-    ## Update — YYYY-MM-DD (UTC)
-
+    The issue body MUST use this structure. Write "None" for empty
+    sections, use links only (no full content duplication), and write
+    "data unavailable" for inaccessible sources. Never emit an empty table.
+    Omit the Upstream Modernization Watch row and section on non-Sundays.
+    ## Daily Fro Bot Report — YYYY-MM-DD (UTC)
+    Previous report: #N
+    ### Run Summary
+    | Category | Status | Notes |
+    | --- | --- | --- |
+    | Errored PRs | ✅/⚠️/❌ | ... |
+    | Security | ✅/⚠️/❌ | ... |
+    | Code Quality & Repo Hygiene | ✅/⚠️/❌ | ... |
+    | Developer Experience | ✅/⚠️/❌ | ... |
+    | Quality Gates | ✅/⚠️/❌ | ... |
+    | Data Quality | ✅/⚠️/❌ | ... |
+    | Repository Oversight | ✅/⚠️/❌ | ... |
+    | Workflow Integrity | ✅/⚠️/❌ | ... |
+    | Progressive Improvement | ✅/⚠️/❌ | ... |
+    | Cross-Project Intelligence | ✅/⚠️/❌ | ... |
+    | Upstream Modernization Watch | ✅/⚠️/❌ | ... |
+    ### Since Last Report
+    New (★), resolved (✅), and escalated items, plus PRs opened, updated,
+    or closed by this run.
     ### Errored PRs
-    | PR | Failure | Fix | Status |
-    | --- | --- | --- | --- |
-    | #N | [root cause] | [what was fixed] | ✅ Fixed / ⚠️ Needs review / ⏭️ Skipped |
-
     ### Security
-    | Advisory / PR | Severity | Action Taken |
-    | --- | --- | --- |
-    | [advisory or #N] | Critical/High/Medium | [fix pushed / PR created / skipped / unavailable] |
-
     ### Code Quality & Repo Hygiene
-    | Check | Result | Action |
-    | --- | --- | --- |
-    | Build (tsc + Vite) | ✅ Pass / ❌ Fail | [details or #N] |
-    | Test coverage | ✅ Healthy / ⚠️ Regressed | [details or #N] |
-    | Stale TODOs | N found | [#N or None] |
-    | Convention drift | ✅ Clean / ⚠️ Issues | [details or #N] |
-    | Workflow health | ✅ Healthy / ⚠️ Degraded | [workflow names with stats] |
-    | AGENTS.md accuracy | ✅ Current / ⚠️ Drifted | [#N or None] |
-
     ### Developer Experience
-    - [list of each PR or commit-sized fix with summary link]
-
     ### Quality Gates
-    | Gate | Status | Details |
-    | --- | --- | --- |
-    | Lint | ✅ / ❌ | [error count or clean] |
-    | Type check (tsc) | ✅ / ❌ | [error count or clean] |
-    | Tests | ✅ / ❌ | [pass/fail count] |
-    | Build | ✅ / ❌ | [details] |
-    | Data validation | ✅ / ❌ | [details] |
-
     ### Data Quality
-    | Check | Result | Action |
-    | --- | --- | --- |
-    | Validation script | ✅ Pass / ❌ Fail | [details or #N] |
-    | Duplicate IDs | ✅ None / ❌ Found | [details or #N] |
-    | ID pattern compliance | ✅ Valid / ⚠️ Issues | [details or #N] |
-    | Chronological order | ✅ Correct / ⚠️ Issues | [details or #N] |
-
+    ### Repository Oversight
+    ### Workflow Integrity
+    ### Progressive Improvement
     ### Cross-Project Intelligence
-    | Repo | Finding | Actionable for VBS? | Priority |
-    | --- | --- | --- | --- |
-    | [repo] | [what they do that we don't] | [specific action or monitor] | High/Med/Low |
-
     ### Upstream Modernization Watch
-    [Sunday-only section. On Sundays UTC, include findings or write "Scan
-    clean" if no actionable items. On other days, omit this entire section.]
-
+    ### Tasks for Agents
     ### Needs Human Attention
-    - [items that could not be auto-fixed, with context]
-
-    Rules for the perpetual issue:
-    - DO NOT create new daily issues. Always update the perpetual issue.
-    - DO NOT close the perpetual issue.
-    - ALWAYS prepend new updates to existing content (newest at top).
-    - When the issue body approaches 50,000 characters, archive older
-      updates by removing all but the 30 most recent daily sections, and
-      note the archival in a line like:
-      "_[Archived N older updates on YYYY-MM-DD]_"
-    - DO NOT comment on individual issues or PRs unless category 1 fixed
-      a failing PR (then ONLY post the fix-summary comment on that PR).
 
 jobs:
   fro-bot:
@@ -545,15 +557,6 @@ jobs:
             exit 1
           fi
 
-      - name: Detect Sunday UTC for category 8 cadence
-        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
-        run: |
-          if [ "$(date -u +%u)" = "7" ]; then
-            echo "IS_SUNDAY_UTC=true" >> "$GITHUB_ENV"
-          else
-            echo "IS_SUNDAY_UTC=false" >> "$GITHUB_ENV"
-          fi
-
       - name: Validate review mode inputs
         if: github.event_name == 'workflow_dispatch' && inputs.mode == 'review'
         env:
@@ -587,15 +590,11 @@ jobs:
         uses: fro-bot/agent@335e4f8a9c74f7fe7a40565d23acfbf321dc983e # v0.105.0
         env:
           OPENCODE_PROMPT_ARTIFACT: 'true'
-          IS_SUNDAY_UTC: ${{ env.IS_SUNDAY_UTC || 'false' }}
           PROMPT: >-
             ${{
               (github.event_name == 'workflow_dispatch' && inputs.prompt)
-              || (github.event_name == 'workflow_dispatch' && inputs.mode == 'maintenance' && env.MAINTENANCE_PROMPT)
-              || (github.event_name == 'workflow_dispatch' && inputs.mode == 'autoheal' && env.AUTOHEAL_PROMPT)
-              || (github.event_name == 'workflow_dispatch' && !inputs.mode && env.AUTOHEAL_PROMPT)
-              || (github.event_name == 'schedule' && github.event.schedule == '30 15 * * *' && env.MAINTENANCE_PROMPT)
-              || (github.event_name == 'schedule' && github.event.schedule == '30 3 * * *' && env.AUTOHEAL_PROMPT)
+              || (github.event_name == 'workflow_dispatch' && inputs.mode == 'autoheal' && env.SCHEDULE_PROMPT)
+              || (github.event_name == 'schedule' && env.SCHEDULE_PROMPT)
               || (github.event_name == 'pull_request' && env.PR_REVIEW_PROMPT)
               || ''
             }}
@@ -603,6 +602,14 @@ jobs:
           auth-json: ${{ secrets.OPENCODE_AUTH_JSON }}
           github-token: ${{ secrets.FRO_BOT_PAT }}
           model: ${{ vars.FRO_BOT_MODEL }}
+          # The daily pass must deliver fixes as PRs; under `working-dir` the
+          # agent cannot push or open PRs, so its edits would be discarded.
+          output-mode: >-
+            ${{
+              (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.mode == 'autoheal'))
+              && 'branch-pr'
+              || 'working-dir'
+            }}
           opencode-config: ${{ secrets.OPENCODE_CONFIG }}
           prompt: ${{ env.PROMPT }}
           timeout: 0
