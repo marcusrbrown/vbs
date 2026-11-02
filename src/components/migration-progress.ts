@@ -1,4 +1,5 @@
 import type {EventMap} from '../modules/types.js'
+import {withSyncErrorHandling} from '../modules/error-handler.js'
 import {createEventEmitter, type EventEmitterInstance} from '../modules/events.js'
 
 interface MigrationProgressEvents extends EventMap {
@@ -15,6 +16,7 @@ export interface MigrationProgressInstance {
   showError: (message: string) => void
   showSuccess: (message: string) => void
   cancel: () => void
+  destroy: () => void
   on: EventEmitterInstance<MigrationProgressEvents>['on']
   off: EventEmitterInstance<MigrationProgressEvents>['off']
   once: EventEmitterInstance<MigrationProgressEvents>['once']
@@ -33,6 +35,9 @@ export const createMigrationProgress = (): MigrationProgressInstance => {
   let cancelButton: HTMLElement | null = null
   let isVisible = false
   let isCancellable = true
+  let isDestroyed = false
+  let styleElement: HTMLStyleElement | null = null
+  let autoHideTimer: ReturnType<typeof setTimeout> | null = null
 
   /**
    * Create the migration progress modal DOM structure.
@@ -265,6 +270,7 @@ export const createMigrationProgress = (): MigrationProgressInstance => {
       }
     `
 
+    styleElement = style
     document.head.append(style)
     document.body.append(modal)
 
@@ -347,7 +353,7 @@ export const createMigrationProgress = (): MigrationProgressInstance => {
    * Show the migration progress modal.
    */
   const show = (): void => {
-    if (isVisible) return
+    if (isVisible || isDestroyed) return
 
     initializeElements()
 
@@ -440,7 +446,9 @@ export const createMigrationProgress = (): MigrationProgressInstance => {
     }
 
     // Auto-hide after 3 seconds
-    setTimeout(() => {
+    if (autoHideTimer !== null) clearTimeout(autoHideTimer)
+    autoHideTimer = setTimeout(() => {
+      autoHideTimer = null
       hide()
     }, 3000)
   }
@@ -452,6 +460,32 @@ export const createMigrationProgress = (): MigrationProgressInstance => {
     handleCancel()
   }
 
+  /**
+   * Tear down the component: clear timers, remove listeners, DOM nodes and event subscriptions.
+   */
+  const destroy = withSyncErrorHandling((): void => {
+    if (isDestroyed) return
+    isDestroyed = true
+
+    if (autoHideTimer !== null) {
+      clearTimeout(autoHideTimer)
+      autoHideTimer = null
+    }
+
+    cancelButton?.removeEventListener('click', handleCancel)
+    progressModal?.remove()
+    styleElement?.remove()
+
+    progressModal = null
+    progressBar = null
+    progressText = null
+    cancelButton = null
+    styleElement = null
+    isVisible = false
+
+    eventEmitter.removeAllListeners()
+  }, 'migration-progress:destroy')
+
   return {
     show,
     hide,
@@ -459,6 +493,9 @@ export const createMigrationProgress = (): MigrationProgressInstance => {
     showError,
     showSuccess,
     cancel,
+    destroy: () => {
+      destroy()
+    },
     on: eventEmitter.on.bind(eventEmitter),
     off: eventEmitter.off.bind(eventEmitter),
     once: eventEmitter.once.bind(eventEmitter),

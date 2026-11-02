@@ -21,7 +21,7 @@ vbs/
 │   ├── generate-star-trek-data.ts  # Multi-source data generation CLI
 │   ├── validate-episode-data.ts    # Data quality validation CLI
 │   └── lib/                        # Shared CLI utilities
-├── test/                       # Flat Vitest suite (57 files), mirrors src/ structure
+├── test/                       # Flat Vitest suite (58 files), mirrors src/ structure
 ├── docs/                       # ADRs, architecture guides, API docs
 └── .github/
     ├── workflows/deploy.yaml   # Build + deploy to GitHub Pages

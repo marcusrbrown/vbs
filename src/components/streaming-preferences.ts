@@ -1,4 +1,5 @@
 import type {StreamingApiInstance, StreamingPreferences} from '../modules/types.js'
+import {withSyncErrorHandling} from '../modules/error-handler.js'
 
 /**
  * Configuration for streaming service preferences UI component
@@ -13,11 +14,41 @@ export interface StreamingPreferencesConfig {
 }
 
 /**
+ * Handle returned by the streaming preferences UI factory
+ */
+export interface StreamingPreferencesInstance {
+  /** Remove listeners, cancel pending timers and clear the container */
+  destroy: () => void
+}
+
+/**
  * Streaming service preferences UI component factory
  * Creates a comprehensive settings interface for user streaming preferences
  */
-export const createStreamingPreferencesUI = (config: StreamingPreferencesConfig): void => {
+export const createStreamingPreferencesUI = (
+  config: StreamingPreferencesConfig,
+): StreamingPreferencesInstance => {
   const {container, streamingApi, onPreferencesChange} = config
+
+  // Cleanup state shared by every render pass
+  const listenerCleanups: (() => void)[] = []
+  let saveTimeout: number | undefined
+  let isDestroyed = false
+
+  const runListenerCleanups = (): void => {
+    while (listenerCleanups.length > 0) {
+      listenerCleanups.pop()?.()
+    }
+  }
+
+  const addTrackedListener = (
+    target: EventTarget,
+    type: string,
+    listener: EventListenerOrEventListenerObject,
+  ): void => {
+    target.addEventListener(type, listener)
+    listenerCleanups.push(() => target.removeEventListener(type, listener))
+  }
 
   // Get current preferences
   let currentPreferences = streamingApi.getPreferences()
@@ -411,27 +442,31 @@ export const createStreamingPreferencesUI = (config: StreamingPreferencesConfig)
    * Attach event listeners to form elements
    */
   const attachEventListeners = (): void => {
+    // Drop listeners from any previous render pass before re-attaching
+    runListenerCleanups()
+
     const form = container.querySelector('.streaming-preferences-form') as HTMLFormElement
 
     // Save button
     const saveButton = form.querySelector('[data-save-preferences]') as HTMLButtonElement
-    saveButton.addEventListener('click', savePreferences)
+    addTrackedListener(saveButton, 'click', savePreferences)
 
     // Reset button
     const resetButton = form.querySelector('[data-reset-preferences]') as HTMLButtonElement
-    resetButton.addEventListener('click', resetPreferences)
+    addTrackedListener(resetButton, 'click', resetPreferences)
 
     // Export button
     const exportButton = form.querySelector('[data-export-preferences]') as HTMLButtonElement
-    exportButton.addEventListener('click', exportPreferences)
+    addTrackedListener(exportButton, 'click', exportPreferences)
 
     // Auto-save on input changes (debounced)
-    let saveTimeout: number | undefined
     const debouncedSave = (): void => {
       if (saveTimeout) {
         clearTimeout(saveTimeout)
       }
       saveTimeout = window.setTimeout(() => {
+        saveTimeout = undefined
+        if (isDestroyed) return
         const newPreferences = collectPreferences()
         streamingApi.setPreferences(newPreferences)
         currentPreferences = newPreferences
@@ -445,12 +480,35 @@ export const createStreamingPreferencesUI = (config: StreamingPreferencesConfig)
     // Add change listeners to all form inputs
     const allInputs = form.querySelectorAll('input, select')
     allInputs.forEach(input => {
-      input.addEventListener('change', debouncedSave)
+      addTrackedListener(input, 'change', debouncedSave)
     })
+  }
+
+  /**
+   * Tear down the component: cancel pending save, remove listeners, clear the container
+   */
+  const destroy = (): void => {
+    if (isDestroyed) return
+    isDestroyed = true
+
+    if (saveTimeout) {
+      clearTimeout(saveTimeout)
+      saveTimeout = undefined
+    }
+    runListenerCleanups()
+    container.innerHTML = ''
   }
 
   // Initial render
   renderPreferencesUI()
+
+  const safeDestroy = withSyncErrorHandling(destroy, 'streaming-preferences:destroy')
+
+  return {
+    destroy: () => {
+      safeDestroy()
+    },
+  }
 }
 
 /**
@@ -474,8 +532,19 @@ export const createStreamingPreferencesModal = (streamingApi: StreamingApiInstan
   const contentContainer = modal.querySelector('.modal-content') as HTMLElement
   const closeButton = modal.querySelector('.modal-close') as HTMLButtonElement
 
-  // Close modal handlers
+  // Close modal handlers (declared first so every close path shares the same teardown)
+  let preferencesUI: StreamingPreferencesInstance | null = null
+
+  const handleEscape = (event: KeyboardEvent): void => {
+    if (event.key === 'Escape') {
+      closeModal()
+    }
+  }
+
   const closeModal = (): void => {
+    document.removeEventListener('keydown', handleEscape)
+    preferencesUI?.destroy()
+    preferencesUI = null
     modal.remove()
   }
 
@@ -486,17 +555,10 @@ export const createStreamingPreferencesModal = (streamingApi: StreamingApiInstan
     }
   })
 
-  // Escape key handler
-  const handleEscape = (event: KeyboardEvent): void => {
-    if (event.key === 'Escape') {
-      closeModal()
-      document.removeEventListener('keydown', handleEscape)
-    }
-  }
   document.addEventListener('keydown', handleEscape)
 
   // Create preferences UI in modal
-  createStreamingPreferencesUI({
+  preferencesUI = createStreamingPreferencesUI({
     container: contentContainer,
     streamingApi,
     onPreferencesChange: preferences => {

@@ -219,6 +219,51 @@ describe('MigrationProgress', () => {
     expect(mockListener).not.toHaveBeenCalled()
   })
 
+  it('should expose destroy() that is idempotent and removes event subscriptions', () => {
+    expect(typeof migrationProgress.destroy).toBe('function')
+
+    const mockListener = vi.fn()
+    migrationProgress.on('migration-progress', mockListener)
+
+    migrationProgress.destroy()
+    expect(() => migrationProgress.destroy()).not.toThrow()
+
+    migrationProgress.updateProgress('backup', 10)
+    expect(mockListener).not.toHaveBeenCalled()
+  })
+
+  it('should cancel the pending auto-hide timer and DOM nodes on destroy()', () => {
+    vi.useFakeTimers()
+
+    const mockModal = {
+      className: '',
+      innerHTML: '',
+      remove: vi.fn(),
+      setAttribute: vi.fn(),
+      querySelector: vi.fn(),
+      querySelectorAll: vi.fn(() => []),
+      classList: {add: vi.fn(), remove: vi.fn()},
+      addEventListener: vi.fn(),
+      style: {},
+    }
+    const mockStyle = {textContent: '', remove: vi.fn()}
+    ;(document.createElement as ReturnType<typeof vi.fn>)
+      .mockReturnValueOnce(mockModal)
+      .mockReturnValueOnce(mockStyle)
+
+    migrationProgress.show()
+    migrationProgress.showSuccess('All done!')
+    migrationProgress.destroy()
+
+    expect(mockModal.remove).toHaveBeenCalledTimes(1)
+    expect(mockStyle.remove).toHaveBeenCalledTimes(1)
+
+    vi.advanceTimersByTime(3000)
+    expect(mockModal.classList.remove).not.toHaveBeenCalledWith('visible')
+
+    vi.useRealTimers()
+  })
+
   it('should auto-hide after successful completion', () => {
     vi.useFakeTimers()
 
