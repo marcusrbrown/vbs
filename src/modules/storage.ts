@@ -516,9 +516,9 @@ export const isProgressExportData = (data: unknown): data is ProgressExportData 
     'version' in data &&
     'timestamp' in data &&
     'progress' in data &&
-    typeof (data as any).version === 'string' &&
-    typeof (data as any).timestamp === 'string' &&
-    isStringArray((data as any).progress)
+    typeof data.version === 'string' &&
+    typeof data.timestamp === 'string' &&
+    isStringArray(data.progress)
   )
 }
 
@@ -533,10 +533,10 @@ export const isEnhancedProgressData = (data: unknown): data is EnhancedProgressD
     'timestamp' in data &&
     'seasonProgress' in data &&
     'episodeProgress' in data &&
-    (data as any).version === '2.0' &&
-    typeof (data as any).timestamp === 'string' &&
-    isStringArray((data as any).seasonProgress) &&
-    isStringArray((data as any).episodeProgress)
+    data.version === '2.0' &&
+    typeof data.timestamp === 'string' &&
+    isStringArray(data.seasonProgress) &&
+    isStringArray(data.episodeProgress)
   )
 }
 
@@ -550,9 +550,9 @@ export const isStorageVersionInfo = (data: unknown): data is StorageVersionInfo 
     'currentVersion' in data &&
     'lastUpdated' in data &&
     'migrationHistory' in data &&
-    typeof (data as any).currentVersion === 'string' &&
-    typeof (data as any).lastUpdated === 'string' &&
-    Array.isArray((data as any).migrationHistory)
+    typeof data.currentVersion === 'string' &&
+    typeof data.lastUpdated === 'string' &&
+    Array.isArray(data.migrationHistory)
   )
 }
 
