@@ -62,13 +62,14 @@ export interface EventEmitterInstance<TEventMap extends EventMap> {
 export const createEventEmitter = <
   TEventMap extends EventMap,
 >(): EventEmitterInstance<TEventMap> => {
-  // Private state managed via closure variables - using any for internal storage to avoid complex generic constraints
-  const listeners = new Map<keyof TEventMap, Set<EventListener<any>>>()
+  // Private state managed via closure variables - listeners are stored as EventListener<unknown> since the
+  // per-event payload type is enforced at the public API boundary
+  const listeners = new Map<keyof TEventMap, Set<EventListener>>()
 
   // Helper function to ensure listener set exists for event
   const ensureListenerSet = <TEventName extends keyof TEventMap>(
     eventName: TEventName,
-  ): Set<EventListener<any>> => {
+  ): Set<EventListener> => {
     if (!listeners.has(eventName)) {
       listeners.set(eventName, new Set())
     }
@@ -86,7 +87,7 @@ export const createEventEmitter = <
       listener: EventListener<TEventMap[TEventName]>,
     ): void => {
       const listenerSet = ensureListenerSet(eventName)
-      listenerSet.add(listener as EventListener<any>)
+      listenerSet.add(listener as EventListener)
     },
 
     off: <TEventName extends keyof TEventMap>(
@@ -95,7 +96,7 @@ export const createEventEmitter = <
     ): void => {
       const listenerSet = listeners.get(eventName)
       if (listenerSet) {
-        listenerSet.delete(listener as EventListener<any>)
+        listenerSet.delete(listener as EventListener)
         // Clean up empty sets
         if (listenerSet.size === 0) {
           listeners.delete(eventName)
@@ -130,7 +131,7 @@ export const createEventEmitter = <
         // Remove the wrapper before calling the original listener
         const listenerSet = listeners.get(eventName)
         if (listenerSet) {
-          listenerSet.delete(onceWrapper as EventListener<any>)
+          listenerSet.delete(onceWrapper as EventListener)
           if (listenerSet.size === 0) {
             listeners.delete(eventName)
           }
@@ -139,7 +140,7 @@ export const createEventEmitter = <
       }
 
       const listenerSet = ensureListenerSet(eventName)
-      listenerSet.add(onceWrapper as EventListener<any>)
+      listenerSet.add(onceWrapper as EventListener)
     },
 
     removeAllListeners: <TEventName extends keyof TEventMap>(eventName?: TEventName): void => {
