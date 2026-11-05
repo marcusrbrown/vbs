@@ -3,6 +3,18 @@
  * Provides cross-browser compatible methods for downloading Blob data as files.
  */
 
+interface SaveFilePickerWindow {
+  showSaveFilePicker: (options: {
+    suggestedName: string
+    types?: {description: string; accept: Record<string, string[]>}[] | undefined
+  }) => Promise<{
+    createWritable: () => Promise<{
+      write: (data: Blob) => Promise<void>
+      close: () => Promise<void>
+    }>
+  }>
+}
+
 /**
  * Downloads a Blob as a file with the specified filename.
  * Uses the modern File System Access API if available, falls back to download links.
@@ -25,7 +37,7 @@ export const downloadBlob = async (
   // Use File System Access API if available (modern browsers)
   if ('showSaveFilePicker' in window) {
     try {
-      const fileHandle = await (window as any).showSaveFilePicker({
+      const fileHandle = await (window as unknown as SaveFilePickerWindow).showSaveFilePicker({
         suggestedName: filename,
         types: mimeType
           ? [
