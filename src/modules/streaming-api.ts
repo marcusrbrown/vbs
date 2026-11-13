@@ -1,3 +1,4 @@
+import type {WatchmodeSource} from './external-api-types.js'
 import type {
   RateLimitConfig,
   StreamingApiConfig,
@@ -7,6 +8,7 @@ import type {
   StreamingAvailability,
   StreamingCache,
   StreamingPreferences,
+  SupportedRegion,
 } from './types.js'
 import {filterAvailabilityByRegion, sanitizeLocationPreferences} from '../utils/geographic.js'
 import {withErrorHandling, withSyncErrorHandling} from './error-handler.js'
@@ -348,7 +350,7 @@ export const createStreamingApi = (): StreamingApiInstance => {
   /**
    * Transform Watchmode API response to VBS StreamingAvailability format
    */
-  const transformAvailabilityData = (watchmodeData: any[]): StreamingAvailability[] => {
+  const transformAvailabilityData = (watchmodeData: WatchmodeSource[]): StreamingAvailability[] => {
     if (!Array.isArray(watchmodeData)) return []
 
     return watchmodeData.map((item): StreamingAvailability => ({
@@ -367,7 +369,7 @@ export const createStreamingApi = (): StreamingApiInstance => {
       ...(item.price
         ? {
             price: {
-              amount: Number.parseFloat(item.price),
+              amount: Number.parseFloat(String(item.price)),
               currency: item.currency || 'USD',
             },
           }
@@ -486,7 +488,7 @@ export const createStreamingApi = (): StreamingApiInstance => {
           break
         }
 
-        const response = await makeApiRequest<any[]>(`/title/${contentId}/sources`)
+        const response = await makeApiRequest<WatchmodeSource[]>(`/title/${contentId}/sources`)
         if (response.success && response.data) {
           const availability = transformAvailabilityData(response.data)
           await cacheAvailabilityData(contentId, availability)
@@ -604,7 +606,7 @@ export const createStreamingApi = (): StreamingApiInstance => {
       }
 
       // Make API request for fresh data
-      const response = await makeApiRequest<any[]>(`/title/${contentId}/sources`)
+      const response = await makeApiRequest<WatchmodeSource[]>(`/title/${contentId}/sources`)
 
       if (!response.success || !response.data) {
         throw new Error('Failed to fetch streaming availability')
@@ -735,7 +737,9 @@ export const createStreamingApi = (): StreamingApiInstance => {
             while (retryCount <= maxRetries) {
               try {
                 // Use direct API call to avoid recursive cache checks
-                const response = await makeApiRequest<any[]>(`/title/${contentId}/sources`)
+                const response = await makeApiRequest<WatchmodeSource[]>(
+                  `/title/${contentId}/sources`,
+                )
 
                 if (!response.success || !response.data) {
                   throw new Error(`API request failed: ${response.status || 'Unknown error'}`)
@@ -900,11 +904,11 @@ export const createStreamingApi = (): StreamingApiInstance => {
       // Get unfiltered availability from cache or API
       const cached = await getCachedAvailability(contentId)
       if (cached) {
-        return filterAvailabilityByRegion(cached, region as any)
+        return filterAvailabilityByRegion(cached, region as SupportedRegion)
       }
 
       // If not cached, get fresh data but don't apply current region filter
-      const response = await makeApiRequest<any[]>(`/title/${contentId}/sources`)
+      const response = await makeApiRequest<WatchmodeSource[]>(`/title/${contentId}/sources`)
 
       if (!response.success || !response.data) {
         throw new Error('Failed to fetch streaming availability')
@@ -913,7 +917,7 @@ export const createStreamingApi = (): StreamingApiInstance => {
       const availability = transformAvailabilityData(response.data)
       await cacheAvailabilityData(contentId, availability)
 
-      return filterAvailabilityByRegion(availability, region as any)
+      return filterAvailabilityByRegion(availability, region as SupportedRegion)
     },
 
     /**
@@ -1076,7 +1080,7 @@ export const createStreamingApi = (): StreamingApiInstance => {
           ...currentPreferences,
           location: {
             ...currentPreferences.location,
-            region: region as any,
+            region: region as SupportedRegion,
           },
         }
 
