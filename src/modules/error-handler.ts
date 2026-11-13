@@ -123,7 +123,7 @@ export const getGlobalErrorHandler = (): ErrorHandler => {
 /**
  * Utility function to wrap async operations with error handling
  */
-export const withErrorHandling = <T extends any[], R>(
+export const withErrorHandling = <T extends unknown[], R>(
   fn: (...args: T) => Promise<R>,
   context: string,
   errorHandler = getGlobalErrorHandler(),
@@ -141,7 +141,7 @@ export const withErrorHandling = <T extends any[], R>(
 /**
  * Utility function to wrap synchronous operations with error handling
  */
-export const withSyncErrorHandling = <T extends any[], R>(
+export const withSyncErrorHandling = <T extends unknown[], R>(
   fn: (...args: T) => R,
   context: string,
   errorHandler = getGlobalErrorHandler(),
