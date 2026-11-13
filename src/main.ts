@@ -91,6 +91,12 @@ const registerServiceWorker = async (): Promise<void> => {
   }
 }
 
+interface SyncCapability {
+  isAvailable: boolean
+  reason?: string
+  fallbackStrategy?: string
+}
+
 /**
  * Detect Background Sync API support and notify application about capability.
  * Provides graceful degradation when Background Sync is unavailable (TASK-030).
@@ -102,7 +108,7 @@ const detectBackgroundSyncSupport = async (
     // Request sync capability from Service Worker
     const messageChannel = new MessageChannel()
 
-    const capabilityPromise = new Promise<any>(resolve => {
+    const capabilityPromise = new Promise<SyncCapability>(resolve => {
       messageChannel.port1.addEventListener('message', event => {
         if (event.data.type === 'SYNC_CAPABILITY') {
           resolve(event.data.data)
@@ -122,7 +128,7 @@ const detectBackgroundSyncSupport = async (
     // Wait for response with timeout
     const capability = await Promise.race([
       capabilityPromise,
-      new Promise(resolve =>
+      new Promise<SyncCapability>(resolve =>
         setTimeout(
           () =>
             resolve({
