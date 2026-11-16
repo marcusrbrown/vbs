@@ -6,6 +6,29 @@
  */
 
 // ============================================================================
+// WATCHMODE API TYPES
+// ============================================================================
+
+/**
+ * Watchmode `/title/{id}/sources` response item.
+ * All fields are optional because the API omits fields depending on the source type.
+ * @see https://api.watchmode.com/docs/#title-sources
+ */
+export interface WatchmodeSource {
+  content_id?: string
+  content_type?: string
+  source_id?: string
+  name?: string
+  logo_100px?: string
+  web_url?: string
+  type?: 'subscription' | 'rent' | 'buy' | 'free'
+  price?: string | number
+  currency?: string
+  format?: string[]
+  regions?: string[]
+}
+
+// ============================================================================
 // TMDB (The Movie Database) API TYPES
 // ============================================================================
 
