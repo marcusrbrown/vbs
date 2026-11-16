@@ -24,20 +24,37 @@ interface MetadataSchedulerEvents {
   'schedule-update': {config: SchedulingConfig}
 }
 
+interface NetworkInformationLike {
+  type?: string
+  effectiveType?: NetworkCondition['effectiveType']
+  saveData?: boolean
+  downlink?: number
+  rtt?: number
+  addEventListener: (type: 'change', listener: () => void) => void
+  removeEventListener: (type: 'change', listener: () => void) => void
+}
+
+const getNetworkConnection = (): NetworkInformationLike | null => {
+  const connection: unknown = (navigator as {connection?: unknown}).connection
+  return typeof connection === 'object' && connection !== null
+    ? (connection as NetworkInformationLike)
+    : null
+}
+
 /**
  * Detect device and network conditions for intelligent scheduling.
  */
 const detectConditions = (): DeviceCondition & NetworkCondition => {
   try {
-    const connection = 'connection' in navigator ? (navigator as any).connection : null
+    const connection = getNetworkConnection()
 
     return {
       // NetworkCondition properties
       type: connection?.type === 'wifi' ? 'wifi' : 'unknown',
       effectiveType: connection?.effectiveType || '4g',
       isMetered: connection?.saveData || false,
-      downlink: connection?.downlink,
-      rtt: connection?.rtt,
+      ...(connection?.downlink === undefined ? {} : {downlink: connection.downlink}),
+      ...(connection?.rtt === undefined ? {} : {rtt: connection.rtt}),
 
       // DeviceCondition properties
       isCharging: true, // Simplified for now - will be updated with real battery API
@@ -315,9 +332,7 @@ export const createMetadataScheduler = (
       monitoringInterval = window.setInterval(updateConditions, 30000)
 
       // Also listen for network and battery events if available
-      if ('connection' in navigator) {
-        ;(navigator as any).connection?.addEventListener('change', updateConditions)
-      }
+      getNetworkConnection()?.addEventListener('change', updateConditions)
     },
 
     stopMonitoring: () => {
@@ -327,9 +342,7 @@ export const createMetadataScheduler = (
       }
 
       // Remove event listeners
-      if ('connection' in navigator) {
-        ;(navigator as any).connection?.removeEventListener('change', updateConditions)
-      }
+      getNetworkConnection()?.removeEventListener('change', updateConditions)
     },
 
     destroy: () => {

@@ -747,22 +747,22 @@ export const createTimelineVisualization = <TContainer extends HTMLElement>(
       .ticks(10)
 
     chartGroup
-      .selectAll('.x-axis')
+      .selectAll<SVGGElement, null>('.x-axis')
       .data([null])
       .join('g')
       .attr('class', 'x-axis')
       .attr('transform', `translate(0, ${chartHeight})`)
-      .call(xAxis as any)
+      .call(xAxis)
 
     // Y-axis (tracks) - show track labels
     const yAxis = d3.axisLeft(yScale).tickValues([])
 
     chartGroup
-      .selectAll('.y-axis')
+      .selectAll<SVGGElement, null>('.y-axis')
       .data([null])
       .join('g')
       .attr('class', 'y-axis')
-      .call(yAxis as any)
+      .call(yAxis)
 
     // Track labels on the left side
     const trackLabels = chartGroup
