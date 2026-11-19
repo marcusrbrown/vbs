@@ -429,16 +429,19 @@ export const createMetadataJob = (
   type: MetadataQueueJob['type'],
   episodeId: string,
   priority = 1,
-  options: Record<string, any> = {},
+  options: Record<string, unknown> = {},
 ): Omit<
   MetadataQueueJob,
   'id' | 'createdAt' | 'updatedAt' | 'status' | 'retryCount' | 'maxRetries' | 'scheduledAt'
 > => {
+  const {targetSources} = options
   return {
     episodeId,
     priority,
     type,
-    targetSources: options.targetSources,
+    ...(Array.isArray(targetSources) && targetSources.every(source => typeof source === 'string')
+      ? {targetSources: targetSources as string[]}
+      : {}),
     metadata: options,
   }
 }
