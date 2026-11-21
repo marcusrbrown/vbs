@@ -2415,7 +2415,7 @@ export interface TimelineControlsEvents extends EventMap {
   /** Fired when filters are reset to defaults */
   'filters-reset': {config: TimelineConfig}
   /** Fired when filter configuration is exported */
-  'config-export': {config: TimelineConfig; exportData: any}
+  'config-export': {config: TimelineConfig; exportData: unknown}
   /** Fired when filter configuration is imported */
   'config-import': {config: Partial<TimelineConfig>}
   /** Fired when controls rendering is complete */
@@ -2619,7 +2619,7 @@ export interface MetadataOperationLog {
   /** Error message if failed */
   error?: string
   /** Additional details */
-  details?: Record<string, any>
+  details?: Record<string, unknown>
 }
 
 /**
@@ -3847,7 +3847,7 @@ export interface MetadataQueueJob {
   /** Specific metadata sources to use for this job */
   targetSources?: string[]
   /** Additional job metadata */
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
   /** Error information if job failed */
   error?: {
     message: string
@@ -3991,7 +3991,7 @@ export type SyncFallbackStrategy =
 export interface MetadataQueueEvents extends EventMap {
   'job-added': {job: MetadataQueueJob}
   'job-started': {job: MetadataQueueJob}
-  'job-completed': {job: MetadataQueueJob; result: any}
+  'job-completed': {job: MetadataQueueJob; result: unknown}
   'job-failed': {job: MetadataQueueJob; error: Error}
   'job-cancelled': {job: MetadataQueueJob}
   'queue-paused': {reason: string}
