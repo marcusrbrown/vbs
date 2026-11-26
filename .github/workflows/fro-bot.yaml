@@ -603,6 +603,8 @@ jobs:
           github-token: ${{ secrets.FRO_BOT_PAT }}
           model: ${{ vars.FRO_BOT_MODEL }}
           isolate-agent: true
+          trace-endpoint: https://traces.fro.bot/marcusrbrown/v1/traces
+          trace-headers: 'Authorization: Bearer ${{ secrets.FRO_BOT_TRACE_TOKEN }}'
           # The daily pass must deliver fixes as PRs; under `working-dir` the
           # agent cannot push or open PRs, so its edits would be discarded.
           output-mode: >-
