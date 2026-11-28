@@ -1253,7 +1253,7 @@ export type RenameKeys<T, M extends Partial<Record<keyof T, string>>> = {
  * type Counter = FactoryReturnType<typeof createCounter>  // { count: number; increment: () => void }
  * ```
  */
-export type FactoryReturnType<T extends (...args: any[]) => any> = ReturnType<T>
+export type FactoryReturnType<T extends (...args: never[]) => unknown> = ReturnType<T>
 
 /**
  * Extract the parameters of a factory function.
@@ -1265,7 +1265,7 @@ export type FactoryReturnType<T extends (...args: any[]) => any> = ReturnType<T>
  * type RendererDeps = FactoryParameters<typeof createRenderer>  // [HTMLElement, ProgressTrackerInstance]
  * ```
  */
-export type FactoryParameters<T extends (...args: any[]) => any> = Parameters<T>
+export type FactoryParameters<T extends (...args: never[]) => unknown> = Parameters<T>
 
 /**
  * Generic constraint for factory functions that return an object with methods.
@@ -1292,7 +1292,7 @@ export type FactoryFunction<T = Record<string, any>> = (...args: any[]) => T
  * ```
  */
 export type FactoryUpdate<T> = Partial<{
-  [K in keyof T as T[K] extends (...args: any[]) => any ? never : K]: T[K]
+  [K in keyof T as T[K] extends (...args: never[]) => unknown ? never : K]: T[K]
 }>
 
 // ----------------------------------------------------------------------------
@@ -1309,7 +1309,7 @@ export type FactoryUpdate<T> = Partial<{
  * type TogglePayload = CallbackPayload<ToggleCallback>  // [string, boolean]
  * ```
  */
-export type CallbackPayload<T extends (...args: any[]) => any> = Parameters<T>
+export type CallbackPayload<T extends (...args: never[]) => unknown> = Parameters<T>
 
 /**
  * Create a type-safe callback collection for factory functions.
@@ -1323,7 +1323,7 @@ export type CallbackPayload<T extends (...args: any[]) => any> = Parameters<T>
  * }>
  * ```
  */
-export type CallbackCollection<T extends Record<string, (...args: any[]) => any>> = {
+export type CallbackCollection<T extends Record<string, (...args: never[]) => unknown>> = {
   [K in keyof T]: T[K][]
 }
 
@@ -1337,7 +1337,7 @@ export type CallbackCollection<T extends Record<string, (...args: any[]) => any>
  * type EventNames = CallbackKeys<Events>  // 'click' | 'change'
  * ```
  */
-export type CallbackKeys<T extends Record<string, (...args: any[]) => any>> = keyof T
+export type CallbackKeys<T extends Record<string, (...args: never[]) => unknown>> = keyof T
 
 // ----------------------------------------------------------------------------
 // Conditional and Utility Types
@@ -1353,7 +1353,7 @@ export type IsNever<T> = [T] extends [never] ? true : false
  * Check if a type is a function.
  * Useful for filtering object properties by type.
  */
-export type IsFunction<T> = T extends (...args: any[]) => any ? true : false
+export type IsFunction<T> = T extends (...args: never[]) => unknown ? true : false
 
 /**
  * Extract only function properties from a type.
@@ -1366,7 +1366,7 @@ export type IsFunction<T> = T extends (...args: any[]) => any ? true : false
  * ```
  */
 export type FunctionProperties<T> = {
-  [K in keyof T as T[K] extends (...args: any[]) => any ? K : never]: T[K]
+  [K in keyof T as T[K] extends (...args: never[]) => unknown ? K : never]: T[K]
 }
 
 /**
@@ -1380,7 +1380,7 @@ export type FunctionProperties<T> = {
  * ```
  */
 export type NonFunctionProperties<T> = {
-  [K in keyof T as T[K] extends (...args: any[]) => any ? never : K]: T[K]
+  [K in keyof T as T[K] extends (...args: never[]) => unknown ? never : K]: T[K]
 }
 
 /**
